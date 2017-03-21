@@ -23,23 +23,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import sys
 import argparse
 from argparse import RawTextHelpFormatter
 from gvm_connection import GVMConnection
 import code
 from lxml import etree
 
-help_text = """ 
+help_text = """
     gvm-pyshell 0.1.0 (C) 2017 Greenbone Networks GmbH
 
-    This program is a command line tool to access services via GMP(Greenbone Management Protocol)
-    and OSP(Open Scanner Protocol).
+    This program is a command line tool to access services
+    via GMP(Greenbone Management Protocol) and
+    OSP(Open Scanner Protocol).
     It is possible to start a shell like the python interactive
     mode where you could type things like "tasks = gmp.get_task".
 
     At the moment only these commands are support in the interactive shell:
-    
+
     gmp.get_version()
     gmp.authenticate([username], [password])
     gmp.get_tasks()
@@ -58,19 +58,20 @@ help_text = """
     Good introduction in working with XPath is well described here:
     https://www.w3schools.com/xml/xpath_syntax.asp
 
-    To get out of the shell enter: 
-        Ctrl + D on Linux  or 
+    To get out of the shell enter:
+        Ctrl + D on Linux  or
         Ctrl + Z on Windows
 
     Further Information about the GMP Protocol can you find here:
     http://docs.greenbone.net/API/OMP/omp-7.0.html
     """
 
-# Help class to overwrite the help function from python itself.
-
 
 class Help(object):
+    """Help class to overwrite the help function from python itself.
 
+    [description]
+    """
     def __repr__(self):
         # do pwd command
         return(help_text)
@@ -90,8 +91,9 @@ def main(argv):
 
     if args.interactive:
         # Start the interactive Shell
-        code.interact(banner='GVM Interactive Console. Type "help" to get informationen about functionality.', local=dict(
-            globals(), **locals()))
+        code.interact(
+            banner='GVM Interactive Console. Type "help" to get informationen about functionality.',
+            local=dict(globals(), **locals()))
 
     gmp.close()
 
@@ -99,7 +101,8 @@ def main(argv):
 def pretty(xml):
     """Prints beautiful XML-Code
 
-    This function gets an object of list<lxml.etree._Element> or directly a lxml element.
+    This function gets an object of list<lxml.etree._Element>
+    or directly a lxml element.
     Print it with good readable format.
 
     Arguments:
@@ -116,7 +119,7 @@ def load(path):
     """Loads a file into the interactive console
 
     Loads a file into the interactive console and execute it.
-    TODO: Needs some security checks. 
+    TODO: Needs some security checks.
 
     Arguments:
         path {str} -- Path of file
@@ -137,22 +140,27 @@ if __name__ == '__main__':
         add_help=False,
         usage='gvm-pyshell [--help] [--hostname HOSTNAME] [--port PORT] [--xml XML] [--interactive]')
 
-    parser.add_argument('-h', '--help', action='help',
-                        help='Show this help message and exit.')
-    parser.add_argument('--hostname', default='127.0.0.1',
-                        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
+    parser.add_argument(
+        '-h', '--help', action='help',
+        help='Show this help message and exit.')
+    parser.add_argument(
+        '--hostname', default='127.0.0.1',
+        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
     parser.add_argument('--port', default=22, help='SSH port. Default: 22.')
-    parser.add_argument('--ssh-user', default='gmp',
-                        help='SSH Username. Default: gmp.')
-    parser.add_argument('--gmp-username', default='admin',
-                        help='GMP username. Default: admin')
-    parser.add_argument('--gmp-password', nargs='?', const='admin',
-                        help='GMP password. Default: admin.')
+    parser.add_argument(
+        '--ssh-user', default='gmp',
+        help='SSH Username. Default: gmp.')
+    parser.add_argument(
+        '--gmp-username', default='admin',
+        help='GMP username. Default: admin')
+    parser.add_argument(
+        '--gmp-password', nargs='?', const='admin',
+        help='GMP password. Default: admin.')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-X', '--xml', help='Send a xml command.')
-    group.add_argument('-i', '--interactive', action='store_true',
-                       default=True, help='Start an interactive Python shell.')
-    #parser.add_argument('-I', '--input', help='Read a pre written gmp file. It will be executed after successful connection')
+    group.add_argument(
+        '-i', '--interactive', action='store_true', default=True,
+        help='Start an interactive Python shell.')
 
     args = parser.parse_args()
 

@@ -27,16 +27,11 @@ import argparse
 from argparse import RawTextHelpFormatter
 import configparser
 import os.path
-import socket
-import ssl
 import sys
-import time
 
-
-from gmp import _gmp
 from gvm_connection import GVMConnection
 
-help_text = """     
+help_text = """
     gvm-cli 0.1.0 (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services via
@@ -47,7 +42,7 @@ help_text = """
     gvm-cli --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
     gvm-cli < myfile.gmp
     Further Information about GMP see here:
-    http://docs.greenbone.net/API/OMP/omp-7.0.html
+    http://docs.greenbone.net/index.html#api_documentation
     Note: "GMP" was formerly known as "OMP".
     """
 
@@ -60,7 +55,7 @@ def main(argv):
     """
     xml = ''
 
-    if argv.xml != None:
+    if argv.xml is not None:
         xml = argv.xml
     else:
         # If this returns False, then some data are in sys.stdin
@@ -76,7 +71,7 @@ def main(argv):
     # Remove all newlines if the commands come from file
     xml = xml.replace('\n', '').replace('\r', '')
 
-    if argv.socket != None:
+    if argv.socket is not None:
         connection_with_unix_socket(xml, argv)
     elif argv.tls:
         connection_direct_over_tls(xml, argv)
@@ -123,29 +118,37 @@ if __name__ == '__main__':
         formatter_class=RawTextHelpFormatter,
         add_help=False,
         usage='gvm-cli [--help] [--hostname HOSTNAME] [--port PORT] [--xml XML]')
-    parser.add_argument('-h', '--help', action='help',
-                        help='Show this help message and exit.')
-    parser.add_argument('-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-                        help='Path to the configuration file. Default: ~/.config/gvm-tools.conf')
-    parser.add_argument('--hostname', default='127.0.0.1',
-                        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
-    parser.add_argument('--tls', action='store_true',
-                        help='Use TLS secured connection for omp service.')
+    parser.add_argument(
+        '-h', '--help', action='help',
+        help='Show this help message and exit.')
+    parser.add_argument(
+        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
+        help='Path to the configuration file. Default: ~/.config/gvm-tools.conf')
+    parser.add_argument(
+        '--hostname', default='127.0.0.1',
+        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
+    parser.add_argument(
+        '--tls', action='store_true',
+        help='Use TLS secured connection for omp service.')
     parser.add_argument('--port', default=22, help='SSH port. Default: 22.')
-    parser.add_argument('--ssh-user', default='gmp',
-                        help='SSH username. Default: gmp.')
-    parser.add_argument('--gmp-username', default='admin',
-                        help='GMP username. Default: admin')
-    parser.add_argument('--gmp-password', nargs='?', const='admin',
-                        help='GMP password. Default: admin.')
-    parser.add_argument('--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
-                        help='Path to UNIX-Socket. Default: /usr/local/var/run/openvasmd.sock.')
+    parser.add_argument(
+        '--ssh-user', default='gmp',
+        help='SSH username. Default: gmp.')
+    parser.add_argument(
+        '--gmp-username', default='admin',
+        help='GMP username. Default: admin')
+    parser.add_argument(
+        '--gmp-password', nargs='?', const='admin',
+        help='GMP password. Default: admin.')
+    parser.add_argument(
+        '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
+        help='Path to UNIX-Socket. Default: /usr/local/var/run/openvasmd.sock.')
     parser.add_argument('-X', '--xml', help='The XML request to send.')
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
 
     args = parser.parse_args()
 
-    if args.config != None:
+    if args.config is not None:
         try:
             config = configparser.ConfigParser()
             path = os.path.expanduser(args.config)
