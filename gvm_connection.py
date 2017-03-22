@@ -75,21 +75,6 @@ class GVMConnection:
     TLS = 1
     UNIX_SOCKET = 2
 
-    # Holds the socket
-    current_connection = None
-
-    # All startparameters and config arguments
-    argv = None
-
-    # GMP Message Creator
-    gmp_generator = _gmp()
-
-    # Shell_Mode
-    shell_mode = False
-
-    # Is authenticated on gvm
-    authenticated = False
-
     def __init__(self, connection_type, argv):
         """Initialize values
 
@@ -102,7 +87,21 @@ class GVMConnection:
             argv {object} -- Argument values from main program
         """
         # logging.debug(argv)
+
+        # Holds the socket
+        self.current_connection = None
+
+        # All startparameters and config arguments
         self.argv = argv
+
+        # GMP Message Creator
+        self.gmp_generator = _gmp()
+
+        # Shell_Mode
+        self.shell_mode = False
+
+        # Is authenticated on gvm
+        self.authenticated = False
 
         if 'gvm-pyshell' in sys.argv[0]:
             self.shell_mode = True
@@ -136,7 +135,7 @@ class GVMConnection:
             sys.exit('Error with unix socket connection: ' + str(ex))
 
     def send(self, cmd):
-        """Call the send(string) method of the choosed connection type.
+        """Call the send(string) method of the chosen connection type.
 
         Nothing more ;-)
 
@@ -152,7 +151,7 @@ class GVMConnection:
             sys.exit(ex)
 
     def read(self):
-        """Call the readAll() method of the choosed connection type.
+        """Call the readAll() method of the chosen connection type.
 
         Try to read all from the open socket connection.
         Check for status attribute in xml code.
@@ -188,7 +187,7 @@ class GVMConnection:
             logging.error('read() exception: ' + str(ex))
 
     def close(self):
-        """Call the close() method of the choosed connection type.
+        """Call the close() method of the chosen connection type.
 
         Nothing more, too ;-)
         """
@@ -278,26 +277,13 @@ class SSHConnection:
     [description]
 
     Variables:
-        ssh_hostname {str} -- SSH Hostname or IP-Address
-        ssh_port {number} -- SSH Port
-        ssh_username {str} -- SSH Username
-        ssh_password {str} -- SSH Password
-        ssh_timeout {number} -- SSH Timeout
         sock {[type]} -- Channel from paramiko after successful connection
         gmp_stdin {[type]} -- Channels standard input socket
         gmp_stdout {[type]} -- Channels standard output socket
     """
-    ssh_hostname = '127.0.0.1'
-    ssh_port = 22
-    ssh_username = 'gmp'
-    ssh_password = ''
-    ssh_timeout = 5
 
-    sock = None
-    gmp_stdin = None
-    gmp_stdout = None
-
-    def __init__(self, hostname, port, username, password, timeout):
+    def __init__(self, hostname='127.0.0.1', port=22, username='gmp',
+                 password='', timeout=5):
         self.sock = paramiko.SSHClient()
         # self.sock.set_missing_host_key_policy(paramiko.WarningPolicy())
         self.sock.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -364,7 +350,6 @@ class TLSConnection:
     Variables:
         sock {socket.socket} -- Socket that holds the connection
     """
-    sock = None
 
     def __init__(self, hostname='127.0.0.1', port=9390):
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -399,7 +384,6 @@ class UnixSocketConnection:
     Variables:
         sock {socket.socket} -- Socket that holds the connection
     """
-    sock = None
 
     def __init__(self, socket_path):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
