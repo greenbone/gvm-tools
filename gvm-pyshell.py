@@ -25,7 +25,7 @@
 
 import argparse
 from argparse import RawTextHelpFormatter
-from gvm_connection import GVMConnection
+from gvm_connection import SSHConnection, TLSConnection, UnixSocketConnection
 import code
 from lxml import etree
 
@@ -79,20 +79,31 @@ help = Help()
 
 # gmp has to be global, so the load-function has the correct namespace
 gmp = None
+# shell = None
 
 
 def main(argv):
-    hostname = argv.hostname
-    port = argv.port
-    ssh_username = argv.ssh_user
-
     global gmp
-    gmp = GVMConnection(GVMConnection.SSH, argv)
+    if argv.socket is not None:
+        gmp = UnixSocketConnection(sockpath=argv.socket, shell_mode=True)
+    elif argv.tls:
+        gmp = TLSConnection(hostname=argv.hostname, port=9390,
+                            shell_mode=True)
+    else:
+        gmp = SSHConnection(hostname=argv.hostname, port=argv.port,
+                            timeout=5, ssh_user=argv.ssh_user, ssh_password='',
+                            shell_mode=True)
 
     if args.interactive:
         # Start the interactive Shell
+        """vars = globals().copy()
+        vars.update(locals())
+        shell = code.InteractiveConsole(vars)
+        shell.runsource('load("bwi.gmp")')
+        shell.interact()"""
         code.interact(
-            banner='GVM Interactive Console. Type "help" to get informationen about functionality.',
+            banner='GVM Interactive Console. Type "help" to get informationen \
+about functionality.',
             local=dict(globals(), **locals()))
 
     gmp.close()
@@ -110,7 +121,10 @@ def pretty(xml):
     """
     if type(xml) is list:
         for item in xml:
-            print(etree.tostring(item, pretty_print=True).decode('utf-8'))
+            if etree.iselement(item):
+                print(etree.tostring(item, pretty_print=True).decode('utf-8'))
+            else:
+                print(item)
     elif etree.iselement(xml):
         print(etree.tostring(xml, pretty_print=True).decode('utf-8'))
 
@@ -138,7 +152,8 @@ if __name__ == '__main__':
         description=help_text,
         formatter_class=RawTextHelpFormatter,
         add_help=False,
-        usage='gvm-pyshell [--help] [--hostname HOSTNAME] [--port PORT] [--xml XML] [--interactive]')
+        usage='gvm-pyshell [--help] [--hostname HOSTNAME] [--port PORT] \
+[--xml XML] [--interactive]')
 
     parser.add_argument(
         '-h', '--help', action='help',
@@ -161,7 +176,12 @@ if __name__ == '__main__':
     group.add_argument(
         '-i', '--interactive', action='store_true', default=True,
         help='Start an interactive Python shell.')
-
+    parser.add_argument(
+        '--tls', action='store_true',
+        help='Use TLS secured connection for omp service.')
+    parser.add_argument(
+        '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
+        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
     args = parser.parse_args()
 
     main(args)

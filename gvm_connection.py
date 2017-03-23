@@ -23,10 +23,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import getpass
 import logging
 import paramiko
-import re
 import socket
 import ssl
 import sys
@@ -37,22 +35,14 @@ from io import StringIO
 
 from gmp import _gmp
 
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 logging.basicConfig(filename='gmp.log', level=logging.DEBUG)
 
-BUF_SIZE = 8096
+BUF_SIZE = 1024
 
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+class GMPError(Exception):
+    pass
 
 
 class GVMConnection:
@@ -62,80 +52,19 @@ class GVMConnection:
     UNIX-Socket or secured connection on port 9390.
 
     Variables:
-        SSH {number} -- Enum value for SSH connection.
-        TLS {number} -- Enum value for TLS connection.
-        UNIX_SOCKET {number} -- Enum value for UNIX-Socket connection.
-        current_connection {[type]} -- Holds the currently used connection.
-        argv {[type]} -- Arguments from main program
         gmp_generator {[type]} -- Instance of the gmp generator.
-        shell_mode {bool} -- Shell-Mode true or false.
         authenticated {bool} -- GMP-User authenticated.
     """
-    SSH = 0
-    TLS = 1
-    UNIX_SOCKET = 2
 
-    def __init__(self, connection_type, argv):
-        """Initialize values
-
-        First makes main prpgram arguments class readable for all methods.
-        Then deciding if program is in shell-mode or simple cli.
-        'connection_type' holds the number to start the right connection.
-
-        Arguments:
-            connection_type {number} -- Either SSH, TLS or UNIX_SOCKET
-            argv {object} -- Argument values from main program
-        """
-        # logging.debug(argv)
-
-        # Holds the socket
-        self.current_connection = None
-
-        # All startparameters and config arguments
-        self.argv = argv
-
+    def __init__(self):
         # GMP Message Creator
         self.gmp_generator = _gmp()
-
-        # Shell_Mode
-        self.shell_mode = False
 
         # Is authenticated on gvm
         self.authenticated = False
 
-        if 'gvm-pyshell' in sys.argv[0]:
-            self.shell_mode = True
-
-        if connection_type == self.SSH:
-            self.createSSHConnection()
-        elif connection_type == self.TLS:
-            self.createTLSConnection()
-        elif connection_type == self.UNIX_SOCKET:
-            self.createUnixSocketConnection()
-        else:
-            sys.exit('Connection type is not available.')
-
-    def createSSHConnection(self):
-        try:
-            self.current_connection = SSHConnection(
-                self.argv.hostname, self.argv.port, self.argv.ssh_user, '', 5)
-        except Exception as ex:
-            sys.exit('Something is wrong with ssh connection data: ' + str(ex))
-
-    def createTLSConnection(self):
-        try:
-            self.current_connection = TLSConnection(self.argv.hostname)
-        except (ssl.SSLError, socket.error) as ex:
-            sys.exit('Something is wrong with tls connection data: ' + str(ex))
-
-    def createUnixSocketConnection(self):
-        try:
-            self.current_connection = UnixSocketConnection(self.argv.socket)
-        except Exception as ex:
-            sys.exit('Error with unix socket connection: ' + str(ex))
-
     def send(self, cmd):
-        """Call the send(string) method of the chosen connection type.
+        """Call the sendAll(string) method of the chosen connection type.
 
         Nothing more ;-)
 
@@ -143,12 +72,13 @@ class GVMConnection:
             cmd {string} -- XML-Source
         """
         try:
-            cmd = re.sub('[\s+]', '', cmd)
-            logging.debug('send(): ' + cmd)
-            self.current_connection.send(cmd)
+            logger.debug('send(): ' + cmd)
+            self.sendAll(cmd)
             time.sleep(0.1)
-        except Exception as ex:
-            sys.exit(ex)
+        except paramiko.SSHException as e:
+            print(e)
+        except OSError as e:
+            logger.info(e)
 
     def read(self):
         """Call the readAll() method of the chosen connection type.
@@ -163,75 +93,27 @@ class GVMConnection:
         Returns:
             lxml.etree._Element or <string> -- Response from server.
         """
-        try:
-            result = self.current_connection.readAll()
-            logging.debug('read() result: ' + result)
+        response = self.readAll()
+        logger.debug('read() response: ' + str(response))
 
-            if result is None or len(str(result)) == 0:
-                sys.exit('Connection closed by server')
+        if response is None or len(str(response)) == 0:
+            raise OSError('Connection was closed by server')
 
-            status = self.checkCommandStatus(result)
+        self.checkCommandStatus(response)
 
-            if not status:
-                sys.exit("GMP Response status not ok")
-
-            if self.shell_mode:
-                logging.info('Shell mode activated')
-                f = StringIO(result)
-                tree = etree.parse(f)
-                return tree.getroot()
-            else:
-                return result
-        except Exception as ex:
-            # Empty exception is thrown if server close the connection.
-            logging.error('read() exception: ' + str(ex))
+        if hasattr(self, 'shell_mode') and self.shell_mode is True:
+            logger.info('Shell mode activated')
+            f = StringIO(response)
+            tree = etree.parse(f)
+            return tree.getroot()
+        else:
+            return response
 
     def close(self):
-        """Call the close() method of the chosen connection type.
-
-        Nothing more, too ;-)
-        """
         try:
-            self.current_connection.close()
-        except Exception as ex:
-            sys.exit(ex)
-
-    def authenticate(self, username='admin', password=None,
-                     withCommands=''):
-        """Authenticate on GVM.
-
-        Check if username and/or password for gvm is set.
-        If no password is set before it asks in a password prompt for it.
-        The generated authenticate command will be send to server.
-        After that a response is read from socket.
-
-        Keyword Arguments:
-            withCommands {str} -- XML commands (default: {''})
-
-        Returns:
-            None or <string> -- Response from server.
-        """
-        if not self.argv.gmp_username:
-            self.argv.gmp_username = username
-
-        if self.argv.gmp_password is None and password is not None:
-            self.argv.gmp_password = password
-        elif self.argv.gmp_password is None and password is None:
-            self.argv.gmp_password = getpass.getpass(
-                'Please enter password for '
-                + self.argv.gmp_username + ': ')
-
-        cmd = self.gmp_generator.createAuthenticateCommand(
-            username=self.argv.gmp_username, password=self.argv.gmp_password,
-            withCommands=str(withCommands))
-
-        self.send(cmd)
-
-        time.sleep(0.2)
-
-        result = self.read()
-
-        return result
+            self.sock.close()
+        except OSError as e:
+            logger.debug('Connection closing error: {0}'.format(e))
 
     def checkCommandStatus(self, xml):
         """Check gmp response
@@ -244,19 +126,45 @@ class GVMConnection:
         Returns:
             bool -- True if valid, otherwise False
         """
+
+        if xml is 0 or xml is None:
+            return False
+
         try:
-            root = etree.XML(xml)
+            parser = etree.XMLParser(encoding='utf-8', recover=True)
+            root = etree.XML(xml, parser=parser)
             status = root.attrib['status']
             status_text = root.attrib['status_text']
 
             if status != '200':
-                logging.info('An error occured on gvm: ' + status_text)
+                raise GMPError("GMP-Response failure: " + status_text)
+                logger.info('An error occured on gvm: ' + status_text)
                 return False
 
             return True
 
-        except Exception as ex:
-            logging.error('etree.XML(xml): ' + ex)
+        except etree.Error as e:
+            logger.error('etree.XML(xml): ' + str(e))
+
+    def authenticate(self, username='admin', password='admin', withCommand=''):
+        """Authenticate on GVM.
+
+        The generated authenticate command will be send to server.
+        After that a response is read from socket.
+
+        Keyword Arguments:
+            withCommands {str} -- XML commands (default: {''})
+
+        Returns:
+            None or <string> -- Response from server.
+        """
+        cmd = self.gmp_generator.createAuthenticateCommand(
+            username=username, password=password,
+            withCommands=str(withCommand))
+
+        self.send(cmd)
+
+        return self.read()
 
     def get_version(self):
         self.send('<get_version/>')
@@ -270,79 +178,81 @@ class GVMConnection:
         self.send('<get_port_lists/>')
         return self.read()
 
+    def get_results(self, filter=''):
+        self.send('<get_results filter="{0}"/>'.format(filter))
+        return self.read()
 
-class SSHConnection:
+    def get_reports(self, filter='', type=''):
+        self.send('<get_reports type="{0}" filter="{1}"/>'
+                  .format(type, filter))
+        return self.read()
+
+    def get_assets(self, filter=''):
+        self.send('<get_assets filter="{0}"/>'.format(filter))
+        return self.read()
+
+
+class SSHConnection(GVMConnection):
     """SSH Class to connect, read and write from GVM via SSH
 
     [description]
 
     Variables:
         sock {[type]} -- Channel from paramiko after successful connection
-        gmp_stdin {[type]} -- Channels standard input socket
-        gmp_stdout {[type]} -- Channels standard output socket
+
     """
 
-    def __init__(self, hostname='127.0.0.1', port=22, username='gmp',
-                 password='', timeout=5):
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.hostname = kwargs.get('hostname', '127.0.0.1')
+        self.port = kwargs.get('port', 22)
+        self.timeout = kwargs.get('timeout', 5)
+        self.ssh_user = kwargs.get('ssh_user', 'gmp')
+        self.ssh_password = kwargs.get('ssh_password', '')
+        self.shell_mode = kwargs.get('shell_mode', False)
         self.sock = paramiko.SSHClient()
         # self.sock.set_missing_host_key_policy(paramiko.WarningPolicy())
         self.sock.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         try:
             self.sock.connect(
-                hostname=hostname,
-                username=username,
-                password=password,
-                timeout=timeout,
-                port=int(port))
-            channel = self.sock.invoke_shell()
-
-            self.gmp_stdin = channel.makefile('wb')
-            self.gmp_stdout = channel.makefile('r')
+                hostname=self.hostname,
+                username=self.ssh_user,
+                password=self.ssh_password,
+                timeout=self.timeout,
+                port=int(self.port))
+            self.channel = self.sock.invoke_shell()
 
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
-                paramiko.SSHException, socket.error) as e:
+                paramiko.SSHException, OSError) as e:
             print('SSH Connection failed: ' + str(e))
             sys.exit(1)
 
-        time.sleep(0.5)
+        time.sleep(0.1)
         # Empty the socket with a read command.
         debug = self.readAll()
-        logging.debug(debug)
+        logger.debug(debug)
 
     def readAll(self):
-        length = len(self.gmp_stdout.channel.in_buffer)
-        result = self.gmp_stdout.read(length).decode()
-        # print(result)
-        # Split the result, because the request is in response too.
-        list = result.splitlines()
-        # print(list)
+        response = ''
+        while self.channel.recv_ready():
+            response += self.channel.recv(BUF_SIZE).decode()
+        logger.debug('read ssh response: ' + str(response))
+        # Split the response, because the request is in response too.
+        list = response.partition('\r\n')
         if len(list) > 1:
-            return list[1]
+            return list[2]
 
         return 0
 
-    def send(self, cmd):
-        try:
-            logging.debug('SSH:send(): ' + cmd)
-            self.gmp_stdin.write(str(cmd) + '\n')
-        except socket.error as e:
-            print('An error occured: ' + bcolors.FAIL + str(e) +
-                  bcolors.ENDC + '\nAddional information in the log files')
-            sys.exit(3)
-
-    def close(self):
-        """For the SSH Connection first close the stdin and stdout and then the channel
-        """
-        try:
-            self.gmp_stdout.close()
-            self.gmp_stdin.close()
-            self.sock.close()
-        except Exception as e:
-            print(str(e))
+    def sendAll(self, cmd):
+        logger.debug('SSH:send(): ' + cmd)
+        self.channel.sendall(str(cmd) + '\n')
+        time.sleep(0.5)
 
 
-class TLSConnection:
+class TLSConnection(GVMConnection):
     """TLS class to connect, read and write from GVM via tls secured socket
 
     [description]
@@ -351,31 +261,32 @@ class TLSConnection:
         sock {socket.socket} -- Socket that holds the connection
     """
 
-    def __init__(self, hostname='127.0.0.1', port=9390):
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.hostname = kwargs.get('hostname', '127.0.0.1')
+        self.port = kwargs.get('port', 9390)
+        self.shell_mode = kwargs.get('shell_mode', False)
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         context.check_hostname = False
         self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
-        self.sock.connect((hostname, port))
+        self.sock.connect((self.hostname, self.port))
 
-    def send(self, cmd):
+    def sendAll(self, cmd):
         self.sock.send(cmd.encode())
 
     def readAll(self):
-        message = ''
+        response = ''
         while True:
-            data = self.sock.recv(BUF_SIZE)
+            data = self.sock.read(BUF_SIZE)
 
-            message += data.decode()
+            response += data.decode(errors='ignore')
+            # print(len(data))
             if len(data) < BUF_SIZE:
                 break
-
-        return message
-
-    def close(self):
-        self.sock.close()
+        return response
 
 
-class UnixSocketConnection:
+class UnixSocketConnection(GVMConnection):
     """UNIX-Socket class to connect, read, write from GVM
     via direct communicating UNIX-Socket
 
@@ -383,25 +294,28 @@ class UnixSocketConnection:
 
     Variables:
         sock {socket.socket} -- Socket that holds the connection
+        sockpath {string} -- Path to UNIX-Socket
     """
 
-    def __init__(self, socket_path):
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.sockpath = kwargs.get('sockpath',
+                                   '/usr/local/var/run/openvasmd.sock')
+        self.shell_mode = kwargs.get('shell_mode', False)
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.sock.connect(socket_path)
+        self.sock.connect(self.sockpath)
 
     def readAll(self):
-        message = ''
+        response = ''
         while True:
             data = self.sock.recv(BUF_SIZE)
 
-            message += data.decode()
+            response += data.decode()
+            print(len(data))
             if len(data) < BUF_SIZE:
                 break
 
-        return message
+        return response
 
-    def send(self, cmd):
+    def sendAll(self, cmd):
         self.sock.send(cmd.encode())
-
-    def close(self):
-        self.sock.close()

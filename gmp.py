@@ -24,24 +24,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-
 class _gmp:
     """GMP - Greenbone Manager Protocol
-
     """
-
-    def __init__(self):
-        pass
 
     def createAuthenticateCommand(self, username='admin', password='admin',
                                   withCommands=''):
@@ -56,11 +41,4 @@ class _gmp:
             withCommands {str} -- Additional commands default: {''})
         """
 
-        return '''<commands>
-                    <authenticate>
-                        <credentials>
-                            <username>{0}</username>
-                            <password>{1}</password>
-                        </credentials>
-                    </authenticate>{2}
-                </commands>'''.format(username, password, withCommands)
+        return '<commands><authenticate><credentials><username>{0}</username><password>{1}</password></credentials></authenticate>{2}</commands>'''.format(username, password, withCommands)

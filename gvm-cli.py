@@ -26,10 +26,11 @@
 import argparse
 from argparse import RawTextHelpFormatter
 import configparser
+import getpass
 import os.path
 import sys
 
-from gvm_connection import GVMConnection
+from gvm_connection import SSHConnection, UnixSocketConnection, TLSConnection
 
 help_text = """
     gvm-cli 0.1.0 (C) 2017 Greenbone Networks GmbH
@@ -71,6 +72,10 @@ def main(argv):
     # Remove all newlines if the commands come from file
     xml = xml.replace('\n', '').replace('\r', '')
 
+    if argv.gmp_password is None:
+        argv.gmp_password = getpass.getpass('Please enter password for ' +
+                                            argv.gmp_username + ': ')
+
     if argv.socket is not None:
         connection_with_unix_socket(xml, argv)
     elif argv.tls:
@@ -82,8 +87,8 @@ def main(argv):
 
 
 def connection_with_unix_socket(xml, argv):
-    gvm = GVMConnection(GVMConnection.UNIX_SOCKET, argv)
-    gvm.authenticate()
+    gvm = UnixSocketConnection(sockpath=argv.socket)
+    gvm.authenticate(argv.gmp_username, argv.gmp_password)
     gvm.send(xml)
 
     result = gvm.read()
@@ -92,8 +97,8 @@ def connection_with_unix_socket(xml, argv):
 
 
 def connection_direct_over_tls(xml, argv):
-    gvm = GVMConnection(GVMConnection.TLS, argv)
-    gvm.authenticate()
+    gvm = TLSConnection(hostname=argv.hostname, port=9390)
+    gvm.authenticate(argv.gmp_username, argv.gmp_password)
     gvm.send(xml)
 
     result = gvm.read()
@@ -102,8 +107,9 @@ def connection_direct_over_tls(xml, argv):
 
 
 def connection_over_ssh(xml, argv):
-    gvm = GVMConnection(GVMConnection.SSH, argv)
-    gvm.authenticate()
+    gvm = SSHConnection(hostname=argv.hostname, port=argv.port,
+                        timeout=5, ssh_user=argv.ssh_user, ssh_password='')
+    gvm.authenticate(argv.gmp_username, argv.gmp_password)
     gvm.send(xml)
 
     result = gvm.read()
@@ -117,13 +123,14 @@ if __name__ == '__main__':
         description=help_text,
         formatter_class=RawTextHelpFormatter,
         add_help=False,
-        usage='gvm-cli [--help] [--hostname HOSTNAME] [--port PORT] [--xml XML]')
+        usage='gvm-cli [--help] [--hostname HOSTNAME] [--port PORT]\
+ [--xml XML]')
     parser.add_argument(
         '-h', '--help', action='help',
         help='Show this help message and exit.')
     parser.add_argument(
         '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Path to the configuration file. Default: ~/.config/gvm-tools.conf')
+        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
     parser.add_argument(
         '--hostname', default='127.0.0.1',
         help='SSH hostname or IP-Address. Default: 127.0.0.1.')
@@ -142,7 +149,7 @@ if __name__ == '__main__':
         help='GMP password. Default: admin.')
     parser.add_argument(
         '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
-        help='Path to UNIX-Socket. Default: /usr/local/var/run/openvasmd.sock.')
+        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
     parser.add_argument('-X', '--xml', help='The XML request to send.')
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
 
