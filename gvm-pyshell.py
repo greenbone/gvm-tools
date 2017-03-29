@@ -24,6 +24,7 @@
 import argparse
 from argparse import RawTextHelpFormatter
 import code
+import getpass
 from lxml import etree
 from gvm_connection import SSHConnection, TLSConnection, UnixSocketConnection
 
@@ -95,6 +96,12 @@ def main(argv):
                             timeout=5, ssh_user=argv.ssh_user, ssh_password='',
                             shell_mode=True)
 
+    if argv.gmp_password is None:
+        argv.gmp_password = getpass.getpass('Please enter password for ' +
+                                            argv.gmp_username + ': ')
+
+    gmp.authenticate(argv.gmp_username, argv.gmp_password)
+
     if argv.script is not None:
         load(argv.script[0])
 
@@ -152,7 +159,7 @@ def load(path):
         file = open(path, 'r', newline='').read()
         exec(file, dict(globals(), **locals()))
         globals().update(locals())
-    except Exception as e:
+    except OSError as e:
         print(str(e))
 
 if __name__ == '__main__':

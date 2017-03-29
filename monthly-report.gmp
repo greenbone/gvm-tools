@@ -1,6 +1,5 @@
 import calendar
 
-gmp.authenticate('superman', 'superman')
 month = args.script[1]
 year = args.script[2]
 
@@ -12,7 +11,7 @@ high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
 medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
 low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
 
-print("Summary of results from 01.{3}.{4} to {5}.{3}.{4}\n\High: {0}\nMedium: {1}\nLow: {2}\n\n"
+print("Summary of results from 01.{3}.{4} to {5}.{3}.{4}\nHigh: {0}\nMedium: {1}\nLow: {2}\n\n"
       .format(int(high), int(medium), int(low), month, year, last_day))
 
 report_list = reports_xml.xpath('report/report')

@@ -50,7 +50,7 @@ class GVMConnection:
     UNIX-Socket or secured connection on port 9390.
 
     Variables:
-        gmp_generator {[type]} -- Instance of the gmp generator.
+        gmp_generator {object} -- Instance of the gmp generator.
         authenticated {bool} -- GMP-User authenticated.
     """
 
@@ -62,7 +62,7 @@ class GVMConnection:
         self.authenticated = False
 
     def send(self, cmd):
-        """Call the sendAll(string) method of the chosen connection type.
+        """Call the sendAll(string) method.
 
         Nothing more ;-)
 
@@ -148,13 +148,19 @@ class GVMConnection:
             logger.error('etree.XML(xml): ' + str(e))
 
     def argumentsToString(self, kwargs):
+        """Convert arguments
+
+        Converts dictionaries into gmp arguments string
+
+        Arguments:
+            kwargs {dict} -- Arguments
+
+        Returns:
+            string -- Arguments as string
+        """
         msg = ''
         for key, value in kwargs.items():
-            try:
-                int(value)
-                msg += str(key) + '="' + str(value) + '" '
-            except ValueError:
-                msg += str(key) + '="' + str(value) + '" '
+            msg += str(key) + '="' + str(value) + '" '
 
         return msg
 
@@ -165,6 +171,8 @@ class GVMConnection:
         After that a response is read from socket.
 
         Keyword Arguments:
+            username {str} -- Username (default: {'admin'})
+            password {str} -- Password (default: {'admin'})
             withCommands {str} -- XML commands (default: {''})
 
         Returns:
@@ -293,7 +301,6 @@ class TLSConnection(GVMConnection):
             data = self.sock.read(BUF_SIZE)
 
             response += data.decode(errors='ignore')
-            # print(len(data))
             if len(data) < BUF_SIZE:
                 break
         return response
