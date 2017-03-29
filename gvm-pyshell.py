@@ -102,7 +102,7 @@ def main(argv):
 
     gmp.authenticate(argv.gmp_username, argv.gmp_password)
 
-    if argv.script is not None:
+    if argv.script is not None and len(argv.script) > 0:
         load(argv.script[0])
 
     if args.interactive:

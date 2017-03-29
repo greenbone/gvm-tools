@@ -95,7 +95,7 @@ class GVMConnection:
         logger.debug('read() response: ' + str(response))
 
         if response is None or len(str(response)) == 0:
-            raise OSError('Connection was closed by server')
+            raise OSError('Connection was closed by remote server')
 
         self.checkCommandStatus(response)
 
@@ -131,14 +131,22 @@ class GVMConnection:
         try:
             parser = etree.XMLParser(encoding='utf-8', recover=True)
             if(etree.iselement(xml)):
-                root = etree.ElementTree(xml).getroot()
+                root = etree.ElementTree(xml, parser=parser).getroot()
             else:
                 root = etree.XML(xml, parser=parser)
             status = root.attrib['status']
             status_text = root.attrib['status_text']
 
+            if not self.authenticated:
+                auth = root.find('authenticate_response')
+                if auth is not None:
+                    status = auth.attrib['status']
+                    status_text = auth.attrib['status_text']
+                    if status != '400':
+                        self.authenticated = True
+
             if status != '200':
-                raise GMPError("GMP-Response failure: " + status_text)
+                raise GMPError(status_text)
                 logger.info('An error occured on gvm: ' + status_text)
                 return False
 
@@ -183,9 +191,7 @@ class GVMConnection:
             withCommands=str(withCommand))
 
         self.send(cmd)
-
-        if self.checkCommandStatus(self.read()):
-            self.authenticated = True
+        self.read()
 
     def get_version(self):
         self.send('<get_version/>')
