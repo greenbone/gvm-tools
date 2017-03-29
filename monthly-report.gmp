@@ -6,25 +6,24 @@ year = args.script[2]
 
 last_day = calendar.monthrange(int(year), int(month))[1]
 
-reports = gmp.get_reports(report_filter="rows=-1 and created>{0}-{1}-01 and created<{0}-{1}-{2}".format(year, month, last_day))
+reports_xml = gmp.get_reports(report_filter="rows=-1 and created>{0}-{1}-01 and created<{0}-{1}-{2}".format(year, month, last_day))
 
-high = reports.xpath('sum(report/report/result_count/hole/full/text())')
-
-medium = reports.xpath('sum(report/report/result_count/warning/full/text())')
-
-low = reports.xpath('sum(report/report/result_count/info/full/text())')
+high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
+medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
+low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
 
 print("Summary of results from 01.{3}.{4} to {5}.{3}.{4}\n\High: {0}\nMedium: {1}\nLow: {2}\n\n"
-      .format(int(high), int(medium), int(low), month, year,last_day))
+      .format(int(high), int(medium), int(low), month, year, last_day))
 
-report_list = reports.xpath('report/report')
-for element in report_list:
-    print('Report: {0}\nDate: {1}'.format(element.xpath('@id')[0], element.xpath('timestamp/text()')[0]))
+report_list = reports_xml.xpath('report/report')
+for report in report_list:
+    print('Report: {0}\nDate: {1}'.format(report.xpath('@id')[0], report.xpath('timestamp/text()')[0]))
+    # Retrieve the ips and hostnames if available
     ip_hostnames = dict()
-    for ip in element.xpath('host/ip/text()'):
-        res = gmp.get_reports(type='assets', host=ip, overrides="true")
+    for ip in report.xpath('host/ip/text()'):
+        asset = gmp.get_reports(type='assets', host=ip, overrides="true")
         if ip not in ip_hostnames:
-            name = res.xpath('report/report/host/detail/name[text()="DNS-via-WMI-DNS"]/../value/text()')
+            name = asset.xpath('report/report/host/detail/name[text()="DNS-via-WMI-DNS"]/../value/text()')
             if len(name) > 0:
                 ip_hostnames[ip] = str(name[0])
             else:
@@ -34,8 +33,8 @@ for element in report_list:
     for key, value in ip_hostnames.items():
         hostname += '\n\t{0} ({1})\n'.format(key, value)
 
-    high = element.xpath('sum(result_count/hole/full/text())')
-    medium = element.xpath('sum(result_count/warning/full/text())')
-    low = element.xpath('sum(result_count/info/full/text())')
+    high = report.xpath('sum(result_count/hole/full/text())')
+    medium = report.xpath('sum(result_count/warning/full/text())')
+    low = report.xpath('sum(result_count/info/full/text())')
 
     print('Hosts: {0}\nHigh: {1}\nMedium: {2}\nLow: {3}\n'.format(hostname, int(high), int(medium), int(low)))
