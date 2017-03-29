@@ -43,6 +43,9 @@ help_text = """
     gmp.get_version()
     gmp.authenticate([username], [password])
     gmp.get_tasks()
+    gmp.get_reports()
+    gmp.get_results()
+    gmp.get_assets()
     gmp.get_port_lists()
 
     Example:
@@ -63,7 +66,8 @@ help_text = """
         Ctrl + Z on Windows
 
     Further Information about the GMP Protocol can you find here:
-    http://docs.greenbone.net/API/OMP/omp-7.0.html
+    http://docs.greenbone.net/index.html#api_documentation
+    Note: "GMP" was formerly known as "OMP".
     """
 
 
