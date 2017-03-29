@@ -17,7 +17,7 @@ low = reports.xpath('sum(report/report/result_count/info/full/text())')
 print("Summary of results from 01.{3}.{4} to {5}.{3}.{4}\n\High: {0}\nMedium: {1}\nLow: {2}\n\n"
       .format(int(high), int(medium), int(low), month, year,last_day))
 
-report_list = reports.xpath('report/report')        
+report_list = reports.xpath('report/report')
 for element in report_list:
     print('Report: {0}\nDate: {1}'.format(element.xpath('@id')[0], element.xpath('timestamp/text()')[0]))
     ip_hostnames = dict()
@@ -29,9 +29,9 @@ for element in report_list:
                 ip_hostnames[ip] = str(name[0])
             else:
                 ip_hostnames[ip] = ""
-    
+
     hostname = ''
-    for key, value in ip_hostnames.items():                
+    for key, value in ip_hostnames.items():
         hostname += '\n\t{0} ({1})\n'.format(key, value)
 
     high = element.xpath('sum(result_count/hole/full/text())')
