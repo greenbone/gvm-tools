@@ -337,7 +337,6 @@ class UnixSocketConnection(GVMConnection):
             data = self.sock.recv(BUF_SIZE)
 
             response += data.decode()
-            print(len(data))
             if len(data) < BUF_SIZE:
                 break
 
