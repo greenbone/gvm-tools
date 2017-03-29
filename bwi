@@ -1,5 +1,0 @@
-gmp.authenticate('superman', 'superman')
-results = gmp.get_reports('created>2017-01-17', type='assets')
-
-pretty(results.xpath('report/report/host/ip'))
-
