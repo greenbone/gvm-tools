@@ -25,9 +25,9 @@
 
 import argparse
 from argparse import RawTextHelpFormatter
-from gvm_connection import SSHConnection, TLSConnection, UnixSocketConnection
 import code
 from lxml import etree
+from gvm_connection import SSHConnection, TLSConnection, UnixSocketConnection
 
 help_text = """
     gvm-pyshell 0.1.0 (C) 2017 Greenbone Networks GmbH
@@ -69,9 +69,8 @@ help_text = """
 
 class Help(object):
     """Help class to overwrite the help function from python itself.
-
-    [description]
     """
+
     def __repr__(self):
         # do pwd command
         return(help_text)
@@ -94,13 +93,22 @@ def main(argv):
                             timeout=5, ssh_user=argv.ssh_user, ssh_password='',
                             shell_mode=True)
 
+    if argv.script is not None:
+        load(argv.script[0])
+
     if args.interactive:
-        # Start the interactive Shell
+        # Try to get the scope of the script into shell
         """vars = globals().copy()
         vars.update(locals())
         shell = code.InteractiveConsole(vars)
-        shell.runsource('load("bwi.gmp")')
-        shell.interact()"""
+
+        if argv.script is not None:
+            shell.runsource('load("{0}")'.format(argv.script))
+        shell.raw_input()
+        shell.interact(banner='GVM Interactive Console. Type "help" to get\
+         informationen about functionality.')
+        """
+        # Start the interactive Shell
         code.interact(
             banner='GVM Interactive Console. Type "help" to get informationen \
 about functionality.',
@@ -140,10 +148,10 @@ def load(path):
     """
     try:
         file = open(path, 'r', newline='').read()
-        exec(file)
+        exec(file, dict(globals(), **locals()))
+        globals().update(locals())
     except Exception as e:
         print(str(e))
-
 
 if __name__ == '__main__':
 
@@ -171,14 +179,15 @@ if __name__ == '__main__':
     parser.add_argument(
         '--gmp-password', nargs='?', const='admin',
         help='GMP password. Default: admin.')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-X', '--xml', help='Send a xml command.')
-    group.add_argument(
-        '-i', '--interactive', action='store_true', default=True,
+    parser.add_argument(
+        '-i', '--interactive', action='store_true', default=False,
         help='Start an interactive Python shell.')
     parser.add_argument(
         '--tls', action='store_true',
         help='Use TLS secured connection for omp service.')
+    parser.add_argument(
+        'script', nargs='*',
+        help='Preload gmp script. Example: myscript.gmp.')
     parser.add_argument(
         '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')

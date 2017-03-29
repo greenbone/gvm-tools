@@ -132,7 +132,10 @@ class GVMConnection:
 
         try:
             parser = etree.XMLParser(encoding='utf-8', recover=True)
-            root = etree.XML(xml, parser=parser)
+            if(etree.iselement(xml)):
+                root = etree.ElementTree(xml).getroot()
+            else:
+                root = etree.XML(xml, parser=parser)
             status = root.attrib['status']
             status_text = root.attrib['status_text']
 
@@ -145,6 +148,17 @@ class GVMConnection:
 
         except etree.Error as e:
             logger.error('etree.XML(xml): ' + str(e))
+
+    def argumentsToString(self, kwargs):
+        msg = ''
+        for key, value in kwargs.items():
+            try:
+                int(value)
+                msg += str(key) + '="' + str(value) + '" '
+            except ValueError:
+                msg += str(key) + '="' + str(value) + '" '
+
+        return msg
 
     def authenticate(self, username='admin', password='admin', withCommand=''):
         """Authenticate on GVM.
@@ -164,31 +178,32 @@ class GVMConnection:
 
         self.send(cmd)
 
-        return self.read()
+        if self.checkCommandStatus(self.read()):
+            self.authenticated = True
 
     def get_version(self):
         self.send('<get_version/>')
         return self.read()
 
-    def get_tasks(self):
-        self.send('<get_tasks/>')
+    def get_tasks(self, **kwargs):
+        self.send('<get_tasks {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_port_lists(self):
         self.send('<get_port_lists/>')
         return self.read()
 
-    def get_results(self, filter=''):
-        self.send('<get_results filter="{0}"/>'.format(filter))
+    def get_results(self, **kwargs):
+        self.send('<get_results {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def get_reports(self, filter='', type=''):
-        self.send('<get_reports type="{0}" filter="{1}"/>'
-                  .format(type, filter))
+    def get_reports(self, **kwargs):
+        self.send('<get_reports {0}/>'
+                  .format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def get_assets(self, filter=''):
-        self.send('<get_assets filter="{0}"/>'.format(filter))
+    def get_assets(self, **kwargs):
+        self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
 

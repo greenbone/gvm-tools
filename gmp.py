@@ -41,4 +41,6 @@ class _gmp:
             withCommands {str} -- Additional commands default: {''})
         """
 
-        return '<commands><authenticate><credentials><username>{0}</username><password>{1}</password></credentials></authenticate>{2}</commands>'''.format(username, password, withCommands)
+        return '<commands><authenticate><credentials><username>{0}</username>\
+<password>{1}</password></credentials></authenticate>{2}</commands>'.format(
+            username, password, withCommands)
