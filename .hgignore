@@ -1,5 +1,3 @@
 __pycache__
 gmp.log
-gvm-cli_test.py
-gvm_unittest.py
-
+GVM_Connection.egg-info

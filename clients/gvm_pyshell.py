@@ -26,7 +26,7 @@ from argparse import RawTextHelpFormatter
 import code
 import getpass
 from lxml import etree
-from gvm_connection import SSHConnection, TLSConnection, UnixSocketConnection
+from libs.gvm_connection import SSHConnection, TLSConnection, UnixSocketConnection
 
 help_text = """
     gvm-pyshell 0.1.0 (C) 2017 Greenbone Networks GmbH
@@ -84,7 +84,46 @@ gmp = None
 # shell = None
 
 
-def main(argv):
+def main():
+
+    parser = argparse.ArgumentParser(
+        prog='gvm-pyshell',
+        description=help_text,
+        formatter_class=RawTextHelpFormatter,
+        add_help=False,
+        usage='gvm-pyshell [--help] [--hostname HOSTNAME] [--port PORT] \
+[--xml XML] [--interactive]')
+
+    parser.add_argument(
+        '-h', '--help', action='help',
+        help='Show this help message and exit.')
+    parser.add_argument(
+        '--hostname', default='127.0.0.1',
+        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
+    parser.add_argument('--port', default=22, help='SSH port. Default: 22.')
+    parser.add_argument(
+        '--ssh-user', default='gmp',
+        help='SSH Username. Default: gmp.')
+    parser.add_argument(
+        '--gmp-username', default='admin',
+        help='GMP username. Default: admin')
+    parser.add_argument(
+        '--gmp-password', nargs='?', const='admin',
+        help='GMP password. Default: admin.')
+    parser.add_argument(
+        '-i', '--interactive', action='store_true', default=False,
+        help='Start an interactive Python shell.')
+    parser.add_argument(
+        '--tls', action='store_true',
+        help='Use TLS secured connection for omp service.')
+    parser.add_argument(
+        'script', nargs='*',
+        help='Preload gmp script. Example: myscript.gmp.')
+    parser.add_argument(
+        '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
+        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
+    argv = parser.parse_args()
+
     global gmp
     if argv.socket is not None:
         gmp = UnixSocketConnection(sockpath=argv.socket, shell_mode=True)
@@ -105,7 +144,7 @@ def main(argv):
     if argv.script is not None and len(argv.script) > 0:
         load(argv.script[0])
 
-    if args.interactive:
+    if argv.interactive:
         # Try to get the scope of the script into shell
         """vars = globals().copy()
         vars.update(locals())
@@ -163,43 +202,4 @@ def load(path):
         print(str(e))
 
 if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser(
-        prog='gvm-pyshell',
-        description=help_text,
-        formatter_class=RawTextHelpFormatter,
-        add_help=False,
-        usage='gvm-pyshell [--help] [--hostname HOSTNAME] [--port PORT] \
-[--xml XML] [--interactive]')
-
-    parser.add_argument(
-        '-h', '--help', action='help',
-        help='Show this help message and exit.')
-    parser.add_argument(
-        '--hostname', default='127.0.0.1',
-        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
-    parser.add_argument('--port', default=22, help='SSH port. Default: 22.')
-    parser.add_argument(
-        '--ssh-user', default='gmp',
-        help='SSH Username. Default: gmp.')
-    parser.add_argument(
-        '--gmp-username', default='admin',
-        help='GMP username. Default: admin')
-    parser.add_argument(
-        '--gmp-password', nargs='?', const='admin',
-        help='GMP password. Default: admin.')
-    parser.add_argument(
-        '-i', '--interactive', action='store_true', default=False,
-        help='Start an interactive Python shell.')
-    parser.add_argument(
-        '--tls', action='store_true',
-        help='Use TLS secured connection for omp service.')
-    parser.add_argument(
-        'script', nargs='*',
-        help='Preload gmp script. Example: myscript.gmp.')
-    parser.add_argument(
-        '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
-    args = parser.parse_args()
-
-    main(args)
+    main()

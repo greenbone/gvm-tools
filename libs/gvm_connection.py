@@ -31,10 +31,9 @@ import time
 from lxml import etree
 from io import StringIO
 
-from gmp import _gmp
+from libs.gmp import _gmp
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='gmp.log', level=logging.DEBUG)
 
 BUF_SIZE = 1024
 
