@@ -14,7 +14,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-name='GVM-Connection',
+    name='GVMTools',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -33,7 +33,7 @@ name='GVM-Connection',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['clients', 'libs'],
+    packages=find_packages(),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -52,6 +52,7 @@ name='GVM-Connection',
         'console_scripts': [
             'gvm-pyshell=clients.gvm_pyshell:main',
             'gvm-cli=clients.gvm_cli:main',
+            'gvm-dialog=clients.gvm_dialog:main',
         ],
     },
 )

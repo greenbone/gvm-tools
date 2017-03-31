@@ -104,12 +104,8 @@ def main():
     parser.add_argument(
         '--ssh-user', default='gmp',
         help='SSH Username. Default: gmp.')
-    parser.add_argument(
-        '--gmp-username', default='admin',
-        help='GMP username. Default: admin')
-    parser.add_argument(
-        '--gmp-password', nargs='?', const='admin',
-        help='GMP password. Default: admin.')
+    parser.add_argument('--gmp-username', help='GMP username.')
+    parser.add_argument('--gmp-password', help='GMP password.')
     parser.add_argument(
         '-i', '--interactive', action='store_true', default=False,
         help='Start an interactive Python shell.')
@@ -122,36 +118,39 @@ def main():
     parser.add_argument(
         '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
-    argv = parser.parse_args()
+    global args
+    args = parser.parse_args()
 
     global gmp
-    if argv.socket is not None:
-        gmp = UnixSocketConnection(sockpath=argv.socket, shell_mode=True)
-    elif argv.tls:
-        gmp = TLSConnection(hostname=argv.hostname, port=9390,
+    if args.socket is not None:
+        gmp = UnixSocketConnection(sockpath=args.socket, shell_mode=True)
+    elif args.tls:
+        gmp = TLSConnection(hostname=args.hostname, port=9390,
                             shell_mode=True)
     else:
-        gmp = SSHConnection(hostname=argv.hostname, port=argv.port,
-                            timeout=5, ssh_user=argv.ssh_user, ssh_password='',
+        gmp = SSHConnection(hostname=args.hostname, port=args.port,
+                            timeout=5, ssh_user=args.ssh_user, ssh_password='',
                             shell_mode=True)
 
-    if argv.gmp_password is None:
-        argv.gmp_password = getpass.getpass('Please enter password for ' +
-                                            argv.gmp_username + ': ')
+    if args.gmp_username is None:
+        args.gmp_username = input('Enter username: ')
+    if args.gmp_password is None:
+        args.gmp_password = getpass.getpass('Enter password for ' +
+                                            args.gmp_username + ': ')
 
-    gmp.authenticate(argv.gmp_username, argv.gmp_password)
+    gmp.authenticate(args.gmp_username, args.gmp_password)
 
-    if argv.script is not None and len(argv.script) > 0:
-        load(argv.script[0])
+    if args.script is not None and len(args.script) > 0:
+        load(args.script[0])
 
-    if argv.interactive:
+    if args.interactive:
         # Try to get the scope of the script into shell
         """vars = globals().copy()
         vars.update(locals())
         shell = code.InteractiveConsole(vars)
 
-        if argv.script is not None:
-            shell.runsource('load("{0}")'.format(argv.script))
+        if args.script is not None:
+            shell.runsource('load("{0}")'.format(args.script))
         shell.raw_input()
         shell.interact(banner='GVM Interactive Console. Type "help" to get\
          informationen about functionality.')

@@ -47,10 +47,10 @@ help_text = """
 
 
 def main():    
-    """ssh_credentials = {'ssh_hostname': argv.hostname,
-                       'ssh_port': argv.port, 'ssh_user': argv.ssh_user}
-    gvm_credentials = {'gmp_username': argv.gmp_username,
-                       'gmp_password': argv.gmp_password}
+    """ssh_credentials = {'ssh_hostname': args.hostname,
+                       'ssh_port': args.port, 'ssh_user': args.ssh_user}
+    gvm_credentials = {'gmp_username': args.gmp_username,
+                       'gmp_password': args.gmp_password}
     """
 
     parser = argparse.ArgumentParser(
@@ -88,31 +88,31 @@ def main():
     parser.add_argument('-X', '--xml', help='The XML request to send.')
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
 
-    argv = parser.parse_args()
+    args = parser.parse_args()
 
-    if argv.config is not None:
+    if args.config is not None:
         try:
             config = configparser.ConfigParser()
-            path = os.path.expanduser(argv.config)
+            path = os.path.expanduser(args.config)
 
             config.read(path)
             auth = config['Auth']
 
-            argv.gmp_username = auth.get('gmp-username', 'admin')
-            argv.gmp_password = auth.get('gmp-password', 'admin')
+            args.gmp_username = auth.get('gmp-username', 'admin')
+            args.gmp_password = auth.get('gmp-password', 'admin')
         except Exception as message:
             print(message)
 
 
     xml = ''
 
-    if argv.xml is not None:
-        xml = argv.xml
+    if args.xml is not None:
+        xml = args.xml
     else:
         # If this returns False, then some data are in sys.stdin
-        if not argv.infile.isatty():
+        if not args.infile.isatty():
             try:
-                xml = argv.infile.read()
+                xml = args.infile.read()
             except (EOFError, BlockingIOError) as e:
                 print(e)
 
@@ -122,23 +122,23 @@ def main():
     # Remove all newlines if the commands come from file
     xml = xml.replace('\n', '').replace('\r', '')
 
-    if argv.gmp_password is None:
-        argv.gmp_password = getpass.getpass('Please enter password for ' +
-                                            argv.gmp_username + ': ')
+    if args.gmp_password is None:
+        args.gmp_password = getpass.getpass('Please enter password for ' +
+                                            args.gmp_username + ': ')
 
-    if argv.socket is not None:
-        connection_with_unix_socket(xml, argv)
-    elif argv.tls:
-        connection_direct_over_tls(xml, argv)
+    if args.socket is not None:
+        connection_with_unix_socket(xml, args)
+    elif args.tls:
+        connection_direct_over_tls(xml, args)
     else:
-        connection_over_ssh(xml, argv)
+        connection_over_ssh(xml, args)
 
     sys.exit(0)
 
 
-def connection_with_unix_socket(xml, argv):
-    gvm = UnixSocketConnection(sockpath=argv.socket)
-    gvm.authenticate(argv.gmp_username, argv.gmp_password)
+def connection_with_unix_socket(xml, args):
+    gvm = UnixSocketConnection(sockpath=args.socket)
+    gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 
     result = gvm.read()
@@ -146,9 +146,9 @@ def connection_with_unix_socket(xml, argv):
     gvm.close()
 
 
-def connection_direct_over_tls(xml, argv):
-    gvm = TLSConnection(hostname=argv.hostname, port=9390)
-    gvm.authenticate(argv.gmp_username, argv.gmp_password)
+def connection_direct_over_tls(xml, args):
+    gvm = TLSConnection(hostname=args.hostname, port=9390)
+    gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 
     result = gvm.read()
@@ -156,10 +156,10 @@ def connection_direct_over_tls(xml, argv):
     gvm.close()
 
 
-def connection_over_ssh(xml, argv):
-    gvm = SSHConnection(hostname=argv.hostname, port=argv.port,
-                        timeout=5, ssh_user=argv.ssh_user, ssh_password='')
-    gvm.authenticate(argv.gmp_username, argv.gmp_password)
+def connection_over_ssh(xml, args):
+    gvm = SSHConnection(hostname=args.hostname, port=args.port,
+                        timeout=5, ssh_user=args.ssh_user, ssh_password='')
+    gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 
     result = gvm.read()

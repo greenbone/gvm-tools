@@ -1,3 +1,4 @@
 __pycache__
 gmp.log
-GVM_Connection.egg-info
+GVM*
+dist
