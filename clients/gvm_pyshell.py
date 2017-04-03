@@ -133,7 +133,10 @@ def main():
                             shell_mode=True)
 
     if args.gmp_username is None:
-        args.gmp_username = input('Enter username: ')
+        while True:
+            args.gmp_username = input('Enter username: ')
+            if len(args.gmp_username) is not 0:
+                break
     if args.gmp_password is None:
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
