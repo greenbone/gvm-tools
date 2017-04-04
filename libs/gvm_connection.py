@@ -146,7 +146,7 @@ class GVMConnection:
 
             if status != '200':
                 raise GMPError(status_text)
-                logger.info('An error occured on gvm: ' + status_text)
+                logger.info('An error occurred on gvm: ' + status_text)
                 return False
 
             return True

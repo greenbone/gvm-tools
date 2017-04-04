@@ -64,7 +64,7 @@ help_text = """
         Ctrl + D on Linux  or
         Ctrl + Z on Windows
 
-    Further Information about the GMP Protocol can you find here:
+    Further Information about the GMP Protocol can be found at:
     http://docs.greenbone.net/index.html#api_documentation
     Note: "GMP" was formerly known as "OMP".
     """
@@ -160,7 +160,7 @@ def main():
         """
         # Start the interactive Shell
         code.interact(
-            banner='GVM Interactive Console. Type "help" to get informationen \
+            banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
             local=dict(globals(), **locals()))
 
