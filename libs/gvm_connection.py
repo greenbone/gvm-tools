@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Description:
-# GVM-Connection classes for communication with the GSM.
+# GVM-Connection classes for communication with the GVM.
 #
 # Authors:
 # Raphael Grewe <raphael.grewe@greenbone.net>
@@ -171,15 +171,15 @@ class GVMConnection:
 
         return msg
 
-    def authenticate(self, username='admin', password='admin', withCommand=''):
+    def authenticate(self, username, password, withCommand=''):
         """Authenticate on GVM.
 
         The generated authenticate command will be send to server.
         After that a response is read from socket.
 
         Keyword Arguments:
-            username {str} -- Username (default: {'admin'})
-            password {str} -- Password (default: {'admin'})
+            username {str} -- Username
+            password {str} -- Password
             withCommands {str} -- XML commands (default: {''})
 
         Returns:
@@ -215,6 +215,14 @@ class GVMConnection:
 
     def get_assets(self, **kwargs):
         self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def start_task(self, id):
+        self.send('<start_task task_id="{0}"/>'.format(id))
+        return self.read()
+
+    def stop_task(self, id):
+        self.send('<stop_task task_id="{0}"/>'.format(id))
         return self.read()
 
 

@@ -25,13 +25,26 @@ import argparse
 from argparse import RawTextHelpFormatter
 import configparser
 import getpass
+import logging
 import os.path
 import sys
 
-from libs.gvm_connection import SSHConnection, UnixSocketConnection, TLSConnection
+from libs.gvm_connection import (SSHConnection,
+                                 TLSConnection,
+                                 UnixSocketConnection)
+
+__version__ = '0.1.dev1'
+
+home = os.path.expanduser("~")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# create a file handler
+handler = logging.FileHandler(home + '/.gvm_cli.log')
+handler.setLevel(logging.INFO)
 
 help_text = """
-    gvm-cli 0.1.0 (C) 2017 Greenbone Networks GmbH
+    gvm-cli {version} (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services via
     GMP (Greenbone Management Protocol).
@@ -43,10 +56,23 @@ help_text = """
     Further Information about GMP see here:
     http://docs.greenbone.net/index.html#api_documentation
     Note: "GMP" was formerly known as "OMP".
-    """
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    """.format(version=__version__)
 
 
-def main():    
+def main():
     """ssh_credentials = {'ssh_hostname': args.hostname,
                        'ssh_port': args.port, 'ssh_user': args.ssh_user}
     gvm_credentials = {'gmp_username': args.gmp_username,
@@ -87,6 +113,10 @@ def main():
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
     parser.add_argument('-X', '--xml', help='The XML request to send.')
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
+    parser.add_argument(
+        '--version', action='version',
+        version='%(prog)s {version}'.format(version=__version__),
+        help='Show program\'s version number and exit')
 
     args = parser.parse_args()
 
@@ -102,8 +132,6 @@ def main():
             args.gmp_password = auth.get('gmp-password', 'admin')
         except Exception as message:
             print(message)
-
-
     xml = ''
 
     if args.xml is not None:

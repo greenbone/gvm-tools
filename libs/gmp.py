@@ -26,16 +26,15 @@ class _gmp:
     """GMP - Greenbone Manager Protocol
     """
 
-    def createAuthenticateCommand(self, username='admin', password='admin',
-                                  withCommands=''):
+    def createAuthenticateCommand(self, username, password, withCommands=''):
         """Generates string for authentification on GVM
 
         Creates the gmp authentication xml string.
         Inserts the username and password into it.
 
         Keyword Arguments:
-            username {str} -- Username for GVM User (default: {'admin'})
-            password {str} -- Password for GVM User (default: {'admin'})
+            username {str} -- Username for GVM User
+            password {str} -- Password for GVM User
             withCommands {str} -- Additional commands default: {''})
         """
 
