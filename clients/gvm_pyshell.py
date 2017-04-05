@@ -25,7 +25,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import code
 import getpass
-import logging
+# import logging
 import os.path
 from lxml import etree
 from libs.gvm_connection import (SSHConnection,
@@ -34,13 +34,13 @@ from libs.gvm_connection import (SSHConnection,
 
 __version__ = '0.1.dev1'
 
-home = os.path.expanduser("~")
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# home = os.path.expanduser("~")
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.INFO)
 
 # create a file handler
-handler = logging.FileHandler(home + '/.gvm_pyshell.log')
-handler.setLevel(logging.INFO)
+# handler = logging.FileHandler(home + '/.gvm_pyshell.log')
+# handler.setLevel(logging.INFO)
 
 help_text = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
@@ -133,7 +133,7 @@ def main():
     parser.add_argument('--gmp-username', help='GMP username.')
     parser.add_argument('--gmp-password', help='GMP password.')
     parser.add_argument(
-        '-i', '--interactive', action='store_true', default=True,
+        '-i', '--interactive', action='store_true', default=False,
         help='Start an interactive Python shell.')
     parser.add_argument(
         '--tls', action='store_true',
