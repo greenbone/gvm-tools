@@ -35,13 +35,7 @@ from libs.gvm_connection import (SSHConnection,
 
 __version__ = '0.1.dev1'
 
-home = os.path.expanduser("~")
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# create a file handler
-handler = logging.FileHandler(home + '/.gvm_cli.log')
-handler.setLevel(logging.INFO)
 
 help_text = """
     gvm-cli {version} (C) 2017 Greenbone Networks GmbH
@@ -114,12 +108,22 @@ def main():
     parser.add_argument('-X', '--xml', help='The XML request to send.')
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
     parser.add_argument(
+        '--log', nargs='?', dest='loglevel', const='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help='Activates logging. Default level: INFO.')
+    parser.add_argument(
         '--version', action='version',
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
 
     args = parser.parse_args()
 
+    # Sets the logging
+    if args.loglevel is not None:
+        level = logging.getLevelName(args.loglevel)
+        logging.basicConfig(filename='gvm-cli.log', level=level)
+
+    # Looks for a config file
     if args.config is not None:
         try:
             config = configparser.ConfigParser()
@@ -132,6 +136,7 @@ def main():
             args.gmp_password = auth.get('gmp-password', 'admin')
         except Exception as message:
             print(message)
+
     xml = ''
 
     if args.xml is not None:
@@ -144,6 +149,7 @@ def main():
             except (EOFError, BlockingIOError) as e:
                 print(e)
 
+    # If no command was given, program asks for one
     if len(xml) == 0:
         xml = input()
 
@@ -154,6 +160,7 @@ def main():
         args.gmp_password = getpass.getpass('Please enter password for ' +
                                             args.gmp_username + ': ')
 
+    # Open the right connection. SSH at last for default
     if args.socket is not None:
         connection_with_unix_socket(xml, args)
     elif args.tls:

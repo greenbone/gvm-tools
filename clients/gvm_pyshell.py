@@ -25,8 +25,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import code
 import getpass
-# import logging
-import os.path
+import logging
 from lxml import etree
 from libs.gvm_connection import (SSHConnection,
                                  TLSConnection,
@@ -34,13 +33,7 @@ from libs.gvm_connection import (SSHConnection,
 
 __version__ = '0.1.dev1'
 
-# home = os.path.expanduser("~")
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.INFO)
-
-# create a file handler
-# handler = logging.FileHandler(home + '/.gvm_pyshell.log')
-# handler.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 help_text = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
@@ -145,6 +138,10 @@ def main():
         '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
     parser.add_argument(
+        '--log', nargs='?', dest='loglevel', const='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help='Activates logging. Default level: INFO.')
+    parser.add_argument(
         '--version', action='version',
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
@@ -152,6 +149,12 @@ def main():
     global args
     args = parser.parse_args()
 
+    # Sets the logging
+    if args.loglevel is not None:
+        level = logging.getLevelName(args.loglevel)
+        logging.basicConfig(filename='gvm-pyshell.log', level=level)
+
+    # Open the right connection. SSH at last for default
     global gmp
     if args.socket is not None:
         gmp = UnixSocketConnection(sockpath=args.socket, shell_mode=True)
@@ -163,6 +166,7 @@ def main():
                             timeout=5, ssh_user=args.ssh_user, ssh_password='',
                             shell_mode=True)
 
+    # Ask for login credentials if none are given
     if args.gmp_username is None:
         while True:
             args.gmp_username = input('Enter username: ')

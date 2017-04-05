@@ -69,7 +69,6 @@ class GVMConnection:
             cmd {string} -- XML-Source
         """
         try:
-            logger.debug('send(): ' + cmd)
             self.sendAll(cmd)
             time.sleep(0.1)
         except paramiko.SSHException as e:
