@@ -1,39 +1,48 @@
-import calendar
+from terminaltables import AsciiTable
 
-month = args.script[1]
-year = args.script[2]
+table_data = [['Hostname', 'IP', 'report_id', 'high', 'medium', 'low']]
+month = int(args.script[1])
+year = int(args.script[2])
+next_month = -1
+next_year = None
 
-last_day = calendar.monthrange(int(year), int(month))[1]
+if month == 12:
+    next_month = 1
+    report_filter = "rows=-1 and created>{0}-{1}-01 and created<{2}-{3}-01".format(year, month, year+1, next_month)
+else:
+    next_month = month + 1
+    report_filter = "rows=-1 and created>{0}-{1}-01 and created<{2}-{3}-01".format(year, month, year, next_month)
 
-reports_xml = gmp.get_reports(report_filter="rows=-1 and created>{0}-{1}-01 and created<{0}-{1}-{2}".format(year, month, last_day))
 
-high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
-medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
-low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
-
-print("Summary of results from 01.{3}.{4} to {5}.{3}.{4}\nHigh: {0}\nMedium: {1}\nLow: {2}\n\n"
-      .format(int(high), int(medium), int(low), month, year, last_day))
-
+reports_xml = gmp.get_reports(filter='name=report and tag=id', report_filter=report_filter)
 report_list = reports_xml.xpath('report/report')
+
+print('Found {0} reports'.format(len(report_list)))
+
 for report in report_list:
-    print('Report: {0}\nDate: {1}'.format(report.xpath('@id')[0], report.xpath('timestamp/text()')[0]))
-    # Retrieve the ips and hostnames if available
-    ip_hostnames = dict()
-    for ip in report.xpath('host/ip/text()'):
-        asset = gmp.get_reports(type='assets', host=ip, overrides="true")
-        if ip not in ip_hostnames:
-            name = asset.xpath('report/report/host/detail/name[text()="DNS-via-WMI-DNS"]/../value/text()')
-            if len(name) > 0:
-                ip_hostnames[ip] = str(name[0])
-            else:
-                ip_hostnames[ip] = ""
+    report_id = report.xpath('@id')[0]
+    timestamp = report.xpath('timestamp/text()')[0]
 
-    hostname = ''
-    for key, value in ip_hostnames.items():
-        hostname += '\n\t{0} ({1})\n'.format(key, value)
+    res = gmp.get_reports(report_id=report_id)
+    for host in res.xpath('report/report/host'):
+        hostname = host.xpath('detail/name[text()="DNS-via-WMI-DNS"]/../value/text()')
+        if len(hostname) > 0:
+            hostname = str(hostname[0])
+        else:
+            hostname = ""
+        ip = host.xpath('ip/text()')[0]
+        high = host.xpath('result_count/hole/page/text()')[0]
+        medium = host.xpath('result_count/warning/page/text()')[0]
+        low = host.xpath('result_count/info/page/text()')[0]
 
-    high = report.xpath('sum(result_count/hole/full/text())')
-    medium = report.xpath('sum(result_count/warning/full/text())')
-    low = report.xpath('sum(result_count/info/full/text())')
+        table_data.append([hostname, ip, report_id, high, medium, low])
 
-    print('Hosts: {0}\nHigh: {1}\nMedium: {2}\nLow: {3}\n'.format(hostname, int(high), int(medium), int(low)))
+sum_high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
+sum_medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
+sum_low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
+
+table = AsciiTable(table_data)
+print(table.table)
+
+print("Summary of results from 01.{3}.{4} to 01.{5}.{4}\nHigh: {0}\nMedium: {1}\nLow: {2}\n\n"
+      .format(int(sum_high), int(sum_medium), int(sum_low), month, year, next_month))

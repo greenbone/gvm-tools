@@ -31,7 +31,7 @@ from libs.gvm_connection import (SSHConnection,
                                  TLSConnection,
                                  UnixSocketConnection)
 
-__version__ = '0.1.dev1'
+__version__ = '0.2.dev1'
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +101,6 @@ help = Help()
 
 # gmp has to be global, so the load-function has the correct namespace
 gmp = None
-# shell = None
 
 
 def main():
@@ -109,38 +108,54 @@ def main():
         prog='gvm-pyshell',
         description=help_text,
         formatter_class=RawTextHelpFormatter,
-        add_help=False,
-        usage='gvm-pyshell [--help] [--hostname HOSTNAME] [--port PORT] \
-[--xml XML] [--interactive]')
+        add_help=False)
+    subparsers = parser.add_subparsers(metavar='[connection_type]')
+    subparsers.required = True
+    subparsers.dest = 'connection_type'
 
     parser.add_argument(
         '-h', '--help', action='help',
         help='Show this help message and exit.')
-    parser.add_argument(
-        '--hostname', default='127.0.0.1',
-        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
-    parser.add_argument('--port', default=22, help='SSH port. Default: 22.')
-    parser.add_argument(
-        '--ssh-user', default='gmp',
-        help='SSH Username. Default: gmp.')
-    parser.add_argument('--gmp-username', help='GMP username.')
-    parser.add_argument('--gmp-password', help='GMP password.')
-    parser.add_argument(
-        '-i', '--interactive', action='store_true', default=False,
-        help='Start an interactive Python shell.')
-    parser.add_argument(
-        '--tls', action='store_true',
-        help='Use TLS secured connection for omp service.')
-    parser.add_argument(
-        'script', nargs='*',
-        help='Preload gmp script. Example: myscript.gmp.')
-    parser.add_argument(
-        '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
-    parser.add_argument(
+
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activates logging. Default level: INFO.')
+    parent_parser.add_argument(
+        '-i', '--interactive', action='store_true', default=False,
+        help='Start an interactive Python shell.')
+    parent_parser.add_argument('--gmp-username', help='GMP username.')
+    parent_parser.add_argument('--gmp-password', help='GMP password.')
+    parent_parser.add_argument(
+        'script', nargs='*',
+        help='Preload gmp script. Example: myscript.gmp.')
+
+    parser_ssh = subparsers.add_parser(
+        'ssh', help='Use SSH connection for gmp service.',
+        parents=[parent_parser])
+    parser_ssh.add_argument('--hostname', required=True,
+                            help='Hostname or IP-Address.')
+    parser_ssh.add_argument('--port', required=False,
+                            default=22, help='Port. Default: 22.')
+    parser_ssh.add_argument('--ssh-user', default='gmp',
+                            help='SSH Username. Default: gmp.')
+
+    parser_tls = subparsers.add_parser(
+        'tls', help='Use TLS secured connection for gmp service.',
+        parents=[parent_parser])
+    parser_tls.add_argument('--hostname', required=True,
+                            help='Hostname or IP-Address.')
+    parser_tls.add_argument('--port', required=False,
+                            default=9390, help='Port. Default: 9390.')
+
+    parser_socket = subparsers.add_parser(
+        'socket', help='Use UNIX-Socket connection for gmp service.',
+        parents=[parent_parser])
+    parser_socket.add_argument(
+        '--path', nargs='?', const='/usr/local/var/run/openvasmd.sock',
+        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
+
     parser.add_argument(
         '--version', action='version',
         version='%(prog)s {version}'.format(version=__version__),
@@ -156,10 +171,10 @@ def main():
 
     # Open the right connection. SSH at last for default
     global gmp
-    if args.socket is not None:
+    if 'socket' in args.connection_type:
         gmp = UnixSocketConnection(sockpath=args.socket, shell_mode=True)
-    elif args.tls:
-        gmp = TLSConnection(hostname=args.hostname, port=9390,
+    elif 'tls' in args.connection_type:
+        gmp = TLSConnection(hostname=args.hostname, port=args.port,
                             shell_mode=True)
     else:
         gmp = SSHConnection(hostname=args.hostname, port=args.port,
@@ -178,28 +193,33 @@ def main():
 
     gmp.authenticate(args.gmp_username, args.gmp_password)
 
-    if args.script is not None and len(args.script) > 0:
+    with_script = args.script and len(args.script) > 0
+    no_script_no_interactive = not args.interactive and not with_script
+    script_and_interactive = args.interactive and with_script
+    only_interactive = not with_script and args.interactive
+    only_script = not args.interactive and with_script
+
+    if no_script_no_interactive:
+        enterInteractiveMode()
+
+    if only_interactive:
+        enterInteractiveMode()
+
+    if script_and_interactive:
+        load(args.script[0])
+        enterInteractiveMode()
+
+    if only_script:
         load(args.script[0])
 
-    if args.interactive:
-        # Try to get the scope of the script into shell
-        """vars = globals().copy()
-        vars.update(locals())
-        shell = code.InteractiveConsole(vars)
-
-        if args.script is not None:
-            shell.runsource('load("{0}")'.format(args.script))
-        shell.raw_input()
-        shell.interact(banner='GVM Interactive Console. Type "help" to get\
-         informationen about functionality.')
-        """
-        # Start the interactive Shell
-        code.interact(
-            banner='GVM Interactive Console. Type "help" to get information \
-about functionality.',
-            local=dict(globals(), **locals()))
-
     gmp.close()
+
+
+def enterInteractiveMode():
+    code.interact(
+        banner='GVM Interactive Console. Type "help" to get information \
+about functionality.',
+        local=dict(globals(), **locals()))
 
 
 def pretty(xml):

@@ -33,7 +33,7 @@ from libs.gvm_connection import (SSHConnection,
                                  TLSConnection,
                                  UnixSocketConnection)
 
-__version__ = '0.1.dev1'
+__version__ = '0.2.dev1'
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +67,6 @@ help_text = """
 
 
 def main():
-    """ssh_credentials = {'ssh_hostname': args.hostname,
-                       'ssh_port': args.port, 'ssh_user': args.ssh_user}
-    gvm_credentials = {'gmp_username': args.gmp_username,
-                       'gmp_password': args.gmp_password}
-    """
 
     parser = argparse.ArgumentParser(
         prog='gvm-cli',
