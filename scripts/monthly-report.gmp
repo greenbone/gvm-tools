@@ -1,6 +1,6 @@
 from terminaltables import AsciiTable
 
-table_data = [['Hostname', 'IP', 'report_id', 'high', 'medium', 'low']]
+table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
 month = int(args.script[1])
 year = int(args.script[2])
 next_month = -1
@@ -15,13 +15,14 @@ else:
 
 
 reports_xml = gmp.get_reports(filter='name=report and tag=id', report_filter=report_filter)
-report_list = reports_xml.xpath('report/report')
+report_list = reports_xml.xpath('report')
 
 print('Found {0} reports'.format(len(report_list)))
 
 for report in report_list:
-    report_id = report.xpath('@id')[0]
-    timestamp = report.xpath('timestamp/text()')[0]
+    report_id = report.xpath('report/@id')[0]
+    timestamp = report.xpath('report/timestamp/text()')[0]
+    name = report.xpath('name/text()')[0]
 
     res = gmp.get_reports(report_id=report_id)
     for host in res.xpath('report/report/host'):
@@ -35,7 +36,7 @@ for report in report_list:
         medium = host.xpath('result_count/warning/page/text()')[0]
         low = host.xpath('result_count/info/page/text()')[0]
 
-        table_data.append([hostname, ip, report_id, high, medium, low])
+        table_data.append([hostname, ip, name, high, medium, low])
 
 sum_high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
 sum_medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
