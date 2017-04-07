@@ -216,6 +216,7 @@ def main():
 
 
 def enterInteractiveMode():
+    gmp.shell_mode = True
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',

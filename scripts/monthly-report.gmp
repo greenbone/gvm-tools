@@ -1,6 +1,5 @@
 from terminaltables import AsciiTable
 
-table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
 month = int(args.script[1])
 year = int(args.script[2])
 next_month = -1
@@ -8,14 +7,18 @@ next_year = None
 
 if month == 12:
     next_month = 1
-    report_filter = "rows=-1 and created>{0}-{1}-01 and created<{2}-{3}-01".format(year, month, year+1, next_month)
+    report_filter = "rows=-1 and created>{0}-{1}-01 and created<{2}-{3}-01 sort-reverse=date".format(year, month, year+1, next_month)
 else:
     next_month = month + 1
     report_filter = "rows=-1 and created>{0}-{1}-01 and created<{2}-{3}-01".format(year, month, year, next_month)
 
 
-reports_xml = gmp.get_reports(filter='name=report and tag=id', report_filter=report_filter)
+reports_xml = gmp.get_reports(report_filter=report_filter)
 report_list = reports_xml.xpath('report')
+
+sum_high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
+sum_medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
+sum_low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
 
 print('Found {0} reports'.format(len(report_list)))
 
@@ -25,25 +28,28 @@ for report in report_list:
     name = report.xpath('name/text()')[0]
 
     res = gmp.get_reports(report_id=report_id)
+
+    print('\nReport: {0}'.format(report_id))
+    table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
     for host in res.xpath('report/report/host'):
         hostname = host.xpath('detail/name[text()="DNS-via-WMI-DNS"]/../value/text()')
         if len(hostname) > 0:
             hostname = str(hostname[0])
         else:
             hostname = ""
+
         ip = host.xpath('ip/text()')[0]
         high = host.xpath('result_count/hole/page/text()')[0]
         medium = host.xpath('result_count/warning/page/text()')[0]
         low = host.xpath('result_count/info/page/text()')[0]
 
         table_data.append([hostname, ip, name, high, medium, low])
-
-sum_high = reports_xml.xpath('sum(report/report/result_count/hole/full/text())')
-sum_medium = reports_xml.xpath('sum(report/report/result_count/warning/full/text())')
-sum_low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
-
-table = AsciiTable(table_data)
-print(table.table)
+        host.clear()
+        del host
+    table = AsciiTable(table_data)
+    print(table.table + '\n')
+    res.clear()
+    del res
 
 print("Summary of results from 01.{3}.{4} to 01.{5}.{4}\nHigh: {0}\nMedium: {1}\nLow: {2}\n\n"
       .format(int(sum_high), int(sum_medium), int(sum_low), month, year, next_month))
