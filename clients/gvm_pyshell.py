@@ -153,7 +153,7 @@ def main():
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--path', nargs='?', const='/usr/local/var/run/openvasmd.sock',
+        '--sockpath', nargs='?', default='/usr/local/var/run/openvasmd.sock',
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
 
     parser.add_argument(
@@ -172,7 +172,7 @@ def main():
     # Open the right connection. SSH at last for default
     global gmp
     if 'socket' in args.connection_type:
-        gmp = UnixSocketConnection(sockpath=args.socket, shell_mode=True)
+        gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True)
     elif 'tls' in args.connection_type:
         gmp = TLSConnection(hostname=args.hostname, port=args.port,
                             shell_mode=True)
