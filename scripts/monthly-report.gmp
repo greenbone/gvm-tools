@@ -6,7 +6,7 @@ year = int(args.script[2])
 from_date = date(year, month, 1)
 to_date = from_date + timedelta(days=31)
 # To have the first day in month
-to_date.replace(day=1)
+to_date = to_date.replace(day=1)
 
 report_filter = "rows=-1 and created>{0} and created<{1}".format(from_date.isoformat(), to_date.isoformat())
 reports_xml = gmp.get_reports(report_filter=report_filter)
