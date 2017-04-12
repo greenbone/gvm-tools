@@ -216,6 +216,10 @@ class GVMConnection:
         self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_info(self, **kwargs):
+        self.send('<get_info {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def start_task(self, id):
         self.send('<start_task task_id="{0}"/>'.format(id))
         return self.read()
