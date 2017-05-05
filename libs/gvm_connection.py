@@ -143,7 +143,7 @@ class GVMConnection:
                     if status != '400':
                         self.authenticated = True
 
-            if status != '200':
+            if 'OK' not in status_text:
                 raise GMPError(status_text)
                 logger.info('An error occurred on gvm: ' + status_text)
                 return False
@@ -191,20 +191,56 @@ class GVMConnection:
         self.send(cmd)
         self.read()
 
-    def get_version(self):
-        self.send('<get_version/>')
+    def create_config(self, copy_id, name):
+        cmd = self.gmp_generator.createConfigCommand(copy_id, name)
+        self.send(cmd)
         return self.read()
 
-    def get_tasks(self, **kwargs):
-        self.send('<get_tasks {0}/>'.format(self.argumentsToString(kwargs)))
+    def create_target(self, name, hosts):
+        cmd = self.gmp_generator.createTargetCommand(name, hosts)
+        self.send(cmd)
+        return self.read()
+
+    def create_task(self, name, config_id, target_id, scanner_id, comment=''):
+        cmd = self.gmp_generator.createTaskCommand(
+            name, config_id, target_id, scanner_id, comment)
+        self.send(cmd)
+        return self.read()
+
+    def delete_config(self, id):
+        self.send('<delete_config config_id="{0}"/>'.format(id))
+        return self.read()
+
+    def delete_scanner(self, id):
+        self.send('<delete_scanner scanner_id="{0}"/>'.format(id))
+        return self.read()
+
+    def delete_target(self, id):
+        self.send('<delete_target target_id="{0}"/>'.format(id))
+        return self.read()
+
+    def delete_task(self, id):
+        self.send('<delete_task task_id="{0}"/>'.format(id))
+        return self.read()
+
+    def get_assets(self, **kwargs):
+        self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_configs(self, **kwargs):
+        self.send('<get_configs {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_info(self, **kwargs):
+        self.send('<get_info {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_nvts(self, **kwargs):
+        self.send('<get_nvts {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_port_lists(self):
         self.send('<get_port_lists/>')
-        return self.read()
-
-    def get_results(self, **kwargs):
-        self.send('<get_results {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_reports(self, **kwargs):
@@ -212,12 +248,29 @@ class GVMConnection:
                   .format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def get_assets(self, **kwargs):
-        self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
+    def get_results(self, **kwargs):
+        self.send('<get_results {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def get_info(self, **kwargs):
-        self.send('<get_info {0}/>'.format(self.argumentsToString(kwargs)))
+    def get_scanners(self, **kwargs):
+        self.send('<get_scanners {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_targets(self, **kwargs):
+        self.send('<get_targets {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_tasks(self, **kwargs):
+        self.send('<get_tasks {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_version(self):
+        self.send('<get_version/>')
+        return self.read()
+
+    def modify_config(self, selection, **kwargs):
+        cmd = self.gmp_generator.modifyConfigCommand(selection, kwargs)
+        self.send(cmd)
         return self.read()
 
     def start_task(self, id):

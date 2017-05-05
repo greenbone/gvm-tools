@@ -41,3 +41,48 @@ class _gmp:
         return '<commands><authenticate><credentials><username>{0}</username>\
 <password>{1}</password></credentials></authenticate>{2}</commands>'.format(
             username, password, withCommands)
+
+    def createConfigCommand(self, copy_id, name):
+        return '<create_config><copy>{0}</copy><name>{1}</name>\
+</create_config>'.format(copy_id, name)
+
+    def createTargetCommand(self, name, hosts):
+        return '<create_target><name>{0}</name><hosts>{1}</hosts>\
+</create_target>'.format(name, hosts)
+
+    def modifyConfigCommand(self, selection, kwargs):
+        assert selection in ('nvt_pref', 'sca_pref',
+                             'family_selection', 'nvt_selection')
+        config_id = kwargs.get('config_id')
+
+        if selection in 'nvt_pref':
+            nvt_oid = kwargs.get('nvt_oid')
+            name = kwargs.get('name')
+            value = kwargs.get('value')
+
+            return '<modify_config config_id="{0}"><preference>\
+<nvt oid="{1}"/><name>{2}</name><value>{3}</value>\
+</preference></modify_config>'.format(config_id, nvt_oid, name, value)
+
+        elif selection in 'nvt_selection':
+            nvt_oid = kwargs.get('nvt_oid')
+            family = kwargs.get('family')
+
+            return '<modify_config config_id="{0}"><nvt_selection>\
+<family>{1}</family><nvt oid="{2}"/>\
+</nvt_selection></modify_config>'.format(config_id, family, nvt_oid)
+
+        elif selection in 'family_selection':
+            family = kwargs.get('family')
+
+            return '<modify_config config_id="{0}"><family_selection>\
+<growing>1</growing><family><name>{1}</name><all>1</all><growing>1</growing>\
+</family>\</family_selection></modify_config>'.format(config_id, family)
+        else:
+            raise NotImplemented
+
+    def createTaskCommand(self, name, config_id, target_id, scanner_id,
+                          comment=''):
+        return '<create_task><name>{0}</name><comment>{1}</comment>\
+<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>\
+</create_task>'.format(name, comment, config_id, target_id, scanner_id)
