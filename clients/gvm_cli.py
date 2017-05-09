@@ -72,40 +72,54 @@ def main():
         prog='gvm-cli',
         description=help_text,
         formatter_class=RawTextHelpFormatter,
-        add_help=False,
-        usage='gvm-cli [--help] [--hostname HOSTNAME] [--port PORT]\
- [--xml XML]')
+        add_help=False)
+
+    subparsers = parser.add_subparsers(metavar='[connection_type]')
+    subparsers.required = True
+    subparsers.dest = 'connection_type'
+
     parser.add_argument(
         '-h', '--help', action='help',
         help='Show this help message and exit.')
-    parser.add_argument(
-        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
-    parser.add_argument(
-        '--hostname', default='127.0.0.1',
-        help='SSH hostname or IP-Address. Default: 127.0.0.1.')
-    parser.add_argument(
-        '--tls', action='store_true',
-        help='Use TLS secured connection for omp service.')
-    parser.add_argument('--port', default=22, help='SSH port. Default: 22.')
-    parser.add_argument(
-        '--ssh-user', default='gmp',
-        help='SSH username. Default: gmp.')
-    parser.add_argument(
-        '--gmp-username', default='admin',
-        help='GMP username. Default: admin')
-    parser.add_argument(
-        '--gmp-password', nargs='?', const='admin',
-        help='GMP password. Default: admin.')
-    parser.add_argument(
-        '--socket', nargs='?', const='/usr/local/var/run/openvasmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
-    parser.add_argument('-X', '--xml', help='The XML request to send.')
-    parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
-    parser.add_argument(
+
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activates logging. Default level: INFO.')
+    parent_parser.add_argument('--gmp-username', help='GMP username.')
+    parent_parser.add_argument('--gmp-password', help='GMP password.')
+    parent_parser.add_argument('-X', '--xml', help='The XML request to send.')
+    parent_parser.add_argument('infile', nargs='?', type=open,
+                               default=sys.stdin)
+    parent_parser.add_argument(
+        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
+        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
+    parser_ssh = subparsers.add_parser(
+        'ssh', help='Use SSH connection for gmp service.',
+        parents=[parent_parser])
+    parser_ssh.add_argument('--hostname', required=True,
+                            help='Hostname or IP-Address.')
+    parser_ssh.add_argument('--port', required=False,
+                            default=22, help='Port. Default: 22.')
+    parser_ssh.add_argument('--ssh-user', default='gmp',
+                            help='SSH Username. Default: gmp.')
+
+    parser_tls = subparsers.add_parser(
+        'tls', help='Use TLS secured connection for gmp service.',
+        parents=[parent_parser])
+    parser_tls.add_argument('--hostname', required=True,
+                            help='Hostname or IP-Address.')
+    parser_tls.add_argument('--port', required=False,
+                            default=9390, help='Port. Default: 9390.')
+
+    parser_socket = subparsers.add_parser(
+        'socket', help='Use UNIX-Socket connection for gmp service.',
+        parents=[parent_parser])
+    parser_socket.add_argument(
+        '--sockpath', nargs='?', default='/usr/local/var/run/openvasmd.sock',
+        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
+
     parser.add_argument(
         '--version', action='version',
         version='%(prog)s {version}'.format(version=__version__),
@@ -156,7 +170,7 @@ def main():
                                             args.gmp_username + ': ')
 
     # Open the right connection. SSH at last for default
-    if args.socket is not None:
+    if args.sockpath is not None:
         connection_with_unix_socket(xml, args)
     elif args.tls:
         connection_direct_over_tls(xml, args)
@@ -167,7 +181,7 @@ def main():
 
 
 def connection_with_unix_socket(xml, args):
-    gvm = UnixSocketConnection(sockpath=args.socket)
+    gvm = UnixSocketConnection(sockpath=args.sockpath)
     gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 
