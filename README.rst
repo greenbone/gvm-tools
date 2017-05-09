@@ -9,7 +9,7 @@ Introduction
 
 *GVM-Tools* are comprised of three clients and one library.
 The proper purpose for this tools is simply communication with some
-GVM (Greenbone Vulnerability Manager) over GMP (Greenbone Manangement Protocol) or OSP (OpenVAS Scanner Protocol).
+GVM (Greenbone Vulnerability Manager) over GMP (Greenbone Manangement Protocol) or OSP (Open Scanner Protocol).
 
 Current Version: 0.2.dev1
 
