@@ -2,7 +2,7 @@
 GVM-Tools
 ================
 
-.. contents:: Inhaltsverzeichnis
+.. contents:: Table of contents
 
 Introduction
 ~~~~~~~~~~~~
