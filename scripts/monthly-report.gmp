@@ -2,7 +2,7 @@ from terminaltables import AsciiTable
 from datetime import date, timedelta
 
 len_args = len(args.script) - 1
-if len_args is 0:
+if len_args < 2:
     message = """
     This script will display all vulnerabilities from the hosts of the
     reports in a given month!
@@ -10,6 +10,7 @@ if len_args is 0:
     First one is the month and second one is the year.
     Both parameters are plain numbers, so no text.
     The third is 'with-tables' parameter to activate a verbose output of hosts.
+    Explicitly made for GOS 3.1.
 
     Example:
         $ gvm-pyshell scripts/monthly-report.gmp 05 2017 with-tables
