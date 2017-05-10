@@ -168,8 +168,14 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     # Remove all newlines if the commands come from file
     xml = xml.replace('\n', '').replace('\r', '')
 
+    # Ask for login credentials if none are given
+    if args.gmp_username is None:
+        while True:
+            args.gmp_username = input('Enter username: ')
+            if len(args.gmp_username) is not 0:
+                break
     if args.gmp_password is None:
-        args.gmp_password = getpass.getpass('Please enter password for ' +
+        args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
     # Open the right connection. SSH at last for default
