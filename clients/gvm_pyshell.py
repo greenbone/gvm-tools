@@ -108,7 +108,10 @@ def main():
         prog='gvm-pyshell',
         description=help_text,
         formatter_class=RawTextHelpFormatter,
-        add_help=False)
+        add_help=False,
+        epilog="""
+usage: gvm-pyshell [-h] [--version] [connection_type] ...
+   or: gvm-pyshell connection_type --help""")
     subparsers = parser.add_subparsers(metavar='[connection_type]')
     subparsers.required = True
     subparsers.dest = 'connection_type'

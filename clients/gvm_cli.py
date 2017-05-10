@@ -72,7 +72,10 @@ def main():
         prog='gvm-cli',
         description=help_text,
         formatter_class=RawTextHelpFormatter,
-        add_help=False)
+        add_help=False,
+        epilog="""
+usage: gvm-cli [-h] [--version] [connection_type] ...
+   or: gvm-cli connection_type --help""")
 
     subparsers = parser.add_subparsers(metavar='[connection_type]')
     subparsers.required = True
