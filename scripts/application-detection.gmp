@@ -1,4 +1,13 @@
+message = """
+    This script will display all hosts with the searched applications!
+
+    Example:
+        $ gvm-pyshell socket scripts/application-detection.gmp
+"""
+print(message)
+
 appname = input('What application are you looking for? ')
+print('')
 r = gmp.get_reports(type='assets', filter=appname, result_hosts_only=1)
 
 hosts = r.xpath('//host')
