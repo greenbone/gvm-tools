@@ -398,7 +398,11 @@ class UnixSocketConnection(GVMConnection):
         response = ''
         while True:
             data = self.sock.recv(BUF_SIZE)
-
+            # Todo: Why does the sleep helps here? Sometimes it will break
+            # here because the message is missing some bytes at the end.
+            # Same script and with tls or ssh, then it works flawless without
+            # "sleep()"
+            time.sleep(0.000001)
             response += data.decode()
             if len(data) < BUF_SIZE:
                 break
