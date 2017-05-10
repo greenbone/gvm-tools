@@ -6,12 +6,13 @@ if len_args is 0:
     message = """
     This script will display all vulnerabilities from the hosts of the
     reports in a given month!
-    It needs two parameters after the script name.
+    It needs two parameters and has one optional after the script name.
     First one is the month and second one is the year.
     Both parameters are plain numbers, so no text.
+    The third is 'with-tables' parameter to activate a verbose output of hosts.
 
     Example:
-        gvm-pyshell scripts/monthly-report.gmp 05 2017
+        $ gvm-pyshell scripts/monthly-report.gmp 05 2017 with-tables
     """
     print(message)
     quit()
@@ -34,7 +35,7 @@ sum_low = reports_xml.xpath('sum(report/report/result_count/info/full/text())')
 
 print('Found {0} reports'.format(len(report_list)))
 
-if 'with-table' in args.script:
+if 'with-tables' in args.script:
     for report in report_list:
         report_id = report.xpath('report/@id')[0]
         timestamp = report.xpath('report/timestamp/text()')[0]
