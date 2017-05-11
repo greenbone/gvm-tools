@@ -37,10 +37,14 @@ class _gmp:
             password {str} -- Password for GVM User
             withCommands {str} -- Additional commands default: {''})
         """
-
-        return '<commands><authenticate><credentials><username>{0}</username>\
-<password>{1}</password></credentials></authenticate>{2}</commands>'.format(
-            username, password, withCommands)
+        if len(withCommands) is 0:
+            return '<authenticate><credentials><username>{0}\
+</username><password>{1}</password></credentials></authenticate>\
+'.format(username, password, withCommands)
+        else:
+            return '<commands><authenticate><credentials><username>{0}\
+</username><password>{1}</password></credentials></authenticate>{2}\
+</commands>'.format(username, password, withCommands)
 
     def createConfigCommand(self, copy_id, name):
         return '<create_config><copy>{0}</copy><name>{1}</name>\

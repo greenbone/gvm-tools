@@ -25,7 +25,6 @@ import logging
 import paramiko
 import socket
 import ssl
-import sys
 import time
 
 from lxml import etree
@@ -317,7 +316,7 @@ class SSHConnection(GVMConnection):
                 paramiko.AuthenticationException,
                 paramiko.SSHException, OSError) as e:
             print('SSH Connection failed: ' + str(e))
-            sys.exit(1)
+            logger.debug('SSH Connection failed: ' + str(e))
 
         time.sleep(0.1)
         # Empty the socket with a read command.
@@ -357,7 +356,6 @@ class TLSConnection(GVMConnection):
         self.port = kwargs.get('port', 9390)
         self.shell_mode = kwargs.get('shell_mode', False)
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        context.check_hostname = False
         self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
         self.sock.connect((self.hostname, self.port))
 

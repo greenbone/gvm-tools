@@ -90,7 +90,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activates logging. Default level: INFO.')
-    parent_parser.add_argument('--gmp-username', help='GMP username.')
+    parent_parser.add_argument('--gmp-username', help='GMP username.',
+                               required=True)
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument('-X', '--xml', help='The XML request to send.')
     parent_parser.add_argument('infile', nargs='?', type=open,
@@ -144,8 +145,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
             config.read(path)
             auth = config['Auth']
 
-            args.gmp_username = auth.get('gmp-username', 'admin')
-            args.gmp_password = auth.get('gmp-password', 'admin')
+            args.gmp_username = auth.get('gmp-username', '')
+            args.gmp_password = auth.get('gmp-password', '')
         except Exception as message:
             print(message)
 
@@ -169,22 +170,20 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     xml = xml.replace('\n', '').replace('\r', '')
 
     # Ask for login credentials if none are given
-    if args.gmp_username is None:
-        while True:
-            args.gmp_username = input('Enter username: ')
-            if len(args.gmp_username) is not 0:
-                break
     if args.gmp_password is None:
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
     # Open the right connection. SSH at last for default
-    if args.sockpath is not None:
-        connection_with_unix_socket(xml, args)
-    elif args.tls:
-        connection_direct_over_tls(xml, args)
-    else:
-        connection_over_ssh(xml, args)
+    try:
+        if args.sockpath is not None:
+            connection_with_unix_socket(xml, args)
+        elif args.tls:
+            connection_direct_over_tls(xml, args)
+        else:
+            connection_over_ssh(xml, args)
+    except Exception as e:
+        print(e)
 
     sys.exit(0)
 

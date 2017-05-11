@@ -175,14 +175,27 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     # Open the right connection. SSH at last for default
     global gmp
     if 'socket' in args.connection_type:
-        gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True)
+        try:
+            gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True)
+        except OSError as e:
+            print('{0}: {1}'.format(e, args.sockpath))
+            quit()
+
     elif 'tls' in args.connection_type:
-        gmp = TLSConnection(hostname=args.hostname, port=args.port,
-                            shell_mode=True)
+        try:
+            gmp = TLSConnection(hostname=args.hostname, port=args.port,
+                                shell_mode=True)
+        except OSError as e:
+            print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
+                                                    args.port))
+            quit()
     else:
-        gmp = SSHConnection(hostname=args.hostname, port=args.port,
-                            timeout=5, ssh_user=args.ssh_user, ssh_password='',
-                            shell_mode=True)
+        try:
+            gmp = SSHConnection(hostname=args.hostname, port=args.port,
+                                timeout=5, ssh_user=args.ssh_user,
+                                ssh_password='', shell_mode=True)
+        except Exception as e:
+            quit()
 
     # Ask for login credentials if none are given
     if args.gmp_username is None:
@@ -194,7 +207,12 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
-    gmp.authenticate(args.gmp_username, args.gmp_password)
+    try:
+        gmp.authenticate(args.gmp_username, args.gmp_password)
+    except Exception as e:
+        print('Please check your credentials!')
+        print(e)
+        quit()
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
