@@ -160,7 +160,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
 
     parser.add_argument(
-        '--version', action='version',
+        '-V', '--version', action='version',
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
 
@@ -195,6 +195,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
                                 timeout=5, ssh_user=args.ssh_user,
                                 ssh_password='', shell_mode=True)
         except Exception as e:
+            print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
+                                                    args.port))
             quit()
 
     # Ask for login credentials if none are given

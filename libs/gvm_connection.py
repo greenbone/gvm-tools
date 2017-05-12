@@ -89,7 +89,8 @@ class GVMConnection:
             lxml.etree._Element or <string> -- Response from server.
         """
         response = self.readAll()
-        logger.debug('read() response: ' + str(response))
+        logger.debug('read() {0} Bytes response: {1}'.format(
+            len(response), response))
 
         if response is None or len(str(response)) == 0:
             raise OSError('Connection was closed by remote server')
@@ -123,7 +124,7 @@ class GVMConnection:
         """
 
         if xml is 0 or xml is None:
-            return False
+            raise GMPError('XML Command is empty')
 
         try:
             parser = etree.XMLParser(encoding='utf-8', recover=True)
@@ -143,14 +144,12 @@ class GVMConnection:
                         self.authenticated = True
 
             if 'OK' not in status_text:
-                raise GMPError(status_text)
                 logger.info('An error occurred on gvm: ' + status_text)
-                return False
-
-            return True
+                raise GMPError(status_text)
 
         except etree.Error as e:
             logger.error('etree.XML(xml): ' + str(e))
+            raise
 
     def argumentsToString(self, kwargs):
         """Convert arguments
@@ -255,6 +254,11 @@ class GVMConnection:
         self.send('<get_scanners {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_system_reports(self, **kwargs):
+        self.send(
+            '<get_system_reports {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_targets(self, **kwargs):
         self.send('<get_targets {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
@@ -315,8 +319,8 @@ class SSHConnection(GVMConnection):
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
                 paramiko.SSHException, OSError) as e:
-            print('SSH Connection failed: ' + str(e))
             logger.debug('SSH Connection failed: ' + str(e))
+            raise
 
         time.sleep(0.1)
         # Empty the socket with a read command.
@@ -327,7 +331,8 @@ class SSHConnection(GVMConnection):
         response = ''
         while self.channel.recv_ready():
             response += self.channel.recv(BUF_SIZE).decode()
-        logger.debug('read ssh response: ' + str(response))
+        logger.debug('SSH read() {0} Bytes response: {1}'.format(
+            len(response), response))
         # Split the response, because the request is in response too.
         list = response.partition('\r\n')
         if len(list) > 1:
@@ -354,9 +359,11 @@ class TLSConnection(GVMConnection):
         super().__init__()
         self.hostname = kwargs.get('hostname', '127.0.0.1')
         self.port = kwargs.get('port', 9390)
+        self.timeout = kwargs.get('timeout', 60)
         self.shell_mode = kwargs.get('shell_mode', False)
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
+        self.sock.settimeout(self.timeout)
         self.sock.connect((self.hostname, self.port))
 
     def sendAll(self, cmd):

@@ -125,7 +125,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
 
     parser.add_argument(
-        '--version', action='version',
+        '-V', '--version', action='version',
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
 
@@ -176,9 +176,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     # Open the right connection. SSH at last for default
     try:
-        if args.sockpath is not None:
+        if hasattr(args, 'sockpath'):
             connection_with_unix_socket(xml, args)
-        elif args.tls:
+        elif hasattr(args, 'tls'):
             connection_direct_over_tls(xml, args)
         else:
             connection_over_ssh(xml, args)
