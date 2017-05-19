@@ -41,6 +41,10 @@ class GMPError(Exception):
     pass
 
 
+class NotImplemented(Exception):
+    pass
+
+
 class GVMConnection:
     """Wrapper for GMP
 
@@ -168,6 +172,18 @@ class GVMConnection:
 
         return msg
 
+    def ask_yes_or_no(self, text):
+        yes = set(['yes', 'y', 'ye', ''])
+        no = set(['no', 'n'])
+
+        choice = input(text).lower()
+        if choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            return self.ask_yes_or_no(text)
+
     def authenticate(self, username, password, withCommand=''):
         """Authenticate on GVM.
 
@@ -189,10 +205,67 @@ class GVMConnection:
         self.send(cmd)
         self.read()
 
+    def create_agent(self, installer, signature, name, comment='', copy='',
+                     howto_install='', howto_use=''):
+        cmd = self.gmp_generator.createAgentCommand(
+            installer, signature, name, comment, copy, howto_install,
+            howto_use)
+        self.send(cmd)
+        return self.read()
+
+    def create_alert(self):
+        # , name, comment='', copy='', condition, event, method, filter
+        raise NotImplemented
+
+    def create_asset(self):
+        raise NotImplemented
+
     def create_config(self, copy_id, name):
         cmd = self.gmp_generator.createConfigCommand(copy_id, name)
         self.send(cmd)
         return self.read()
+
+    def create_credential(self):
+        raise NotImplemented
+
+    def create_filter(self):
+        raise NotImplemented
+
+    def create_group(self):
+        raise NotImplemented
+
+    def create_note(self):
+        raise NotImplemented
+
+    def create_override(self):
+        raise NotImplemented
+
+    def create_permission(self):
+        raise NotImplemented
+
+    def create_port_list(self):
+        raise NotImplemented
+
+    def create_port_range(self):
+        raise NotImplemented
+
+    def create_report(self):
+        raise NotImplemented
+
+    def create_report_format(self):
+        raise NotImplemented
+
+    def create_role(self):
+        raise NotImplemented
+
+    def create_scanner(self):
+        raise NotImplemented
+
+    def create_schedule(self):
+        raise NotImplemented
+
+    def create_tag(self):
+        raise NotImplemented
 
     def create_target(self, name, hosts):
         cmd = self.gmp_generator.createTargetCommand(name, hosts)
@@ -205,40 +278,215 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def delete_config(self, id):
-        self.send('<delete_config config_id="{0}"/>'.format(id))
+    def create_user(self, name, password, copy='', hosts_allow=None,
+                    ifaces_allow=None, role_ids=()):
+        cmd = self.gmp_generator.createUserCommand(
+            name, copy, hosts_allow, ifaces_allow, password, role_ids)
+        self.send(cmd)
         return self.read()
 
-    def delete_scanner(self, id):
-        self.send('<delete_scanner scanner_id="{0}"/>'.format(id))
+    def delete_agent(self, **kwargs):
+        self.send('<delete_agent {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def delete_target(self, id):
-        self.send('<delete_target target_id="{0}"/>'.format(id))
+    def delete_alert(self, **kwargs):
+        if self.ask_yes_or_no('Are you sure to delete this alert? '):
+            self.send(
+                '<delete_alert {0}/>'.format(self.argumentsToString(kwargs)))
+            return self.read()
+
+    def delete_asset(self, asset_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this asset? '):
+            self.send('<delete_asset asset_id="{0}" ultimate="{1}"/>'
+                      .format(asset_id, ultimate))
+            return self.read()
+
+    def delete_config(self, config_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this config? '):
+            self.send('<delete_config config_id="{0}" ultimate="{1}"/>'
+                      .format(config_id, ultimate))
+            return self.read()
+
+    def delete_credential(self, credential_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this credential? '):
+            self.send(
+                '<delete_credential cedential_id="{0}" ultimate="{1}"/>'.format
+                (credential_id, ultimate))
+            return self.read()
+
+    def delete_filter(self, filter_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this filter? '):
+            self.send('<delete_filter filter_id="{0}" ultimate="{1}"/>'
+                      .format(filter_id, ultimate))
+            return self.read()
+
+    def delete_group(self, group_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this group? '):
+            self.send('<delete_group group_id="{0}" ultimate="{1}"/>'
+                      .format(group_id, ultimate))
+            return self.read()
+
+    def delete_note(self, note_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this note? '):
+            self.send('<delete_note note_id="{0}" ultimate="{1}"/>'
+                      .format(note_id, ultimate))
+            return self.read()
+
+    def delete_override(self, override_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this override? '):
+            self.send('<delete_override override_id="{0}" ultimate="{1}"/>'
+                      .format(override_id, ultimate))
+            return self.read()
+
+    def delete_permission(self, permission_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this permission? '):
+            self.send('<delete_permission permission_id="{0}" ultimate="{1}"/>'
+                      .format(permission_id, ultimate))
+            return self.read()
+
+    def delete_port_list(self, port_list_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this port_list? '):
+            self.send('<delete_port_list port_list_id="{0}" ultimate="{1}"/>'
+                      .format(port_list_id, ultimate))
+            return self.read()
+
+    def delete_port_range(self, port_range_id):
+        if self.ask_yes_or_no('Are you sure to delete this port_range? '):
+            self.send('<delete_port_range port_range_id="{0}"/>'
+                      .format(port_range_id))
+            return self.read()
+
+    def delete_report(self, report_id):
+        if self.ask_yes_or_no('Are you sure to delete this report? '):
+            self.send('<delete_report report_id="{0}"/>'
+                      .format(report_id))
+            return self.read()
+
+    def delete_report_format(self, report_format_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this report_format? '):
+            self.send('<delete_report_format report_format_id="{0}" \
+ultimate="{1}"/>'.format(report_format_id, ultimate))
+            return self.read()
+
+    def delete_role(self, role_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this role? '):
+            self.send('<delete_role role_id="{0}" ultimate="{1}"/>'
+                      .format(role_id, ultimate))
+            return self.read()
+
+    def delete_scanner(self, scanner_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this scanner? '):
+            self.send('<delete_scanner scanner_id="{0}" ultimate="{1}"/>'
+                      .format(scanner_id, ultimate))
+            return self.read()
+
+    def delete_schedule(self, schedule_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this schedule? '):
+            self.send('<delete_schedule schedule_id="{0}" ultimate="{1}"/>'
+                      .format(schedule_id, ultimate))
+            return self.read()
+
+    def delete_tag(self, tag_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this tag? '):
+            self.send('<delete_tag tag_id="{0}" ultimate="{1}"/>'
+                      .format(tag_id, ultimate))
+            return self.read()
+
+    def delete_target(self, target_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this target? '):
+            self.send('<delete_target target_id="{0}" ultimate="{1}"/>'
+                      .format(target_id, ultimate))
+            return self.read()
+
+    def delete_task(self, task_id, ultimate):
+        if self.ask_yes_or_no('Are you sure to delete this task? '):
+            self.send('<delete_task task_id="{0}" ultimate="{1}"/>'
+                      .format(task_id, ultimate))
+            return self.read()
+
+    def delete_user(self):
+        raise NotImplemented
+
+    def describe_auth(self):
+        self.send('<describe_auth/>')
         return self.read()
 
-    def delete_task(self, id):
-        self.send('<delete_task task_id="{0}"/>'.format(id))
+    def empty_trashcan(self):
+        self.send('<empty_trashcan/>')
+        return self.read()
+
+    def get_agents(self, **kwargs):
+        self.send('<get_agents {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_aggregates(self, **kwargs):
+        self.send(
+            '<get_aggregates {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_alerts(self, **kwargs):
+        self.send('<get_alerts {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_assets(self, **kwargs):
         self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_credentials(self, **kwargs):
+        self.send(
+            '<get_credentials {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_configs(self, **kwargs):
         self.send('<get_configs {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_feeds(self, **kwargs):
+        self.send('<get_feeds {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_filters(self, **kwargs):
+        self.send('<get_filters {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_groups(self, **kwargs):
+        self.send('<get_groups {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_info(self, **kwargs):
         self.send('<get_info {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_notes(self, **kwargs):
+        self.send('<get_notes {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_nvts(self, **kwargs):
         self.send('<get_nvts {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_nvt_families(self, **kwargs):
+        self.send(
+            '<get_nvt_families {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_overrides(self, **kwargs):
+        self.send(
+            '<get_overrides {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_permissions(self, **kwargs):
+        self.send(
+            '<get_permissions {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_port_lists(self):
         self.send('<get_port_lists/>')
+        return self.read()
+
+    def get_preferences(self, **kwargs):
+        self.send(
+            '<get_preferences {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_reports(self, **kwargs):
@@ -246,17 +494,39 @@ class GVMConnection:
                   .format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_report_formats(self, **kwargs):
+        self.send(
+            '<get_report_formats {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_results(self, **kwargs):
         self.send('<get_results {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_roles(self, **kwargs):
+        self.send('<get_roles {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_scanners(self, **kwargs):
         self.send('<get_scanners {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_schedules(self, **kwargs):
+        self.send(
+            '<get_schedules {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_settings(self, **kwargs):
+        self.send('<get_settings {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_system_reports(self, **kwargs):
         self.send(
             '<get_system_reports {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def get_tags(self, **kwargs):
+        self.send('<get_tags {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_targets(self, **kwargs):
@@ -267,21 +537,142 @@ class GVMConnection:
         self.send('<get_tasks {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
+    def get_users(self, **kwargs):
+        self.send('<get_users {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
     def get_version(self):
         self.send('<get_version/>')
         return self.read()
+
+    def help(self, **kwargs):
+        self.send('<help {0} />'.format(self.argumentsToString(kwargs)))
+        return self.read()
+
+    def modify_agent(self, id, name='', comment=''):
+        cmd = self.gmp_generator.modifyAgentCommand(id, name, comment)
+        self.send(cmd)
+        return self.read()
+
+    def modify_alert(self):
+        raise NotImplemented
+
+    def modify_asset(self):
+        raise NotImplemented
+
+    def modify_auth(self):
+        raise NotImplemented
 
     def modify_config(self, selection, **kwargs):
         cmd = self.gmp_generator.modifyConfigCommand(selection, kwargs)
         self.send(cmd)
         return self.read()
 
-    def start_task(self, id):
-        self.send('<start_task task_id="{0}"/>'.format(id))
+    def modify_credential(self):
+        raise NotImplemented
+
+    def modify_filter(self):
+        raise NotImplemented
+
+    def modify_group(self):
+        raise NotImplemented
+
+    def modify_note(self):
+        raise NotImplemented
+
+    def modify_override(self):
+        raise NotImplemented
+
+    def modify_permission(self):
+        raise NotImplemented
+
+    def modify_port_list(self):
+        raise NotImplemented
+
+    def modify_report(self):
+        raise NotImplemented
+
+    def modify_report_format(self):
+        raise NotImplemented
+
+    def modify_role(self):
+        raise NotImplemented
+
+    def modify_scanner(self):
+        raise NotImplemented
+
+    def modify_schedule(self):
+        raise NotImplemented
+
+    def modify_setting(self):
+        raise NotImplemented
+
+    def modify_tag(self):
+        raise NotImplemented
+
+    def modify_target(self):
+        raise NotImplemented
+
+    def modify_task(self):
+        raise NotImplemented
+
+    def modify_user(self):
+        raise NotImplemented
+
+    def move_task(self, task_id, slave_id):
+        self.send('<move_task task_id="{0}" slave_id="{1}"/>'
+                  .format(task_id, slave_id))
         return self.read()
 
-    def stop_task(self, id):
-        self.send('<stop_task task_id="{0}"/>'.format(id))
+    def restore(self, id):
+        self.send('<restore id="{0}"/>'.format(id))
+        return self.read()
+
+    def resume_task(self, task_id):
+        self.send('<resume_task task_id="{0}"/>'.format(task_id))
+        return self.read()
+
+    def run_wizard(self):
+        raise NotImplemented
+
+    def start_task(self, task_id):
+        self.send('<start_task task_id="{0}"/>'.format(task_id))
+        return self.read()
+
+    def stop_task(self, task_id):
+        self.send('<stop_task task_id="{0}"/>'.format(task_id))
+        return self.read()
+
+    def sync_cert(self):
+        self.send('<sync_cert/>')
+        return self.read()
+
+    def sync_config(self):
+        self.send('<sync_config/>')
+        return self.read()
+
+    def sync_feed(self):
+        self.send('<sync_feed/>')
+        return self.read()
+
+    def sync_scap(self):
+        self.send('<sync_scap/>')
+        return self.read()
+
+    def test_alert(self, id):
+        self.send('<test_alert alert_id="{0}"/>'.format(id))
+        return self.read()
+
+    def verify_agent(self, id):
+        self.send('<verify_agent agent_id="{0}"/>'.format(id))
+        return self.read()
+
+    def verify_report_format(self, id):
+        self.send('<verify_report_format report_format_id="{0}"/>'.format(id))
+        return self.read()
+
+    def verify_scanner(self, id):
+        self.send('<verify_scanner scanner_id="{0}"/>'.format(id))
         return self.read()
 
 

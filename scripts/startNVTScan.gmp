@@ -27,9 +27,13 @@ for i, conf in enumerate(res.xpath('config')):
     print('\n({0}) {1}: ({2})'.format(i, name, id))
 
 while True:
-    chosen_config = input('\nChoose your config or create new one[0-{len} | n]: '.format(len=len(config_ids)-1))
+    chosen_config = input(
+        '\nChoose your config or create new one[0-{len} | n]: '
+        .format(len=len(config_ids) - 1))
     if chosen_config is 'n':
-        chosen_copy_config = int(input('Which config to copy? [0-{len}]: '.format(len=len(config_ids)-1)))
+        chosen_copy_config = int(
+            input('Which config to copy? [0-{len}]: '
+                  .format(len=len(config_ids) - 1)))
         config_name = input('Enter new Name for config: ')
         copy_id = config_ids[chosen_copy_config]
         res = gmp.create_config(copy_id, config_name)
@@ -38,18 +42,23 @@ while True:
         # Modify the config with an nvt oid
         if len(nvt_oid) is 0:
             nvt_oid = input('NVT OID: ')
-        
+
         nvt = gmp.get_nvts(nvt_oid=nvt_oid, details=1)
         family = nvt.xpath('nvt/family/text()')[0]
 
-        gmp.modify_config('nvt_selection', config_id=config_id, nvt_oid=nvt_oid, family=family)
-        # gmp.modify_config('family_selection', config_id=config_id, family=family)
+        gmp.modify_config('nvt_selection', config_id=config_id,
+                          nvt_oid=nvt_oid, family=family)
+
+        # This nvts must be present to work
+        family = 'Port scanners'
+        nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
+        gmp.modify_config('nvt_selection', config_id=config_id,
+                          nvt_oid=nvts, family=family)
         break
 
-    if 0 <= int(chosen_config) <= len(config_ids)-1:
+    if 0 <= int(chosen_config) <= len(config_ids) - 1:
         config_id = config_ids[int(chosen_config)]
         break
-
 
 
 # create a new target or use an existing
@@ -58,11 +67,13 @@ target_ids = targets.xpath('target/@id')
 
 for i, target in enumerate(targets.xpath('target')):
     name = target.xpath('name/text()')[0]
-    print('\n({0}) {1}'.format(i , name))
+    print('\n({0}) {1}'.format(i, name))
 
 while True:
-    chosen_target = input('\nChoose your target or create new one[0-{len} | n]: '.format(len=len(target_ids)-1))
-    
+    chosen_target = input(
+        '\nChoose your target or create new one[0-{len} | n]: '
+        .format(len=len(target_ids) - 1))
+
     if chosen_target is 'n':
         if len(hosts) is 0:
             hosts = input('Target hosts: ')
@@ -72,10 +83,9 @@ while True:
         target_id = res.xpath('@id')[0]
         break
 
-    if 0 <= int(chosen_target) <= len(target_ids)-1:
+    if 0 <= int(chosen_target) <= len(target_ids) - 1:
         target_id = target_ids[int(chosen_target)]
         break
-
 
 
 # Create the task
@@ -89,8 +99,10 @@ for i, scanner in enumerate(res.xpath('scanner')):
     print("\n({0})\n{1}: ({2})".format(i, name, id))
 
 while True:
-    chosen_scanner = int(input('\nChoose your scanner [0-{len}]: '.format(len=len(scanner_ids)-1)))
-    if 0 <= chosen_scanner <= len(scanner_ids)-1:
+    chosen_scanner = int(
+        input('\nChoose your scanner [0-{len}]: '
+              .format(len=len(scanner_ids) - 1)))
+    if 0 <= chosen_scanner <= len(scanner_ids) - 1:
         break
 
 scanner_id = scanner_ids[chosen_scanner]
@@ -98,8 +110,8 @@ scanner_id = scanner_ids[chosen_scanner]
 task_name = input('Task name: ')
 task_comment = input('Task comment: ')
 
-res = gmp.create_task(task_name, config_id, target_id, scanner_id, task_comment)
-
+res = gmp.create_task(task_name, config_id, target_id,
+                      scanner_id, task_comment)
 
 
 # Start the task
