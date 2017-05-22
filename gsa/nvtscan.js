@@ -88,16 +88,16 @@ function scanHostWithNVT(host, oid){
                         filter: 'name=' + target
                     }).then(response => {
                         // console.log(response.getEntries()[0].id)
-                        return response.getEntries()[0].id;
+                        return response.getEntries()[0];
                     })
-                }).then(target_id => {
-                console.log('Using Target ' + target_id + ' ...');
+                }).then(target_obj => {
+                console.log('Using Target ' + target_obj.id + ' ...');
                 let date = new Date().toISOString();
                 let name = target + '_' + nvt_oid + '_' + date;
                 return gmp.task.create({
                     name: name,
                     config_id: config_id,
-                    target_id: target_id,
+                    target_id: target_obj.id,
                     scanner_id: scanner_id,
                     scanner_type: '1',
                     in_assets: '1',
