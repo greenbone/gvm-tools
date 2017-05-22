@@ -9,7 +9,7 @@ Introduction
 
 *GVM-Tools* are comprised of three clients and one library.
 The proper purpose for this tools is simply communication with some
-GVM (Greenbone Vulnerability Manager) over GMP (Greenbone Manangement Protocol) or OSP (Open Scanner Protocol).
+GVM (Greenbone Vulnerability Manager) over GMP (Greenbone Management Protocol) or OSP (Open Scanner Protocol).
 
 Current Version: 0.2.dev1
 
@@ -24,7 +24,7 @@ To install it, after downloading the repository, you can use ``pip`` like that::
 Clients
 ~~~~~~~
 Currently there are three different clients to communicate with the GVM.
-Only the gvm-dialog is under developement and not accessible.
+Only the gvm-dialog is under development and not accessible.
 All clients have the ability to build a connection in various ways.
 
 These three ways are:
@@ -35,7 +35,7 @@ These three ways are:
 
 gvm-cli
 #######
-This little tool sends plain GMP commands and prints the result to the standard output. When program is used without any parameters, then it asks for an xml command and user credentials.
+This little tool sends plain GMP commands and prints the result to the standard output. When program is used without any parameters, it asks for an XML command and user credentials.
 
 Example program use
 -------------------
@@ -52,7 +52,7 @@ Return all tasks.
     gvm-cli --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
 
 
-Reads a file with gmp commands and return the result.
+Reads a file with GMP commands and return the result.
 
 .. code-block:: bash
 
@@ -60,7 +60,7 @@ Reads a file with gmp commands and return the result.
 
 gvm-pyshell
 ###########
-This tool has a lot more features, then the simple gvm-cli client. You have the possibility to create your own custom scripts with commands from the gvm-lib and from python3 itself. The scripts can be pre loaded in the program through an addtional argument.
+This tool has a lot more features than the simple gvm-cli client. You have the possibility to create your own custom scripts with commands from the gvm-lib and from python3 itself. The scripts can be pre-loaded in the program through an additional argument.
 
 Example program use
 -------------------
@@ -88,10 +88,10 @@ Example script
 
 .. code-block:: python
 
-    # Retrieve current gmp version
+    # Retrieve current GMP version
     version = gmp.get_version()
 
-    # Prints the xml in beautiful form
+    # Prints the XML in beautiful form
     pretty(version)
 
     # Retrieve all tasks
