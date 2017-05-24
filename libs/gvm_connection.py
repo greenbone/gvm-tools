@@ -73,6 +73,7 @@ class GVMConnection:
         """
         try:
             self.sendAll(cmd)
+            logger.debug(cmd)
             time.sleep(0.1)
         except paramiko.SSHException as e:
             print(e)
@@ -213,41 +214,68 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_alert(self):
-        # , name, comment='', copy='', condition, event, method, filter
-        raise NotImplemented
+    def create_alert(self, name, condition, event, method, filter_id='',
+                     copy='', comment=''):
+        cmd = self.gmp_generator.createAlertCommand(name, condition, event,
+                                                    method, filter_id, copy,
+                                                    comment)
+        self.send(cmd)
+        return self.read()
 
-    def create_asset(self):
-        raise NotImplemented
+    def create_asset(self, name, asset_type, comment=''):
+        # TODO: Add the missing second method
+        cmd = self.gmp_generator.createAssetCommand(name, asset_type, comment)
+        self.send(cmd)
+        return self.read()
 
     def create_config(self, copy_id, name):
         cmd = self.gmp_generator.createConfigCommand(copy_id, name)
         self.send(cmd)
         return self.read()
 
-    def create_credential(self):
-        raise NotImplemented
+    def create_credential(self, name, **kwargs):
+        cmd = self.gmp_generator.createCredentialCommand(name, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_filter(self):
-        raise NotImplemented
+    def create_filter(self, name, make_unique, **kwargs):
+        cmd = self.gmp_generator.createFilterCommand(name, make_unique, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_group(self):
-        raise NotImplemented
+    def create_group(self, name, **kwargs):
+        cmd = self.gmp_generator.createGroupCommand(name, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_note(self):
-        raise NotImplemented
+    # TODO: Create notes with comment returns bogus element. Research
+    def create_note(self, text, nvt_oid, **kwargs):
+        cmd = self.gmp_generator.createNoteCommand(text, nvt_oid, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_override(self):
-        raise NotImplemented
+    def create_override(self, text, nvt_oid, **kwargs):
+        cmd = self.gmp_generator.createOverrideCommand(text, nvt_oid, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_permission(self):
-        raise NotImplemented
+    def create_permission(self, name, subject_id, type, **kwargs):
+        cmd = self.gmp_generator.createPermissionCommand(name, subject_id,
+                                                         type, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_port_list(self):
-        raise NotImplemented
+    def create_port_list(self, name, port_range, **kwargs):
+        cmd = self.gmp_generator.createPortListCommand(name, port_range,
+                                                       kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_port_range(self):
-        raise NotImplemented
+    def create_port_range(self, port_list_id, start, end, type, comment=''):
+        cmd = self.gmp_generator.createPortRangeCommand(port_list_id, start,
+                                                        end, type, comment)
+        self.send(cmd)
+        return self.read()
 
     def create_report(self):
         raise NotImplemented
@@ -255,17 +283,29 @@ class GVMConnection:
     def create_report_format(self):
         raise NotImplemented
 
-    def create_role(self):
-        raise NotImplemented
+    def create_role(self, name, **kwargs):
+        cmd = self.gmp_generator.createRoleCommand(name, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_scanner(self):
-        raise NotImplemented
+    def create_scanner(self, name, host, port, type, ca_pub, credential_id,
+                       **kwargs):
+        cmd = self.gmp_generator.createScannerCommand(name, host, port, type,
+                                                      ca_pub, credential_id,
+                                                      kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_schedule(self):
-        raise NotImplemented
+    def create_schedule(self, name, **kwargs):
+        cmd = self.gmp_generator.createScheduleCommand(name, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def create_tag(self):
-        raise NotImplemented
+    def create_tag(self, name, resource_id, resource_type, **kwargs):
+        cmd = self.gmp_generator.createTagCommand(name, resource_id,
+                                                  resource_type, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def create_target(self, name, hosts):
         cmd = self.gmp_generator.createTargetCommand(name, hosts)
@@ -557,11 +597,17 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
     def modify_alert(self):
         raise NotImplemented
 
-    def modify_asset(self):
-        raise NotImplemented
+    def modify_asset(self, asset_id, comment):
+        cmd = '<modify_asset asset_id="%s"><comment>%s</comment>' \
+              '</modify_asset>' % (asset_id, comment)
+        self.send(cmd)
+        return self.read()
 
-    def modify_auth(self):
-        raise NotImplemented
+    def modify_auth(self, group_name,  auth_conf_settings):
+        cmd = self.gmp_generator.modifyAuthCommand(group_name,
+                                                   auth_conf_settings)
+        self.send(cmd)
+        return self.read()
 
     def modify_config(self, selection, **kwargs):
         cmd = self.gmp_generator.modifyConfigCommand(selection, kwargs)
@@ -571,35 +617,56 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
     def modify_credential(self):
         raise NotImplemented
 
-    def modify_filter(self):
-        raise NotImplemented
+    def modify_filter(self, filter_id, **kwargs):
+        cmd = self.gmp_generator.modifyFilterCommand(filter_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_group(self):
-        raise NotImplemented
+    def modify_group(self, group_id, **kwargs):
+        cmd = self.gmp_generator.modifyGroupCommand(group_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_note(self):
-        raise NotImplemented
+    def modify_note(self, note_id, text, **kwargs):
+        cmd = self.gmp_generator.modifyNoteCommand(note_id, text, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_override(self):
-        raise NotImplemented
+    def modify_override(self, override_id, text, **kwargs):
+        cmd = self.gmp_generator.modifyOverrideCommand(override_id, text,
+                                                       kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_permission(self):
-        raise NotImplemented
+    def modify_permission(self, permission_id, **kwargs):
+        cmd = self.gmp_generator.modifyPermissionCommand(permission_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_port_list(self):
-        raise NotImplemented
+    def modify_port_list(self, port_list_id, **kwargs):
+        cmd = self.gmp_generator.modifyPortListCommand(port_list_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_report(self):
-        raise NotImplemented
+    def modify_report(self, report_id, comment):
+        cmd = '<modify_report report_id="{0}"><comment>{1}</comment>' \
+              '</modify_report>'.format(report_id, comment)
+        self.send(cmd)
+        return self.read()
 
     def modify_report_format(self):
         raise NotImplemented
 
-    def modify_role(self):
-        raise NotImplemented
+    def modify_role(self, role_id, **kwargs):
+        cmd = self.gmp_generator.modifyRoleCommand(role_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_scanner(self):
-        raise NotImplemented
+    def modify_scanner(self, scanner_id, host, port, type, **kwargs):
+        cmd = self.gmp_generator.modifyScannerCommand(scanner_id, host, kwargs,
+                                                      port, type, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_schedule(self):
         raise NotImplemented
@@ -755,7 +822,7 @@ class TLSConnection(GVMConnection):
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
         self.sock.settimeout(self.timeout)
-        self.sock.connect((self.hostname, self.port))
+        self.sock.connect((self.hostname, int(self.port)))
 
     def sendAll(self, cmd):
         self.sock.send(cmd.encode())
