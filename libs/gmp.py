@@ -529,9 +529,26 @@ class _gmp:
                ''.format(name, resource_id, resource_type, copy, value,
                          comment, active)
 
-    def createTargetCommand(self, name, hosts):
+    def createTargetCommand(self, name, make_unique, kwargs):
+        '''assert name
+        assert make_unique
+
+        if kwargs.has_key('asset_hosts'):
+            hosts = kwargs.get('asset_hosts')
+            filter = hosts['filter']
+
+            hosts = '<asset_hosts filter="%s"/>' % filter
+
+        elif kwargs.has_key('hosts'):
+            hosts = kwargs.get('hosts')
+            hosts = '<hosts>%s</hosts>' %
+        else:
+            pass
+
         return '<create_target><name>{0}</name><hosts>{1}</hosts>' \
                '</create_target>'.format(name, hosts)
+        '''
+        return ''
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           comment=''):
@@ -749,16 +766,16 @@ class _gmp:
 
         resource = kwargs.get('resource', '')
         if resource:
-            resource_id = resource.id
-            resource_type = resource.type
+            resource_id = resource['id']
+            resource_type = resource['type']
 
             resource = '<resource id="%s"><type>%s</type></resource>' \
                        '' % (resource_id, resource_type)
 
         subject = kwargs.get('subject', '')
         if subject:
-            subject_id = subject.id
-            subject_type = subject.type
+            subject_id = subject['id']
+            subject_type = subject['type']
 
             subject = '<subject id="%s"><type>%s</type></subject>' \
                       '' % (subject_id, subject_type)
@@ -835,16 +852,86 @@ class _gmp:
                ''.format(scanner_id, host, port, type, name, ca_pub,
                          credential_id, comment)
 
-    def modifyScheduleCommand(self):
-        raise NotImplemented
+    def modifyScheduleCommand(self, schedule_id, kwargs):
 
-    def modifySettingCommand(self):
-        raise NotImplemented
+        assert schedule_id
 
-    def modifyTagCommand(self):
-        raise NotImplemented
+        comment = kwargs.get('comment', '')
+        if comment:
+            comment = '<comment>%s</comment>' % comment
 
-    def modifyTargetCommand(self):
+        name = kwargs.get('name', '')
+        if name:
+            name = '<name>%s</name>' % name
+
+        first_time = kwargs.get('first_time', '')
+        if first_time:
+            first_time_minute = first_time['minute']
+            first_time_hour = first_time['hour']
+            first_time_day_of_month = first_time['day_of_month']
+            first_time_month = first_time['month']
+            first_time_year = first_time['year']
+
+            first_time = '<first_time>' \
+                         '<minute>%s</minute>' \
+                         '<hour>%s</hour>' \
+                         '<day_of_month>%s</day_of_month>' \
+                         '<month>%s</month>' \
+                         '<year>%s</year>' \
+                         '</first_time>' \
+                         '' % (first_time_minute, first_time_hour,
+                               first_time_day_of_month, first_time_month,
+                               first_time_year)
+
+        duration = kwargs.get('duration', '')
+        if len(duration) > 1:
+            duration = '<duration>%s<unit>%s</unit>' \
+                       '' % (duration[0], duration[1])
+
+        period = kwargs.get('period', '')
+        if len(period) > 1:
+            period = '<period>%s<unit>%s</unit>' % (period[0], period[1])
+
+        timezone = kwargs.get('timezone', '')
+
+        return '<modify_schedule schedule_id="{0}">' \
+               '{1}{2}{3}{4}{5}{6}' \
+               '</modify_schedule>' \
+               ''.format(schedule_id, comment, name, first_time, duration,
+                         period, timezone)
+
+    def modifyTagCommand(self, tag_id, kwargs):
+
+        assert tag_id
+
+        comment = kwargs.get('comment', '')
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
+        name = kwargs.get('name', '')
+        if name:
+            name = '<name>%s</name>' % name
+
+        value = kwargs.get('value', '')
+        if value:
+            value = '<value>%s</value>' % value
+
+        active = kwargs.get('active', '')
+        if active:
+            active = '<active>%s</active>' % active
+
+        resource = kwargs.get('resource', '')
+        if resource:
+            resource_id = resource['id']
+            resource_type = resource['type']
+
+            resource = '<resource id="%s"><type>%s</type></resource>' \
+                       '' % (resource_id, resource_type)
+
+        return '<modify_tag tag_id="{0}">{3}{4}{5}{6}</modify_tag>' \
+               ''.format(tag_id, name, resource, value, comment, active)
+
+    def modifyTargetCommand(self, target_id, kwargs):
         raise NotImplemented
 
     def modifyTaskCommand(self):

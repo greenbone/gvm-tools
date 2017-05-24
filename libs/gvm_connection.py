@@ -307,8 +307,9 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_target(self, name, hosts):
-        cmd = self.gmp_generator.createTargetCommand(name, hosts)
+    def create_target(self, name, make_unique, **kwargs):
+        # TODO: Missing variables
+        cmd = self.gmp_generator.createTargetCommand(name, make_unique, kwargs)
         self.send(cmd)
         return self.read()
 
@@ -330,116 +331,116 @@ class GVMConnection:
         return self.read()
 
     def delete_alert(self, **kwargs):
-        if self.ask_yes_or_no('Are you sure to delete this alert? '):
+        # if self.ask_yes_or_no('Are you sure to delete this alert? '):
             self.send(
                 '<delete_alert {0}/>'.format(self.argumentsToString(kwargs)))
             return self.read()
 
-    def delete_asset(self, asset_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this asset? '):
+    def delete_asset(self, asset_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this asset? '):
             self.send('<delete_asset asset_id="{0}" ultimate="{1}"/>'
                       .format(asset_id, ultimate))
             return self.read()
 
-    def delete_config(self, config_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this config? '):
+    def delete_config(self, config_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this config? '):
             self.send('<delete_config config_id="{0}" ultimate="{1}"/>'
                       .format(config_id, ultimate))
             return self.read()
 
-    def delete_credential(self, credential_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this credential? '):
-            self.send(
-                '<delete_credential cedential_id="{0}" ultimate="{1}"/>'.format
-                (credential_id, ultimate))
-            return self.read()
+    def delete_credential(self, credential_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this credential? '):
+        self.send(
+            '<delete_credential cedential_id="{0}" ultimate="{1}"/>'.format
+            (credential_id, ultimate))
+        return self.read()
 
-    def delete_filter(self, filter_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this filter? '):
+    def delete_filter(self, filter_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this filter? '):
             self.send('<delete_filter filter_id="{0}" ultimate="{1}"/>'
                       .format(filter_id, ultimate))
             return self.read()
 
-    def delete_group(self, group_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this group? '):
+    def delete_group(self, group_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this group? '):
             self.send('<delete_group group_id="{0}" ultimate="{1}"/>'
                       .format(group_id, ultimate))
             return self.read()
 
-    def delete_note(self, note_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this note? '):
+    def delete_note(self, note_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this note? '):
             self.send('<delete_note note_id="{0}" ultimate="{1}"/>'
                       .format(note_id, ultimate))
             return self.read()
 
-    def delete_override(self, override_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this override? '):
+    def delete_override(self, override_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this override? '):
             self.send('<delete_override override_id="{0}" ultimate="{1}"/>'
                       .format(override_id, ultimate))
             return self.read()
 
-    def delete_permission(self, permission_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this permission? '):
+    def delete_permission(self, permission_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this permission? '):
             self.send('<delete_permission permission_id="{0}" ultimate="{1}"/>'
                       .format(permission_id, ultimate))
             return self.read()
 
-    def delete_port_list(self, port_list_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this port_list? '):
+    def delete_port_list(self, port_list_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this port_list? '):
             self.send('<delete_port_list port_list_id="{0}" ultimate="{1}"/>'
                       .format(port_list_id, ultimate))
             return self.read()
 
     def delete_port_range(self, port_range_id):
-        if self.ask_yes_or_no('Are you sure to delete this port_range? '):
+        # if self.ask_yes_or_no('Are you sure to delete this port_range? '):
             self.send('<delete_port_range port_range_id="{0}"/>'
                       .format(port_range_id))
             return self.read()
 
     def delete_report(self, report_id):
-        if self.ask_yes_or_no('Are you sure to delete this report? '):
+        # if self.ask_yes_or_no('Are you sure to delete this report? '):
             self.send('<delete_report report_id="{0}"/>'
                       .format(report_id))
             return self.read()
 
-    def delete_report_format(self, report_format_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this report_format? '):
+    def delete_report_format(self, report_format_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this report_format? '):
             self.send('<delete_report_format report_format_id="{0}" \
 ultimate="{1}"/>'.format(report_format_id, ultimate))
             return self.read()
 
-    def delete_role(self, role_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this role? '):
+    def delete_role(self, role_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this role? '):
             self.send('<delete_role role_id="{0}" ultimate="{1}"/>'
                       .format(role_id, ultimate))
             return self.read()
 
-    def delete_scanner(self, scanner_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this scanner? '):
+    def delete_scanner(self, scanner_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this scanner? '):
             self.send('<delete_scanner scanner_id="{0}" ultimate="{1}"/>'
                       .format(scanner_id, ultimate))
             return self.read()
 
-    def delete_schedule(self, schedule_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this schedule? '):
+    def delete_schedule(self, schedule_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this schedule? '):
             self.send('<delete_schedule schedule_id="{0}" ultimate="{1}"/>'
                       .format(schedule_id, ultimate))
             return self.read()
 
-    def delete_tag(self, tag_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this tag? '):
+    def delete_tag(self, tag_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this tag? '):
             self.send('<delete_tag tag_id="{0}" ultimate="{1}"/>'
                       .format(tag_id, ultimate))
             return self.read()
 
-    def delete_target(self, target_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this target? '):
+    def delete_target(self, target_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this target? '):
             self.send('<delete_target target_id="{0}" ultimate="{1}"/>'
                       .format(target_id, ultimate))
             return self.read()
 
-    def delete_task(self, task_id, ultimate):
-        if self.ask_yes_or_no('Are you sure to delete this task? '):
+    def delete_task(self, task_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this task? '):
             self.send('<delete_task task_id="{0}" ultimate="{1}"/>'
                       .format(task_id, ultimate))
             return self.read()
@@ -520,8 +521,8 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
             '<get_permissions {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def get_port_lists(self):
-        self.send('<get_port_lists/>')
+    def get_port_lists(self, **kwargs):
+        self.send('<get_port_lists {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_preferences(self, **kwargs):
@@ -668,17 +669,27 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send(cmd)
         return self.read()
 
-    def modify_schedule(self):
-        raise NotImplemented
+    def modify_schedule(self, schedule_id, **kwargs):
+        cmd = self.gmp_generator.modifyScheduleCommand(schedule_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_setting(self):
-        raise NotImplemented
+    def modify_setting(self, setting_id, name, value):
+        cmd = '<modify_setting setting_id="{0}"><name>{1}</name>' \
+              '<value>{2}</value></modify_setting>' \
+              ''.format(setting_id, name, value)
+        self.send(cmd)
+        return self.read()
 
-    def modify_tag(self):
-        raise NotImplemented
+    def modify_tag(self, tag_id, **kwargs):
+        cmd = self.gmp_generator.modifyTagCommand(tag_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
-    def modify_target(self):
-        raise NotImplemented
+    def modify_target(self, target_id, **kwargs):
+        cmd = self.gmp_generator.modifyTargetCommand(target_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_task(self):
         raise NotImplemented
