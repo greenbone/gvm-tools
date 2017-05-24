@@ -1,0 +1,42 @@
+message = """
+This script removes all resources from a slave, except active tasks.
+
+"""
+print(message)
+
+tasks = gmp.get_tasks(filter="rows=-1 not status=Running and " \
+                             "not status=Requested and not " \
+                             "status=&quot;Stop Requested&quot;")
+
+for id in tasks.xpath('task/@id'):
+    print('Removing task %s... ' % id)
+    status_text = gmp.delete_task(id, 1).xpath('@status_text')[0]
+    print(status_text)
+
+targets = gmp.get_targets(filter="rows=-1 not _owner=&quot;&quot;")
+for id in targets.xpath('target/@id'):
+    print('Removing target %s... ' % id)
+    status_text = gmp.delete_target(id, 1).xpath('@status_text')[0]
+    print(status_text)
+
+configs = gmp.get_configs(filter="rows=-1 not _owner=&quot;&quot;")
+for id in configs.xpath('config/@id'):
+    print('Removing config %s... ' % id)
+    status_text = gmp.delete_config(id, 1).xpath('@status_text')[0]
+    print(status_text)
+
+port_lists = gmp.get_port_lists(filter="rows=-1 not _owner=&quot;&quot;")
+for id in port_lists.xpath('port_list/@id'):
+    print('Removing port_list %s... ' % id)
+    status_text = gmp.delete_port_list(id, 1).xpath('@status_text')[0]
+    print(status_text)
+
+credentials = gmp.get_credentials(filter="rows=-1 not _owner=&quot;&quot;")
+for id in credentials.xpath('credential/@id'):
+    print('Removing credential %s... ' % id)
+    status_text = gmp.delete_credential(id, 1).xpath('@status_text')[0]
+    print(status_text)
+
+print('Emptying trash... ')
+status_text = gmp.empty_trashcan().xpath('@status_text')[0]
+print(status_text)
