@@ -770,7 +770,7 @@ class SSHConnection(GVMConnection):
                 hostname=self.hostname,
                 username=self.ssh_user,
                 password=self.ssh_password,
-                timeout=self.timeout,
+                timeout=int(self.timeout),
                 port=int(self.port))
             self.channel = self.sock.invoke_shell()
 
@@ -821,7 +821,7 @@ class TLSConnection(GVMConnection):
         self.shell_mode = kwargs.get('shell_mode', False)
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
-        self.sock.settimeout(self.timeout)
+        self.sock.settimeout(int(self.timeout))
         self.sock.connect((self.hostname, int(self.port)))
 
     def sendAll(self, cmd):
