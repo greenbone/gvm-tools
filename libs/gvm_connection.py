@@ -223,7 +223,7 @@ class GVMConnection:
         return self.read()
 
     def create_asset(self, name, asset_type, comment=''):
-        # TODO: Add the missing second method
+        # TODO: Add the missing second method. Also the docs are not complete!
         cmd = self.gmp_generator.createAssetCommand(name, asset_type, comment)
         self.send(cmd)
         return self.read()
@@ -278,9 +278,11 @@ class GVMConnection:
         return self.read()
 
     def create_report(self):
+        # TODO: Seems to be a complex task. It is needed?
         raise NotImplemented
 
     def create_report_format(self):
+        # TODO: Seems to be a complex task. It is needed?
         raise NotImplemented
 
     def create_role(self, name, **kwargs):
@@ -322,7 +324,7 @@ class GVMConnection:
     def create_user(self, name, password, copy='', hosts_allow=None,
                     ifaces_allow=None, role_ids=()):
         cmd = self.gmp_generator.createUserCommand(
-            name, copy, hosts_allow, ifaces_allow, password, role_ids)
+            name, password, copy, hosts_allow, ifaces_allow, role_ids)
         self.send(cmd)
         return self.read()
 
@@ -445,8 +447,26 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
                       .format(task_id, ultimate))
             return self.read()
 
-    def delete_user(self):
-        raise NotImplemented
+    def delete_user(self, **kwargs):
+        user_id = kwargs.get('user_id', '')
+        if user_id:
+            user_id = ' user_id="%s"' % user_id
+
+        name = kwargs.get('name', '')
+        if name:
+            name = ' name="%s"' % name
+
+        inheritor_id = kwargs.get('inheritor_id', '')
+        if inheritor_id:
+            inheritor_id = ' inheritor_id="%s"' % inheritor_id
+
+        inheritor_name = kwargs.get('inheritor_name', '')
+        if inheritor_name:
+            inheritor_name = ' inheritor_name="%s"' % inheritor_name
+
+        self.send('<delete_user{0}{1}{2}{3}/>'
+                  .format(user_id, name, inheritor_id, inheritor_name))
+        return self.read()
 
     def describe_auth(self):
         self.send('<describe_auth/>')
@@ -522,7 +542,8 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         return self.read()
 
     def get_port_lists(self, **kwargs):
-        self.send('<get_port_lists {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send(
+            '<get_port_lists {0}/>'.format(self.argumentsToString(kwargs)))
         return self.read()
 
     def get_preferences(self, **kwargs):
@@ -590,13 +611,15 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send('<help {0} />'.format(self.argumentsToString(kwargs)))
         return self.read()
 
-    def modify_agent(self, id, name='', comment=''):
-        cmd = self.gmp_generator.modifyAgentCommand(id, name, comment)
+    def modify_agent(self, agent_id, name='', comment=''):
+        cmd = self.gmp_generator.modifyAgentCommand(agent_id, name, comment)
         self.send(cmd)
         return self.read()
 
-    def modify_alert(self):
-        raise NotImplemented
+    def modify_alert(self, alert_id, **kwargs):
+        cmd = self.gmp_generator.modifyAlertCommand(alert_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_asset(self, asset_id, comment):
         cmd = '<modify_asset asset_id="%s"><comment>%s</comment>' \
@@ -615,8 +638,10 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send(cmd)
         return self.read()
 
-    def modify_credential(self):
-        raise NotImplemented
+    def modify_credential(self, credential_id, **kwargs):
+        cmd = self.gmp_generator.modifyCredentialCommand(credential_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_filter(self, filter_id, **kwargs):
         cmd = self.gmp_generator.modifyFilterCommand(filter_id, kwargs)
@@ -655,8 +680,11 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send(cmd)
         return self.read()
 
-    def modify_report_format(self):
-        raise NotImplemented
+    def modify_report_format(self, report_format_id, **kwargs):
+        cmd = self.gmp_generator.modifyReportFormatCommand(report_format_id,
+                                                           kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_role(self, role_id, **kwargs):
         cmd = self.gmp_generator.modifyRoleCommand(role_id, kwargs)
@@ -692,10 +720,13 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         return self.read()
 
     def modify_task(self):
+        # TODO: Multiple values are required to modify a task. Is this correct?
         raise NotImplemented
 
-    def modify_user(self):
-        raise NotImplemented
+    def modify_user(self, **kwargs):
+        cmd = self.gmp_generator.modifyUserCommand(kwargs)
+        self.send(cmd)
+        return self.read()
 
     def move_task(self, task_id, slave_id):
         self.send('<move_task task_id="{0}" slave_id="{1}"/>'
@@ -711,6 +742,7 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         return self.read()
 
     def run_wizard(self):
+        # TODO: Is this required?
         raise NotImplemented
 
     def start_task(self, task_id):
