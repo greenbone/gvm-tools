@@ -204,7 +204,7 @@ class GVMConnection:
             withCommands=str(withCommand))
 
         self.send(cmd)
-        self.read()
+        return self.read()
 
     def create_agent(self, installer, signature, name, comment='', copy='',
                      howto_install='', howto_use=''):
