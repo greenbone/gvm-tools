@@ -353,7 +353,7 @@ class GVMConnection:
     def delete_credential(self, credential_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this credential? '):
         self.send(
-            '<delete_credential cedential_id="{0}" ultimate="{1}"/>'.format
+            '<delete_credential credential_id="{0}" ultimate="{1}"/>'.format
             (credential_id, ultimate))
         return self.read()
 

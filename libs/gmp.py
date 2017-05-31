@@ -505,25 +505,23 @@ class _gmp:
                          comment, active)
 
     def createTargetCommand(self, name, make_unique, kwargs):
-        '''assert name
+        assert name
         assert make_unique
 
-        if kwargs.has_key('asset_hosts'):
+        if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
             filter = hosts['filter']
 
             hosts = '<asset_hosts filter="%s"/>' % filter
 
-        elif kwargs.has_key('hosts'):
+        elif 'hosts' in kwargs:
             hosts = kwargs.get('hosts')
-            hosts = '<hosts>%s</hosts>' %
+            hosts = '<hosts>%s</hosts>' % hosts
         else:
             pass
 
-        return '<create_target><name>{0}</name><hosts>{1}</hosts>' \
+        return '<create_target><name>{0}</name>{1}' \
                '</create_target>'.format(name, hosts)
-        '''
-        return ''
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           comment=''):
