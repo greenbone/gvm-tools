@@ -28,7 +28,6 @@ setup(
         'console_scripts': [
             'gvm-pyshell=clients.gvm_pyshell:main',
             'gvm-cli=clients.gvm_cli:main',
-            'gvm-dialog=clients.gvm_dialog:main',
         ],
     },
 )
