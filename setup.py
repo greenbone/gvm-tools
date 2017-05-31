@@ -14,7 +14,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='GVMTools',
+    name='gvm-tools',
     version='1.0',
     description='Library and clients to speak with GVM over GMP or OSP',
     long_description=long_description,

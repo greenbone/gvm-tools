@@ -21,7 +21,8 @@ for host in hosts:
         hostname = hostname[0]
     
     print('{ip} ({hostname})'.format(ip=hostname, hostname=ip))
-    apps = host.xpath('detail/name[text() = "App"]/../value[contains(text(), "{0}")]/text()'.format(appname))
+    apps = host.xpath('detail/name[text() = "App"]/../value[contains(text(), ' \
+                      '"{0}")]/text()'.format(appname))
     for app in apps:
         print('\t' + app)
     print('\n')

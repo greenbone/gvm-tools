@@ -70,9 +70,12 @@ for i, target in enumerate(targets.xpath('target')):
     print('\n({0}) {1}'.format(i, name))
 
 while True:
-    chosen_target = input(
-        '\nChoose your target or create new one[0-{len} | n]: '
-        .format(len=len(target_ids) - 1))
+    if target_ids:
+        chosen_target = input(
+            '\nChoose your target or create new one[0-{len} | n]: '
+            .format(len=len(target_ids) - 1))
+    else:
+        chosen_target = 'n'
 
     if chosen_target is 'n':
         if len(hosts) is 0:
