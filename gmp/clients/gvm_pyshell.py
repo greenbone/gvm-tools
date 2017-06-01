@@ -31,7 +31,7 @@ from gmp.gvm_connection import (SSHConnection,
                                 TLSConnection,
                                 UnixSocketConnection)
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 
 logger = logging.getLogger(__name__)
 
