@@ -15,7 +15,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='gvm-tools',
-    version='1.0.1',
+    version='1.0.2',
     description='Library and clients to speak with GVM over GMP or OSP',
     long_description=long_description,
     author='Raphael Grewe',
@@ -26,8 +26,8 @@ setup(
     install_requires=['paramiko', 'lxml'],
     entry_points={
         'console_scripts': [
-            'gvm-pyshell=clients.gvm_pyshell:main',
-            'gvm-cli=clients.gvm_cli:main',
+            'gvm-pyshell=gmp.clients.gvm_pyshell:main',
+            'gvm-cli=gmp.clients.gvm_cli:main',
         ],
     },
 )
