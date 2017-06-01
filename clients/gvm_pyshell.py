@@ -31,7 +31,7 @@ from libs.gvm_connection import (SSHConnection,
                                  TLSConnection,
                                  UnixSocketConnection)
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 logger = logging.getLogger(__name__)
 
