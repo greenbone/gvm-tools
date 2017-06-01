@@ -27,11 +27,11 @@ import code
 import getpass
 import logging
 from lxml import etree
-from libs.gvm_connection import (SSHConnection,
-                                 TLSConnection,
-                                 UnixSocketConnection)
+from gmp.gvm_connection import (SSHConnection,
+                                TLSConnection,
+                                UnixSocketConnection)
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 logger = logging.getLogger(__name__)
 
