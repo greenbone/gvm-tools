@@ -382,6 +382,34 @@ class _gmp:
                '</create_port_range>' \
                ''.format(port_list_id, start, end, type, comment)
 
+    def createReportCommand(self, report_xml_string, kwargs):
+
+        assert report_xml_string
+
+        task_id = kwargs.get('task_id', '')
+        task_name = kwargs.get('task_name', '')
+        task = ''
+
+        comment = kwargs.get('comment', '')
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
+        if task_id:
+            task = '<task id="%s"></task>' % (task_id)
+        elif task_name:
+            task = '<task><name>%s</name>%s</task>' % (task_name, comment)
+        else:
+            raise ValueError('create_report requires an id or name for a task')
+
+        in_assets = kwargs.get('in_assets', '')
+        if in_assets:
+            in_assets = '<in_assets>%s</in_assets>' % in_assets
+
+        return '<create_report>' \
+               '{0}{1}{2}' \
+               '</create_report>' \
+               ''.format(task, in_assets, report_xml_string)
+
     def createRoleCommand(self, name, kwargs):
 
         assert name

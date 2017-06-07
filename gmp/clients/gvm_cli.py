@@ -176,9 +176,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     # Open the right connection. SSH at last for default
     try:
-        if hasattr(args, 'sockpath'):
+        if 'socket' in args.connection_type:
             connection_with_unix_socket(xml, args)
-        elif hasattr(args, 'tls'):
+        elif 'tls' in args.connection_type:
             connection_direct_over_tls(xml, args)
         else:
             connection_over_ssh(xml, args)

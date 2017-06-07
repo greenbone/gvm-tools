@@ -277,9 +277,10 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_report(self):
-        # TODO: Seems to be a complex task. It is needed?
-        raise NotImplemented
+    def create_report(self, report_xml_string, **kwargs):
+        cmd = self.gmp_generator.createReportCommand(report_xml_string, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def create_report_format(self):
         # TODO: Seems to be a complex task. It is needed?
