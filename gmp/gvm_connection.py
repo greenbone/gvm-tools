@@ -896,7 +896,7 @@ class UnixSocketConnection(GVMConnection):
     def __init__(self, **kwargs):
         super().__init__()
         self.sockpath = kwargs.get('sockpath',
-                                   '/usr/local/var/run/openvasmd.sock')
+                                   '/usr/local/var/run/gvmd.sock')
         self.shell_mode = kwargs.get('shell_mode', False)
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(self.sockpath)

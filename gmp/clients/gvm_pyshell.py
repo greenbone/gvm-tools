@@ -156,8 +156,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?', default='/usr/local/var/run/openvasmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/openvasmd.sock.')
+        '--sockpath', nargs='?', default='/usr/local/var/run/gvmd.sock',
+        help='UNIX-Socket path. Default: /usr/local/var/run/gvmd.sock.')
 
     parser.add_argument(
         '-V', '--version', action='version',
