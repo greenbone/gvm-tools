@@ -122,6 +122,9 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
+        '--timeout', required=False, default=60, type=int,
+        help='Wait <seconds> for response. Default: 60')
+    parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activates logging. Default level: INFO.')

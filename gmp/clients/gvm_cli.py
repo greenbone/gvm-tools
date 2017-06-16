@@ -87,6 +87,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
+        '--timeout', required=False, default=60, type=int,
+        help='Wait <seconds> for response. Default: 60')
+    parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activates logging. Default level: INFO.')
@@ -199,7 +202,8 @@ def connection_with_unix_socket(xml, args):
 
 
 def connection_direct_over_tls(xml, args):
-    gvm = TLSConnection(hostname=args.hostname, port=9390)
+    gvm = TLSConnection(hostname=args.hostname, port=9390,
+                        timeout=args.timeout)
     gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 
@@ -209,8 +213,9 @@ def connection_direct_over_tls(xml, args):
 
 
 def connection_over_ssh(xml, args):
-    gvm = SSHConnection(hostname=args.hostname, port=args.port,
-                        timeout=5, ssh_user=args.ssh_user, ssh_password='')
+    gvm = SSHConnection(
+        hostname=args.hostname, port=args.port, timeout=args.timeout,
+        ssh_user=args.ssh_user, ssh_password='')
     gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 
