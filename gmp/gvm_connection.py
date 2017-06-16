@@ -74,7 +74,6 @@ class GVMConnection:
         try:
             self.sendAll(cmd)
             logger.debug(cmd)
-            time.sleep(0.1)
         except paramiko.SSHException as e:
             print(e)
         except OSError as e:
@@ -169,7 +168,7 @@ class GVMConnection:
         """
         msg = ''
         for key, value in kwargs.items():
-            msg += str(key) + '="' + str(value) + '" '
+            msg += str(key) + '=\'' + str(value) + '\' '
 
         return msg
 
