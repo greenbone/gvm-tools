@@ -1,8 +1,8 @@
 import unittest
-from libs.gvm_connection import (SSHConnection,
-                                 TLSConnection,
-                                 UnixSocketConnection,
-                                 GMPError)
+from gmp.gvm_connection import (SSHConnection,
+                                TLSConnection,
+                                UnixSocketConnection,
+                                GMPError)
 import warnings
 import lxml
 
@@ -14,7 +14,7 @@ class GVMConnectionTest(unittest.TestCase):
     username = 'admin'
     password = 'admin'
     hostname = 'localhost'
-    sockpath = '/usr/local/var/run/openvasmd.sock'
+    sockpath = '/usr/local/var/run/gvmd.sock'
 
     def setUp(self):
         warnings.simplefilter("ignore", ResourceWarning)

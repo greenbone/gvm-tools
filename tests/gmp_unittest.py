@@ -1,6 +1,6 @@
 import unittest
-from libs.gvm_connection import (SSHConnection,
-                                 GMPError)
+from gmp.gvm_connection import (SSHConnection,
+                                GMPError)
 import warnings
 import lxml
 
