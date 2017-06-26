@@ -179,7 +179,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     global gmp
     if 'socket' in args.connection_type:
         try:
-            gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True)
+            gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True,
+                                       timeout=args.timeout)
         except OSError as e:
             print('{0}: {1}'.format(e, args.sockpath))
             quit()
@@ -187,7 +188,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     elif 'tls' in args.connection_type:
         try:
             gmp = TLSConnection(hostname=args.hostname, port=args.port,
-                                shell_mode=True)
+                                timeout=args.timeout, shell_mode=True)
         except OSError as e:
             print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
                                                     args.port))
@@ -195,7 +196,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     else:
         try:
             gmp = SSHConnection(hostname=args.hostname, port=args.port,
-                                timeout=5, ssh_user=args.ssh_user,
+                                timeout=args.timeout, ssh_user=args.ssh_user,
                                 ssh_password='', shell_mode=True)
         except Exception as e:
             print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,

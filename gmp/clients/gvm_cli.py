@@ -192,7 +192,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
 
 def connection_with_unix_socket(xml, args):
-    gvm = UnixSocketConnection(sockpath=args.sockpath)
+    gvm = UnixSocketConnection(sockpath=args.sockpath, timeout=args.timeout)
     gvm.authenticate(args.gmp_username, args.gmp_password)
     gvm.send(xml)
 

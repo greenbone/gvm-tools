@@ -1,5 +1,5 @@
 from datetime import datetime
-from libs.gvm_connection import GMPError
+from gmp.gvm_connection import GMPError
 
 len_args = len(args.script) - 1
 if len_args is not 2:

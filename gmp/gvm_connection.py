@@ -897,7 +897,9 @@ class UnixSocketConnection(GVMConnection):
         self.sockpath = kwargs.get('sockpath',
                                    '/usr/local/var/run/gvmd.sock')
         self.shell_mode = kwargs.get('shell_mode', False)
+        self.timeout = kwargs.get('timeout', 60)
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock.settimeout(int(self.timeout))
         self.sock.connect(self.sockpath)
 
     def readAll(self):
