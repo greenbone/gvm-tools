@@ -7,15 +7,22 @@ GVM-Tools
 Introduction
 ~~~~~~~~~~~~
 
-*GVM-Tools* are comprised of three clients and one library.
-The proper purpose for this tools is simply communication with some
-GVM (Greenbone Vulnerability Manager) over GMP (Greenbone Management Protocol) or OSP (Open Scanner Protocol).
+*GVM-Tools* is a collection of tools that help with remote controlling
+a Greenbonse Security Manager (GSM) appliance and its underlying Greenbone
+Vulnerability Manager (GVM). The tools essentially aid accessing
+the communication protocols GMP (Greenbone Management Protocol) and
+OSP (Open Scanner Protocol).
 
-Current Version: 0.2.dev1
+Current Version: 1.0.3
+
+This module is comprised of interactive and non-interactive clients
+as well as supporting libraries. The programming language Python
+is supported directly for interactive scripting and library use.
+But it is also possible to issue remote GMP/OSP commands without
+programming in Python.
 
 Installing
 ~~~~~~~~~~~~
-
 
 To install it, after downloading the repository, you can use ``pip`` like that::
 
@@ -23,11 +30,9 @@ To install it, after downloading the repository, you can use ``pip`` like that::
 
 Clients
 ~~~~~~~
-Currently there are three different clients to communicate with the GVM.
-Only the gvm-dialog is under development and not accessible.
-All clients have the ability to build a connection in various ways.
+There are several clients to communicate via GMP/OSP.
 
-These three ways are:
+All clients have the ability to build a connection in various ways::
 
 * Unix Socket
 * TLS Connection
@@ -35,7 +40,7 @@ These three ways are:
 
 gvm-cli
 #######
-This little tool sends plain GMP commands and prints the result to the standard output. When program is used without any parameters, it asks for an XML command and user credentials.
+This little tool sends plain GMP/OSP commands and prints the result to the standard output. When the program is used without any parameters, it asks for an XML command and for the user credentials.
 
 Example program use
 -------------------

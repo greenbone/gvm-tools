@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Description:
-# GVM-PyShell for communication with the GVM.
+# Commandcreator for gmp commands.
 #
 # Authors:
 # Raphael Grewe <raphael.grewe@greenbone.net>

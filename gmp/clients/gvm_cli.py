@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Description:
-# GVM-PyShell for communication with the GVM.
+# GVM-Cli for communication with the GVM.
 #
 # Authors:
 # Raphael Grewe <raphael.grewe@greenbone.net>
