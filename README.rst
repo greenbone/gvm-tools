@@ -13,7 +13,7 @@ Vulnerability Manager (GVM). The tools essentially aid accessing
 the communication protocols GMP (Greenbone Management Protocol) and
 OSP (Open Scanner Protocol).
 
-Current Version: 1.0.3
+**Current Version: 1.0.3**
 
 This module is comprised of interactive and non-interactive clients
 as well as supporting libraries. The programming language Python
@@ -27,6 +27,22 @@ Installing
 To install it, after downloading the repository, you can use ``pip`` like that::
 
     pip install .
+
+Otherwise you can use python itself to install it::
+
+    # System
+    python3 setup.py install
+
+    # Local
+    python3 setup.py install --user
+
+Requirements
+~~~~~~~~~~~~
+- python3-paramiko
+- python3-lxml
+- python3-dialog
+
+Some scripts need additional requirements.
 
 Clients
 ~~~~~~~
@@ -109,3 +125,11 @@ Example script
 gvm-dialog
 ##########
 With gvm-dialog you'll get a terminal-based dialog.
+
+This client is **experimental**.
+
+Example:
+
+.. code-block:: bash
+
+    gvm-dialog socket
