@@ -9,7 +9,7 @@ if len_args is not 1:
     1. Name or ID of the CERT-Bund
 
     Example:
-        $ gvm-pyshell socket scripts/config_gen_for_certs.gmp CB-K16/0943
+        $ gvm-pyshell socket scripts/cfg-gen-for-certs.gmp CB-K16/0943
     """
     print(message)
     quit()
