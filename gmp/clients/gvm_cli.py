@@ -188,7 +188,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     except Exception as e:
         print(e)
 
-    sys.exit(0)
+    sys.exit(1)
 
 
 def connection_with_unix_socket(xml, args):

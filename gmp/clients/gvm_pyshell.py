@@ -26,6 +26,7 @@ from argparse import RawTextHelpFormatter
 import code
 import getpass
 import logging
+import sys
 from lxml import etree
 from gmp.gvm_connection import (SSHConnection,
                                 TLSConnection,
@@ -183,7 +184,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
                                        timeout=args.timeout)
         except OSError as e:
             print('{0}: {1}'.format(e, args.sockpath))
-            quit()
+            sys.exit(1)
 
     elif 'tls' in args.connection_type:
         try:
@@ -192,7 +193,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         except OSError as e:
             print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
                                                     args.port))
-            quit()
+            sys.exit(1)
     else:
         try:
             gmp = SSHConnection(hostname=args.hostname, port=args.port,
@@ -201,7 +202,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         except Exception as e:
             print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
                                                     args.port))
-            quit()
+            sys.exit(1)
 
     # Ask for login credentials if none are given
     if args.gmp_username is None:
@@ -218,7 +219,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     except Exception as e:
         print('Please check your credentials!')
         print(e)
-        quit()
+        sys.exit(1)
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script

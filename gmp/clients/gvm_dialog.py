@@ -22,6 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import argparse
 import logging
+import sys
 from dialog import Dialog
 from lxml import etree
 from gmp.gvm_connection import (SSHConnection,
@@ -107,7 +108,7 @@ usage: gvm-dialog [-h] [--version] [connection_type] ...
                                        timeout=args.timeout)
         except OSError as e:
             print('{0}: {1}'.format(e, args.sockpath))
-            quit()
+            sys.exit(1)
 
     elif 'tls' in args.connection_type:
         try:
@@ -116,7 +117,7 @@ usage: gvm-dialog [-h] [--version] [connection_type] ...
         except OSError as e:
             print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
                                                     args.port))
-            quit()
+            sys.exit(1)
     else:
         try:
             gmp = SSHConnection(hostname=args.hostname, port=args.port,
@@ -125,7 +126,7 @@ usage: gvm-dialog [-h] [--version] [connection_type] ...
         except Exception as e:
             print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
                                                     args.port))
-            quit()
+            sys.exit(1)
 
     d = Dialog(dialog="dialog")
     # Dialog.set_background_title() requires pythondialog 2.13 or later
