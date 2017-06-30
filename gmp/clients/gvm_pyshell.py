@@ -27,14 +27,14 @@ import code
 import getpass
 import logging
 import sys
-from gmp.helper import resource_path
+from gmp.helper import get_version
 from lxml import etree
 from gmp.gvm_connection import (SSHConnection,
                                 TLSConnection,
                                 UnixSocketConnection)
 
-with open(resource_path('VERSION')) as f:
-    __version__ = f.read()
+
+__version__ = get_version()
 
 logger = logging.getLogger(__name__)
 

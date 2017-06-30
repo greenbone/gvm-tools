@@ -58,4 +58,7 @@ setup(
         ],
     },
     data_files=[('', ['VERSION'])],
+    package_data={
+        '': ['VERSION']
+    }
 )
