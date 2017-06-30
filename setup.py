@@ -57,4 +57,5 @@ setup(
             'gvm-dialog=gmp.clients.gvm_dialog:main',
         ],
     },
+    data_files=[('', ['VERSION'])],
 )
