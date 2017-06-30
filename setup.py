@@ -36,9 +36,12 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+with open(path.join(here, 'VERSION'), encoding='utf-8') as f:
+    version = f.read()
+
 setup(
     name='gvm-tools',
-    version='1.1.0',
+    version=version,
     description='Library and clients to speak with GVM over GMP or OSP',
     long_description=long_description,
     author='Raphael Grewe',

@@ -25,11 +25,13 @@ import logging
 import sys
 from dialog import Dialog
 from lxml import etree
+from gmp.helper import resource_path
 from gmp.gvm_connection import (SSHConnection,
                                 TLSConnection,
                                 UnixSocketConnection)
 
-__version__ = '1.1.0'
+with open(resource_path('VERSION')) as f:
+    __version__ = f.read()
 
 logger = logging.getLogger(__name__)
 
