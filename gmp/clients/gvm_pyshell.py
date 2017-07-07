@@ -124,6 +124,29 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         help='Show this help message and exit.')
 
     parent_parser = argparse.ArgumentParser(add_help=False)
+
+    parent_parser.add_argument(
+        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
+        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
+    args, remaining_args = parent_parser.parse_known_args()
+
+    defaults = {
+        'gmp_username': '',
+        'gmp_password': ''
+    }
+
+    # Retrieve data from config file
+    if args.config:
+        try:
+            config = configparser.SafeConfigParser()
+            path = os.path.expanduser(args.config)
+            config.read(path)
+            defaults = dict(config.items('Auth'))
+        except Exception as e:
+            print(str(e))
+
+    parent_parser.set_defaults(**defaults)
+
     parent_parser.add_argument(
         '--timeout', required=False, default=60, type=int,
         help='Wait <seconds> for response. Default: 60')

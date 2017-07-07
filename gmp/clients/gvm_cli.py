@@ -88,21 +88,39 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
+        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
+        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
+    args, remaining_args = parent_parser.parse_known_args()
+
+    defaults = {
+        'gmp_username': '',
+        'gmp_password': ''
+    }
+
+    # Retrieve data from config file
+    if args.config:
+        try:
+            config = configparser.SafeConfigParser()
+            path = os.path.expanduser(args.config)
+            config.read(path)
+            defaults = dict(config.items('Auth'))
+        except Exception as e:
+            print(str(e))
+
+    parent_parser.set_defaults(**defaults)
+
+    parent_parser.add_argument(
         '--timeout', required=False, default=60, type=int,
         help='Wait <seconds> for response. Default: 60')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activates logging. Default level: INFO.')
-    parent_parser.add_argument('--gmp-username', help='GMP username.',
-                               required=True)
+    parent_parser.add_argument('--gmp-username', help='GMP username.')
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument('-X', '--xml', help='The XML request to send.')
     parent_parser.add_argument('infile', nargs='?', type=open,
                                default=sys.stdin)
-    parent_parser.add_argument(
-        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
     parser_ssh = subparsers.add_parser(
         'ssh', help='Use SSH connection for gmp service.',
         parents=[parent_parser])
@@ -133,26 +151,12 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
 
-    args = parser.parse_args()
+    args = parser.parse_args(remaining_args)
 
     # Sets the logging
     if args.loglevel is not None:
         level = logging.getLevelName(args.loglevel)
         logging.basicConfig(filename='gvm-cli.log', level=level)
-
-    # Looks for a config file
-    if args.config is not None:
-        try:
-            config = configparser.ConfigParser()
-            path = os.path.expanduser(args.config)
-
-            config.read(path)
-            auth = config['Auth']
-
-            args.gmp_username = auth.get('gmp-username', '')
-            args.gmp_password = auth.get('gmp-password', '')
-        except Exception as message:
-            print(message)
 
     xml = ''
 
