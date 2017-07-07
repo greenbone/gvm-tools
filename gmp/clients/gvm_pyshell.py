@@ -24,8 +24,10 @@
 import argparse
 from argparse import RawTextHelpFormatter
 import code
+import configparser
 import getpass
 import logging
+import os
 import sys
 from gmp.helper import get_version
 from lxml import etree
@@ -128,7 +130,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parent_parser.add_argument(
         '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
         help='Configuration file path. Default: ~/.config/gvm-tools.conf')
-    args, remaining_args = parent_parser.parse_known_args()
+    args_before, remaining_args = parent_parser.parse_known_args()
 
     defaults = {
         'gmp_username': '',
@@ -136,10 +138,10 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     }
 
     # Retrieve data from config file
-    if args.config:
+    if args_before.config:
         try:
             config = configparser.SafeConfigParser()
-            path = os.path.expanduser(args.config)
+            path = os.path.expanduser(args_before.config)
             config.read(path)
             defaults = dict(config.items('Auth'))
         except Exception as e:
@@ -230,12 +232,12 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
             sys.exit(1)
 
     # Ask for login credentials if none are given
-    if args.gmp_username is None:
+    if not args.gmp_username:
         while True:
             args.gmp_username = input('Enter username: ')
             if len(args.gmp_username) is not 0:
                 break
-    if args.gmp_password is None:
+    if not args.gmp_password:
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
