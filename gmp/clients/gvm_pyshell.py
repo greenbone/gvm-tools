@@ -194,7 +194,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         help='Show program\'s version number and exit')
 
     global args
-    args = parser.parse_args()
+    args = parser.parse_args(remaining_args)
 
     # Sets the logging
     if args.loglevel is not None:
