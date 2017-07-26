@@ -151,7 +151,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     parent_parser.add_argument(
         '--timeout', required=False, default=60, type=int,
-        help='Wait <seconds> for response. Default: 60')
+        help='Wait <seconds> for response or if value -1, then wait '
+             'continuously. Default: 60')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
@@ -202,6 +203,10 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     if args.loglevel is not None:
         level = logging.getLevelName(args.loglevel)
         logging.basicConfig(filename='gvm-pyshell.log', level=level)
+
+    # If timeout value is -1, then the socket has no timeout for this session
+    if args.timeout == -1:
+        args.timeout = None
 
     # Open the right connection. SSH at last for default
     global gmp

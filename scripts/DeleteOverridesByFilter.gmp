@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+# Description:
+# Script for gvm-pyshell
+#
+# Authors:
+# Raphael Grewe <raphael.grewe@greenbone.net>
+#
+# Copyright:
+# Copyright (C) 2017 Greenbone Networks GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import time
+
+len_args = len(args.script) - 1
+if len_args is not 1:
+    message = """
+    This script deletes overrides with a specific filter value
+
+    It only needs one parameter for the filter.
+
+    Example:
+        $ gvm-pyshell ssh --hostname <from-gsm> --gmp-username name \
+--gmp-password pass scripts/DeleteOverridesByFilter.gmp <filter>
+    """
+    print(message)
+    quit()
+
+filter_value = args.script[1]
+
+filters = gmp.get_overrides(filter=filter_value)
+
+if not filters.xpath('override'):
+    print('No overrides with filter: %s' % filter_value)
+
+for f_id in filters.xpath('override/@id'):
+    print('Delete override: %s' % f_id, end='')
+    res = gmp.delete_override(f_id)
+
+    if 'OK' in res.xpath('@status_text')[0]:
+        print(' OK')
+    else:
+        print(' ERROR')
+
+    time.sleep(60)

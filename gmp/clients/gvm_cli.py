@@ -111,7 +111,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     parent_parser.add_argument(
         '--timeout', required=False, default=60, type=int,
-        help='Wait <seconds> for response. Default: 60')
+        help='Wait <seconds> for response or if value -1, then wait '
+             'continuously. Default: 60')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
@@ -158,6 +159,10 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         level = logging.getLevelName(args.loglevel)
         logging.basicConfig(filename='gvm-cli.log', level=level)
 
+    # If timeout value is -1, then the socket has no timeout for this session
+    if args.timeout == -1:
+        args.timeout = None
+
     xml = ''
 
     if args.xml is not None:
@@ -177,8 +182,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     # Remove all newlines if the commands come from file
     xml = xml.replace('\n', '').replace('\r', '')
 
-    # Ask for login credentials if none are given
-    if args.gmp_password is None:
+    # Ask for password if none are given
+    if not args.gmp_password:
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 

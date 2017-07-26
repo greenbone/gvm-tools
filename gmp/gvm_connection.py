@@ -805,6 +805,7 @@ class SSHConnection(GVMConnection):
         self.ssh_password = kwargs.get('ssh_password', '')
         self.shell_mode = kwargs.get('shell_mode', False)
         self.sock = paramiko.SSHClient()
+        # self.sock.load_system_host_keys()
         # self.sock.set_missing_host_key_policy(paramiko.WarningPolicy())
         self.sock.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -813,7 +814,7 @@ class SSHConnection(GVMConnection):
                 hostname=self.hostname,
                 username=self.ssh_user,
                 password=self.ssh_password,
-                timeout=int(self.timeout),
+                timeout=self.timeout,
                 port=int(self.port))
             self.channel = self.sock.invoke_shell()
 
@@ -864,7 +865,7 @@ class TLSConnection(GVMConnection):
         self.shell_mode = kwargs.get('shell_mode', False)
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
-        self.sock.settimeout(int(self.timeout))
+        self.sock.settimeout(self.timeout)
         self.sock.connect((self.hostname, int(self.port)))
 
     def sendAll(self, cmd):
@@ -899,7 +900,7 @@ class UnixSocketConnection(GVMConnection):
         self.shell_mode = kwargs.get('shell_mode', False)
         self.timeout = kwargs.get('timeout', 60)
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.sock.settimeout(int(self.timeout))
+        self.sock.settimeout(self.timeout)
         self.sock.connect(self.sockpath)
 
     def readAll(self):
