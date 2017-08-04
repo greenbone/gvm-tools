@@ -1,3 +1,13 @@
+1.2.0 - 2017-08-04
+------------------
+* Improved feature to read from config file for gvm-cli
+* Added feature to read from config file for gvm-pyshell
+* Added feature to disable timeout on sockets for all clients
+* Added new script to delete overrides by filter
+* Removed requirement for username in gvm-cli
+
+* Minor code improvement
+
 1.1.0 - 2017-06-28
 ------------------
 * Fixed hgignore file (Ignored important file)
