@@ -48,8 +48,8 @@ I can imagine that with an extra option the script will update the tags
 for existing hosts.
 
 * Wenn Tags mit dabei sind, sollen dann bei einen existierenden Asset auch die Tags gesynced werden?
-	- Existiert der jeweilige Tag schon im System oder muss er vorher noch angelegt werden?
-	- Wie verknüpfe ich einen vorhandenen Tag mit einem Asset
+    - Existiert der jeweilige Tag schon im System oder muss er vorher noch angelegt werden?
+    - Wie verknüpfe ich einen vorhandenen Tag mit einem Asset
 '''
 
 len_args = len(args.script) - 1
@@ -70,24 +70,31 @@ if len_args is not 1:
 file = args.script[1]
 
 with open(file, newline='') as f:
-	reader = csv.reader(f, delimiter=',', quotechar='|')
-	for row in reader:
-		if len(row) == 4:
-			host = row[0]
-			ip = row[1]
-			contact = row[2]
-			location = row[3]
-			# print('%s %s %s %s' % (host, ip, contact, location))
+    reader = csv.reader(f, delimiter=',', quotechar='|')
+    for row in reader:
+        if len(row) == 4:
+            host = row[0]
+            ip = row[1]
+            contact = row[2]
+            location = row[3]
+            # print('%s %s %s %s' % (host, ip, contact, location))
 
-			# check if asset is already there
-			ret = gmp.get_assets(type='host', filter='ip=%s' % ip)
-			if ret.xpath('asset'):
-				print('\nAsset with IP %s exist' % ip)
-				# id = ret.xpath('asset/@id')[0]
-				# gmp.delete_asset(asset_id=id)
-			else:
-				print('Asset with ip %s does not exist. Sync...' % ip)
-				ret = gmp.create_asset(asset_type='host', name=ip, comment='Delete me')
-				# print(ret.xpath('@status_text'))
-				if 'OK' in ret.xpath('@status_text')[0]:
-					print('Asset synced')
+            # check if asset is already there
+            ret = gmp.get_assets(type='host', filter='ip=%s' % ip)
+            #pretty(ret)
+            if ret.xpath('asset'):
+                print('\nAsset with IP %s exist' % ip)
+                id = ret.xpath('asset/@id')[0]
+                gmp.delete_asset(asset_id=id)
+            else:
+                print('Asset with ip %s does not exist. Sync...' % ip)
+                ret = gmp.create_asset(asset_type='host', name=ip, comment='Delete me')
+                if location:
+                    id = ret.xpath('@id')[0]
+                    tag = gmp.create_tag(location, id, 'host', value=location)
+
+                    if 'OK' in ret.xpath('@status_text')[0]:
+                        print('Tag created')
+
+                if 'OK' in ret.xpath('@status_text')[0]:
+                    print('Asset synced')

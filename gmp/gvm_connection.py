@@ -41,10 +41,6 @@ class GMPError(Exception):
     pass
 
 
-class NotImplemented(Exception):
-    pass
-
-
 class GVMConnection:
     """Wrapper for GMP
 
@@ -283,7 +279,7 @@ class GVMConnection:
 
     def create_report_format(self):
         # TODO: Seems to be a complex task. It is needed?
-        raise NotImplemented
+        raise NotImplementedError
 
     def create_role(self, name, **kwargs):
         cmd = self.gmp_generator.createRoleCommand(name, kwargs)
@@ -692,8 +688,8 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         return self.read()
 
     def modify_scanner(self, scanner_id, host, port, type, **kwargs):
-        cmd = self.gmp_generator.modifyScannerCommand(scanner_id, host, kwargs,
-                                                      port, type, kwargs)
+        cmd = self.gmp_generator.modifyScannerCommand(scanner_id, host, port,
+                                                      type, kwargs)
         self.send(cmd)
         return self.read()
 
@@ -721,7 +717,7 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
 
     def modify_task(self):
         # TODO: Multiple values are required to modify a task. Is this correct?
-        raise NotImplemented
+        raise NotImplementedError
 
     def modify_user(self, **kwargs):
         cmd = self.gmp_generator.modifyUserCommand(kwargs)
@@ -743,7 +739,7 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
 
     def run_wizard(self):
         # TODO: Is this required?
-        raise NotImplemented
+        raise NotImplementedError
 
     def start_task(self, task_id):
         self.send('<start_task task_id="{0}"/>'.format(task_id))
