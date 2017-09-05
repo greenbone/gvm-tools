@@ -811,7 +811,9 @@ class SSHConnection(GVMConnection):
                 username=self.ssh_user,
                 password=self.ssh_password,
                 timeout=self.timeout,
-                port=int(self.port))
+                port=int(self.port),
+                allow_agent=False,
+                look_for_keys=False)
             self.channel = self.sock.invoke_shell()
 
         except (paramiko.BadHostKeyException,

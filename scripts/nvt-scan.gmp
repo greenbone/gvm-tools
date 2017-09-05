@@ -73,7 +73,7 @@ name = hosts = target
 target_id = ''
 
 try:
-    res = gmp.create_target(name, hosts)
+    res = gmp.create_target(name, True, hosts=hosts)
     target_id = res.xpath('@id')[0]
 except GMPError as e:
     res = gmp.get_targets(filter='name=%s hosts=%s' % (name, hosts))
