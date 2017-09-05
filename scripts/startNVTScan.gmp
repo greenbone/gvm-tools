@@ -103,9 +103,9 @@ while True:
     if chosen_target is 'n':
         if len(hosts) is 0:
             hosts = input('Target hosts: ')
-        name_hosts = input('Name of target: ')
+        name = input('Name of target: ')
 
-        res = gmp.create_target(name, hosts)
+        res = gmp.create_target(name, True, hosts=hosts)
         target_id = res.xpath('@id')[0]
         break
 
