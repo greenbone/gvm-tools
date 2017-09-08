@@ -22,35 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
-'''
-For BWI we want to have a GMP script that uploads
-a number of host assets with attributes as tags.
 
-We are waiting for a sample file, but after all it will be a CSV
-with hostname, IP and some additional columns where the column header
-is the tag name and the field is the value.
-
-Maybe
-#host,IP,Contact,Location
-myserver,192.168.1.1,admin@myserver,München
-
-I assume it will be easy to adapt to the final format.
-
-I imagine that the script goes through the list and adds the asset
-if not found. If already found, it should not add anything.
-For each entry it should output a log line says whether it was added or not.
-
-A bit tricky will be the tags. It can be expected that there are the same
-tags used 100s of times. So the script needs to check whether it is
-already there and if so, just connect the host with it. If not, create the tag and then connect.
-
-I can imagine that with an extra option the script will update the tags
-for existing hosts.
-
-* Wenn Tags mit dabei sind, sollen dann bei einen existierenden Asset auch die Tags gesynced werden?
-    - Existiert der jeweilige Tag schon im System oder muss er vorher noch angelegt werden?
-    - Wie verknüpfe ich einen vorhandenen Tag mit einem Asset
-'''
 
 len_args = len(args.script) - 1
 if len_args is not 1:
@@ -81,14 +53,15 @@ with open(file, newline='') as f:
 
             # check if asset is already there
             ret = gmp.get_assets(type='host', filter='ip=%s' % ip)
-            #pretty(ret)
+            # pretty(ret)
             if ret.xpath('asset'):
                 print('\nAsset with IP %s exist' % ip)
                 id = ret.xpath('asset/@id')[0]
                 gmp.delete_asset(asset_id=id)
             else:
                 print('Asset with ip %s does not exist. Sync...' % ip)
-                ret = gmp.create_asset(asset_type='host', name=ip, comment='Delete me')
+                ret = gmp.create_asset(asset_type='host', name=ip,
+                                       comment='Delete me')
                 if location:
                     id = ret.xpath('@id')[0]
                     tag = gmp.create_tag(location, id, 'host', value=location)
