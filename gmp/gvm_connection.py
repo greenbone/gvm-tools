@@ -800,6 +800,7 @@ class SSHConnection(GVMConnection):
         self.ssh_user = kwargs.get('ssh_user', 'gmp')
         self.ssh_password = kwargs.get('ssh_password', '')
         self.shell_mode = kwargs.get('shell_mode', False)
+        self.read_timeout = kwargs.get('read_timeout', 10)
         self.sock = paramiko.SSHClient()
         # self.sock.load_system_host_keys()
         # self.sock.set_missing_host_key_policy(paramiko.WarningPolicy())
@@ -824,20 +825,29 @@ class SSHConnection(GVMConnection):
 
         time.sleep(0.1)
         # Empty the socket with a read command.
-        debug = self.readAll()
+        debug = self.readAll(read_timeout=0)
         logger.debug(debug)
 
-    def readAll(self):
+    def readAll(self, read_timeout=None):
+        if read_timeout is None:
+            read_timeout = self.read_timeout
+        stime = time.time()
         response = ''
-        while self.channel.recv_ready():
-            response += self.channel.recv(BUF_SIZE).decode()
-        logger.debug('SSH read() {0} Bytes response: {1}'.format(
-            len(response), response))
-        # Split the response, because the request is in response too.
-        list = response.partition('\r\n')
-        if len(list) > 1:
-            return list[2]
+        while stime + read_timeout > time.time():
+            buffer = b''
+            while self.channel.recv_ready():
+                buffer += self.channel.recv(BUF_SIZE)
+            response += buffer.decode()
+            logger.debug('SSH read() {0} Bytes response: {1}'.format(
+                len(response), response))
+            # Split the response, because the request is in response too.
+            list = response.partition('\r\n')
+            if len(list) > 1 and len(list[2]) > 0:
+                return list[2]
+            # Sleep a little bit and wait until response is coming
+            time.sleep(0.1)
 
+        # Timeout (read_timeout) without a response
         return 0
 
     def sendAll(self, cmd):
