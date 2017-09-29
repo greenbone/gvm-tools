@@ -8,7 +8,7 @@ Introduction
 ~~~~~~~~~~~~
 
 *GVM-Tools* is a collection of tools that help with remote controlling
-a Greenbonse Security Manager (GSM) appliance and its underlying Greenbone
+a Greenbone Security Manager (GSM) appliance and its underlying Greenbone
 Vulnerability Manager (GVM). The tools essentially aid accessing
 the communication protocols GMP (Greenbone Management Protocol) and
 OSP (Open Scanner Protocol).
