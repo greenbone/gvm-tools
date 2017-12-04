@@ -24,6 +24,7 @@ programming in Python.
 Requirements
 ~~~~~~~~~~~~
 GVM-Tools requires Python >= 3 along with the following libraries::
+
 - python3-paramiko
 - python3-lxml
 - python3-dialog
