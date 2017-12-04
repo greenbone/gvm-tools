@@ -29,6 +29,7 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+from sys import version_info, exit
 
 here = path.abspath(path.dirname(__file__))
 
@@ -38,6 +39,9 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 with open(path.join(here, 'VERSION'), encoding='utf-8') as f:
     version = f.read()
+
+if version_info < (3,):
+    exit('Python < 3 is not supported')
 
 setup(
     name='gvm-tools',
