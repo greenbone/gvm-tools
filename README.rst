@@ -21,6 +21,16 @@ is supported directly for interactive scripting and library use.
 But it is also possible to issue remote GMP/OSP commands without
 programming in Python.
 
+Requirements
+~~~~~~~~~~~~
+GVM-Tools requires Python >= 3 along with the following libraries::
+
+- python3-paramiko
+- python3-lxml
+- python3-dialog
+
+Some scripts need additional requirements.
+
 Installing
 ~~~~~~~~~~~~
 
@@ -35,14 +45,6 @@ Otherwise you can use python itself to install it::
 
     # Local
     python3 setup.py install --user
-
-Requirements
-~~~~~~~~~~~~
-- python3-paramiko
-- python3-lxml
-- python3-dialog
-
-Some scripts need additional requirements.
 
 Clients
 ~~~~~~~
