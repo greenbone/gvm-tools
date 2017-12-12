@@ -1,3 +1,11 @@
+1.3.0 - 2017-12-12
+------------------
+* Improved stability with ssh connections
+* Fixed bugs for create_target command
+* Fixed some typos
+* Added correct license file
+* Improved setup (Only Python3 is allowed)
+
 1.2.0 - 2017-08-04
 ------------------
 * Improved feature to read from config file for gvm-cli
