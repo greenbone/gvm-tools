@@ -13,7 +13,7 @@ Vulnerability Manager (GVM). The tools essentially aid accessing
 the communication protocols GMP (Greenbone Management Protocol) and
 OSP (Open Scanner Protocol).
 
-**Current Version: 1.2.0**
+**Current Version: 1.3.0**
 
 This module is comprised of interactive and non-interactive clients
 as well as supporting libraries. The programming language Python
