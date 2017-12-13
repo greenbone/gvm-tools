@@ -824,37 +824,45 @@ class SSHConnection(GVMConnection):
             raise
 
     def readAll(self):
+        self.first_element = None
+        self.parser = etree.XMLPullParser(('start','end'))
         read_bytes = 0
         garbage_bytes = len(self.cmd) +1
         # Remove command string from result
         while not read_bytes == garbage_bytes:
             read_bytes += len(self.channel.recv(garbage_bytes-read_bytes))
 
-        response = ''
-        first_element = None
+        response = b''
 
         while True:
-            data = self.channel.recv(BUF_SIZE).decode('utf-8')
+            data = self.channel.recv(BUF_SIZE)
 
             # Connection was closed by server
             if not data:
                 break
 
-            response += data
-            # Retrieve the first xml elements tag
-            if not first_element:
-                first_element = re.search(r'[a-z_]*_response', data).group(0)
+            self.parser.feed(data)
 
-            # Check if the corresponding end element of the first was send from server
-            if first_element and re.search(r'</' + re.escape(first_element) + '>', data):
+            response += data
+
+            if self.valid_xml():
                 break
 
-        return response
+        return response.decode('utf-8')
 
     def sendAll(self, cmd):
         logger.debug('SSH:send(): ' + cmd)
         self.cmd = str(cmd) + '\n'
         self.channel.sendall(self.cmd)
+
+    def valid_xml(self):
+        for action, obj in self.parser.read_events():
+            if not self.first_element and action in 'start':
+                self.first_element = obj.tag
+
+            if self.first_element and action in 'end' and str(self.first_element) == str(obj.tag):
+                return True
+        return False
 
 
 class TLSConnection(GVMConnection):
