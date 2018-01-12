@@ -197,8 +197,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
             connection_over_ssh(xml, args)
     except Exception as e:
         print(e)
+        sys.exit(1)
 
-    sys.exit(1)
+    sys.exit(0)
 
 
 def connection_with_unix_socket(xml, args):
