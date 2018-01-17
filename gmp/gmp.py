@@ -558,8 +558,9 @@ class _gmp:
                '</create_task>'.format(name, comment, config_id, target_id,
                                        scanner_id)
 
-    def createUserCommand(self, name, password, copy='', hosts_allow=None,
-                          ifaces_allow=None, role_ids=()):
+    def createUserCommand(self, name, password, copy='', hosts_allow='0',
+                          ifaces_allow='0', role_ids=(), hosts=None,
+                          ifaces=None):
 
         if copy:
             copy = '<copy>{0}</copy>'.format(copy)
@@ -567,13 +568,15 @@ class _gmp:
         if password:
             password = '<password>{0}</password>'.format(password)
 
-        if hosts_allow is not None:
-            hosts_allow = '<hosts {0}/>'.format(hosts_allow)
+        if hosts is not None:
+            hosts_allow = '<hosts allow="{0}">{1}</hosts>' \
+                              .format(hosts_allow, hosts)
         else:
             hosts_allow = ''
 
-        if ifaces_allow is not None:
-            ifaces_allow = '<hosts {0}/>'.format(ifaces_allow)
+        if ifaces is not None:
+            ifaces_allow = '<ifaces allow="{0}">{1}</ifaces>' \
+                              .format(ifaces_allow, ifaces)
         else:
             ifaces_allow = ''
 
@@ -1130,13 +1133,16 @@ class _gmp:
             for role in role_ids:
                 role_txt += '<role id="%s" />' % role
 
+        hosts = kwargs.get('hosts', '')
         hosts_allow = kwargs.get('hosts_allow', '')
-        if hosts_allow:
-            hosts_allow = '<hosts %s/>' % hosts_allow
+        if hosts or hosts_allow:
+            hosts_allow = '<hosts allow="%s">%s</hosts>' % (hosts_allow, hosts)
 
+        ifaces = kwargs.get('ifaces', '')
         ifaces_allow = kwargs.get('ifaces_allow', '')
-        if ifaces_allow:
-            ifaces_allow = '<hosts %s/>' % ifaces_allow
+        if ifaces or ifaces_allow:
+            ifaces_allow = '<ifaces allow="%s">%s</ifaces>' % (ifaces_allow,
+                                                               ifaces)
 
         sources = kwargs.get('sources', '')
         if sources:

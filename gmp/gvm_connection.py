@@ -318,10 +318,11 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_user(self, name, password, copy='', hosts_allow=None,
-                    ifaces_allow=None, role_ids=()):
+    def create_user(self, name, password, copy='', hosts_allow='0',
+                    ifaces_allow='0', role_ids=(), hosts=None, ifaces=None):
         cmd = self.gmp_generator.createUserCommand(
-            name, password, copy, hosts_allow, ifaces_allow, role_ids)
+            name, password, copy, hosts_allow, ifaces_allow, role_ids,
+            hosts, ifaces)
         self.send(cmd)
         return self.read()
 
