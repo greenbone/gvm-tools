@@ -1,3 +1,6 @@
+.. image:: https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg
+    :target: https://circleci.com/gh/greenbone/gvm-tools/tree/master
+
 ================
 GVM-Tools
 ================
