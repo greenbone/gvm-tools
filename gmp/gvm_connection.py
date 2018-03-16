@@ -96,6 +96,9 @@ class GVMConnection:
         if response is None or len(str(response)) == 0:
             raise OSError('Connection was closed by remote server')
 
+        if hasattr(self, 'raw_response') and self.raw_response is True:
+            return response
+
         self.checkCommandStatus(response)
 
         if hasattr(self, 'shell_mode') and self.shell_mode is True:
@@ -798,6 +801,7 @@ class SSHConnection(GVMConnection):
         super().__init__()
         self.hostname = kwargs.get('hostname', '127.0.0.1')
         self.port = kwargs.get('port', 22)
+        self.raw_response = kwargs.get('raw_response', False)
         self.timeout = kwargs.get('timeout', 5)
         self.ssh_user = kwargs.get('ssh_user', 'gmp')
         self.ssh_password = kwargs.get('ssh_password', '')
@@ -879,6 +883,7 @@ class TLSConnection(GVMConnection):
         super().__init__()
         self.hostname = kwargs.get('hostname', '127.0.0.1')
         self.port = kwargs.get('port', 9390)
+        self.raw_response = kwargs.get('raw_response', False)
         self.timeout = kwargs.get('timeout', 60)
         self.shell_mode = kwargs.get('shell_mode', False)
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -913,6 +918,7 @@ class UnixSocketConnection(GVMConnection):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.raw_response = kwargs.get('raw_response', False)
         self.sockpath = kwargs.get('sockpath',
                                    '/usr/local/var/run/gvmd.sock')
         self.shell_mode = kwargs.get('shell_mode', False)
