@@ -545,7 +545,8 @@ class _gmp:
             hosts = kwargs.get('hosts')
             hosts = '<hosts>%s</hosts>' % hosts
         else:
-            pass
+            raise ValueError('create_target requires either a hosts or ' \
+                    'an asset_hosts element')
 
         return '<create_target><name>{0}</name>{1}' \
                '</create_target>'.format(name, hosts)
