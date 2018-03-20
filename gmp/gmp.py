@@ -534,7 +534,6 @@ class _gmp:
 
     def createTargetCommand(self, name, make_unique, kwargs):
         assert name
-        assert make_unique
 
         if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
