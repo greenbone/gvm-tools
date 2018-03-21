@@ -559,6 +559,12 @@ class _gmp:
         if 'comment' in kwargs:
             optional_args += '<comment>%s</comment>' % kwargs.get('comment')
 
+        if 'copy' in kwargs:
+            # NOTE: It seems that hosts/asset_hosts is silently ignored by the
+            # server when copy is supplied. But for specification conformance
+            # we raise the ValueError above and consider copy optional.
+            optional_args += '<copy>%s</copy>' % kwargs.get('copy')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
