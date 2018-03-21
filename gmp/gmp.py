@@ -565,6 +565,9 @@ class _gmp:
             # we raise the ValueError above and consider copy optional.
             optional_args += '<copy>%s</copy>' % kwargs.get('copy')
 
+        if 'exclude_hosts' in kwargs:
+            optional_args += '<exclude_hosts>%s</exclude_hosts>' % kwargs.get('exclude_hosts')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
