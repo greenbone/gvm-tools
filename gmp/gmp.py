@@ -535,23 +535,22 @@ class _gmp:
     def createTargetCommand(self, name, make_unique, kwargs):
         assert name
 
+        if make_unique:
+            unique = 1
+        else:
+            unique = 0
+
         if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
             filter = hosts['filter']
 
             hosts = '<asset_hosts filter="%s"/>' % filter
-
         elif 'hosts' in kwargs:
             hosts = kwargs.get('hosts')
             hosts = '<hosts>%s</hosts>' % hosts
         else:
             raise ValueError('create_target requires either a hosts or ' \
                     'an asset_hosts element')
-
-        if make_unique:
-            unique = 1
-        else:
-            unique = 0
 
         return '<create_target><name>{0}<make_unique>{1}</make_unique></name>{2}' \
                '</create_target>'.format(name, unique, hosts)
