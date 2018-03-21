@@ -554,8 +554,19 @@ class _gmp:
             raise ValueError('create_target requires either a hosts or ' \
                     'an asset_hosts element')
 
-        return '<create_target><name>{0}<make_unique>{1}</make_unique></name>{2}' \
-               '</create_target>'.format(name, unique, hosts)
+        optional_args = ''
+
+        if 'comment' in kwargs:
+            optional_args += '<comment>%s</comment>' % kwargs.get('comment')
+
+        return '<create_target>' \
+                '<name>{0}<make_unique>{1}</make_unique></name>' \
+                '{2}' \
+                '{3}' \
+               '</create_target>'.format(name,
+                       unique,
+                       hosts,
+                       optional_args)
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           comment=''):
