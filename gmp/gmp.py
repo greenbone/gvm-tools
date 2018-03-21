@@ -533,7 +533,9 @@ class _gmp:
                          comment, active)
 
     def createTargetCommand(self, name, make_unique, kwargs):
-        assert name
+
+        if not name:
+            raise ValueError('create_target requires a name element')
 
         if make_unique:
             unique = 1
