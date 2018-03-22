@@ -592,6 +592,13 @@ class _gmp:
             else:
                 raise ValueError('esxi_credential requires an id attribute')
 
+        if 'snmp_credential' in kwargs:
+            snmp_credential = kwargs.get('snmp_credential')
+            if 'id' in snmp_credential:
+                optional_args += '<snmp_credential id="%s"/>' % snmp_credential['id']
+            else:
+                raise ValueError('snmp_credential requires an id attribute')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
