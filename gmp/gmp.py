@@ -613,6 +613,13 @@ class _gmp:
             else:
                 optional_args += '<reverse_lookup_only>0</reverse_lookup_only>'
 
+        if 'reverse_lookup_unify' in kwargs:
+            reverse_lookup_unify = kwargs.get('reverse_lookup_unify')
+            if reverse_lookup_unify:
+                optional_args += '<reverse_lookup_unify>1</reverse_lookup_unify>'
+            else:
+                optional_args += '<reverse_lookup_unify>0</reverse_lookup_unify>'
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
