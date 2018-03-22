@@ -585,6 +585,13 @@ class _gmp:
             else:
                 raise ValueError('smb_credential requires an id attribute')
 
+        if 'esxi_credential' in kwargs:
+            esxi_credential = kwargs.get('esxi_credential')
+            if 'id' in esxi_credential:
+                optional_args += '<esxi_credential id="%s"/>' % esxi_credential['id']
+            else:
+                raise ValueError('esxi_credential requires an id attribute')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
