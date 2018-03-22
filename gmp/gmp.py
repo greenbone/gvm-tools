@@ -599,6 +599,13 @@ class _gmp:
             else:
                 raise ValueError('snmp_credential requires an id attribute')
 
+        if 'alive_tests' in kwargs:
+            # NOTE: As the alive_tests are referenced by their name and some
+            # names contain ampersand ('&') characters it should be considered
+            # replacing any characters special to XML in the variable with
+            # their corresponding entities.
+            optional_args += '<alive_tests>%s</alive_tests>' % kwargs.get('alive_tests')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
