@@ -568,6 +568,16 @@ class _gmp:
         if 'exclude_hosts' in kwargs:
             optional_args += '<exclude_hosts>%s</exclude_hosts>' % kwargs.get('exclude_hosts')
 
+        if 'ssh_credential' in kwargs:
+            ssh_credential = kwargs.get('ssh_credential')
+            if 'id' in ssh_credential:
+                optional_args += '<ssh_credential id="%s">' % ssh_credential['id']
+                if 'port' in ssh_credential:
+                    optional_args += '<port>%s</port>' % ssh_credential['port']
+                optional_args += '</ssh_credential>'
+            else:
+                raise ValueError('ssh_credential requires an id attribute')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
