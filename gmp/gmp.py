@@ -623,6 +623,13 @@ class _gmp:
         if 'port_range' in kwargs:
             optional_args += '<port_range>%s</port_range>' % kwargs.get('port_range')
 
+        if 'port_list' in kwargs:
+            port_list = kwargs.get('port_list')
+            if 'id' in port_list:
+                optional_args += '<port_list id="%s"/>' % port_list['id']
+            else:
+                raise ValueError('port_list requires an id attribute')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
