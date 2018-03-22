@@ -533,14 +533,20 @@ class _gmp:
                          comment, active)
 
     def createTargetCommand(self, name, make_unique, kwargs):
-        assert name
+
+        if not name:
+            raise ValueError('create_target requires a name element')
+
+        if make_unique:
+            unique = 1
+        else:
+            unique = 0
 
         if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
             filter = hosts['filter']
 
             hosts = '<asset_hosts filter="%s"/>' % filter
-
         elif 'hosts' in kwargs:
             hosts = kwargs.get('hosts')
             hosts = '<hosts>%s</hosts>' % hosts
@@ -548,13 +554,90 @@ class _gmp:
             raise ValueError('create_target requires either a hosts or ' \
                     'an asset_hosts element')
 
-        if make_unique:
-            unique = 1
-        else:
-            unique = 0
+        optional_args = ''
 
-        return '<create_target><name>{0}<make_unique>{1}</make_unique></name>{2}' \
-               '</create_target>'.format(name, unique, hosts)
+        if 'comment' in kwargs:
+            optional_args += '<comment>%s</comment>' % kwargs.get('comment')
+
+        if 'copy' in kwargs:
+            # NOTE: It seems that hosts/asset_hosts is silently ignored by the
+            # server when copy is supplied. But for specification conformance
+            # we raise the ValueError above and consider copy optional.
+            optional_args += '<copy>%s</copy>' % kwargs.get('copy')
+
+        if 'exclude_hosts' in kwargs:
+            optional_args += '<exclude_hosts>%s</exclude_hosts>' % kwargs.get('exclude_hosts')
+
+        if 'ssh_credential' in kwargs:
+            ssh_credential = kwargs.get('ssh_credential')
+            if 'id' in ssh_credential:
+                optional_args += '<ssh_credential id="%s">' % ssh_credential['id']
+                if 'port' in ssh_credential:
+                    optional_args += '<port>%s</port>' % ssh_credential['port']
+                optional_args += '</ssh_credential>'
+            else:
+                raise ValueError('ssh_credential requires an id attribute')
+
+        if 'smb_credential' in kwargs:
+            smb_credential = kwargs.get('smb_credential')
+            if 'id' in smb_credential:
+                optional_args += '<smb_credential id="%s"/>' % smb_credential['id']
+            else:
+                raise ValueError('smb_credential requires an id attribute')
+
+        if 'esxi_credential' in kwargs:
+            esxi_credential = kwargs.get('esxi_credential')
+            if 'id' in esxi_credential:
+                optional_args += '<esxi_credential id="%s"/>' % esxi_credential['id']
+            else:
+                raise ValueError('esxi_credential requires an id attribute')
+
+        if 'snmp_credential' in kwargs:
+            snmp_credential = kwargs.get('snmp_credential')
+            if 'id' in snmp_credential:
+                optional_args += '<snmp_credential id="%s"/>' % snmp_credential['id']
+            else:
+                raise ValueError('snmp_credential requires an id attribute')
+
+        if 'alive_tests' in kwargs:
+            # NOTE: As the alive_tests are referenced by their name and some
+            # names contain ampersand ('&') characters it should be considered
+            # replacing any characters special to XML in the variable with
+            # their corresponding entities.
+            optional_args += '<alive_tests>%s</alive_tests>' % kwargs.get('alive_tests')
+
+        if 'reverse_lookup_only' in kwargs:
+            reverse_lookup_only = kwargs.get('reverse_lookup_only')
+            if reverse_lookup_only:
+                optional_args += '<reverse_lookup_only>1</reverse_lookup_only>'
+            else:
+                optional_args += '<reverse_lookup_only>0</reverse_lookup_only>'
+
+        if 'reverse_lookup_unify' in kwargs:
+            reverse_lookup_unify = kwargs.get('reverse_lookup_unify')
+            if reverse_lookup_unify:
+                optional_args += '<reverse_lookup_unify>1</reverse_lookup_unify>'
+            else:
+                optional_args += '<reverse_lookup_unify>0</reverse_lookup_unify>'
+
+        if 'port_range' in kwargs:
+            optional_args += '<port_range>%s</port_range>' % kwargs.get('port_range')
+
+        if 'port_list' in kwargs:
+            port_list = kwargs.get('port_list')
+            if 'id' in port_list:
+                optional_args += '<port_list id="%s"/>' % port_list['id']
+            else:
+                raise ValueError('port_list requires an id attribute')
+
+        return '<create_target>' \
+                '<name>{0}<make_unique>{1}</make_unique></name>' \
+                '{2}' \
+                '{3}' \
+               '</create_target>'.format(name,
+                       unique,
+                       hosts,
+                       optional_args)
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           comment=''):
