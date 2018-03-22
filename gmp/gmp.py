@@ -606,6 +606,13 @@ class _gmp:
             # their corresponding entities.
             optional_args += '<alive_tests>%s</alive_tests>' % kwargs.get('alive_tests')
 
+        if 'reverse_lookup_only' in kwargs:
+            reverse_lookup_only = kwargs.get('reverse_lookup_only')
+            if reverse_lookup_only:
+                optional_args += '<reverse_lookup_only>1</reverse_lookup_only>'
+            else:
+                optional_args += '<reverse_lookup_only>0</reverse_lookup_only>'
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
