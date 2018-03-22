@@ -578,6 +578,13 @@ class _gmp:
             else:
                 raise ValueError('ssh_credential requires an id attribute')
 
+        if 'smb_credential' in kwargs:
+            smb_credential = kwargs.get('smb_credential')
+            if 'id' in smb_credential:
+                optional_args += '<smb_credential id="%s"/>' % smb_credential['id']
+            else:
+                raise ValueError('smb_credential requires an id attribute')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
