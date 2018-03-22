@@ -620,6 +620,9 @@ class _gmp:
             else:
                 optional_args += '<reverse_lookup_unify>0</reverse_lookup_unify>'
 
+        if 'port_range' in kwargs:
+            optional_args += '<port_range>%s</port_range>' % kwargs.get('port_range')
+
         return '<create_target>' \
                 '<name>{0}<make_unique>{1}</make_unique></name>' \
                 '{2}' \
