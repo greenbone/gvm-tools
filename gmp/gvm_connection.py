@@ -75,6 +75,7 @@ class GVMConnection:
             print(e)
         except OSError as e:
             logger.info(e)
+            raise
 
     def read(self):
         """Call the readAll() method of the chosen connection type.
