@@ -34,16 +34,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install coverage.py
+          name: Install coverage.py and codecov
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install coverage
+            pip install coverage codecov
       - run:
           name: Run unit tests
           command: |
             . venv/bin/activate
             coverage run -m unittest
+      - run:
+          name: Upload coverage to Codecov
+          command: |
+            . venv/bin/activate
+            codecov
 workflows:
   version: 2
   build_and_test:
