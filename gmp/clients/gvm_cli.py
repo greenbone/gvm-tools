@@ -183,7 +183,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     xml = xml.replace('\n', '').replace('\r', '')
 
     # Ask for password if none are given
-    if not args.gmp_password:
+    if args.gmp_username and not args.gmp_password:
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
@@ -203,7 +203,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         print(e)
         sys.exit(1)
 
-    gvm.authenticate(args.gmp_username, args.gmp_password)
+    if args.gmp_username:
+        gvm.authenticate(args.gmp_username, args.gmp_password)
 
     gvm.send(xml)
 
