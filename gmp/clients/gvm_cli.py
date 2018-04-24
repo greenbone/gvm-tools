@@ -45,9 +45,11 @@ help_text = """
     GMP (Greenbone Management Protocol).
 
     Examples:
-    gvm-cli --xml "<get_version/>"
-    gvm-cli --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
-    gvm-cli < myfile.gmp
+
+    gvm-cli socket --xml "<get_version/>"
+    gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
+    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.gmp
+
     Further Information about GMP see here:
     http://docs.greenbone.net/index.html#api_documentation
     Note: "GMP" was formerly known as "OMP".
@@ -183,56 +185,36 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     xml = xml.replace('\n', '').replace('\r', '')
 
     # Ask for password if none are given
-    if not args.gmp_password:
+    if args.gmp_username and not args.gmp_password:
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
     # Open the right connection. SSH at last for default
     try:
         if 'socket' in args.connection_type:
-            connection_with_unix_socket(xml, args)
+            gvm = UnixSocketConnection(sockpath=args.sockpath,
+                                       timeout=args.timeout)
         elif 'tls' in args.connection_type:
-            connection_direct_over_tls(xml, args)
+            gvm = TLSConnection(hostname=args.hostname, port=9390,
+                                timeout=args.timeout)
         else:
-            connection_over_ssh(xml, args)
+            gvm = SSHConnection(
+                hostname=args.hostname, port=args.port, timeout=args.timeout,
+                ssh_user=args.ssh_user, ssh_password='')
     except Exception as e:
         print(e)
         sys.exit(1)
 
+    if args.gmp_username:
+        gvm.authenticate(args.gmp_username, args.gmp_password)
+
+    gvm.send(xml)
+
+    result = gvm.read()
+    print(result)
+    gvm.close()
+
     sys.exit(0)
-
-
-def connection_with_unix_socket(xml, args):
-    gvm = UnixSocketConnection(sockpath=args.sockpath, timeout=args.timeout)
-    gvm.authenticate(args.gmp_username, args.gmp_password)
-    gvm.send(xml)
-
-    result = gvm.read()
-    print(result)
-    gvm.close()
-
-
-def connection_direct_over_tls(xml, args):
-    gvm = TLSConnection(hostname=args.hostname, port=9390,
-                        timeout=args.timeout)
-    gvm.authenticate(args.gmp_username, args.gmp_password)
-    gvm.send(xml)
-
-    result = gvm.read()
-    print(result)
-    gvm.close()
-
-
-def connection_over_ssh(xml, args):
-    gvm = SSHConnection(
-        hostname=args.hostname, port=args.port, timeout=args.timeout,
-        ssh_user=args.ssh_user, ssh_password='')
-    gvm.authenticate(args.gmp_username, args.gmp_password)
-    gvm.send(xml)
-
-    result = gvm.read()
-    print(result)
-    gvm.close()
 
 
 if __name__ == '__main__':

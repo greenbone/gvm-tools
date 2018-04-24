@@ -69,20 +69,20 @@ Returns the current version.
 
 .. code-block:: bash
 
-    gvm-cli --xml "<get_version/>"
+    gvm-cli socket --xml "<get_version/>"
 
 Return all tasks.
 
 .. code-block:: bash
 
-    gvm-cli --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
+    gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
 
 
 Reads a file with GMP commands and return the result.
 
 .. code-block:: bash
 
-    gvm-cli < myfile.gmp
+    gvm-cli socket --gmp-username foo --gmp-password bar < myfile.gmp
 
 gvm-pyshell
 ###########
