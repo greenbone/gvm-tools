@@ -190,49 +190,28 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     # Open the right connection. SSH at last for default
     try:
         if 'socket' in args.connection_type:
-            connection_with_unix_socket(xml, args)
+            gvm = UnixSocketConnection(sockpath=args.sockpath,
+                                       timeout=args.timeout)
         elif 'tls' in args.connection_type:
-            connection_direct_over_tls(xml, args)
+            gvm = TLSConnection(hostname=args.hostname, port=9390,
+                                timeout=args.timeout)
         else:
-            connection_over_ssh(xml, args)
+            gvm = SSHConnection(
+                hostname=args.hostname, port=args.port, timeout=args.timeout,
+                ssh_user=args.ssh_user, ssh_password='')
     except Exception as e:
         print(e)
         sys.exit(1)
 
+    gvm.authenticate(args.gmp_username, args.gmp_password)
+
+    gvm.send(xml)
+
+    result = gvm.read()
+    print(result)
+    gvm.close()
+
     sys.exit(0)
-
-
-def connection_with_unix_socket(xml, args):
-    gvm = UnixSocketConnection(sockpath=args.sockpath, timeout=args.timeout)
-    gvm.authenticate(args.gmp_username, args.gmp_password)
-    gvm.send(xml)
-
-    result = gvm.read()
-    print(result)
-    gvm.close()
-
-
-def connection_direct_over_tls(xml, args):
-    gvm = TLSConnection(hostname=args.hostname, port=9390,
-                        timeout=args.timeout)
-    gvm.authenticate(args.gmp_username, args.gmp_password)
-    gvm.send(xml)
-
-    result = gvm.read()
-    print(result)
-    gvm.close()
-
-
-def connection_over_ssh(xml, args):
-    gvm = SSHConnection(
-        hostname=args.hostname, port=args.port, timeout=args.timeout,
-        ssh_user=args.ssh_user, ssh_password='')
-    gvm.authenticate(args.gmp_username, args.gmp_password)
-    gvm.send(xml)
-
-    result = gvm.read()
-    print(result)
-    gvm.close()
 
 
 if __name__ == '__main__':
