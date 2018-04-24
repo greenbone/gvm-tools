@@ -45,9 +45,11 @@ help_text = """
     GMP (Greenbone Management Protocol).
 
     Examples:
-    gvm-cli --xml "<get_version/>"
-    gvm-cli --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
-    gvm-cli < myfile.gmp
+
+    gvm-cli socket --xml "<get_version/>"
+    gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
+    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.gmp
+
     Further Information about GMP see here:
     http://docs.greenbone.net/index.html#api_documentation
     Note: "GMP" was formerly known as "OMP".
