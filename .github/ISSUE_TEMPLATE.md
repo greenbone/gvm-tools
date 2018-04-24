@@ -38,6 +38,8 @@ Before reporting an issue please:
 
 ### Logfiles
 
+<!-- in most cases you'll find the logs in /var/log/gvm/ -->
+
 ```
 
 ```
