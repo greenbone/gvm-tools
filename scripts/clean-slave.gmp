@@ -27,8 +27,8 @@ This script removes all resources from a slave, except active tasks.
 """
 print(message)
 
-tasks = gmp.get_tasks(filter="rows=-1 not status=Running and " \
-                             "not status=Requested and not " \
+tasks = gmp.get_tasks(filter="rows=-1 not status=Running and "
+                             "not status=Requested and not "
                              "status=&quot;Stop Requested&quot;")
 
 for id in tasks.xpath('task/@id'):
