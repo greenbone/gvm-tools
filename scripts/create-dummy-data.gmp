@@ -24,8 +24,10 @@
 import random
 import string
 
+
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
 
 count = 50
 config_ids = []
@@ -54,4 +56,5 @@ for i in range(0, count):
     name = id_generator()
     config_id = random.choice(config_ids)
     target_id = random.choice(target_ids)
-    gmp.create_task(name, config_id, target_id, '08b69003-5fc2-4037-a479-93b440211c73')
+    gmp.create_task(name, config_id, target_id,
+                    '08b69003-5fc2-4037-a479-93b440211c73')
