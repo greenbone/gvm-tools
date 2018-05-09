@@ -104,7 +104,7 @@ class _gmp:
         if len(withCommands) is 0:
             return '<authenticate><credentials><username>{0}' \
                    '</username><password>{1}</password></credentials>' \
-                   '</authenticate>'.format(username, password, withCommands)
+                   '</authenticate>'.format(username, password)
         else:
             return '<commands><authenticate><credentials><username>{0}' \
                    '</username><password>{1}</password></credentials>' \
@@ -202,7 +202,7 @@ class _gmp:
             filter_type = '<type>%s</type>' % filter_type
 
         return '<create_filter><name>{0}<make_unique>{1}</make_unique></name>' \
-               '{2}{3}{4}</create_filter>'.format(name, make_unique, comment,
+               '{2}{3}{4}{5}</create_filter>'.format(name, make_unique, comment,
                                                   copy, term, filter_type)
 
     def createGroupCommand(self, name, kwargs):
@@ -786,10 +786,10 @@ class _gmp:
 
             return '<modify_config config_id="{0}"><family_selection>' \
                    '<growing>1</growing><family><name>{1}</name><all>1</all>' \
-                   '<growing>1</growing></family>\</family_selection>' \
+                   '<growing>1</growing></family></family_selection>' \
                    '</modify_config>'.format(config_id, family)
         else:
-            raise NotImplemented
+            raise NotImplementedError
 
     def modifyCredentialCommand(self, credential_id, kwargs):
 
@@ -854,7 +854,7 @@ class _gmp:
             cred_type = '<type>%s</type>' % cred_type
 
         return '<modify_credential>{0}' \
-               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}' \
+               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
                '</modify_credential>' \
                ''.format(comment, name, allow_insecure, certificate,
                          key, login, password, auth_algorithm, community,
@@ -1104,7 +1104,7 @@ class _gmp:
                '<host>{1}</host>' \
                '<port>{2}</port>' \
                '<type>{3}</type>' \
-               '{4}{5}{6}' \
+               '{4}{5}{6}{7}' \
                '</modify_scanner>' \
                ''.format(scanner_id, host, port, type, name, ca_pub,
                          credential_id, comment)
@@ -1185,14 +1185,14 @@ class _gmp:
             resource = '<resource id="%s"><type>%s</type></resource>' \
                        '' % (resource_id, resource_type)
 
-        return '<modify_tag tag_id="{0}">{3}{4}{5}{6}</modify_tag>' \
+        return '<modify_tag tag_id="{0}">{1}{2}{3}{4}{5}</modify_tag>' \
                ''.format(tag_id, name, resource, value, comment, active)
 
     def modifyTargetCommand(self, target_id, kwargs):
-        raise NotImplemented
+        raise NotImplementedError
 
     def modifyTaskCommand(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def modifyUserCommand(self, kwargs):
 
