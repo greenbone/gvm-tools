@@ -37,6 +37,10 @@ logger = logging.getLogger(__name__)
 
 BUF_SIZE = 1024
 
+# declare parsers for normally and huge sized xml documents
+parser = etree.XMLParser(encoding='utf-8', recover=True, huge_tree=False)
+huge_parser = etree.XMLParser(encoding='utf-8', recover=True, huge_tree=True)
+
 
 class GMPError(Exception):
     pass
@@ -105,7 +109,13 @@ class GVMConnection:
         if hasattr(self, 'shell_mode') and self.shell_mode is True:
             logger.info('Shell mode activated')
             f = StringIO(response)
-            tree = etree.parse(f)
+            try:
+                tree = etree.parse(f, parser)
+            except Exception as err:
+                if 'huge text node' in err.msg:
+                    tree = etree.parse(f, huge_parser)
+                else:
+                    raise err
             return tree.getroot()
         else:
             return response
@@ -132,7 +142,6 @@ class GVMConnection:
             raise GMPError('XML Command is empty')
 
         try:
-            parser = etree.XMLParser(encoding='utf-8', recover=True)
             if(etree.iselement(xml)):
                 root = etree.ElementTree(xml, parser=parser).getroot()
             else:
