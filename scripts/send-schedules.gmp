@@ -65,7 +65,7 @@ for command in xml_tree.xpath('schedule'):
     month = first_time.month
     year = first_time.year
     first_time = {
-	              'day_of_month': day,
+                  'day_of_month': day,
                   'hour': hour,
                   'minute': minute,
                   'month': month,
