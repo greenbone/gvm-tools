@@ -6,7 +6,7 @@
 # Joshua Schwartz <joshua.schwartz@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -61,14 +61,12 @@ def n_IP(number_of_IPs):
 
 
 def generate(n_targets, n_IPs):
-    counter = 0
     IPs = n_IP(n_IPs)
 
     if 'with-gauss' in args.script:
         n_targets = int(r.gauss(n_targets, 2))
 
     for i in range(n_targets):
-        counter += 1
         host_ip = r.choice(IPs)
         index = '{{0:0>{}}}'.format(len(str(n_targets)))
         name = 'Target_{}'.format(index.format(i+1))
@@ -78,8 +76,6 @@ def generate(n_targets, n_IPs):
                           make_unique=True,
                           hosts=host_ip
                           )
-
-    print('{} targets sent!'.format(counter))
 
 host_number = int(args.script[1])
 number_targets = int(args.script[2])

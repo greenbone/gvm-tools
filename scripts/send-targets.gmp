@@ -6,7 +6,7 @@
 # Joshua Schwartz <joshua.schwartz@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,7 +48,6 @@ xml_tree = e.parse(xml_doc)
 xml_tree = e.tostring(xml_tree)
 xml_tree = e.XML(xml_tree)
 
-Targets = {}
 for command in xml_tree.xpath('target'):
     name = command.find('name').text
     hosts = command.find('hosts').text
@@ -59,10 +58,3 @@ for command in xml_tree.xpath('target'):
                       make_unique=True,
                       hosts=hosts,
                       )
-
-    Targets[name] = hosts
-
-if len(Targets) == 1:
-    print('Sent 1 target!')
-else:
-    print('Sent {} targets!'.format(len(Targets)))
