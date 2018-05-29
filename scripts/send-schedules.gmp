@@ -1,0 +1,89 @@
+# -*- coding: utf-8 -*-
+# Description:
+# Script for gvm-pyshell
+#
+# Authors:
+# Joshua Schwartz <joshua.schwartz@greenbone.net>
+#
+# Copyright:
+# Copyright (C) 2018 Greenbone Networks GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import dateutil.parser
+from lxml import etree as e
+
+len_args = len(args.script) - 1
+if len_args is not 1:
+    message = """
+    This script pulls schedule data from an xml document and feeds it to \
+a desired GSM
+    It needs one parameter after the script name.
+
+    1. <xml_doc>  -- .xml file containing schedules
+
+    Example:
+        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+--gmp-password=pass scripts/send-schedules.gmp example_file.xml
+
+    Note: In order to use this script python-dateutil must first be installed:
+        $ pip install python-dateutil
+    """
+    print(message)
+    quit()
+
+hostname = args.hostname
+xml_doc = args.script[1]
+
+print('Sending schedules from {} to {}...'.format(xml_doc, hostname))
+
+xml_tree = e.parse(xml_doc)
+xml_tree = e.tostring(xml_tree)
+xml_tree = e.XML(xml_tree)
+
+for command in xml_tree.xpath('schedule'):
+    name = command.find('name').text
+    comment = command.find('comment').text
+    if comment is None:
+        comment = ''
+    first_time = command.find('first_time').text
+    first_time = dateutil.parser.parse(first_time)
+    day = first_time.day
+    hour = first_time.hour
+    minute = first_time.minute
+    month = first_time.month
+    year = first_time.year
+    first_time = {
+                  'day_of_month': day,
+                  'hour': hour,
+                  'minute': minute,
+                  'month': month,
+                  'year': year
+                  }
+    duration = command.find('simple_duration').text
+    duration_unit = command.find('simple_duration').find('unit').text
+    duration = [duration, duration_unit]
+    period = command.find('simple_period').text
+    period_unit = command.find('simple_period').find('unit').text
+    period = [period, period_unit]
+    timezone = command.find('timezone').text
+
+    gmp.create_schedule(
+                        name=name,
+                        first_time=first_time,
+                        duration=duration,
+                        period=period,
+                        comment=comment,
+                        timezone=timezone
+                        )
