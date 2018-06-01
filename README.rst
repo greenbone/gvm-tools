@@ -127,6 +127,13 @@ Example script
     task_names = tasks.xpath('task/name/text()')
     pretty(task_names)
 
+
+More example scripts
+--------------------
+
+There is a growing collection of gmp-scripts in the folder "scripts/".
+Some of them might be exactly what you need and all of them help writing your own gmp scripts.
+
 gvm-dialog
 ##########
 With gvm-dialog you'll get a terminal-based dialog.
