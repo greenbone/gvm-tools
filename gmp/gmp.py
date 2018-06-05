@@ -640,11 +640,15 @@ class _gmp:
                        optional_args)
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          comment=''):
+                          alert_id='', comment=''):
+        #if given the alert_id is wrapped and integrated suitably as xml
+        if len(alert_id)>0:
+          alert_id = '<alert id="'+str(alert_id)+'"/>'
+
         return '<create_task><name>{0}</name><comment>{1}</comment>' \
                '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
-               '</create_task>'.format(name, comment, config_id, target_id,
-                                       scanner_id)
+               '{5}</create_task>'.format(name, comment, config_id, target_id,
+                                       scanner_id, alert_id)
 
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
                           ifaces_allow='0', role_ids=(), hosts=None,
