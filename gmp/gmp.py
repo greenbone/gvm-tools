@@ -49,14 +49,16 @@ class _gmp:
 
     def createAlertCommand(self, name, condition, event, method, filter_id='',
                            copy='', comment=''):
-
+        conditions=events=methods=""
         if len(condition) > 1:
             conditions = '<condition>%s' % condition[0]
             for value, key in condition[1].items():
                 conditions += '<data>{0}<name>{1}</name></data>' \
                               ''.format(value, key)
             conditions += '</condition>'
-
+        else:
+            if condition[0] == "Always":
+              conditions = '<condition>%s</condition>' % condition[0]
         if len(event) > 1:
             events = '<event>%s' % event[0]
             for value, key in event[1].items():
