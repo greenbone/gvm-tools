@@ -60,6 +60,17 @@ class GVMConnection:
         # Is authenticated on gvm
         self.authenticated = False
 
+        # initialize variables
+        self.sock = None
+
+    def readAll(self):
+        # just a stub
+        pass
+
+    def sendAll(self, cmd):
+        # just a stub
+        pass
+
     def send(self, cmd):
         """Call the sendAll(string) method.
 
@@ -97,12 +108,12 @@ class GVMConnection:
         if response is None or len(str(response)) == 0:
             raise OSError('Connection was closed by remote server')
 
-        if hasattr(self, 'raw_response') and self.raw_response is True:
+        if hasattr(self, 'raw_response') and self.raw_response is True: #pylint: disable=E1101
             return response
 
         self.checkCommandStatus(response)
 
-        if hasattr(self, 'shell_mode') and self.shell_mode is True:
+        if hasattr(self, 'shell_mode') and self.shell_mode is True: #pylint: disable=E1101
             logger.info('Shell mode activated')
             f = StringIO(response)
             tree = etree.parse(f)
@@ -112,7 +123,8 @@ class GVMConnection:
 
     def close(self):
         try:
-            self.sock.close()
+            if self.sock is not None:
+                self.sock.close()
         except OSError as e:
             logger.debug('Connection closing error: {0}'.format(e))
 
@@ -924,7 +936,7 @@ class UnixSocketConnection(GVMConnection):
                                    '/usr/local/var/run/gvmd.sock')
         self.shell_mode = kwargs.get('shell_mode', False)
         self.timeout = kwargs.get('timeout', 60)
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) #pylint: disable=E1101
         self.sock.settimeout(self.timeout)
         self.sock.connect(self.sockpath)
 
