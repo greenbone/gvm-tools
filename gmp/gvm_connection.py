@@ -114,9 +114,11 @@ class GVMConnection:
         self.checkCommandStatus(response)
 
         if hasattr(self, 'shell_mode') and self.shell_mode is True: #pylint: disable=E1101
+            parser = etree.XMLParser(encoding='utf-8', recover=True)
+
             logger.info('Shell mode activated')
             f = StringIO(response)
-            tree = etree.parse(f)
+            tree = etree.parse(f, parser)
             return tree.getroot()
         else:
             return response
