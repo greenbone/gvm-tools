@@ -49,14 +49,16 @@ class _gmp:
 
     def createAlertCommand(self, name, condition, event, method, filter_id='',
                            copy='', comment=''):
-
+        conditions=events=methods=""
         if len(condition) > 1:
             conditions = '<condition>%s' % condition[0]
             for value, key in condition[1].items():
                 conditions += '<data>{0}<name>{1}</name></data>' \
                               ''.format(value, key)
             conditions += '</condition>'
-
+        else:
+            if condition[0] == "Always":
+              conditions = '<condition>%s</condition>' % condition[0]
         if len(event) > 1:
             events = '<event>%s' % event[0]
             for value, key in event[1].items():
@@ -640,11 +642,15 @@ class _gmp:
                        optional_args)
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          comment=''):
+                          alert_id='', comment=''):
+        #if given the alert_id is wrapped and integrated suitably as xml
+        if len(alert_id)>0:
+          alert_id = '<alert id="'+str(alert_id)+'"/>'
+
         return '<create_task><name>{0}</name><comment>{1}</comment>' \
                '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
-               '</create_task>'.format(name, comment, config_id, target_id,
-                                       scanner_id)
+               '{5}</create_task>'.format(name, comment, config_id, target_id,
+                                       scanner_id, alert_id)
 
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
                           ifaces_allow='0', role_ids=(), hosts=None,

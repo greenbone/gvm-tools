@@ -330,9 +330,9 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_task(self, name, config_id, target_id, scanner_id, comment=''):
+    def create_task(self, name, config_id, target_id, scanner_id, alert_id='', comment=''):
         cmd = self.gmp_generator.createTaskCommand(
-            name, config_id, target_id, scanner_id, comment)
+            name, config_id, target_id, scanner_id, alert_id, comment)
         self.send(cmd)
         return self.read()
 
