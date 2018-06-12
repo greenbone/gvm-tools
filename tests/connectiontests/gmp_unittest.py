@@ -25,7 +25,6 @@ import unittest
 from gmp.gvm_connection import (SSHConnection,
                                 GMPError)
 import warnings
-import lxml
 
 # UnitOfWork_StateUnderTest_ExpectedBehavior
 # Sum_NegativeNumberAs2ndParam_ExceptionThrown ()
