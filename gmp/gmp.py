@@ -859,12 +859,12 @@ class _gmp:
             assert cred_type in ('cc', 'snmp', 'up', 'usk')
             cred_type = '<type>%s</type>' % cred_type
 
-        return '<modify_credential>{0}' \
-               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
+        return '<modify_credential credential_id="{0}">' \
+               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}' \
                '</modify_credential>' \
-               ''.format(comment, name, allow_insecure, certificate,
-                         key, login, password, auth_algorithm, community,
-                         privacy, cred_type)
+               ''.format(credential_id, comment, name, allow_insecure,
+                         certificate, key, login, password, auth_algorithm,
+                         community, privacy, cred_type)
 
     def modifyFilterCommand(self, filter_id, kwargs):
 
