@@ -82,7 +82,9 @@ class _gmp:
                                         filter_id)
 
     def createAssetCommand(self, name, asset_type, comment=''):
-        assert asset_type in ('host', 'os')
+        if asset_type not in ('host', 'os'):
+            raise ValueError('create_asset requires asset_type to be either '
+                             'host or os')
 
         if comment:
             comment = '<comment>%s</comment>' % comment
@@ -140,8 +142,11 @@ class _gmp:
         if key:
             phrase = key['phrase']
             private = key['private']
-            assert phrase
-            assert private
+            if not phrase:
+                raise ValueError('create_credential requires a phrase element')
+            if not private:
+                raise ValueError('create_credential requires a '
+                                 'private element')
 
             key = '<key><phrase>{0}</phrase><private>{1}</private></key>' \
                   ''.format(phrase, private)
@@ -156,7 +161,9 @@ class _gmp:
 
         auth_algorithm = kwargs.get('auth_algorithm', '')
         if auth_algorithm:
-            assert auth_algorithm in ('md5', 'sha1')
+            if auth_algorithm not in ('md5', 'sha1'):
+                raise ValueError('create_credential requires auth_algorithm '
+                                 'to be either md5 or sha1')
             auth_algorithm = '<auth_algorithm>%s</auth_algorithm>' \
                              '' % auth_algorithm
 
@@ -167,14 +174,18 @@ class _gmp:
         privacy = kwargs.get('privacy', '')
         if privacy:
             algorithm = privacy.algorithm
-            assert algorithm in ('aes', 'des')
+            if algorithm not in ('aes', 'des'):
+                raise ValueError('create_credential requires algorithm '
+                                 'to be either aes or des')
             p_password = privacy.password
             privacy = '<privacy><algorithm>{0}</algorithm><password>{1} ' \
                       '</password></privacy>'.format(algorithm, p_password)
 
         cred_type = kwargs.get('type', '')
         if cred_type:
-            assert cred_type in ('cc', 'snmp', 'up', 'usk')
+            if cred_type not in ('cc', 'snmp', 'up', 'usk'):
+                raise ValueError('create_credential requires type '
+                                 'to be either cc, snmp, up or usk')
             cred_type = '<type>%s</type>' % cred_type
 
         return '<create_credential><name>{0}</name>' \
@@ -200,7 +211,9 @@ class _gmp:
 
         filter_type = kwargs.get('type', '')
         if filter_type:
-            assert filter_type in ('cc', 'snmp', 'up', 'usk')
+            if filter_type not in ('cc', 'snmp', 'up', 'usk'):
+                raise ValueError('create_filter requires type '
+                                 'to be either cc, snmp, up or usk')
             filter_type = '<type>%s</type>' % filter_type
 
         return '<create_filter><name>{0}<make_unique>{1}</make_unique></name>' \
@@ -329,9 +342,13 @@ class _gmp:
         # libs.gvm_connection.GMPError: Error in NAME
         # TODO: Research why!!
 
-        assert name
-        assert subject_id
-        assert type in ('user', 'group', 'role')
+        if not name:
+            raise ValueError('create_permission requires a name element')
+        if not subject_id:
+            raise ValueError('create_permission requires a subject_id element')
+        if type not in ('user', 'group', 'role'):
+            raise ValueError('create_permission requires type '
+                             'to be either user, group or role')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -355,8 +372,10 @@ class _gmp:
 
     def createPortListCommand(self, name, port_range, kwargs):
 
-        assert name
-        assert port_range
+        if not name:
+            raise ValueError('create_port_list requires a name element')
+        if not port_range:
+            raise ValueError('create_port_list requires a port_range element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -373,8 +392,11 @@ class _gmp:
     def createPortRangeCommand(self, port_list_id, start, end, type,
                                comment=''):
 
-        assert port_list_id
-        assert type
+        if not port_list_id:
+            raise ValueError('create_port_range requires '
+                             'a port_list_id element')
+        if not type:
+            raise ValueError('create_port_range requires a type element')
 
         return '<create_port_range>' \
                '<port_list id="{0}"/>' \
@@ -386,7 +408,8 @@ class _gmp:
 
     def createReportCommand(self, report_xml_string, kwargs):
 
-        assert report_xml_string
+        if not report_xml_string:
+            raise ValueError('create_report requires a report')
 
         task_id = kwargs.get('task_id', '')
         task_name = kwargs.get('task_name', '')
@@ -414,7 +437,8 @@ class _gmp:
 
     def createRoleCommand(self, name, kwargs):
 
-        assert name
+        if not name:
+            raise ValueError('create_role requires a name element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -436,12 +460,18 @@ class _gmp:
 
     def createScannerCommand(self, name, host, port, type, ca_pub,
                              credential_id, kwargs):
-        assert name
-        assert host
-        assert port
-        assert type
-        assert ca_pub
-        assert credential_id
+        if not name:
+            raise ValueError('create_scanner requires a name element')
+        if not host:
+            raise ValueError('create_scanner requires a host element')
+        if not port:
+            raise ValueError('create_scanner requires a port element')
+        if not type:
+            raise ValueError('create_scanner requires a type element')
+        if not ca_pub:
+            raise ValueError('create_scanner requires a ca_pub element')
+        if not credential_id:
+            raise ValueError('create_scanner requires a credential_id element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -464,7 +494,8 @@ class _gmp:
                          comment)
 
     def createScheduleCommand(self, name, kwargs):
-        assert name
+        if not name:
+            raise ValueError('create_schedule requires a name element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -553,8 +584,8 @@ class _gmp:
             hosts = kwargs.get('hosts')
             hosts = '<hosts>%s</hosts>' % hosts
         else:
-            raise ValueError('create_target requires either a hosts or ' \
-                    'an asset_hosts element')
+            raise ValueError('create_target requires either a hosts or '
+                             'an asset_hosts element')
 
         optional_args = ''
 
@@ -685,7 +716,8 @@ class _gmp:
 
     def modifyAgentCommand(self, agent_id, name='', comment=''):
 
-        assert agent_id
+        if not agent_id:
+            raise ValueError('modify_agent requires an agent_id element')
         if name:
             name = '<name>{0}</name>'.format(name)
 
@@ -697,7 +729,8 @@ class _gmp:
 
     def modifyAlertCommand(self, alert_id, kwargs):
 
-        assert alert_id
+        if not alert_id:
+            raise ValueError('modify_alert requires an agent_id element')
 
         name = kwargs.get('name', '')
         if name:
@@ -744,8 +777,12 @@ class _gmp:
 
     def modifyAuthCommand(self, group_name,  auth_conf_settings):
 
-        assert group_name
-        assert auth_conf_settings
+        if not group_name:
+            raise ValueError('modify_auth requires a group element '
+                             'with a name attribute')
+        if not auth_conf_settings:
+            raise ValueError('modify_auth requires '
+                             'an auth_conf_settings element')
         auth_conf_setting = ''
 
         for key, value in auth_conf_settings.items():
@@ -759,8 +796,10 @@ class _gmp:
 
     def modifyConfigCommand(self, selection, kwargs):
 
-        assert selection in ('nvt_pref', 'sca_pref',
-                             'family_selection', 'nvt_selection')
+        if selection not in ('nvt_pref', 'sca_pref',
+                             'family_selection', 'nvt_selection'):
+            raise ValueError('selection must be one of nvt_pref, sca_pref, '
+                             'family_selection or nvt_selection')
         config_id = kwargs.get('config_id')
 
         if selection in 'nvt_pref':
@@ -799,7 +838,10 @@ class _gmp:
 
     def modifyCredentialCommand(self, credential_id, kwargs):
 
-        assert credential_id
+        # FIXME: credential_id is not used?
+        if not credential_id:
+            raise ValueError('modify_credential requires '
+                             'a credential_id attribute')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -822,8 +864,11 @@ class _gmp:
         if key:
             phrase = key['phrase']
             private = key['private']
-            assert phrase
-            assert private
+            if not phrase:
+                raise ValueError('modify_credential requires a phrase element')
+            if not private:
+                raise ValueError('modify_credential requires '
+                                 'a private element')
 
             key = '<key><phrase>{0}</phrase><private>{1}</private></key>' \
                   ''.format(phrase, private)
@@ -838,7 +883,9 @@ class _gmp:
 
         auth_algorithm = kwargs.get('auth_algorithm', '')
         if auth_algorithm:
-            assert auth_algorithm in ('md5', 'sha1')
+            if auth_algorithm not in ('md5', 'sha1'):
+                raise ValueError('modify_credential requires auth_algorithm '
+                                 'to be either md5 or sha1')
             auth_algorithm = '<auth_algorithm>%s</auth_algorithm>' \
                              '' % auth_algorithm
 
@@ -849,14 +896,18 @@ class _gmp:
         privacy = kwargs.get('privacy', '')
         if privacy:
             algorithm = privacy.algorithm
-            assert algorithm in ('aes', 'des')
+            if algorithm not in ('aes', 'des'):
+                raise ValueError('modify_credential requires algorithm '
+                                 'to be either aes or des')
             p_password = privacy.password
             privacy = '<privacy><algorithm>{0}</algorithm><password>{1} ' \
                       '</password></privacy>'.format(algorithm, p_password)
 
         cred_type = kwargs.get('type', '')
         if cred_type:
-            assert cred_type in ('cc', 'snmp', 'up', 'usk')
+            if cred_type not in ('cc', 'snmp', 'up', 'usk'):
+                raise ValueError('modify_credential requires type '
+                                 'to be either cc, snmp, up or usk')
             cred_type = '<type>%s</type>' % cred_type
 
         return '<modify_credential credential_id="{0}">' \
@@ -868,7 +919,8 @@ class _gmp:
 
     def modifyFilterCommand(self, filter_id, kwargs):
 
-        assert filter_id
+        if not filter_id:
+            raise ValueError('modify_filter requires a filter_id attribute')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -888,7 +940,9 @@ class _gmp:
 
         filter_type = kwargs.get('type', '')
         if filter_type:
-            assert filter_type in ('cc', 'snmp', 'up', 'usk')
+            if filter_type not in ('cc', 'snmp', 'up', 'usk'):
+                raise ValueError('modify_filter requires type '
+                                 'to be either cc, snmp, up or usk')
             filter_type = '<type>%s</type>' % filter_type
 
         return '<modify_filter filter_id="{0}">{1}{2}{3}{4}</modify_filter>' \
@@ -896,7 +950,8 @@ class _gmp:
 
     def modifyGroupCommand(self, group_id, kwargs):
 
-        assert group_id
+        if not group_id:
+            raise ValueError('modify_group requires a group_id attribute')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -915,8 +970,10 @@ class _gmp:
 
     def modifyNoteCommand(self, note_id, text, kwargs):
 
-        assert note_id
-        assert text
+        if not note_id:
+            raise ValueError('modify_note requires a note_id attribute')
+        if not text:
+            raise ValueError('modify_note requires a text element')
 
         active = kwargs.get('active', '')
         if active:
@@ -996,7 +1053,9 @@ class _gmp:
 
     def modifyPermissionCommand(self, permission_id, kwargs):
 
-        assert permission_id
+        if not permission_id:
+            raise ValueError('modify_permission requires '
+                             'a permission_id element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1027,7 +1086,9 @@ class _gmp:
 
     def modifyPortListCommand(self, port_list_id, kwargs):
 
-        assert port_list_id
+        if not port_list_id:
+            raise ValueError('modify_port_list requires '
+                             'a port_list_id attribute')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1066,7 +1127,8 @@ class _gmp:
 
     def modifyRoleCommand(self, role_id, kwargs):
 
-        assert role_id
+        if not role_id:
+            raise ValueError('modify_role requires a role_id element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1085,10 +1147,14 @@ class _gmp:
 
     def modifyScannerCommand(self, scanner_id, host, port, type, kwargs):
 
-        assert scanner_id
-        assert host
-        assert port
-        assert type
+        if not scanner_id:
+            raise ValueError('modify_scanner requires a scanner_id element')
+        if not host:
+            raise ValueError('modify_scanner requires a host element')
+        if not port:
+            raise ValueError('modify_scanner requires a port element')
+        if not type:
+            raise ValueError('modify_scanner requires a type element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1117,7 +1183,8 @@ class _gmp:
 
     def modifyScheduleCommand(self, schedule_id, kwargs):
 
-        assert schedule_id
+        if not schedule_id:
+            raise ValueError('modify_schedule requires a schedule_id element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1165,7 +1232,8 @@ class _gmp:
 
     def modifyTagCommand(self, tag_id, kwargs):
 
-        assert tag_id
+        if not tag_id:
+            raise ValueError('modify_tag requires a tag_id element')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1211,7 +1279,8 @@ class _gmp:
             name = '<name>%s</name>' % name
 
         if not user_id and not name:
-            assert('user_id or name are required')
+            raise ValueError('modify_user requires '
+                             'either a user_id or a name element')
 
         new_name = kwargs.get('new_name', '')
         if new_name:
