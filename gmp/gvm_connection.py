@@ -23,7 +23,6 @@
 
 import logging
 import paramiko
-import re
 import socket
 import ssl
 import time
