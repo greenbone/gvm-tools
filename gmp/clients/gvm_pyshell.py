@@ -101,7 +101,7 @@ class Help(object):
 
     def __repr__(self):
         # do pwd command
-        return(help_text)
+        return help_text
 help = Help()
 
 # gmp has to be global, so the load-function has the correct namespace
