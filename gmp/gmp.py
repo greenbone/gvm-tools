@@ -818,7 +818,7 @@ class _gmp:
             nvt_oid = kwargs.get('nvt_oid')
             family = kwargs.get('family')
             nvts = ''
-            if type(nvt_oid) is list:
+            if isinstance(nvt_oid, list):
                 for nvt in nvt_oid:
                     nvts += '<nvt oid="%s"/>' % nvt
             else:

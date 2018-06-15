@@ -185,7 +185,7 @@ def pretty(xml):
     Arguments:
         xml {obj} -- list<lxml.etree._Element> or directly a lxml element
     """
-    if type(xml) is list:
+    if isinstance(xml, list):
         for item in xml:
             if etree.iselement(item):
                 print(etree.tostring(item, pretty_print=True).decode('utf-8'))
