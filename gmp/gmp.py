@@ -76,9 +76,16 @@ class _gmp:
         if filter_id:
             filter_id = '<filter id=%s/>' % filter_id
 
+        if copy:
+            copy = '<copy>%s</copy>' % copy
+
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
         return '<create_alert><name>{0}</name>' \
-               '{1}{2}{3}{4}' \
-               '</create_alert>'.format(name, conditions, events, methods,
+               '{1}{2}{3}{4}{5}{6}' \
+               '</create_alert>'.format(name, comment, copy,
+                                        conditions, events, methods,
                                         filter_id)
 
     def createAssetCommand(self, name, asset_type, comment=''):
