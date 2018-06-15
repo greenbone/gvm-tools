@@ -20,7 +20,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from lxml import etree
 
 class _gmp:
     """GMP - Greenbone Manager Protocol
@@ -674,14 +674,18 @@ class _gmp:
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           alert_id='', comment=''):
+        xmlRoot = etree.Element('create_task')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlComment = etree.SubElement(xmlRoot, 'comment')
+        _xmlComment.text = comment
+        _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
+        _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
+        _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
         #if given the alert_id is wrapped and integrated suitably as xml
         if len(alert_id)>0:
-          alert_id = '<alert id="'+str(alert_id)+'"/>'
-
-        return '<create_task><name>{0}</name><comment>{1}</comment>' \
-               '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
-               '{5}</create_task>'.format(name, comment, config_id, target_id,
-                                       scanner_id, alert_id)
+            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert_id))
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
                           ifaces_allow='0', role_ids=(), hosts=None,
