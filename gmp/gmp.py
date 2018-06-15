@@ -838,7 +838,6 @@ class _gmp:
 
     def modifyCredentialCommand(self, credential_id, kwargs):
 
-        # FIXME: credential_id is not used?
         if not credential_id:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
