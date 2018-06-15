@@ -163,7 +163,7 @@ usage: gvm-dialog [-h] [--version] [connection_type] ...
                 tasks[name] = etree.tostring(
                     task, pretty_print=True).decode('utf-8')
 
-            while(True):
+            while True:
                 code, tag = d.menu("Tasks", choices=names)
 
                 if 'cancel' in code:
@@ -185,7 +185,7 @@ def pretty(xml):
     Arguments:
         xml {obj} -- list<lxml.etree._Element> or directly a lxml element
     """
-    if type(xml) is list:
+    if isinstance(xml, list):
         for item in xml:
             if etree.iselement(item):
                 print(etree.tostring(item, pretty_print=True).decode('utf-8'))

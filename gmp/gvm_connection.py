@@ -146,7 +146,7 @@ class GVMConnection:
 
         try:
             parser = etree.XMLParser(encoding='utf-8', recover=True)
-            if(etree.iselement(xml)):
+            if etree.iselement(xml):
                 root = etree.ElementTree(xml, parser=parser).getroot()
             else:
                 root = etree.XML(xml, parser=parser)

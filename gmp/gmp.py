@@ -823,7 +823,7 @@ class _gmp:
             nvt_oid = kwargs.get('nvt_oid')
             family = kwargs.get('family')
             nvts = ''
-            if type(nvt_oid) is list:
+            if isinstance(nvt_oid, list):
                 for nvt in nvt_oid:
                     nvts += '<nvt oid="%s"/>' % nvt
             else:
@@ -845,7 +845,6 @@ class _gmp:
 
     def modifyCredentialCommand(self, credential_id, kwargs):
 
-        # FIXME: credential_id is not used?
         if not credential_id:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
