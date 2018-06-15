@@ -163,7 +163,7 @@ usage: gvm-dialog [-h] [--version] [connection_type] ...
                 tasks[name] = etree.tostring(
                     task, pretty_print=True).decode('utf-8')
 
-            while(True):
+            while True:
                 code, tag = d.menu("Tasks", choices=names)
 
                 if 'cancel' in code:
