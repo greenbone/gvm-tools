@@ -21,15 +21,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-debug = True #flag for debugging information output
+debug = True  # flag for debugging information output
 
-#IMPORTANT: change both email addresses to make this work
+# IMPORTANT: change both email addresses to make this work
 recipientEmail = "alice@example.org"
 senderEmail = "bob@example.org"
 
 if recipientEmail == "alice@example.org" or senderEmail == "bob@example.org":
     print("WARNING: please change both email addresses first")
     quit("exiting..")
+
 
 # returns a list containing all port_list names
 def get_port_list_names():
@@ -40,7 +41,8 @@ def get_port_list_names():
         port_names_list.append(s)
     return port_names_list
 
-try: # catch exceptions and provide useful output
+
+try:  # catch exceptions and provide useful output
 
     # get all configs of the openvas instance
     res = gmp.get_configs()
@@ -51,13 +53,13 @@ try: # catch exceptions and provide useful output
 
     # match the config abbreviation to accepted config names
     config_list = ['Full and fast', 'Full and fast ultimate', 'Full and very deep',
-    'Full and very deep ultimate', 'System Discovery']
+                   'Full and very deep ultimate', 'System Discovery']
     template_abbreviation_mapper = {
-        "fast" : config_list[0],
-        "fast-ulti" : config_list[1],
-        "deep" : config_list[2],
-        "deep-ulti" : config_list[3],
-        "discovery" : config_list[4]
+        "fast": config_list[0],
+        "fast-ulti": config_list[1],
+        "deep": config_list[2],
+        "deep-ulti": config_list[3],
+        "discovery": config_list[4]
     }
     config_id = "-"
     for conf in res.xpath('config'):
@@ -65,15 +67,15 @@ try: # catch exceptions and provide useful output
         name = conf.xpath('name/text()')[0]
 
         # get the config id of the desired template
-        if template_abbreviation_mapper.get(template,"-")==name:
+        if template_abbreviation_mapper.get(template, "-") == name:
             config_id = id
             if debug:
                 print(name + ": " + config_id)
             break
     # check for existence of the desired config
     if config_id == "-":
-        print("error: could not recognize template '%s'\nvalid template names are: %s\n"\
-        %(template,config_list))
+        print("error: could not recognize template '%s'\nvalid template names are: %s\n"
+              % (template, config_list))
         exit()
 
     # find a targetName
@@ -101,7 +103,7 @@ try: # catch exceptions and provide useful output
         portlist_name = str(new_port_list_name + str(counter))
         if portlist_name not in get_port_list_names():
             break
-        counter+=1
+        counter += 1
 
     # configurable port string
     port_string = "T:80-80"
@@ -123,14 +125,14 @@ try: # catch exceptions and provide useful output
     alert_name = recipientEmail
 
     # create alert if necessarry
-    alert_object = gmp.get_alerts(filter='name=%s'%alert_name)
+    alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
     alert_id = None
     alert = alert_object.xpath('alert')
     if len(alert) == 0:
         print("creating alert")
         gmp.create_alert(alert_name, ["Always"],
-        ["Task run status changed",{"status":"Done"}],
-        ["Email",{ """Task '$n': $e
+                         ["Task run status changed", {"status": "Done"}],
+                         ["Email", {"""Task '$n': $e
 
 After the event $e,
 the following condition was met: $c
@@ -144,23 +146,24 @@ Note:
 This email was sent to you as a configured security scan escalation.
 Please contact your local system administrator if you think you
 should not have received it.
-""":"message",
-        "2":"notice",senderEmail:"from_address",
-        "[OpenVAS-Manager] Task":"subject",
-        "c402cc3e-b531-11e1-9163-406186ea4fc5":"notice_attach_format",
-        recipientEmail:"to_address"}])
-        alert_object = gmp.get_alerts(filter='name=%s'%recipientEmail)
+""": "message",
+                                    "2": "notice", senderEmail: "from_address",
+                                    "[OpenVAS-Manager] Task": "subject",
+                                    "c402cc3e-b531-11e1-9163-406186ea4fc5": "notice_attach_format",
+                                    recipientEmail: "to_address"
+                                    }])
+        alert_object = gmp.get_alerts(filter='name=%s' % recipientEmail)
         alert = alert_object.xpath('alert')
-        alert_id = alert[0].get('id','no id found')
+        alert_id = alert[0].get('id', 'no id found')
     else:
-        alert_id = alert[0].get('id','no id found')
+        alert_id = alert[0].get('id', 'no id found')
         if debug:
             print("alert_id: " + str(alert_id))
 
     # Create the task
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
-    scanner_id = scanner_ids[1] # default scanner
+    scanner_id = scanner_ids[1]  # default scanner
     task_name = "name" + str(counter)
     task_comment = "test comment"
     res = gmp.create_task(task_name, config_id, target_id, scanner_id, alert_id, task_comment)
