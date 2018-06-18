@@ -54,7 +54,7 @@ for command in xml_tree.xpath('target'):
     Targets[name] = hosts
 
     gmp.create_target(
-                      name=name,
-                      make_unique=True,
-                      hosts=hosts,
-                      )
+        name=name,
+        make_unique=True,
+        hosts=hosts,
+        )
