@@ -734,9 +734,10 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send(cmd)
         return self.read()
 
-    def modify_task(self):
-        # TODO: Multiple values are required to modify a task. Is this correct?
-        raise NotImplementedError
+    def modify_task(self, task_id, **kwargs):
+        cmd = self.gmp_generator.modifyTaskCommand(task_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_user(self, **kwargs):
         cmd = self.gmp_generator.modifyUserCommand(kwargs)
