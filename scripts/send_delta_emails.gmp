@@ -26,7 +26,8 @@ import smtplib
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
-import sched, time
+import sched
+import time
 import datetime
 import base64
 
@@ -54,7 +55,7 @@ if len_args is not 0:
     print(message)
     quit()
 
-interval = 60 # in minutes
+interval = 60  # in minutes
 task_tag = 'send_delta_alert'
 report_tag_name = 'delta_alert_sent'
 email_subject = 'Delta Report'
@@ -81,46 +82,46 @@ print()
 
 
 def execute_send_delta_emails(sc):
-    print ('Retrieving task list ...')
+    print('Retrieving task list ...')
     task_filter = 'tag=%s' % task_tag
     tasks = gmp.get_tasks(filter=task_filter).xpath('task')
-    print ('Found %d task(s) with tag "%s".' % (len(tasks), task_tag))
+    print('Found %d task(s) with tag "%s".' % (len(tasks), task_tag))
 
     for task in tasks:
         task_id = task.xpath('@id')[0]
-        print ('Processing task "%s" (%s)...' % (task.xpath('name/text()')[0], task_id))
+        print('Processing task "%s" (%s)...' % (task.xpath('name/text()')[0], task_id))
 
         reports = gmp.get_reports(report_filter='task_id=%s and        \
                                                 status=Done            \
                                                 sort-reverse=date'
-                                                % task_id).xpath('report')
-        print ('  Found %d report(s).' % len(reports))
-        if (len(reports) < 2):
-            print ('  Delta-reporting requires at least 2 finished reports.')
+                                  % task_id).xpath('report')
+        print('  Found %d report(s).' % len(reports))
+        if len(reports) < 2:
+            print('  Delta-reporting requires at least 2 finished reports.')
             continue
 
         if reports[0].xpath('report/user_tags/tag/name[text()="delta_alert_sent"]'):
-            print ('  Delta report for latest finished report already sent')
+            print('  Delta report for latest finished report already sent')
             continue
 
-        print ("  Latest finished report not send yet. Preparing delta report...")
+        print("  Latest finished report not send yet. Preparing delta report...")
 
         delta_report = gmp.get_reports(
-                                       report_id=reports[0].xpath('@id')[0],
-                                       delta_report_id=reports[1].xpath('@id')[0],
-                                       filter='delta_states=n',
-                                       format_id='c1645568-627a-11e3-a660-406186ea4fc5'
-                                       )
+            report_id=reports[0].xpath('@id')[0],
+            delta_report_id=reports[1].xpath('@id')[0],
+            filter='delta_states=n',
+            format_id='c1645568-627a-11e3-a660-406186ea4fc5'
+            )
 
         csv_in_b64 = delta_report.xpath('report/text()')[0]
         csv = base64.b64decode(csv_in_b64)
         # Only for debugging:
-        #print(csv)
+        # print(csv)
 
-        print ("  Composing Email...")
+        print("  Composing Email...")
         COMMASPACE = ', '
         alert_email = MIMEMultipart()
-        alert_email['Subject'] = email_subject 
+        alert_email['Subject'] = email_subject
         alert_email['To'] = COMMASPACE.join(to_addresses)
         alert_email['From'] = from_address
         alert_email['Date'] = formatdate(localtime=True)
@@ -131,35 +132,35 @@ def execute_send_delta_emails(sc):
         alert_email.attach(report_attachment)
 
         # Only for debugging:
-        #print (alert_email.as_string())
+        # print(alert_email.as_string())
 
-        print ("  Sending Email...")
+        print("  Sending Email...")
         try:
-             with smtplib.SMTP(mta_address, mta_port) as s:
+            with smtplib.SMTP(mta_address, mta_port) as s:
                 s.ehlo()
                 s.starttls()
                 s.ehlo()
-                s.login(mta_user, mta_password) # if required
+                s.login(mta_user, mta_password)  # if required
                 s.sendmail(from_address, to_addresses, alert_email.as_string())
                 s.close()
                 print("  Email has been sent!")
 
                 gmp.create_tag(
-                               name=report_tag_name,
-                               resource_id=reports[0].xpath('@id')[0],
-                               resource_type='report',
-                               value=datetime.datetime.now()
-                               )
+                    name=report_tag_name,
+                    resource_id=reports[0].xpath('@id')[0],
+                    resource_type='report',
+                    value=datetime.datetime.now()
+                    )
         except:
             print("  Unable to send the email. Error: ", sys.exc_info()[0])
             # raise # in case an error should stop the script
-            continue # ignore the problem for the time being
+            continue  # ignore the problem for the time being
 
     print("\nCheck will be repeated in {} minutes...\n".format(interval))
     sc.enter(interval*60, 1, execute_send_delta_emails, (sc,))
 
 
-print ('Entering loop with interval %s minutes ...' % interval)
+print('Entering loop with interval %s minutes ...' % interval)
 
 s = sched.scheduler(time.time, time.sleep)
 
