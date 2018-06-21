@@ -1315,13 +1315,12 @@ class _gmp:
         if port_range:
             port_range = '<port_range>%s</port_range>' % port_range
 
-        if 'port_list' in kwargs:
-            port_list = kwargs.get('port_list')
-            if 'id' in port_list:
-                port_list = '<port_list id="%s"/>' % port_list
+        port_list = kwargs.get('port_list', '')
+        if port_list:    
+            port_list = '<port_list id="%s"/>' % port_list
 
         return '<modify_target target_id="{0}">{1}{2}{3}{4}{5}{6}  \
-                {7}{8}{9}{10}{11}</modify_target>' \
+                {7}{8}{9}{10}</modify_target>' \
                ''.format(
                          target_id, name, hosts, comment, copy, exclude_hosts,
                          alive_tests, reverse_lookup_only, reverse_lookup_unify,
