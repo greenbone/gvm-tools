@@ -1340,6 +1340,10 @@ class _gmp:
         if comment:
             comment = '<comment>%s</comment>' % comment
 
+        target_id = kwargs.get('target_id', '')
+        if target_id:
+            target_id = '<target id="%s"/>' % target_id
+
         scanner = kwargs.get('scanner', '')
         if scanner:
             scanner = '<scanner_id="%s"></scanner>' % scanner
@@ -1381,11 +1385,19 @@ class _gmp:
 
             file = '<file name="%s" action="%s"/>' % (file_name, file_action)
 
-        return '<modify_task task_id="{0}">' \
-               '{1}{2}{3}{4}{5}{6}{7}{8}{9}' \
+        print('<modify_task task_id="{0}">' \
+               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
                '</modify_task>' \
                ''.format(
-                         task_id, comment, alert, name, observers,
+                         task_id, comment, alert, name, target_id, observers,
+                         preferences, schedule, schedule_periods, scanner,
+                         file
+                         ))
+        return '<modify_task task_id="{0}">' \
+               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
+               '</modify_task>' \
+               ''.format(
+                         task_id, comment, alert, name, target_id, observers,
                          preferences, schedule, schedule_periods, scanner,
                          file
                          )
