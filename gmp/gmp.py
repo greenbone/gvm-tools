@@ -1385,14 +1385,6 @@ class _gmp:
 
             file = '<file name="%s" action="%s"/>' % (file_name, file_action)
 
-        print('<modify_task task_id="{0}">' \
-               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
-               '</modify_task>' \
-               ''.format(
-                         task_id, comment, alert, name, target_id, observers,
-                         preferences, schedule, schedule_periods, scanner,
-                         file
-                         ))
         return '<modify_task task_id="{0}">' \
                '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
                '</modify_task>' \
