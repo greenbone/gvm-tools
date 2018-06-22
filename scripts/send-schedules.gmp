@@ -46,7 +46,7 @@ a desired GSM
 hostname = args.hostname
 xml_doc = args.script[1]
 
-print('Sending schedules from {} to {}...'.format(xml_doc, hostname))
+print('\nSending schedules from {} to {}...'.format(xml_doc, hostname))
 
 xml_tree = e.parse(xml_doc)
 xml_tree = e.tostring(xml_tree)
@@ -65,25 +65,31 @@ for command in xml_tree.xpath('schedule'):
     month = first_time.month
     year = first_time.year
     first_time = {
-        'day_of_month': day,
-        'hour': hour,
-        'minute': minute,
-        'month': month,
-        'year': year
-        }
+                  'day_of_month': day,
+                  'hour': hour,
+                  'minute': minute,
+                  'month': month,
+                  'year': year
+                  }
     duration = command.find('simple_duration').text
     duration_unit = command.find('simple_duration').find('unit').text
     duration = [duration, duration_unit]
+    if None in duration:
+        duration = ''
     period = command.find('simple_period').text
     period_unit = command.find('simple_period').find('unit').text
     period = [period, period_unit]
-    timezone = command.find('timezone').text
+    if None in period:
+        period = ''
+    timezone_abbrev = command.find('timezone_abbrev').text
 
     gmp.create_schedule(
-        name=name,
-        first_time=first_time,
-        duration=duration,
-        period=period,
-        comment=comment,
-        timezone=timezone
-        )
+                        name=name,
+                        first_time=first_time,
+                        duration=duration,
+                        period=period,
+                        comment=comment,
+                        timezone=timezone_abbrev
+                        )
+
+print('\n  Schedule(s) sent!\n')

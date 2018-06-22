@@ -42,19 +42,63 @@ a desired GSM
 hostname = args.hostname
 xml_doc = args.script[1]
 
-print('Sending targets from {} to {}...'.format(xml_doc, hostname))
+print('\nSending targets from {} to {}...'.format(xml_doc, hostname))
 
 xml_tree = e.parse(xml_doc)
 xml_tree = e.tostring(xml_tree)
 xml_tree = e.XML(xml_tree)
 
-for command in xml_tree.xpath('target'):
-    name = command.find('name').text
-    hosts = command.find('hosts').text
-    Targets[name] = hosts
+for target in xml_tree.xpath('target'):
+    name = target.find('name').text
+    hosts = target.find('hosts').text
+    exclude_hosts = target.find('exclude_hosts').text
+    comment = target.find('comment').text
+    if comment is None:
+        comment = ''
+
+    ssh = {}
+    ssh_credential = target.find('ssh_credential')
+    ssh['id'] = ssh_credential.xpath('@id')[0]
+    ssh['port'] = ssh_credential.find('port').text
+
+    smb = {}
+    smb_credential = target.find('smb_credential')
+    smb['id'] = smb_credential.xpath('@id')
+
+    esxi = {}
+    esxi_credential = target.find('esxi_credential')
+    esxi['id'] = esxi_credential.xpath('@id')
+
+    snmp = {}
+    snmp_credential = target.find('snmp_credential')
+    snmp['id'] = snmp_credential.xpath('@id')
+
+    alive_tests = target.find('alive_tests').text
+    reverse_lookup_only = target.find('reverse_lookup_only').text
+    if reverse_lookup_only is '0':
+        reverse_lookup_only = ''
+    reverse_lookup_unify = target.find('reverse_lookup_unify').text
+    if reverse_lookup_unify is '0':
+        reverse_lookup_unify = ''
+    port_range = target.find('port_range').text
+    port_list = kwargs.get('port_list', '')    
+        if 'id' in port_list:
+            port_list = '<port_list id="%s"/>' % port_list
 
     gmp.create_target(
-        name=name,
-        make_unique=True,
-        hosts=hosts,
-        )
+                      name=name,
+                      make_unique=True,
+                      hosts=hosts,
+                      exclude_hosts=exclude_hosts,
+                      #ssh_credential=ssh,
+                      #smb_credential=smb,
+                      #esxi_credential=esxi,
+                      #snmp_credential=snmp,
+                      alive_tests=alive_tests,
+                      reverse_lookup_only=reverse_lookup_only,
+                      reverse_lookup_unify=reverse_lookup_unify,
+                      port_range=port_range,
+                      port_list=port_list
+                      )
+
+print('\n  Target(s) sent!\n')
