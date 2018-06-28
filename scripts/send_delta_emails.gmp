@@ -115,8 +115,6 @@ def execute_send_delta_emails(sc):
 
         csv_in_b64 = delta_report.xpath('report/text()')[0]
         csv = base64.b64decode(csv_in_b64)
-        # Only for debugging:
-        # print(csv)
 
         print("  Composing Email...")
         COMMASPACE = ', '
@@ -130,9 +128,6 @@ def execute_send_delta_emails(sc):
         report_attachment.add_header('Content-Disposition', 'attachment', filename='delta.csv')
         report_attachment.set_payload(csv)
         alert_email.attach(report_attachment)
-
-        # Only for debugging:
-        # print(alert_email.as_string())
 
         print("  Sending Email...")
         try:
