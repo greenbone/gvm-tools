@@ -1,0 +1,85 @@
+# -*- coding: utf-8 -*-
+# Description:
+# Script for gvm-pyshell
+#
+# Authors:
+# Joshua Schwartz <joshua.schwartz@greenbone.net>
+#
+# Copyright:
+# Copyright (C) 2018 Greenbone Networks GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import time
+
+len_args = len(args.script) - 1
+if len_args is not 1:
+    message = """
+    This script pulls hostnames from a text file and creates a target \
+for each.
+    One parameter after the script name is required.
+
+    1. <hosts_textfile>  -- text file containing hostnames
+
+    Example:
+        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+--gmp-password=pass scripts/create_targets_from_host_list.gmp \
+example_host_textfile
+    """
+    print(message)
+    quit()
+
+hostname = args.hostname
+host_file = args.script[1]
+
+
+def error_and_exit(msg):
+    sys.stderr.write("\nError: {}\n".format(msg))
+    sys.exit(1)
+
+
+def load_host_file(host_file):
+    try:
+        with open(host_file) as f:
+            content = f.readlines()
+        host_list = [x.strip() for x in content]
+        host_list = list(filter(None, host_list))
+    except IOError as e:
+        error_and_exit("Failed to read host_file: {} (exit)".format(str(e)))
+
+    if len(host_list) == 0:
+        error_and_exit("Host file is empty (exit)")
+
+    return host_list
+
+
+def send_targets(host_list):
+    print('\nSending targets from {} to {}...'.format(host_file, hostname))
+
+    for host in host_list:
+        name = "Target for {}".format(host)
+        comment = "Created: {}".format(time.strftime("%Y/%m/%d-%H:%M:%S"))
+        hosts = host
+
+        gmp.create_target(
+                          name=name,
+                          make_unique=True,
+                          comment=comment,
+                          hosts=hosts
+                          )
+
+host_list = load_host_file(host_file)
+send_targets(host_list)
+
+print('\n  Target(s) created!\n')
