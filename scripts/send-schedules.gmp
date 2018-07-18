@@ -29,7 +29,7 @@ if len_args is not 1:
     message = """
     This script pulls schedule data from an xml document and feeds it to \
 a desired GSM
-    It needs one parameter after the script name.
+    One parameter after the script name is required.
 
     1. <xml_doc>  -- .xml file containing schedules
 
@@ -46,44 +46,69 @@ a desired GSM
 hostname = args.hostname
 xml_doc = args.script[1]
 
-print('Sending schedules from {} to {}...'.format(xml_doc, hostname))
 
-xml_tree = e.parse(xml_doc)
-xml_tree = e.tostring(xml_tree)
-xml_tree = e.XML(xml_tree)
+def error_and_exit(msg):
+    sys.stderr.write("Error: {}\n".format(msg))
+    sys.exit(1)
 
-for command in xml_tree.xpath('schedule'):
-    name = command.find('name').text
-    comment = command.find('comment').text
-    if comment is None:
-        comment = ''
-    first_time = command.find('first_time').text
-    first_time = dateutil.parser.parse(first_time)
-    day = first_time.day
-    hour = first_time.hour
-    minute = first_time.minute
-    month = first_time.month
-    year = first_time.year
-    first_time = {
-        'day_of_month': day,
-        'hour': hour,
-        'minute': minute,
-        'month': month,
-        'year': year
-        }
-    duration = command.find('simple_duration').text
-    duration_unit = command.find('simple_duration').find('unit').text
-    duration = [duration, duration_unit]
-    period = command.find('simple_period').text
-    period_unit = command.find('simple_period').find('unit').text
-    period = [period, period_unit]
-    timezone = command.find('timezone').text
 
-    gmp.create_schedule(
-        name=name,
-        first_time=first_time,
-        duration=duration,
-        period=period,
-        comment=comment,
-        timezone=timezone
-        )
+def create_xml_tree(xml_doc):
+    try:
+        xml_tree = e.parse(xml_doc)
+        xml_tree = e.tostring(xml_tree)
+        xml_tree = e.XML(xml_tree)
+    except IOError as err:
+        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
+
+    if len(xml_tree) == 0:
+        error_and_exit("XML file is empty (exit)")
+
+    return xml_tree
+
+
+def parse_send_xml_tree(xml_tree):
+    print('\nSending schedules from {} to {}...'.format(xml_doc, hostname))
+
+    for schedule in xml_tree.xpath('schedule'):
+        name = schedule.find('name').text
+        
+        comment = schedule.find('comment').text
+        if comment is None:
+            comment = ''
+
+        first_time = {}
+        f_time = schedule.find('first_time').text
+        f_time = dateutil.parser.parse(f_time)
+        first_time['day_of_month'] = f_time.day
+        first_time['hour'] = f_time.hour
+        first_time['minute'] = f_time.minute
+        first_time['month'] = f_time.month
+        first_time['year'] = f_time.year
+       
+        duration = schedule.find('simple_duration').text
+        duration_unit = schedule.find('simple_duration').find('unit').text
+        duration = [duration, duration_unit]
+        if None in duration:
+            duration = ''
+
+        period = schedule.find('simple_period').text
+        period_unit = schedule.find('simple_period').find('unit').text
+        period = [period, period_unit]
+        if None in period:
+            period = ''
+
+        timezone_abbrev = schedule.find('timezone_abbrev').text
+
+        gmp.create_schedule(
+                            name=name,
+                            first_time=first_time,
+                            duration=duration,
+                            period=period,
+                            comment=comment,
+                            timezone=timezone_abbrev
+                            )
+
+xml_tree = create_xml_tree(xml_doc)
+parse_send_xml_tree(xml_tree)
+
+print('\n  Schedule(s) created!\n')
