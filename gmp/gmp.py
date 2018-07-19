@@ -513,7 +513,7 @@ class _gmp:
             copy = '<copy>%s</copy>' % copy
 
         first_time = kwargs.get('first_time', '')
-        print(first_time)
+
         if first_time:
             first_time_minute = first_time['minute']
             first_time_hour = first_time['hour']
@@ -534,12 +534,13 @@ class _gmp:
 
         duration = kwargs.get('duration', '')
         if len(duration) > 1:
-            duration = '<duration>%s<unit>%s</unit>' \
+            duration = '<duration>%s<unit>%s</unit></duration>' \
                        '' % (duration[0], duration[1])
 
         period = kwargs.get('period', '')
         if len(period) > 1:
-            period = '<period>%s<unit>%s</unit>' % (period[0], period[1])
+            period = '<period>%s<unit>%s</unit></period>' \
+                     '' % (period[0], period[1])
 
         timezone = kwargs.get('timezone', '')
 
