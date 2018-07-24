@@ -835,7 +835,7 @@ class SSHConnection(GVMConnection):
                 port=int(self.port),
                 allow_agent=False,
                 look_for_keys=False)
-            self.channel = self.sock.invoke_shell()
+            self.stdin, self.stdout, self.stderr = self.sock.exec_command("", get_pty=False)
 
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
@@ -846,17 +846,11 @@ class SSHConnection(GVMConnection):
     def readAll(self):
         self.first_element = None
         self.parser = etree.XMLPullParser(('start', 'end'))
-        read_bytes = 0
-        garbage_bytes = len(self.cmd) +1
-        # Remove command string from result
-        while not read_bytes == garbage_bytes:
-            read_bytes += len(self.channel.recv(garbage_bytes-read_bytes))
 
         response = b''
 
         while True:
-            data = self.channel.recv(BUF_SIZE)
-
+            data = self.stdout.channel.recv(BUF_SIZE)
             # Connection was closed by server
             if not data:
                 break
@@ -867,13 +861,38 @@ class SSHConnection(GVMConnection):
 
             if self.valid_xml():
                 break
-
         return response.decode('utf-8')
 
-    def sendAll(self, cmd):
+    def cmdSplitter(self, max_len):
+        """ Receive the cmd string longer than max_len
+        and send it in blocks not longer than max_len.
+
+        Input:
+           max_len  The max length of a block to be sent.
+        """
+        i_start = 0;
+        i_end = max_len
+        sent_bytes = 0
+        while sent_bytes < len(self.cmd):
+            time.sleep(0.01)
+            self.stdin.channel.send(self.cmd[i_start:i_end])
+            i_start = i_end
+            if i_end > len(self.cmd):
+                i_end = len(self.cmd)
+            else:
+                i_end = i_end + max_len
+            sent_bytes += (i_end - i_start)
+
+        return sent_bytes
+
+    def sendAll(self, cmd, max_len=4095):
         logger.debug('SSH:send(): ' + cmd)
-        self.cmd = str(cmd) + '\n'
-        self.channel.sendall(self.cmd)
+        self.cmd = str(cmd)
+        if len(self.cmd) > max_len:
+            sent_bytes = self.cmdSplitter(max_len)
+            logger.debug("SSH: {0} bytes sent.".format(sent_bytes))
+        else:
+            self.stdin.channel.send(self.cmd)
 
     def valid_xml(self):
         for action, obj in self.parser.read_events():
