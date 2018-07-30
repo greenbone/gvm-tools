@@ -70,6 +70,34 @@ class GVMConnection:
         # just a stub
         pass
 
+    @staticmethod
+    def cmdSplitter(cmd, max_len):
+        """ Receive the cmd string longer than max_len
+        and insert a new line each max_len.
+        As cmd is an XML formatted string, it inserts the new line
+        after the last '>' before to count max_len characters.
+
+        Input:
+           cmd      The string where the new lines will be inserted.
+           max_len  Insert a new line before to count max_len chars again.
+        Output:
+           cmd      The cmd string with the inserted new lines.
+        """
+        i_start = 0;
+        i_end = max_len
+        last = 0
+        char_add = 0
+        while last != -1:
+            last = cmd.rfind('>', i_start, i_end)
+            if last == -1:
+                break
+            cmd = cmd[:last + 1] + '\n' + cmd[last + 1:]
+            char_add += 1
+            i_start = last + 1
+            i_end = last + max_len
+
+        return cmd
+
     def send(self, cmd):
         """Call the sendAll(string) method.
 
@@ -79,6 +107,10 @@ class GVMConnection:
             cmd {string} -- XML-Source
         """
         try:
+            max_len = 4095
+            if len(cmd) > max_len:
+                cmd = self.cmdSplitter(cmd, max_len)
+
             self.sendAll(cmd)
             logger.debug(cmd)
         except paramiko.SSHException as e:
