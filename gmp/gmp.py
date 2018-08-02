@@ -303,7 +303,6 @@ class _gmp:
 
         users = kwargs.get('users', '')
         if users:
-            users = '<users>%s</users>' % users
             _xmlUser = etree.SubElement(xmlRoot, 'users')
             _xmlUser.text = users
 
@@ -551,23 +550,26 @@ class _gmp:
         if not name:
             raise ValueError('create_role requires a name element')
 
+        xmlRoot = etree.Element('create_role')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         users = kwargs.get('users', '')
         if users:
-            users = '<users>%s</users>' % users
+            _xmlUser = etree.SubElement(xmlRoot, 'users')
+            _xmlUser.text = users
 
-        return '<create_role>' \
-               '<name>{0}</name>' \
-               '{1}{2}{3}' \
-               '</create_role>' \
-               ''.format(name, users, copy, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createScannerCommand(self, name, host, port, type, ca_pub,
                              credential_id, kwargs):
