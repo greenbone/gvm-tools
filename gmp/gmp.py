@@ -249,28 +249,36 @@ class _gmp:
 
     def createFilterCommand(self, name, make_unique, kwargs):
 
+        xmlRoot = etree.Element('create_filter')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
+        _xmlUnique.text = make_unique
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         term = kwargs.get('term', '')
         if term:
-            term = '<term>%s</term>' % term
+            _xmlTerm = etree.SubElement(xmlRoot, 'term')
+            _xmlTerm.text = term
 
         filter_type = kwargs.get('type', '')
         if filter_type:
             if filter_type not in ('cc', 'snmp', 'up', 'usk'):
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
-            filter_type = '<type>%s</type>' % filter_type
+            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
+            _xmlFiltertype.text = filter_type
 
-        return '<create_filter><name>{0}<make_unique>{1}</make_unique></name>' \
-               '{2}{3}{4}{5}</create_filter>'.format(name, make_unique, comment,
-                                                  copy, term, filter_type)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createGroupCommand(self, name, kwargs):
 
