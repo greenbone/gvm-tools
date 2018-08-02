@@ -437,25 +437,32 @@ class _gmp:
             raise ValueError('create_permission requires type '
                              'to be either user, group or role')
 
+        xmlRoot = etree.Element('create_permission')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
+        _xmlType = etree.SubElement(_xmlSubject, 'type')
+        _xmlType.text = type
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource.id
             resource_type = resource.type
+            _xmlResource = etree.SubElement(xmlRoot, 'resource', id=resource_id)
+            _xmlRType = etree.SubElement(_xmlResource, 'type')
+            _xmlRType.text = resource_type
 
-            resource = '<resource id="%s"><type>%s</type></resource>' \
-                       '' % (resource_id, resource_type)
-
-        return '<create_permission><name>{0}</name><subject id="{1}"><type>{2}' \
-               '</type></subject>{3}{4}{5}</create_permission>' \
-               ''.format(name, subject_id, type, resource, copy, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createPortListCommand(self, name, port_range, kwargs):
 
