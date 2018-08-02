@@ -282,24 +282,32 @@ class _gmp:
 
     def createGroupCommand(self, name, kwargs):
 
+        xmlRoot = etree.Element('create_group')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         special = kwargs.get('special', '')
         if special:
-            special = '<specials><full /></specials>'
+            _xmlSpecial = etree.SubElement(xmlRoot, 'specials')
+            _xmlFull = etree.SubElement(_xmlSpecial, 'full')
 
         users = kwargs.get('users', '')
         if users:
             users = '<users>%s</users>' % users
+            _xmlUser = etree.SubElement(xmlRoot, 'users')
+            _xmlUser.text = users
 
-        return '<create_group><name>{0}</name>{1}{2}{3}{4}</create_group>' \
-               ''.format(name, comment, copy, special, users)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createNoteCommand(self, text, nvt_oid, kwargs):
 
