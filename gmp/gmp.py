@@ -29,23 +29,31 @@ class _gmp:
     def createAgentCommand(self, installer, signature, name, comment='',
                            copy='', howto_install='', howto_use=''):
 
+        xmlRoot = etree.Element('create_agent')
+        _xmlInstaller = etree.SubElement(xmlRoot, 'installer')
+        _xmlInstaller.text = installer
+        _xmlSignature = etree.SubElement(_xmlInstaller, 'signature')
+        _xmlSignature.text = signature
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        
         if comment:
-            comment = '<comment>{0}</comment>'.format(comment)
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         if copy:
-            copy = '<copy>{0}</copy>'.format(copy)
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         if howto_install:
-            howto_install = '<howto_install>{0}</howto_install>'.format(
-                howto_install)
+            _xmlHowtoinstall = etree.SubElement(xmlRoot, 'howto_install')
+            _xmlHowtoinstall.text = howto_install
 
         if howto_use:
-            howto_use = '<howto_use>{0}</howto_use>'.format(howto_use)
+            _xmlHowtouse = etree.SubElement(xmlRoot, 'howto_use')
+            _xmlHowtouse.text = howto_use
 
-        return '<create_agent><installer>{0}<signature>{1}</signature>' \
-               '</installer><name>{2}</name>{3}{4}{5}{6}' \
-               '</create_agent>'.format(installer, signature, name, comment,
-                                        copy, howto_install, howto_use)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createAlertCommand(self, name, condition, event, method, filter_id='',
                            copy='', comment=''):
