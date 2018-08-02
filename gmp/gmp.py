@@ -311,46 +311,55 @@ class _gmp:
 
     def createNoteCommand(self, text, nvt_oid, kwargs):
 
+        xmlRoot = etree.Element('create_note')
+        _xmlText = etree.SubElement(xmlRoot, 'text')
+        _xmlText.text = text
+        _xmlNvt = etree.SubElement(xmlRoot, 'nvt', oid=nvt_oid)
+
         active = kwargs.get('active', '')
         if active:
-            active = '<active>%s</active>' % active
+            _xmlActive = etree.SubElement(xmlRoot, 'active')
+            _xmlActive.text = active
 
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            hosts = '<hosts>%s</hosts>' % hosts
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
+            _xmlHosts.text = hosts
 
         port = kwargs.get('port', '')
         if port:
-            port = '<port>%s</port>' % port
+            _xmlPort = etree.SubElement(xmlRoot, 'port')
+            _xmlPort.text = port
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            result_id = '<result id="%s"/>' % result_id
+            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
 
         severity = kwargs.get('severity', '')
         if severity:
-            severity = '<severity>%s</severity>' % severity
+            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
+            _xmlSeverity.text = severity
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            task_id = '<task id="%s"/>' % task_id
+            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
 
         threat = kwargs.get('threat', '')
         if threat:
-            threat = '<threat>%s</threat>' % threat
+            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
+            _xmlThreat.text = threat
 
-        return '<create_note><text>{0}</text><nvt oid="{1}"></nvt>{2}{3}{4}{5}{6}' \
-               '{7}{8}{9}{10}</create_note>' \
-               ''.format(text, nvt_oid, active, comment, copy, hosts, port,
-                         result_id, severity, task_id, threat)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createOverrideCommand(self, text, nvt_oid, kwargs):
 
