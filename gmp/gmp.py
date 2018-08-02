@@ -109,14 +109,18 @@ class _gmp:
         if asset_type not in ('host', 'os'):
             raise ValueError('create_asset requires asset_type to be either '
                              'host or os')
+        xmlRoot = etree.Element('create_asset')
+        _xmlAsset = etree.SubElement(xmlRoot, 'asset')
+        _xmlType = etree.SubElement(_xmlAsset, 'type')
+        _xmlType.text = asset_type
+        _xmlName = etree.SubElement(_xmlAsset, 'name')
+        _xmlName.text = name
 
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(_xmlAsset, 'comment')
+            _xmlComment.text = comment
 
-        return '<create_asset><asset>' \
-               '<type>{0}</type>' \
-               '<name>{1}</name>' \
-               '{2}</asset></create_asset>'.format(asset_type, name, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createAuthenticateCommand(self, username, password, withCommands=''):
         """Generates string for authentification on GVM
