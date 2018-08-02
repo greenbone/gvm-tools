@@ -471,17 +471,23 @@ class _gmp:
         if not port_range:
             raise ValueError('create_port_list requires a port_range element')
 
+        xmlRoot = etree.Element('create_port_list')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlPortrange = etree.SubElement(xmlRoot, 'port_range')
+        _xmlPortrange.text = port_range
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
-        return '<create_port_list><name>{0}</name><port_range>{1}</port_range>' \
-               '{2}{3}</create_port_list>' \
-               ''.format(name, port_range, copy, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createPortRangeCommand(self, port_list_id, start, end, type,
                                comment=''):
