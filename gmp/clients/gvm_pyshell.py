@@ -101,7 +101,7 @@ class Help(object):
 
     def __repr__(self):
         # do pwd command
-        return(help_text)
+        return help_text
 help = Help()
 
 # gmp has to be global, so the load-function has the correct namespace
@@ -293,7 +293,7 @@ def pretty(xml):
     Arguments:
         xml {obj} -- list<lxml.etree._Element> or directly a lxml element
     """
-    if type(xml) is list:
+    if isinstance(xml, list):
         for item in xml:
             if etree.iselement(item):
                 print(etree.tostring(item, pretty_print=True).decode('utf-8'))

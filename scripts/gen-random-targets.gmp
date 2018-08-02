@@ -52,11 +52,11 @@ def n_IP(number_of_IPs):
     list_of_IPs = []
     for i in range(number_of_IPs):
         list_of_IPs.append('{}.{}.{}.{}'.format(
-                                                rand_number(),
-                                                rand_number(),
-                                                rand_number(),
-                                                rand_number()
-                                                ))
+            rand_number(),
+            rand_number(),
+            rand_number(),
+            rand_number()
+            ))
     return list_of_IPs
 
 
@@ -72,10 +72,11 @@ def generate(n_targets, n_IPs):
         name = 'Target_{}'.format(index.format(i+1))
 
         gmp.create_target(
-                          name=name,
-                          make_unique=True,
-                          hosts=host_ip
-                          )
+            name=name,
+            make_unique=True,
+            hosts=host_ip
+            )
+
 
 host_number = int(args.script[1])
 number_targets = int(args.script[2])

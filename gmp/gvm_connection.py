@@ -22,13 +22,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import paramiko
 import socket
 import ssl
 import time
+from io import StringIO
 
 from lxml import etree
-from io import StringIO
+import paramiko
 
 from gmp.gmp import _gmp
 
@@ -146,7 +146,7 @@ class GVMConnection:
 
         try:
             parser = etree.XMLParser(encoding='utf-8', recover=True)
-            if(etree.iselement(xml)):
+            if etree.iselement(xml):
                 root = etree.ElementTree(xml, parser=parser).getroot()
             else:
                 root = etree.XML(xml, parser=parser)
@@ -349,21 +349,21 @@ class GVMConnection:
 
     def delete_alert(self, **kwargs):
         # if self.ask_yes_or_no('Are you sure to delete this alert? '):
-            self.send(
-                '<delete_alert {0}/>'.format(self.argumentsToString(kwargs)))
-            return self.read()
+        self.send(
+            '<delete_alert {0}/>'.format(self.argumentsToString(kwargs)))
+        return self.read()
 
     def delete_asset(self, asset_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this asset? '):
-            self.send('<delete_asset asset_id="{0}" ultimate="{1}"/>'
-                      .format(asset_id, ultimate))
-            return self.read()
+        self.send('<delete_asset asset_id="{0}" ultimate="{1}"/>'
+                  .format(asset_id, ultimate))
+        return self.read()
 
     def delete_config(self, config_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this config? '):
-            self.send('<delete_config config_id="{0}" ultimate="{1}"/>'
-                      .format(config_id, ultimate))
-            return self.read()
+        self.send('<delete_config config_id="{0}" ultimate="{1}"/>'
+                  .format(config_id, ultimate))
+        return self.read()
 
     def delete_credential(self, credential_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this credential? '):
@@ -374,93 +374,93 @@ class GVMConnection:
 
     def delete_filter(self, filter_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this filter? '):
-            self.send('<delete_filter filter_id="{0}" ultimate="{1}"/>'
-                      .format(filter_id, ultimate))
-            return self.read()
+        self.send('<delete_filter filter_id="{0}" ultimate="{1}"/>'
+                  .format(filter_id, ultimate))
+        return self.read()
 
     def delete_group(self, group_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this group? '):
-            self.send('<delete_group group_id="{0}" ultimate="{1}"/>'
-                      .format(group_id, ultimate))
-            return self.read()
+        self.send('<delete_group group_id="{0}" ultimate="{1}"/>'
+                  .format(group_id, ultimate))
+        return self.read()
 
     def delete_note(self, note_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this note? '):
-            self.send('<delete_note note_id="{0}" ultimate="{1}"/>'
-                      .format(note_id, ultimate))
-            return self.read()
+        self.send('<delete_note note_id="{0}" ultimate="{1}"/>'
+                  .format(note_id, ultimate))
+        return self.read()
 
     def delete_override(self, override_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this override? '):
-            self.send('<delete_override override_id="{0}" ultimate="{1}"/>'
-                      .format(override_id, ultimate))
-            return self.read()
+        self.send('<delete_override override_id="{0}" ultimate="{1}"/>'
+                  .format(override_id, ultimate))
+        return self.read()
 
     def delete_permission(self, permission_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this permission? '):
-            self.send('<delete_permission permission_id="{0}" ultimate="{1}"/>'
-                      .format(permission_id, ultimate))
-            return self.read()
+        self.send('<delete_permission permission_id="{0}" ultimate="{1}"/>'
+                  .format(permission_id, ultimate))
+        return self.read()
 
     def delete_port_list(self, port_list_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this port_list? '):
-            self.send('<delete_port_list port_list_id="{0}" ultimate="{1}"/>'
-                      .format(port_list_id, ultimate))
-            return self.read()
+        self.send('<delete_port_list port_list_id="{0}" ultimate="{1}"/>'
+                  .format(port_list_id, ultimate))
+        return self.read()
 
     def delete_port_range(self, port_range_id):
         # if self.ask_yes_or_no('Are you sure to delete this port_range? '):
-            self.send('<delete_port_range port_range_id="{0}"/>'
-                      .format(port_range_id))
-            return self.read()
+        self.send('<delete_port_range port_range_id="{0}"/>'
+                  .format(port_range_id))
+        return self.read()
 
     def delete_report(self, report_id):
         # if self.ask_yes_or_no('Are you sure to delete this report? '):
-            self.send('<delete_report report_id="{0}"/>'
-                      .format(report_id))
-            return self.read()
+        self.send('<delete_report report_id="{0}"/>'
+                  .format(report_id))
+        return self.read()
 
     def delete_report_format(self, report_format_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this report_format? '):
-            self.send('<delete_report_format report_format_id="{0}" \
-ultimate="{1}"/>'.format(report_format_id, ultimate))
-            return self.read()
+        self.send('<delete_report_format report_format_id="{0}" \
+                   ultimate="{1}"/>'.format(report_format_id, ultimate))
+        return self.read()
 
     def delete_role(self, role_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this role? '):
-            self.send('<delete_role role_id="{0}" ultimate="{1}"/>'
-                      .format(role_id, ultimate))
-            return self.read()
+        self.send('<delete_role role_id="{0}" ultimate="{1}"/>'
+                  .format(role_id, ultimate))
+        return self.read()
 
     def delete_scanner(self, scanner_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this scanner? '):
-            self.send('<delete_scanner scanner_id="{0}" ultimate="{1}"/>'
-                      .format(scanner_id, ultimate))
-            return self.read()
+        self.send('<delete_scanner scanner_id="{0}" ultimate="{1}"/>'
+                  .format(scanner_id, ultimate))
+        return self.read()
 
     def delete_schedule(self, schedule_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this schedule? '):
-            self.send('<delete_schedule schedule_id="{0}" ultimate="{1}"/>'
-                      .format(schedule_id, ultimate))
-            return self.read()
+        self.send('<delete_schedule schedule_id="{0}" ultimate="{1}"/>'
+                  .format(schedule_id, ultimate))
+        return self.read()
 
     def delete_tag(self, tag_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this tag? '):
-            self.send('<delete_tag tag_id="{0}" ultimate="{1}"/>'
-                      .format(tag_id, ultimate))
-            return self.read()
+        self.send('<delete_tag tag_id="{0}" ultimate="{1}"/>'
+                  .format(tag_id, ultimate))
+        return self.read()
 
     def delete_target(self, target_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this target? '):
-            self.send('<delete_target target_id="{0}" ultimate="{1}"/>'
-                      .format(target_id, ultimate))
-            return self.read()
+        self.send('<delete_target target_id="{0}" ultimate="{1}"/>'
+                  .format(target_id, ultimate))
+        return self.read()
 
     def delete_task(self, task_id, ultimate=0):
         # if self.ask_yes_or_no('Are you sure to delete this task? '):
-            self.send('<delete_task task_id="{0}" ultimate="{1}"/>'
-                      .format(task_id, ultimate))
-            return self.read()
+        self.send('<delete_task task_id="{0}" ultimate="{1}"/>'
+                  .format(task_id, ultimate))
+        return self.read()
 
     def delete_user(self, **kwargs):
         user_id = kwargs.get('user_id', '')
@@ -642,7 +642,7 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send(cmd)
         return self.read()
 
-    def modify_auth(self, group_name,  auth_conf_settings):
+    def modify_auth(self, group_name, auth_conf_settings):
         cmd = self.gmp_generator.modifyAuthCommand(group_name,
                                                    auth_conf_settings)
         self.send(cmd)
@@ -734,9 +734,10 @@ ultimate="{1}"/>'.format(report_format_id, ultimate))
         self.send(cmd)
         return self.read()
 
-    def modify_task(self):
-        # TODO: Multiple values are required to modify a task. Is this correct?
-        raise NotImplementedError
+    def modify_task(self, task_id, **kwargs):
+        cmd = self.gmp_generator.modifyTaskCommand(task_id, kwargs)
+        self.send(cmd)
+        return self.read()
 
     def modify_user(self, **kwargs):
         cmd = self.gmp_generator.modifyUserCommand(kwargs)
@@ -834,7 +835,7 @@ class SSHConnection(GVMConnection):
                 port=int(self.port),
                 allow_agent=False,
                 look_for_keys=False)
-            self.channel = self.sock.invoke_shell()
+            self.stdin, self.stdout, self.stderr = self.sock.exec_command("", get_pty=False)
 
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
@@ -844,18 +845,12 @@ class SSHConnection(GVMConnection):
 
     def readAll(self):
         self.first_element = None
-        self.parser = etree.XMLPullParser(('start','end'))
-        read_bytes = 0
-        garbage_bytes = len(self.cmd) +1
-        # Remove command string from result
-        while not read_bytes == garbage_bytes:
-            read_bytes += len(self.channel.recv(garbage_bytes-read_bytes))
+        self.parser = etree.XMLPullParser(('start', 'end'))
 
         response = b''
 
         while True:
-            data = self.channel.recv(BUF_SIZE)
-
+            data = self.stdout.channel.recv(BUF_SIZE)
             # Connection was closed by server
             if not data:
                 break
@@ -866,13 +861,38 @@ class SSHConnection(GVMConnection):
 
             if self.valid_xml():
                 break
-
         return response.decode('utf-8')
 
-    def sendAll(self, cmd):
+    def cmdSplitter(self, max_len):
+        """ Receive the cmd string longer than max_len
+        and send it in blocks not longer than max_len.
+
+        Input:
+           max_len  The max length of a block to be sent.
+        """
+        i_start = 0;
+        i_end = max_len
+        sent_bytes = 0
+        while sent_bytes < len(self.cmd):
+            time.sleep(0.01)
+            self.stdin.channel.send(self.cmd[i_start:i_end])
+            i_start = i_end
+            if i_end > len(self.cmd):
+                i_end = len(self.cmd)
+            else:
+                i_end = i_end + max_len
+            sent_bytes += (i_end - i_start)
+
+        return sent_bytes
+
+    def sendAll(self, cmd, max_len=4095):
         logger.debug('SSH:send(): ' + cmd)
-        self.cmd = str(cmd) + '\n'
-        self.channel.sendall(self.cmd)
+        self.cmd = str(cmd)
+        if len(self.cmd) > max_len:
+            sent_bytes = self.cmdSplitter(max_len)
+            logger.debug("SSH: {0} bytes sent.".format(sent_bytes))
+        else:
+            self.stdin.channel.send(self.cmd)
 
     def valid_xml(self):
         for action, obj in self.parser.read_events():
