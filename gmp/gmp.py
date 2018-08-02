@@ -21,6 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from lxml import etree
+import defusedxml.ElementTree as secET
 
 class _gmp:
     """GMP - Greenbone Manager Protocol
@@ -133,15 +134,21 @@ class _gmp:
             password {str} -- Password for GVM User
             withCommands {str} -- Additional commands default: {''})
         """
+
+        xmlRoot = etree.Element('authenticate')
+        _xmlCredentials = etree.SubElement(xmlRoot, 'credentials')
+        _xmlUser = etree.SubElement(_xmlCredentials, 'username')
+        _xmlUser.text = username
+        _xmlPass = etree.SubElement(_xmlCredentials, 'password')
+        _xmlPass.text = password
         if len(withCommands) is 0:
-            return '<authenticate><credentials><username>{0}' \
-                   '</username><password>{1}</password></credentials>' \
-                   '</authenticate>'.format(username, password)
-        else:
-            return '<commands><authenticate><credentials><username>{0}' \
-                   '</username><password>{1}</password></credentials>' \
-                   '</authenticate>{2}</commands>'.format(username, password,
-                                                          withCommands)
+            return etree.tostring(xmlRoot).decode('utf-8')
+
+        xmlRootCmd = etree.Element('commands')
+        cmds = secET.fromstring(withCommands)
+        xmlRootCmd.append(xmlRoot)
+        xmlRootCmd.append(cmds)
+        return etree.tostring(xmlRootCmd).decode('utf-8')
 
     def createConfigCommand(self, copy_id, name):
         return '<create_config><copy>{0}</copy><name>{1}</name>' \
@@ -1297,7 +1304,7 @@ class _gmp:
                ''.format(tag_id, name, resource, value, comment, active)
 
     def modifyTargetCommand(self, target_id, kwargs):
-        
+
         if not target_id:
             raise ValueError('modify_target requires a target_id element')
 
@@ -1332,7 +1339,7 @@ class _gmp:
         reverse_lookup_only = kwargs.get('reverse_lookup_only', '')
         if reverse_lookup_only:
             reverse_lookup_only = '<reverse_lookup_only>%s</reverse_lookup_only>' % reverse_lookup_only
-        
+
         reverse_lookup_unify = kwargs.get('reverse_lookup_unify', '')
         if reverse_lookup_unify:
             reverse_lookup_unify = '<reverse_lookup_unify>%s</reverse_lookup_unify>' % reverse_lookup_unify
@@ -1342,7 +1349,7 @@ class _gmp:
             port_range = '<port_range>%s</port_range>' % port_range
 
         port_list = kwargs.get('port_list', '')
-        if port_list:    
+        if port_list:
             port_list = '<port_list id="%s"/>' % port_list
 
         return '<modify_target target_id="{0}">{1}{2}{3}{4}{5}{6}  \
@@ -1354,7 +1361,7 @@ class _gmp:
                          )
 
     def modifyTaskCommand(self, task_id, kwargs):
-        
+
         if not task_id:
             raise ValueError('modify_task requires a task_id element')
 
@@ -1373,7 +1380,7 @@ class _gmp:
         scanner = kwargs.get('scanner', '')
         if scanner:
             scanner = '<scanner_id="%s"></scanner>' % scanner
-            
+
         schedule_periods = kwargs.get('schedule_periods', '')
         if schedule_periods:
             schedule_periods = '<schedule_periods>%d</schedule_periods>' % schedule_periods
@@ -1395,7 +1402,7 @@ class _gmp:
             preferences_list = []
             for n in range(len(preferences["scanner_name"])):
                 preferences_scanner_name = preferences["scanner_name"][n]
-                preferences_value = preferences["value"][n]   
+                preferences_value = preferences["value"][n]
                 preference = '<preference><scanner_name>%s</scanner_name><value>%s</value></preference>' \
                              % (preferences_scanner_name, preferences_value)
                 preferences_list.append(preference)
