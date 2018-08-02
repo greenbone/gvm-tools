@@ -586,25 +586,31 @@ class _gmp:
         if not credential_id:
             raise ValueError('create_scanner requires a credential_id element')
 
+
+        xmlRoot = etree.Element('create_scanner')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlHost = etree.SubElement(xmlRoot, 'host')
+        _xmlHost.text = host
+        _xmlPort = etree.SubElement(xmlRoot, 'port')
+        _xmlPort.text = port
+        _xmlType = etree.SubElement(xmlRoot, 'type')
+        _xmlType.text = type
+        _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
+        _xmlCAPub.text = ca_pub
+        _xmlCred = etree.SubElement(xmlRoot, 'credential', id=str(credential_id))
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
-        return '<create_scanner>' \
-               '<name>{0}</name>' \
-               '<host>{1}</host>' \
-               '<port>{2}</port>' \
-               '<type>{3}</type>' \
-               '<ca_pub>{4}</ca_pub>' \
-               '<credential id="{5}"/>' \
-               '{6}{7}' \
-               '</create_scanner>' \
-               ''.format(name, host, port, type, ca_pub, credential_id, copy,
-                         comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createScheduleCommand(self, name, kwargs):
         if not name:
