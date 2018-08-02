@@ -151,8 +151,12 @@ class _gmp:
         return etree.tostring(xmlRootCmd).decode('utf-8')
 
     def createConfigCommand(self, copy_id, name):
-        return '<create_config><copy>{0}</copy><name>{1}</name>' \
-               '</create_config>'.format(copy_id, name)
+        xmlRoot = etree.Element('create_config')
+        _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+        _xmlCopy.text = copy_id
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createCredentialCommand(self, name, kwargs):
 
