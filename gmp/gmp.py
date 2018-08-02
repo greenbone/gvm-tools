@@ -498,13 +498,20 @@ class _gmp:
         if not type:
             raise ValueError('create_port_range requires a type element')
 
-        return '<create_port_range>' \
-               '<port_list id="{0}"/>' \
-               '<start>{1}</start>' \
-               '<end>{2}</end>' \
-               '<type>{3}</type>{4}' \
-               '</create_port_range>' \
-               ''.format(port_list_id, start, end, type, comment)
+        xmlRoot = etree.Element('create_port_range')
+        _xmlPlist = etree.SubElement(xmlRoot, 'port_list', id=port_list_id)
+        _xmlStart = etree.SubElement(xmlRoot, 'start')
+        _xmlStart.text = start
+        _xmlEnd = etree.SubElement(xmlRoot, 'end')
+        _xmlEnd.text = end
+        _xmlType = etree.SubElement(xmlRoot, 'type')
+        _xmlType.text = type
+
+        if len(comment):
+            _xmlComment = secET.fromstring(comment)
+            xmlRoot.append(_xmlComment)
+
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createReportCommand(self, report_xml_string, kwargs):
 
