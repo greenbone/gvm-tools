@@ -508,8 +508,8 @@ class _gmp:
         _xmlType.text = type
 
         if len(comment):
-            _xmlComment = secET.fromstring(comment)
-            xmlRoot.append(_xmlComment)
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
@@ -522,25 +522,29 @@ class _gmp:
         task_name = kwargs.get('task_name', '')
         task = ''
 
+        xmlRoot = etree.Element('create_report')
         comment = kwargs.get('comment', '')
-        if comment:
-            comment = '<comment>%s</comment>' % comment
-
         if task_id:
-            task = '<task id="%s"></task>' % (task_id)
+            _xmlTask = etree.SubElement(xmlRoot, 'task', id=task_id)
         elif task_name:
-            task = '<task><name>%s</name>%s</task>' % (task_name, comment)
+            _xmlTask = etree.SubElement(xmlRoot, 'task')
+            _xmlName = etree.SubElement(_xmlTask, 'name')
+            _xmlName.text = task_name
+            if comment:
+                _xmlComment = etree.SubElement(_xmlTask, 'comment')
+                _xmlComment.text = comment
         else:
             raise ValueError('create_report requires an id or name for a task')
 
         in_assets = kwargs.get('in_assets', '')
         if in_assets:
-            in_assets = '<in_assets>%s</in_assets>' % in_assets
+            _xmlInAsset = etree.SubElement(xmlRoot, 'in_assets')
+            _xmlInAsset.text = in_assets
 
-        return '<create_report>' \
-               '{0}{1}{2}' \
-               '</create_report>' \
-               ''.format(task, in_assets, report_xml_string)
+        xmlReport = secET.fromstring(report_xml_string)
+        xmlRoot.append(Report)
+
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createRoleCommand(self, name, kwargs):
 
