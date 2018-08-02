@@ -36,7 +36,7 @@ class _gmp:
         _xmlSignature.text = signature
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
-        
+
         if comment:
             _xmlComment = etree.SubElement(xmlRoot, 'comment')
             _xmlComment.text = comment
@@ -57,44 +57,53 @@ class _gmp:
 
     def createAlertCommand(self, name, condition, event, method, filter_id='',
                            copy='', comment=''):
-        conditions=events=methods=""
+
+        xmlRoot = etree.Element('create_alert')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+
         if len(condition) > 1:
-            conditions = '<condition>%s' % condition[0]
+            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
+            _xmlConditions.text = condition[0]
             for value, key in condition[1].items():
-                conditions += '<data>{0}<name>{1}</name></data>' \
-                              ''.format(value, key)
-            conditions += '</condition>'
-        else:
-            if condition[0] == "Always":
-              conditions = '<condition>%s</condition>' % condition[0]
+                _xmlData = etree.SubElement(_xmlConditions, 'data')
+                _xmlData.text = value
+                _xmlName = etree.SubElement(_xmlData, 'name')
+                _xmlName.text = key
+        elif condition[0] == "Always":
+            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
+            _xmlConditions.text = condition[0]
+
         if len(event) > 1:
-            events = '<event>%s' % event[0]
+            _xmlEvents = etree.SubElement(xmlRoot, 'event')
+            _xmlEvents.text = event[0]
             for value, key in event[1].items():
-                events += '<data>{0}<name>{1}</name></data>' \
-                          ''.format(value, key)
-            events += '</event>'
+                _xmlData = etree.SubElement(_xmlEvents, 'data')
+                _xmlData.text = value
+                _xmlName = etree.SubElement(_xmlData, 'name')
+                _xmlName.text = key
 
         if len(method) > 1:
-            methods = '<method>%s' % method[0]
+            _xmlMethods = etree.SubElement(xmlRoot, 'method')
+            _xmlMethods = method[0]
             for value, key in method[1].items():
-                methods += '<data>{0}<name>{1}</name></data>' \
-                           ''.format(value, key)
-            methods += '</method>'
+                _xmlData = etree.SubElement(_xmlMethods, 'data')
+                _xmlData.text = value
+                _xmlName = etree.SubElement(_xmlData, 'name')
+                _xmlName.text = key
 
         if filter_id:
-            filter_id = '<filter id=%s/>' % filter_id
+            _xmlFilter = etree.SubElement(xmlRoot, 'filter', id=filter_id)
 
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy = copy
 
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment = comment
 
-        return '<create_alert><name>{0}</name>' \
-               '{1}{2}{3}{4}{5}{6}' \
-               '</create_alert>'.format(name, comment, copy,
-                                        conditions, events, methods,
-                                        filter_id)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createAssetCommand(self, name, asset_type, comment=''):
         if asset_type not in ('host', 'os'):
