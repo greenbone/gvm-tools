@@ -20,7 +20,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from lxml import etree
 
 class _gmp:
     """GMP - Greenbone Manager Protocol
@@ -76,9 +76,16 @@ class _gmp:
         if filter_id:
             filter_id = '<filter id=%s/>' % filter_id
 
+        if copy:
+            copy = '<copy>%s</copy>' % copy
+
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
         return '<create_alert><name>{0}</name>' \
-               '{1}{2}{3}{4}' \
-               '</create_alert>'.format(name, conditions, events, methods,
+               '{1}{2}{3}{4}{5}{6}' \
+               '</create_alert>'.format(name, comment, copy,
+                                        conditions, events, methods,
                                         filter_id)
 
     def createAssetCommand(self, name, asset_type, comment=''):
@@ -506,7 +513,7 @@ class _gmp:
             copy = '<copy>%s</copy>' % copy
 
         first_time = kwargs.get('first_time', '')
-        print(first_time)
+
         if first_time:
             first_time_minute = first_time['minute']
             first_time_hour = first_time['hour']
@@ -527,12 +534,13 @@ class _gmp:
 
         duration = kwargs.get('duration', '')
         if len(duration) > 1:
-            duration = '<duration>%s<unit>%s</unit>' \
+            duration = '<duration>%s<unit>%s</unit></duration>' \
                        '' % (duration[0], duration[1])
 
         period = kwargs.get('period', '')
         if len(period) > 1:
-            period = '<period>%s<unit>%s</unit>' % (period[0], period[1])
+            period = '<period>%s<unit>%s</unit></period>' \
+                     '' % (period[0], period[1])
 
         timezone = kwargs.get('timezone', '')
 
@@ -674,14 +682,18 @@ class _gmp:
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           alert_id='', comment=''):
+        xmlRoot = etree.Element('create_task')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlComment = etree.SubElement(xmlRoot, 'comment')
+        _xmlComment.text = comment
+        _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
+        _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
+        _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
         #if given the alert_id is wrapped and integrated suitably as xml
         if len(alert_id)>0:
-          alert_id = '<alert id="'+str(alert_id)+'"/>'
-
-        return '<create_task><name>{0}</name><comment>{1}</comment>' \
-               '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
-               '{5}</create_task>'.format(name, comment, config_id, target_id,
-                                       scanner_id, alert_id)
+            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert_id))
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
                           ifaces_allow='0', role_ids=(), hosts=None,
@@ -838,7 +850,6 @@ class _gmp:
 
     def modifyCredentialCommand(self, credential_id, kwargs):
 
-        # FIXME: credential_id is not used?
         if not credential_id:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
@@ -1223,6 +1234,8 @@ class _gmp:
             period = '<period>%s<unit>%s</unit>' % (period[0], period[1])
 
         timezone = kwargs.get('timezone', '')
+        if timezone:
+            timezone = '<timezone>%s</timezone>' % timezone
 
         return '<modify_schedule schedule_id="{0}">' \
                '{1}{2}{3}{4}{5}{6}' \
@@ -1263,10 +1276,128 @@ class _gmp:
                ''.format(tag_id, name, resource, value, comment, active)
 
     def modifyTargetCommand(self, target_id, kwargs):
-        raise NotImplementedError
+        
+        if not target_id:
+            raise ValueError('modify_target requires a target_id element')
 
-    def modifyTaskCommand(self):
-        raise NotImplementedError
+        comment = kwargs.get('comment', '')
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
+        name = kwargs.get('name', '')
+        if name:
+            name = '<name>%s</name>' % name
+
+        hosts = kwargs.get('hosts', '')
+        if hosts:
+            hosts = '<hosts>%s</hosts>' % hosts
+
+        comment = kwargs.get('comment', '')
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
+        copy = kwargs.get('copy', '')
+        if copy:
+            copy = '<copy>%s</copy>' % copy
+
+        exclude_hosts = kwargs.get('exclude_hosts', '')
+        if exclude_hosts:
+            exclude_hosts = '<exclude_hosts>%s</exclude_hosts>' % exclude_hosts
+
+        alive_tests = kwargs.get('alive_tests', '')
+        if alive_tests:
+            alive_tests = '<alive_tests>%s</alive_tests>' % alive_tests
+
+        reverse_lookup_only = kwargs.get('reverse_lookup_only', '')
+        if reverse_lookup_only:
+            reverse_lookup_only = '<reverse_lookup_only>%s</reverse_lookup_only>' % reverse_lookup_only
+        
+        reverse_lookup_unify = kwargs.get('reverse_lookup_unify', '')
+        if reverse_lookup_unify:
+            reverse_lookup_unify = '<reverse_lookup_unify>%s</reverse_lookup_unify>' % reverse_lookup_unify
+
+        port_range = kwargs.get('port_range', '')
+        if port_range:
+            port_range = '<port_range>%s</port_range>' % port_range
+
+        port_list = kwargs.get('port_list', '')
+        if port_list:    
+            port_list = '<port_list id="%s"/>' % port_list
+
+        return '<modify_target target_id="{0}">{1}{2}{3}{4}{5}{6}  \
+                {7}{8}{9}{10}</modify_target>' \
+               ''.format(
+                         target_id, name, hosts, comment, copy, exclude_hosts,
+                         alive_tests, reverse_lookup_only, reverse_lookup_unify,
+                         port_range, port_list
+                         )
+
+    def modifyTaskCommand(self, task_id, kwargs):
+        
+        if not task_id:
+            raise ValueError('modify_task requires a task_id element')
+
+        name = kwargs.get('name', '')
+        if name:
+            name = '<name>%s</name>' % name
+
+        comment = kwargs.get('comment', '')
+        if comment:
+            comment = '<comment>%s</comment>' % comment
+
+        target_id = kwargs.get('target_id', '')
+        if target_id:
+            target_id = '<target id="%s"/>' % target_id
+
+        scanner = kwargs.get('scanner', '')
+        if scanner:
+            scanner = '<scanner_id="%s"></scanner>' % scanner
+            
+        schedule_periods = kwargs.get('schedule_periods', '')
+        if schedule_periods:
+            schedule_periods = '<schedule_periods>%d</schedule_periods>' % schedule_periods
+
+        schedule = kwargs.get('schedule', '')
+        if schedule:
+            schedule = '<schedule id="%s"/>' % (schedule)
+
+        alert = kwargs.get('alert', '')
+        if alert:
+            alert = '<alert id="%s"/>' % (alert)
+
+        observers = kwargs.get('observers', '')
+        if observers:
+            observers = '<observers>%s</observers>' % observers
+
+        preferences = kwargs.get('preferences', '')
+        if preferences:
+            preferences_list = []
+            for n in range(len(preferences["scanner_name"])):
+                preferences_scanner_name = preferences["scanner_name"][n]
+                preferences_value = preferences["value"][n]   
+                preference = '<preference><scanner_name>%s</scanner_name><value>%s</value></preference>' \
+                             % (preferences_scanner_name, preferences_value)
+                preferences_list.append(preference)
+            preferences = "".join(preferences_list)
+            preferences = '<preferences>%s</preferences>' % preferences
+
+        file = kwargs.get('file', '')
+        if file:
+            file_name = file['name']
+            file_action = file['action']
+            if file_action != "update" and file_action !="remove" :
+                raise ValueError('action can only be "update" or "remove"!')
+
+            file = '<file name="%s" action="%s"/>' % (file_name, file_action)
+
+        return '<modify_task task_id="{0}">' \
+               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
+               '</modify_task>' \
+               ''.format(
+                         task_id, comment, alert, name, target_id, observers,
+                         preferences, schedule, schedule_periods, scanner,
+                         file
+                         )
 
     def modifyUserCommand(self, kwargs):
 

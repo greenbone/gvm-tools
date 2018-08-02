@@ -28,7 +28,7 @@ if len_args is not 1:
     message = """
     This script pulls target data from an xml document and feeds it to \
 a desired GSM
-    It needs one parameter after the script name.
+    One parameter after the script name is required.
 
     1. <xml_doc>  -- .xml file containing targets
 
@@ -42,19 +42,109 @@ a desired GSM
 hostname = args.hostname
 xml_doc = args.script[1]
 
-print('Sending targets from {} to {}...'.format(xml_doc, hostname))
 
-xml_tree = e.parse(xml_doc)
-xml_tree = e.tostring(xml_tree)
-xml_tree = e.XML(xml_tree)
+def error_and_exit(msg):
+    sys.stderr.write("Error: {}\n".format(msg))
+    sys.exit(1)
 
-for command in xml_tree.xpath('target'):
-    name = command.find('name').text
-    hosts = command.find('hosts').text
-    Targets[name] = hosts
 
-    gmp.create_target(
-                      name=name,
-                      make_unique=True,
-                      hosts=hosts,
-                      )
+def yes_or_no(question):
+    reply = str(input(question + ' (y/n): ')).lower().strip()
+    if reply[0] == ('y'):
+        return True
+    if reply[0] == ('n'):
+        return False
+    else:
+        return yes_or_no("Please enter 'y' or 'n'")
+
+
+def create_xml_tree(xml_doc):
+    try:
+        xml_tree = e.parse(xml_doc)
+        xml_tree = e.tostring(xml_tree)
+        xml_tree = e.XML(xml_tree)
+    except IOError as err:
+        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
+
+    if len(xml_tree) == 0:
+        error_and_exit("XML file is empty (exit)")
+
+    return xml_tree
+
+
+def parse_send_xml_tree(xml_tree):
+    print('\nSending targets from {} to {}...'.format(xml_doc, hostname))
+    credential_options = ['ssh_credential', 'smb_credential',
+                          'esxi_credential', 'snmp_credential']
+    counter = 1
+
+    for target in xml_tree.xpath('target'):
+        keywords = {'make_unique': True}
+
+        keywords['name'] = name = target.find('name').text
+
+        keywords['hosts'] = target.find('hosts').text
+
+        keywords['exclude_hosts'] = target.find('exclude_hosts').text
+
+        comment = target.find('comment').text
+        if comment is not None:
+            keywords['comment'] = comment
+
+        credentials = gmp.get_credentials()[0].xpath("//credential/@id")
+        for credential in credential_options:
+            cred_id = target.find(credential).xpath('@id')[0]
+            if cred_id == '':
+                continue
+            if cred_id not in credentials:
+                response = yes_or_no(
+                                     "\n    The credential '{}' for 'target {}' could not be located... \
+                                     \nWould you like to continue?"
+                                     .format(credential, counter)
+                                     )
+                if response is False:
+                    print("Terminating...\n")
+                    quit()
+                else:
+                    continue
+
+            temp_dict = {}
+            temp_dict['id'] = cred_id
+            elem_path = target.find(credential)
+            if elem_path.find('port').text is not None:
+                temp_dict['port'] = elem_path.find('port').text
+
+            keywords[credential] = temp_dict
+            globals()[credential] = temp_dict
+
+        alive_tests = target.find('alive_tests').text
+        if alive_tests is not None:
+            keywords['alive_tests'] = alive_tests
+
+        reverse_lookup_only = target.find('reverse_lookup_only').text
+        if reverse_lookup_only is '1':
+            keywords['reverse_lookup_only'] = 1
+
+        reverse_lookup_unify = target.find('reverse_lookup_unify').text
+        if reverse_lookup_unify is '1':
+            keywords['reverse_lookup_unify'] = 1
+
+        port_range = target.find('port_range').text
+        if port_range is not None:
+            keywords['port_range'] = port_range
+
+        if target.xpath('port_list/@id') is not None:
+            port_list = {}
+            port_list['id'] = target.xpath('port_list/@id')[0]
+            keywords['port_list'] = port_list
+
+        print('\nSending targets from {} to {}...'.format(xml_doc, hostname))
+
+        gmp.create_target(**keywords)
+
+        counter += 1
+
+xml_tree = create_xml_tree(xml_doc)
+parse_send_xml_tree(xml_tree)
+
+print('\n  Target(s) created!\n')
