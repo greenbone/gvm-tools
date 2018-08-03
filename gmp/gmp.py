@@ -1015,22 +1015,28 @@ class _gmp:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
 
+        xmlRoot = etree.Element('modify_credential',
+                                credential_id=credential_id)
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         allow_insecure = kwargs.get('allow_insecure', '')
         if allow_insecure:
-            allow_insecure = '<allow_insecure>%s</allow_insecure>' \
-                             '' % allow_insecure
+            _xmlAllowinsecure = etree.SubElement(xmlRoot, 'allow_insecure')
+            _xmlAllowinsecure.text = allow_insecure
 
         certificate = kwargs.get('certificate', '')
         if certificate:
-            certificate = '<certificate>%s</certificate>' % certificate
+            _xmlCertificate = etree.SubElement(xmlRoot, 'certificate')
+            _xmlCertificate.text = certificate
 
         key = kwargs.get('key', '')
         if key:
@@ -1041,29 +1047,34 @@ class _gmp:
             if not private:
                 raise ValueError('modify_credential requires '
                                  'a private element')
-
-            key = '<key><phrase>{0}</phrase><private>{1}</private></key>' \
-                  ''.format(phrase, private)
+            _xmlKey = etree.SubElement(xmlRoot, 'key')
+            _xmlKeyphrase = etree.SubElement(_xmlKey, 'phrase')
+            _xmlKeyphrase.text = phrase
+            _xmlKeyprivate = etree.SubElement(_xmlKey, 'private')
+            _xmlKeyprivate.text = private
 
         login = kwargs.get('login', '')
         if login:
-            login = '<login>%s</login>' % login
+            _xmlLogin = etree.SubElement(xmlRoot, 'login')
+            _xmlLogin.text = login
 
         password = kwargs.get('password', '')
         if password:
-            password = '<password>%s</password>' % password
+            _xmlPass = etree.SubElement(xmlRoot, 'password')
+            _xmlPass.text = password
 
         auth_algorithm = kwargs.get('auth_algorithm', '')
         if auth_algorithm:
             if auth_algorithm not in ('md5', 'sha1'):
                 raise ValueError('modify_credential requires auth_algorithm '
                                  'to be either md5 or sha1')
-            auth_algorithm = '<auth_algorithm>%s</auth_algorithm>' \
-                             '' % auth_algorithm
+            _xmlAuthalg = etree.SubElement(xmlRoot, 'auth_algorithm')
+            _xmlAuthalg.text = auth_algorithm
 
         community = kwargs.get('community', '')
         if community:
-            community = '<community>%s</community>' % community
+            _xmlCommunity = etree.SubElement(xmlRoot, 'community')
+            _xmlCommunity.text = community
 
         privacy = kwargs.get('privacy', '')
         if privacy:
@@ -1072,22 +1083,21 @@ class _gmp:
                 raise ValueError('modify_credential requires algorithm '
                                  'to be either aes or des')
             p_password = privacy.password
-            privacy = '<privacy><algorithm>{0}</algorithm><password>{1} ' \
-                      '</password></privacy>'.format(algorithm, p_password)
+            _xmlPrivacy = etree.SubElement(xmlRoot, 'privacy')
+            _xmlAlgorithm = etree.SubElement(_xmlPrivacy, 'algorithm')
+            _xmlAlgorithm.text = algorithm
+            _xmlPpass = etree.SubElement(_xmlPrivacy, 'password')
+            _xmlPpass.text = p_password
 
         cred_type = kwargs.get('type', '')
         if cred_type:
             if cred_type not in ('cc', 'snmp', 'up', 'usk'):
                 raise ValueError('modify_credential requires type '
                                  'to be either cc, snmp, up or usk')
-            cred_type = '<type>%s</type>' % cred_type
+            _xmlCredtype = etree.SubElement(xmlRoot, 'type')
+            _xmlCredtype.text = cred_type
 
-        return '<modify_credential credential_id="{0}">' \
-               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}' \
-               '</modify_credential>' \
-               ''.format(credential_id, comment, name, allow_insecure,
-                         certificate, key, login, password, auth_algorithm,
-                         community, privacy, cred_type)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyFilterCommand(self, filter_id, kwargs):
 
