@@ -673,26 +673,34 @@ class _gmp:
 
     def createTagCommand(self, name, resource_id, resource_type, kwargs):
 
+        xmlRoot = etree.Element('create_tag')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
+        _xmlResource = etree.SubElement(xmlRoot, 'resource', id=str(resource_id))
+        _xmlRType = etree.SubElement(_xmlResource, 'type')
+        _xmlRType.text = resource_type
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         value = kwargs.get('value', '')
         if value:
-            value = '<value>%s</value>' % value
+            _xmlValue = etree.SubElement(xmlRoot, 'value')
+            _xmlValue.text = value
 
         active = kwargs.get('active', '')
         if active:
-            active = '<active>%s</active>' % active
+            _xmlActive = etree.SubElement(xmlRoot, 'active')
+            _xmlActive.text = active
 
-        return '<create_tag><name>{0}</name><resource id="{1}">' \
-               '<type>{2}</type></resource>{3}{4}{5}{6}</create_tag>' \
-               ''.format(name, resource_id, resource_type, copy, value,
-                         comment, active)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def createTargetCommand(self, name, make_unique, kwargs):
 
