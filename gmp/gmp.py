@@ -1104,31 +1104,37 @@ class _gmp:
         if not filter_id:
             raise ValueError('modify_filter requires a filter_id attribute')
 
+        xmlRoot = etree.Element('modify_filter', filter_id=filter_id )
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         term = kwargs.get('term', '')
         if term:
-            term = '<term>%s</term>' % term
+            _xmlTerm = etree.SubElement(xmlRoot, 'term')
+            _xmlTerm.text = term
 
         filter_type = kwargs.get('type', '')
         if filter_type:
             if filter_type not in ('cc', 'snmp', 'up', 'usk'):
                 raise ValueError('modify_filter requires type '
                                  'to be either cc, snmp, up or usk')
-            filter_type = '<type>%s</type>' % filter_type
+            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
+            _xmlFiltertype.text = filter_type
 
-        return '<modify_filter filter_id="{0}">{1}{2}{3}{4}</modify_filter>' \
-               ''.format(filter_id, comment, name, term, filter_type)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyGroupCommand(self, group_id, kwargs):
 
