@@ -1255,32 +1255,36 @@ class _gmp:
             raise ValueError('modify_permission requires '
                              'a permission_id element')
 
+        xmlRoot = etree.Element('modify_permission',
+                                permission_id=permission_id)
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource['id']
             resource_type = resource['type']
-
-            resource = '<resource id="%s"><type>%s</type></resource>' \
-                       '' % (resource_id, resource_type)
+            _xmlResource = etree.SubElement(xmlRoot, 'resource', id=resource_id)
+            _xmlRType = etree.SubElement(_xmlResource, 'type')
+            _xmlRType.text = resource_type
 
         subject = kwargs.get('subject', '')
         if subject:
             subject_id = subject['id']
             subject_type = subject['type']
+            _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
+            _xmlType = etree.SubElement(_xmlSubject, 'type')
+            _xmlType.text = subject_type
 
-            subject = '<subject id="%s"><type>%s</type></subject>' \
-                      '' % (subject_id, subject_type)
-
-        return '<modify_permission permission_id="{0}">{1}{2}{3}{4}</modify_permission>' \
-               ''.format(permission_id, name, comment, resource, subject)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyPortListCommand(self, port_list_id, kwargs):
 
