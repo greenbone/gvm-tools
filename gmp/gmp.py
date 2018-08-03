@@ -1311,24 +1311,35 @@ class _gmp:
         if len(kwargs) < 1:
             raise Exception('modify_report_format: Missing parameter')
 
+        xmlRoot = etree.Element('modify_report_format',
+                                report_format_id=repor_format_id)
+
         active = kwargs.get('active', '')
         if active:
-            active = '<active>%s</active>' % active
+            _xmlActive = etree.SubElement(xmlRoot, 'active')
+            _xmlActive.text = active
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
-        summary = kwargs.get('summary', '')
+            summary = kwargs.get('summary', '')
         if summary:
-            summary = '<summary>%s</summary>' % summary
+            _xmlSummary = etree.SubElement(xmlRoot, 'summary')
+            _xmlSummary.text = summary
 
         param = kwargs.get('param', '')
         if param:
             p_name = param[0]
             p_value = param[1]
-            param = '<param><name>%s</name><value>%s</value></param>' \
-                    '' % (p_name, p_value)
+            _xmlParam = etree.SubElement(xmlRoot, 'param')
+            _xmlPname = etree.SubElement(_xmlParam, 'name')
+            _xmlPname.text = p_name
+            _xmlValue = etree.SubElement(_xmlParam, 'value')
+            _xmlValue.text = p_value
+
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyRoleCommand(self, role_id, kwargs):
 
