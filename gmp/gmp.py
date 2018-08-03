@@ -707,65 +707,77 @@ class _gmp:
         if not name:
             raise ValueError('create_target requires a name element')
 
+        xmlRoot = etree.Element('create_target')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
         if make_unique:
-            unique = 1
+            unique = '1'
         else:
-            unique = 0
+            unique = '0'
+        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
+        _xmlUnique.text = unique
 
         if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
             filter = hosts['filter']
-
-            hosts = '<asset_hosts filter="%s"/>' % filter
+            _xmlHosts = etree.SubElement(xmlRoot, 'asset_hosts',
+                                         filter=str(filter))
         elif 'hosts' in kwargs:
             hosts = kwargs.get('hosts')
-            hosts = '<hosts>%s</hosts>' % hosts
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
+            _xmlHosts.text = hosts
         else:
             raise ValueError('create_target requires either a hosts or '
                              'an asset_hosts element')
 
-        optional_args = ''
-
         if 'comment' in kwargs:
-            optional_args += '<comment>%s</comment>' % kwargs.get('comment')
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = kwargs.get('comment')
 
         if 'copy' in kwargs:
             # NOTE: It seems that hosts/asset_hosts is silently ignored by the
             # server when copy is supplied. But for specification conformance
             # we raise the ValueError above and consider copy optional.
-            optional_args += '<copy>%s</copy>' % kwargs.get('copy')
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = kwargs.get('copy')
 
         if 'exclude_hosts' in kwargs:
-            optional_args += '<exclude_hosts>%s</exclude_hosts>' % kwargs.get('exclude_hosts')
+            _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
+            _xmlExHosts.text =  kwargs.get('exclude_hosts')
 
         if 'ssh_credential' in kwargs:
             ssh_credential = kwargs.get('ssh_credential')
             if 'id' in ssh_credential:
-                optional_args += '<ssh_credential id="%s">' % ssh_credential['id']
+                _xmlSSH = etree.SubElement(xmlRoot, 'ssh_credential',
+                                           id=ssh_credential['id'])
+                _xmlSSH.text = ''
                 if 'port' in ssh_credential:
-                    optional_args += '<port>%s</port>' % ssh_credential['port']
-                optional_args += '</ssh_credential>'
+                    _xmlSSHport = etree.SubElement(_xmlSSH, 'port')
+                    _xmlSSHport.text =  ssh_credential['port']
             else:
                 raise ValueError('ssh_credential requires an id attribute')
 
         if 'smb_credential' in kwargs:
             smb_credential = kwargs.get('smb_credential')
             if 'id' in smb_credential:
-                optional_args += '<smb_credential id="%s"/>' % smb_credential['id']
+                _xmlSMB = etree.SubElement(xmlRoot, 'smb_credential',
+                                           id=smb_credential['id'])
             else:
                 raise ValueError('smb_credential requires an id attribute')
 
         if 'esxi_credential' in kwargs:
             esxi_credential = kwargs.get('esxi_credential')
             if 'id' in esxi_credential:
-                optional_args += '<esxi_credential id="%s"/>' % esxi_credential['id']
+                _xmlEsxi = etree.SubElement(xmlRoot, 'esxi_credential',
+                                            id=esxi_credential['id'])
             else:
                 raise ValueError('esxi_credential requires an id attribute')
 
         if 'snmp_credential' in kwargs:
             snmp_credential = kwargs.get('snmp_credential')
             if 'id' in snmp_credential:
-                optional_args += '<snmp_credential id="%s"/>' % snmp_credential['id']
+                _xmlSnmp = etree.SubElement(xmlRoot, 'snmp_credential',
+                                            id=snmp_credential['id'])
             else:
                 raise ValueError('snmp_credential requires an id attribute')
 
@@ -774,40 +786,39 @@ class _gmp:
             # names contain ampersand ('&') characters it should be considered
             # replacing any characters special to XML in the variable with
             # their corresponding entities.
-            optional_args += '<alive_tests>%s</alive_tests>' % kwargs.get('alive_tests')
+            _xmlAlive = etree.SubElement(xmlRoot, 'alive_tests')
+            _xmlAlive.text = kwargs.get('alive_tests')
 
         if 'reverse_lookup_only' in kwargs:
             reverse_lookup_only = kwargs.get('reverse_lookup_only')
+            _xmlLookup = etree.SubElement(xmlRoot, 'reverse_lookup_only')
             if reverse_lookup_only:
-                optional_args += '<reverse_lookup_only>1</reverse_lookup_only>'
+                _xmlLookup.text = '1'
             else:
-                optional_args += '<reverse_lookup_only>0</reverse_lookup_only>'
+                _xmlLookup.text = '0'
 
         if 'reverse_lookup_unify' in kwargs:
             reverse_lookup_unify = kwargs.get('reverse_lookup_unify')
+            _xmlLookupU = etree.SubElement(xmlRoot, 'reverse_lookup_unify')
             if reverse_lookup_unify:
-                optional_args += '<reverse_lookup_unify>1</reverse_lookup_unify>'
+                _xmlLookupU.text = '1'
             else:
-                optional_args += '<reverse_lookup_unify>0</reverse_lookup_unify>'
+                _xmlLookupU.text = '0'
 
         if 'port_range' in kwargs:
-            optional_args += '<port_range>%s</port_range>' % kwargs.get('port_range')
+            _xmlPortR = etree.SubElement(xmlRoot, 'port_range')
+            _xmlPortR.text = kwargs.get('port_range')
 
         if 'port_list' in kwargs:
             port_list = kwargs.get('port_list')
             if 'id' in port_list:
-                optional_args += '<port_list id="%s"/>' % port_list['id']
+                 _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
+                                             id=str(port_list['id']))
             else:
                 raise ValueError('port_list requires an id attribute')
 
-        return '<create_target>' \
-                '<name>{0}<make_unique>{1}</make_unique></name>' \
-                '{2}' \
-                '{3}' \
-               '</create_target>'.format(name,
-                       unique,
-                       hosts,
-                       optional_args)
+        return etree.tostring(xmlRoot).decode('utf-8')
+
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           alert_id='', comment=''):
