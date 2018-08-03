@@ -945,16 +945,18 @@ class _gmp:
         if not auth_conf_settings:
             raise ValueError('modify_auth requires '
                              'an auth_conf_settings element')
-        auth_conf_setting = ''
+
+        xmlRoot = etree.Element('modify_auth')
+        _xmlGroup = etree.SubElement(xmlRoot, 'group', name=str(group_name))
 
         for key, value in auth_conf_settings.items():
-            auth_conf_setting += '<auth_conf_setting>' \
-                                 '<key>%s</key>' \
-                                 '<value>%s</value>' \
-                                 '</auth_conf_setting>' % (key, value)
+            _xmlAuthConf = etree.SubElement(_xmlGroup, 'auth_conf_setting')
+            _xmlKey = etree.SubElement(_xmlAuthConf, 'key')
+            _xmlKey.text = Key
+            _xmlValue = etree.SubElement(_xmlAuthConf, 'value')
+            _xmlValue.text = value
 
-        return '<modify_auth><group name="{0}">{1}</group>' \
-               '</modify_auth>'.format(group_name, auth_conf_setting)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyConfigCommand(self, selection, kwargs):
 
