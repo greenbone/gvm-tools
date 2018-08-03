@@ -871,14 +871,17 @@ class _gmp:
 
         if not agent_id:
             raise ValueError('modify_agent requires an agent_id element')
+
+        xmlRoot = etree.Element('modify_agent', agent_id=str(agent_id))
         if name:
-            name = '<name>{0}</name>'.format(name)
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         if comment:
-            comment = '<comment>{0}</comment>'.format(comment)
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
-        return '<modify_agent agent_id="{0}">{1}{2}' \
-               '</modify_agent>'.format(agent_id, name, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyAlertCommand(self, alert_id, kwargs):
 
