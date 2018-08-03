@@ -966,39 +966,48 @@ class _gmp:
                              'family_selection or nvt_selection')
         config_id = kwargs.get('config_id')
 
+        xmlRoot = etree.Element('modify_config', config_id=str(config_id))
+
         if selection in 'nvt_pref':
             nvt_oid = kwargs.get('nvt_oid')
             name = kwargs.get('name')
             value = kwargs.get('value')
-
-            return '<modify_config config_id="{0}"><preference>' \
-                   '<nvt oid="{1}"/><name>{2}</name><value>{3}</value>' \
-                   '</preference></modify_config>'.format(config_id, nvt_oid,
-                                                          name, value)
+            _xmlPref = etree.SubElement(xmlRoot, 'preference')
+            _xmlNvt = etree.SubElement(_xmlPref, 'nvt', oid=nvt_oid)
+            _xmlName = etree.SubElement(_xmlPref, 'name')
+            _xmlName.text = name
+            _xmlValue = etree.SubElement(_xmlPref, 'value')
+            _xmlValue.text = value
 
         elif selection in 'nvt_selection':
             nvt_oid = kwargs.get('nvt_oid')
             family = kwargs.get('family')
-            nvts = ''
+            _xmlNvtSel = etree.SubElement(xmlRoot, 'nvt_selection')
+            _xmlFamily = etree.SubElement(_xmlNvtSel, 'family')
+            _xmlFamily.text = family
+
             if isinstance(nvt_oid, list):
                 for nvt in nvt_oid:
-                    nvts += '<nvt oid="%s"/>' % nvt
+                    _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
             else:
-                nvts = '<nvt oid="%s"/>' % nvt_oid
-
-            return '<modify_config config_id="{0}"><nvt_selection>' \
-                   '<family>{1}</family>{2}</nvt_selection></modify_config>' \
-                   ''.format(config_id, family, nvts)
+                    _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
 
         elif selection in 'family_selection':
             family = kwargs.get('family')
-
-            return '<modify_config config_id="{0}"><family_selection>' \
-                   '<growing>1</growing><family><name>{1}</name><all>1</all>' \
-                   '<growing>1</growing></family></family_selection>' \
-                   '</modify_config>'.format(config_id, family)
+            _xmlFamSel = etree.SubElement(xmlRoot, 'family_selection')
+            _xmlGrow = etree.SubElement(_xmlFamSel, 'growing')
+            _xmlGrow.text = '1'
+            _xmlFamily = etree.SubElement(_xmlFamSel, 'family')
+            _xmlName = etree.SubElement(_xmlFamily, 'name')
+            _xmlName.text = family
+            _xmlAll = etree.SubElement(_xmlFamily, 'all')
+            _xmlAll.text = '1'
+            _xmlGrowI = etree.SubElement(_xmlFamily, 'growing')
+            _xmlGrowI.text = '1'
         else:
             raise NotImplementedError
+
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyCredentialCommand(self, credential_id, kwargs):
 
