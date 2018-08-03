@@ -888,48 +888,54 @@ class _gmp:
         if not alert_id:
             raise ValueError('modify_alert requires an agent_id element')
 
+        xmlRoot = etree.Element('modify_alert', alert_id=str(alert_id))
+
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
+
 
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         filter_id = kwargs.get('filter_id', '')
         if filter_id:
-            filter_id = '<filter id=%s/>' % filter_id
+            _xmlFilter = etree.SubElement(xmlRoot, 'filter', id=filter_id)
 
         event = kwargs.get('event', '')
-        events = ''
         if len(event) > 1:
-            events = '<event>%s' % event[0]
+            _xmlEvent = etree.SubElement(xmlRoot, 'event')
+            _xmlEvent.text = event[0]
             for value, key in event[1].items():
-                events += '<data>{0}<name>{1}</name></data>' \
-                          ''.format(value, key)
-            events += '</event>'
+                _xmlData = etree.SubElement(_xmlEvent, 'data')
+                _xmlData.text = value
+                _xmlDName = etree.SubElement(_xmlData, 'name')
+                _xmlDName.text = key
 
         condition = kwargs.get('condition', '')
-        conditions = ''
         if len(condition) > 1:
-            conditions = '<condition>%s' % condition[0]
+            _xmlCond = etree.SubElement(xmlRoot, 'condition')
+            _xmlCond.text = condition[0]
             for value, key in condition[1].items():
-                conditions += '<data>{0}<name>{1}</name></data>' \
-                              ''.format(value, key)
-            conditions += '</condition>'
+                _xmlData = etree.SubElement(_xmlCond, 'data')
+                _xmlData.text = value
+                _xmlDName = etree.SubElement(_xmlData, 'name')
+                _xmlDName.text = key
 
         method = kwargs.get('method', '')
-        methods = ''
         if len(method) > 1:
-            methods = '<method>%s' % method[0]
+            _xmlMethod = etree.SubElement(xmlRoot, 'method')
+            _xmlMethod.text = method[0]
             for value, key in method[1].items():
-                methods += '<data>{0}<name>{1}</name></data>' \
-                           ''.format(value, key)
-            methods += '</method>'
+                _xmlData = etree.SubElement(_xmlMethod, 'data')
+                _xmlData.text = value
+                _xmlDName = etree.SubElement(_xmlData, 'name')
+                _xmlDName.text = key
 
-        return '<modify_alert alert_id="{0}">{1}{2}{3}{4}{5}{6}' \
-               '</modify_alert>'.format(alert_id, name, comment, filter_id,
-                                        events, conditions, methods)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyAuthCommand(self, group_name,  auth_conf_settings):
 
