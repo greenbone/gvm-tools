@@ -1141,20 +1141,24 @@ class _gmp:
         if not group_id:
             raise ValueError('modify_group requires a group_id attribute')
 
+        xmlRoot = etree.Element('modify_group', group_id=group_id)
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         users = kwargs.get('users', '')
         if users:
-            users = '<users>%s</users>' % users
+            _xmlUser = etree.SubElement(xmlRoot, 'users')
+            _xmlUser.text = users
 
-        return '<modify_group group_id="{0}">{1}{2}{3}</modify_group>' \
-               ''.format(group_id, name, comment, users)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyNoteCommand(self, note_id, text, kwargs):
 
