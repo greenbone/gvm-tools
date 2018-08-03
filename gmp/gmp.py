@@ -1291,17 +1291,20 @@ class _gmp:
         if not port_list_id:
             raise ValueError('modify_port_list requires '
                              'a port_list_id attribute')
+        xmlRoot = etree.Element('modify_port_list',
+                                port_list_id=port_list_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
-        return '<modify_port_list port_list_id="{0}">{1}{2}</modify_port_list>' \
-               ''.format(port_list_id, name, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyReportFormatCommand(self, report_format_id, kwargs):
 
