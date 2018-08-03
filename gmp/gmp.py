@@ -1377,30 +1377,35 @@ class _gmp:
         if not type:
             raise ValueError('modify_scanner requires a type element')
 
+        xmlRoot = etree.Element('modify_scanner', scanner_id=scanner_id)
+        _xmlHost = etree.SubElement(xmlRoot, 'host')
+        _xmlHost.text = host
+        _xmlPort = etree.SubElement(xmlRoot, 'port')
+        _xmlPort.text = port
+        _xmlType = etree.SubElement(xmlRoot, 'type')
+        _xmlType.text = type
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         ca_pub = kwargs.get('ca_pub', '')
         if ca_pub:
-            ca_pub = '<ca_pub>%s</ca_pub>' % ca_pub
+            _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
+            _xmlCAPub.text = ca_pub
 
         credential_id = kwargs.get('credential_id', '')
         if credential_id:
-            credential_id = '<credential id="%s"/>' % credential_id
+            _xmlCred = etree.SubElement(xmlRoot, 'credential',
+                                        id=str(credential_id))
 
-        return '<modify_scanner scanner_id="{0}">' \
-               '<host>{1}</host>' \
-               '<port>{2}</port>' \
-               '<type>{3}</type>' \
-               '{4}{5}{6}{7}' \
-               '</modify_scanner>' \
-               ''.format(scanner_id, host, port, type, name, ca_pub,
-                         credential_id, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyScheduleCommand(self, schedule_id, kwargs):
 
