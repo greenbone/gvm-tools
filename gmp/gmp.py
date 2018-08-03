@@ -1167,38 +1167,44 @@ class _gmp:
         if not text:
             raise ValueError('modify_note requires a text element')
 
+        xmlRoot = etree.Element('modify_note', note_id=note_id)
+        _xmlText = etree.SubElement(xmlRoot, 'text')
+        _xmlText.text = text
+
         active = kwargs.get('active', '')
         if active:
-            active = '<active>%s</active>' % active
+            _xmlActive = etree.SubElement(xmlRoot, 'active')
+            _xmlActive.text = active
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            hosts = '<hosts>%s</hosts>' % hosts
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
+            _xmlHosts.text = hosts
 
         port = kwargs.get('port', '')
         if port:
-            port = '<port>%s</port>' % port
+            _xmlPort = etree.SubElement(xmlRoot, 'port')
+            _xmlPort.text = port
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            result_id = '<result id="%s"/>' % result_id
+            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
 
         severity = kwargs.get('severity', '')
         if severity:
-            severity = '<severity>%s</severity>' % severity
+            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
+            _xmlSeverity.text = severity
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            task_id = '<task id="%s"/>' % task_id
+            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
 
         threat = kwargs.get('threat', '')
         if threat:
-            threat = '<threat>%s</threat>' % threat
+            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
+            _xmlThreat.text = threat
 
-        return '<modify_note note_id="{0}"><text>{1}</text>{2}{3}{4}{5}{6}' \
-               '{7}{8}</modify_note>' \
-               ''.format(note_id, text, active, hosts, port,
-                         result_id, severity, task_id, threat)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyOverrideCommand(self, override_id, text, kwargs):
 
