@@ -838,33 +838,34 @@ class _gmp:
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
                           ifaces_allow='0', role_ids=(), hosts=None,
                           ifaces=None):
+        xmlRoot = etree.Element('create_user')
+        _xmlName = etree.SubElement(xmlRoot, 'name')
+        _xmlName.text = name
 
         if copy:
-            copy = '<copy>{0}</copy>'.format(copy)
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = copy
 
         if password:
-            password = '<password>{0}</password>'.format(password)
+            _xmlPass = etree.SubElement(xmlRoot, 'password')
+            _xmlPass.text = password
 
         if hosts is not None:
-            hosts_allow = '<hosts allow="{0}">{1}</hosts>' \
-                              .format(hosts_allow, hosts)
-        else:
-            hosts_allow = ''
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
+                                         allow=str(host_allow))
+            _xmlHosts.text = hosts
 
         if ifaces is not None:
-            ifaces_allow = '<ifaces allow="{0}">{1}</ifaces>' \
-                              .format(ifaces_allow, ifaces)
-        else:
-            ifaces_allow = ''
+            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
+                                         allow=str(ifaces_allow))
+            _xmlIFaces.text = ifaces
 
-        role_txt = ''
         if len(role_ids) > 0:
             for role in role_ids:
-                role_txt += '<role id="{0}" />'.format(role)
+                _xmlRole = etree.SubElement(xmlRoot, 'role',
+                                         allow=str(role))
 
-        return '<create_user><name>{0}</name>{1}{2}{3}{4}{5}' \
-               '</create_user>'.format(name, copy, hosts_allow, ifaces_allow,
-                                       password, role_txt)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyAgentCommand(self, agent_id, name='', comment=''):
 
