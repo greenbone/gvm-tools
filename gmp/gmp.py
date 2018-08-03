@@ -1346,20 +1346,25 @@ class _gmp:
         if not role_id:
             raise ValueError('modify_role requires a role_id element')
 
+        xmlRoot = etree.Element('modify_role',
+                                role_id=role_id)
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         users = kwargs.get('users', '')
         if users:
-            users = '<users>%s</users>' % users
+            _xmlUser = etree.SubElement(xmlRoot, 'users')
+            _xmlUser.text = users
 
-        return '<modify_role role_id="{0}">{1}{2}{3}</modify_role>' \
-               ''.format(role_id, name, users, comment)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyScannerCommand(self, scanner_id, host, port, type, kwargs):
 
