@@ -1566,49 +1566,56 @@ class _gmp:
         if not task_id:
             raise ValueError('modify_task requires a task_id element')
 
+        xmlRoot = etree.Element('modify_task', task_id=task_id)
+
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         target_id = kwargs.get('target_id', '')
         if target_id:
-            target_id = '<target id="%s"/>' % target_id
+            _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
 
         scanner = kwargs.get('scanner', '')
         if scanner:
-            scanner = '<scanner_id="%s"></scanner>' % scanner
+            _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
 
         schedule_periods = kwargs.get('schedule_periods', '')
         if schedule_periods:
-            schedule_periods = '<schedule_periods>%d</schedule_periods>' % schedule_periods
+            _xmlPeriod = etree.SubElement(xmlRoot, 'schedule_periods')
+            _xmlPeriod.text = str(schedule_periods)
 
         schedule = kwargs.get('schedule', '')
         if schedule:
-            schedule = '<schedule id="%s"/>' % (schedule)
+            _xmlSched = etree.SubElement(xmlRoot, 'schedule', id=str(schedule))
 
         alert = kwargs.get('alert', '')
         if alert:
-            alert = '<alert id="%s"/>' % (alert)
+            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
 
         observers = kwargs.get('observers', '')
         if observers:
-            observers = '<observers>%s</observers>' % observers
+            _xmlObserver = etree.SubElement(xmlRoot, 'observers')
+            _xmlObserver.text = str(observers)
 
         preferences = kwargs.get('preferences', '')
         if preferences:
             preferences_list = []
+            _xmlPrefs = etree.SubElement(xmlRoot, 'preferences')
             for n in range(len(preferences["scanner_name"])):
                 preferences_scanner_name = preferences["scanner_name"][n]
                 preferences_value = preferences["value"][n]
-                preference = '<preference><scanner_name>%s</scanner_name><value>%s</value></preference>' \
-                             % (preferences_scanner_name, preferences_value)
-                preferences_list.append(preference)
-            preferences = "".join(preferences_list)
-            preferences = '<preferences>%s</preferences>' % preferences
+                _xmlPref = etree.SubElement(_xmlPrefs, 'preference')
+                _xmlScan = etree.SubElement(_xmlPref, 'scanner_name')
+                _xmlScan.text = preferences_scanner_name
+                _xmlVal = etree.SubElement(_xmlPref, 'value')
+                _xmlVal.text = preferences_value
 
         file = kwargs.get('file', '')
         if file:
@@ -1616,17 +1623,10 @@ class _gmp:
             file_action = file['action']
             if file_action != "update" and file_action !="remove" :
                 raise ValueError('action can only be "update" or "remove"!')
+            _xmlFile = etree.SubElement(xmlRoot, 'file', name=file_name,
+                                        action=file_action)
 
-            file = '<file name="%s" action="%s"/>' % (file_name, file_action)
-
-        return '<modify_task task_id="{0}">' \
-               '{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' \
-               '</modify_task>' \
-               ''.format(
-                         task_id, comment, alert, name, target_id, observers,
-                         preferences, schedule, schedule_periods, scanner,
-                         file
-                         )
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyUserCommand(self, kwargs):
 
