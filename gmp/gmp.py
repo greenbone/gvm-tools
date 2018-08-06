@@ -1507,57 +1507,59 @@ class _gmp:
         if not target_id:
             raise ValueError('modify_target requires a target_id element')
 
+        xmlRoot = etree.Element('modify_target', target_id=target_id)
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            hosts = '<hosts>%s</hosts>' % hosts
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
+            _xmlHosts.text = hosts
 
         copy = kwargs.get('copy', '')
         if copy:
-            copy = '<copy>%s</copy>' % copy
+            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
+            _xmlCopy.text = kwargs.get('copy')
 
         exclude_hosts = kwargs.get('exclude_hosts', '')
         if exclude_hosts:
-            exclude_hosts = '<exclude_hosts>%s</exclude_hosts>' % exclude_hosts
+            _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
+            _xmlExHosts.text =  kwargs.get('exclude_hosts')
 
         alive_tests = kwargs.get('alive_tests', '')
         if alive_tests:
-            alive_tests = '<alive_tests>%s</alive_tests>' % alive_tests
+            _xmlAlive = etree.SubElement(xmlRoot, 'alive_tests')
+            _xmlAlive.text = kwargs.get('alive_tests')
 
         reverse_lookup_only = kwargs.get('reverse_lookup_only', '')
         if reverse_lookup_only:
-            reverse_lookup_only = '<reverse_lookup_only>%s</reverse_lookup_only>' % reverse_lookup_only
+            _xmlLookup = etree.SubElement(xmlRoot, 'reverse_lookup_only')
+            _xmlLookup.text = reverse_lookup_only
 
         reverse_lookup_unify = kwargs.get('reverse_lookup_unify', '')
         if reverse_lookup_unify:
-            reverse_lookup_unify = '<reverse_lookup_unify>%s</reverse_lookup_unify>' % reverse_lookup_unify
+            _xmlLookupU = etree.SubElement(xmlRoot, 'reverse_lookup_unify')
+            _xmlLookupU.text = reverse_lookup_unify
 
         port_range = kwargs.get('port_range', '')
         if port_range:
-            port_range = '<port_range>%s</port_range>' % port_range
+            _xmlPortR = etree.SubElement(xmlRoot, 'port_range')
+            _xmlPortR.text = kwargs.get('port_range')
 
         port_list = kwargs.get('port_list', '')
         if port_list:
-            port_list = '<port_list id="%s"/>' % port_list
+            _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
+                                             id=str(port_list))
 
-        return '<modify_target target_id="{0}">{1}{2}{3}{4}{5}{6}  \
-                {7}{8}{9}{10}</modify_target>' \
-               ''.format(
-                         target_id, name, hosts, comment, copy, exclude_hosts,
-                         alive_tests, reverse_lookup_only, reverse_lookup_unify,
-                         port_range, port_list
-                         )
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyTaskCommand(self, task_id, kwargs):
 
