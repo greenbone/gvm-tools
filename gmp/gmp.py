@@ -1209,46 +1209,55 @@ class _gmp:
 
     def modifyOverrideCommand(self, override_id, text, kwargs):
 
+        xmlRoot = etree.Element('modify_override',
+                                override_id=override_id)
+        _xmlText = etree.SubElement(xmlRoot, 'text')
+        _xmlText.text = text
+
         active = kwargs.get('active', '')
         if active:
-            active = '<active>%s</active>' % active
+            _xmlActive = etree.SubElement(xmlRoot, 'active')
+            _xmlActive.text = active
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            hosts = '<hosts>%s</hosts>' % hosts
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
+            _xmlHosts.text = hosts
 
         port = kwargs.get('port', '')
         if port:
-            port = '<port>%s</port>' % port
+            _xmlPort = etree.SubElement(xmlRoot, 'port')
+            _xmlPort.text = port
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            result_id = '<result id="%s"/>' % result_id
+            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
 
         severity = kwargs.get('severity', '')
         if severity:
-            severity = '<severity>%s</severity>' % severity
+            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
+            _xmlSeverity.text = severity
 
         new_severity = kwargs.get('new_severity', '')
         if new_severity:
-            new_severity = '<new_severity>%s</new_severity>' % new_severity
+            _xmlNSeverity = etree.SubElement(xmlRoot, 'new_severity')
+            _xmlNSeverity.text = new_severity
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            task_id = '<task id="%s"/>' % task_id
+            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
 
         threat = kwargs.get('threat', '')
         if threat:
-            threat = '<threat>%s</threat>' % threat
+            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
+            _xmlThreat.text = threat
 
         new_threat = kwargs.get('new_threat', '')
         if new_threat:
-            new_threat = '<new_threat>%s</new_threat>' % new_threat
+            _xmlNThreat = etree.SubElement(xmlRoot, 'new_threat')
+            _xmlNThreat.text = new_threat
 
-        return '<modify_override override_id="{0}"><text>{1}</text>{2}{3}{4}{5}{6}' \
-               '{7}{8}{9}{10}</modify_override>' \
-               ''.format(override_id, text, active, hosts, port, result_id,
-                         severity, task_id, threat, new_severity, new_threat)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyPermissionCommand(self, permission_id, kwargs):
 
