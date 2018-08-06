@@ -1631,47 +1631,46 @@ class _gmp:
     def modifyUserCommand(self, kwargs):
 
         user_id = kwargs.get('user_id', '')
-        if user_id:
-            user_id = 'user_id="%s"' % user_id
-
         name = kwargs.get('name', '')
-        if name and not user_id:
-            name = '<name>%s</name>' % name
-
         if not user_id and not name:
             raise ValueError('modify_user requires '
                              'either a user_id or a name element')
 
+        xmlRoot = etree.Element('modify_user', user_id=str(user_id))
+
         new_name = kwargs.get('new_name', '')
         if new_name:
-            new_name = '<new_name>%s</new_name>' % new_name
+            _xmlName = etree.SubElement(xmlRoot, 'new_name')
+            _xmlName.text = new_name
 
         password = kwargs.get('password', '')
         if password:
-            password = '<password>%s</password>' % password
+            _xmlPass = etree.SubElement(xmlRoot, 'password')
+            _xmlPass.text = password
 
         role_ids = kwargs.get('role_ids', '')
         role_txt = ''
         if len(role_ids) > 0:
             for role in role_ids:
-                role_txt += '<role id="%s" />' % role
-
+                _xmlRole = etree.SubElement(xmlRoot, 'role',
+                                         id=str(role))
         hosts = kwargs.get('hosts', '')
         hosts_allow = kwargs.get('hosts_allow', '')
         if hosts or hosts_allow:
-            hosts_allow = '<hosts allow="%s">%s</hosts>' % (hosts_allow, hosts)
+            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
+                                         allow=str(host_allow))
+            _xmlHosts.text = hosts
 
         ifaces = kwargs.get('ifaces', '')
         ifaces_allow = kwargs.get('ifaces_allow', '')
         if ifaces or ifaces_allow:
-            ifaces_allow = '<ifaces allow="%s">%s</ifaces>' % (ifaces_allow,
-                                                               ifaces)
+            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
+                                          allow=str(ifaces_allow))
+            _xmlIFaces.text = ifaces
 
         sources = kwargs.get('sources', '')
         if sources:
-            sources = '<sources>%s</sources>' % sources
+            _xmlSource = etree.SubElement(xmlRoot, 'sources')
+            _xmlSource.text = sources
 
-        return '<modify_user {0}>{1}{2}{3}{4}{5}{6}{7}' \
-               '</modify_user>'.format(user_id, name, new_name, password,
-                                       role_txt, hosts_allow, ifaces_allow,
-                                       sources)
+        return etree.tostring(xmlRoot).decode('utf-8')
