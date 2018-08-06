@@ -1412,13 +1412,16 @@ class _gmp:
         if not schedule_id:
             raise ValueError('modify_schedule requires a schedule_id element')
 
+        xmlRoot = etree.Element('modify_schedule', schedule_id=schedule_id )
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         first_time = kwargs.get('first_time', '')
         if first_time:
@@ -1428,35 +1431,38 @@ class _gmp:
             first_time_month = first_time['month']
             first_time_year = first_time['year']
 
-            first_time = '<first_time>' \
-                         '<minute>%s</minute>' \
-                         '<hour>%s</hour>' \
-                         '<day_of_month>%s</day_of_month>' \
-                         '<month>%s</month>' \
-                         '<year>%s</year>' \
-                         '</first_time>' \
-                         '' % (first_time_minute, first_time_hour,
-                               first_time_day_of_month, first_time_month,
-                               first_time_year)
+            _xmlFtime = etree.SubElement(xmlRoot, 'first_time')
+            _xmlMinute = etree.SubElement(_xmlFtime, 'minute')
+            _xmlMinute.text = str(first_time_minute)
+            _xmlHour = etree.SubElement(_xmlFtime, 'hour')
+            _xmlHour.text = str(first_time_hour)
+            _xmlDay = etree.SubElement(_xmlFtime, 'day_of_month')
+            _xmlDay.text = str(first_time_day_of_month)
+            _xmlMonth = etree.SubElement(_xmlFtime, 'month')
+            _xmlMonth.text = str(first_time_month)
+            _xmlYear = etree.SubElement(_xmlFtime, 'year')
+            _xmlYear.text = str(first_time_year)
 
         duration = kwargs.get('duration', '')
         if len(duration) > 1:
-            duration = '<duration>%s<unit>%s</unit>' \
-                       '' % (duration[0], duration[1])
+            _xmlDuration = etree.SubElement(xmlRoot, 'duration')
+            _xmlDuration.text = str(duration[0])
+            _xmlUnit = etree.SubElement(_xmlDuration, 'unit')
+            _xmlUnit.text = str(duration[1])
 
         period = kwargs.get('period', '')
         if len(period) > 1:
-            period = '<period>%s<unit>%s</unit>' % (period[0], period[1])
+            _xmlPeriod = etree.SubElement(xmlRoot, 'period')
+            _xmlPeriod.text = str(period[0])
+            _xmlPUnit = etree.SubElement(_xmlPeriod, 'unit')
+            _xmlPUnit.text = str(period[1])
 
         timezone = kwargs.get('timezone', '')
         if timezone:
-            timezone = '<timezone>%s</timezone>' % timezone
+            _xmlTimezone = etree.SubElement(xmlRoot, 'timezone')
+            _xmlTimezone.text = str(timezone)
 
-        return '<modify_schedule schedule_id="{0}">' \
-               '{1}{2}{3}{4}{5}{6}' \
-               '</modify_schedule>' \
-               ''.format(schedule_id, comment, name, first_time, duration,
-                         period, timezone)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyTagCommand(self, tag_id, kwargs):
 
