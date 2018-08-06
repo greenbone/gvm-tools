@@ -1469,32 +1469,38 @@ class _gmp:
         if not tag_id:
             raise ValueError('modify_tag requires a tag_id element')
 
+        xmlRoot = etree.Element('modify_tag', tag_id=str(tag_id))
+
         comment = kwargs.get('comment', '')
         if comment:
-            comment = '<comment>%s</comment>' % comment
+            _xmlComment = etree.SubElement(xmlRoot, 'comment')
+            _xmlComment.text = comment
 
         name = kwargs.get('name', '')
         if name:
-            name = '<name>%s</name>' % name
+            _xmlName = etree.SubElement(xmlRoot, 'name')
+            _xmlName.text = name
 
         value = kwargs.get('value', '')
         if value:
-            value = '<value>%s</value>' % value
+            _xmlValue = etree.SubElement(xmlRoot, 'value')
+            _xmlValue.text = value
 
         active = kwargs.get('active', '')
         if active:
-            active = '<active>%s</active>' % active
+            _xmlActive = etree.SubElement(xmlRoot, 'active')
+            _xmlActive.text = value
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource['id']
             resource_type = resource['type']
+            _xmlResource = etree.SubElement(xmlRoot, 'resource',
+                                            resource_id=resource)
+            _xmlRType = etree.SubElement(_xmlResource, 'type')
+            _xmlRType.text = resource_type
 
-            resource = '<resource id="%s"><type>%s</type></resource>' \
-                       '' % (resource_id, resource_type)
-
-        return '<modify_tag tag_id="{0}">{1}{2}{3}{4}{5}</modify_tag>' \
-               ''.format(tag_id, name, resource, value, comment, active)
+        return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyTargetCommand(self, target_id, kwargs):
 
