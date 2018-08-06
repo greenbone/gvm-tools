@@ -23,6 +23,7 @@
 from lxml import etree
 import defusedxml.ElementTree as secET
 
+
 class _gmp:
     """GMP - Greenbone Manager Protocol
     """
@@ -457,7 +458,8 @@ class _gmp:
         if resource:
             resource_id = resource.id
             resource_type = resource.type
-            _xmlResource = etree.SubElement(xmlRoot, 'resource', id=resource_id)
+            _xmlResource = etree.SubElement(xmlRoot, 'resource',
+                                            id=resource_id)
             _xmlRType = etree.SubElement(_xmlResource, 'type')
             _xmlRType.text = resource_type
 
@@ -586,7 +588,6 @@ class _gmp:
         if not credential_id:
             raise ValueError('create_scanner requires a credential_id element')
 
-
         xmlRoot = etree.Element('create_scanner')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
@@ -598,7 +599,8 @@ class _gmp:
         _xmlType.text = type
         _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
         _xmlCAPub.text = ca_pub
-        _xmlCred = etree.SubElement(xmlRoot, 'credential', id=str(credential_id))
+        _xmlCred = etree.SubElement(xmlRoot, 'credential',
+                                    id=str(credential_id))
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -676,7 +678,8 @@ class _gmp:
         xmlRoot = etree.Element('create_tag')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
-        _xmlResource = etree.SubElement(xmlRoot, 'resource', id=str(resource_id))
+        _xmlResource = etree.SubElement(xmlRoot, 'resource',
+                                        id=str(resource_id))
         _xmlRType = etree.SubElement(_xmlResource, 'type')
         _xmlRType.text = resource_type
 
@@ -743,7 +746,7 @@ class _gmp:
 
         if 'exclude_hosts' in kwargs:
             _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
-            _xmlExHosts.text =  kwargs.get('exclude_hosts')
+            _xmlExHosts.text = kwargs.get('exclude_hosts')
 
         if 'ssh_credential' in kwargs:
             ssh_credential = kwargs.get('ssh_credential')
@@ -753,7 +756,7 @@ class _gmp:
                 _xmlSSH.text = ''
                 if 'port' in ssh_credential:
                     _xmlSSHport = etree.SubElement(_xmlSSH, 'port')
-                    _xmlSSHport.text =  ssh_credential['port']
+                    _xmlSSHport.text = ssh_credential['port']
             else:
                 raise ValueError('ssh_credential requires an id attribute')
 
@@ -812,13 +815,12 @@ class _gmp:
         if 'port_list' in kwargs:
             port_list = kwargs.get('port_list')
             if 'id' in port_list:
-                 _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
+                _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
                                              id=str(port_list['id']))
             else:
                 raise ValueError('port_list requires an id attribute')
 
         return etree.tostring(xmlRoot).decode('utf-8')
-
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
                           alert_id='', comment=''):
@@ -830,8 +832,8 @@ class _gmp:
         _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
         _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
         _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
-        #if given the alert_id is wrapped and integrated suitably as xml
-        if len(alert_id)>0:
+        # if given the alert_id is wrapped and integrated suitably as xml
+        if len(alert_id) > 0:
             _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert_id))
         return etree.tostring(xmlRoot).decode('utf-8')
 
@@ -857,13 +859,13 @@ class _gmp:
 
         if ifaces is not None:
             _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
-                                         allow=str(ifaces_allow))
+                                          allow=str(ifaces_allow))
             _xmlIFaces.text = ifaces
 
         if len(role_ids) > 0:
             for role in role_ids:
                 _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                         allow=str(role))
+                                            allow=str(role))
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
@@ -894,7 +896,6 @@ class _gmp:
         if name:
             _xmlName = etree.SubElement(xmlRoot, 'name')
             _xmlName.text = name
-
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1104,7 +1105,7 @@ class _gmp:
         if not filter_id:
             raise ValueError('modify_filter requires a filter_id attribute')
 
-        xmlRoot = etree.Element('modify_filter', filter_id=filter_id )
+        xmlRoot = etree.Element('modify_filter', filter_id=filter_id)
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1272,7 +1273,8 @@ class _gmp:
         if resource:
             resource_id = resource['id']
             resource_type = resource['type']
-            _xmlResource = etree.SubElement(xmlRoot, 'resource', id=resource_id)
+            _xmlResource = etree.SubElement(xmlRoot, 'resource',
+                                            id=resource_id)
             _xmlRType = etree.SubElement(_xmlResource, 'type')
             _xmlRType.text = resource_type
 
@@ -1412,7 +1414,7 @@ class _gmp:
         if not schedule_id:
             raise ValueError('modify_schedule requires a schedule_id element')
 
-        xmlRoot = etree.Element('modify_schedule', schedule_id=schedule_id )
+        xmlRoot = etree.Element('modify_schedule', schedule_id=schedule_id)
         comment = kwargs.get('comment', '')
         if comment:
             _xmlComment = etree.SubElement(xmlRoot, 'comment')
@@ -1532,7 +1534,7 @@ class _gmp:
         exclude_hosts = kwargs.get('exclude_hosts', '')
         if exclude_hosts:
             _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
-            _xmlExHosts.text =  kwargs.get('exclude_hosts')
+            _xmlExHosts.text = kwargs.get('exclude_hosts')
 
         alive_tests = kwargs.get('alive_tests', '')
         if alive_tests:
@@ -1557,7 +1559,7 @@ class _gmp:
         port_list = kwargs.get('port_list', '')
         if port_list:
             _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
-                                             id=str(port_list))
+                                         id=str(port_list))
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
@@ -1621,7 +1623,7 @@ class _gmp:
         if file:
             file_name = file['name']
             file_action = file['action']
-            if file_action != "update" and file_action !="remove" :
+            if file_action != "update" and file_action != "remove":
                 raise ValueError('action can only be "update" or "remove"!')
             _xmlFile = etree.SubElement(xmlRoot, 'file', name=file_name,
                                         action=file_action)
@@ -1653,7 +1655,7 @@ class _gmp:
         if len(role_ids) > 0:
             for role in role_ids:
                 _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                         id=str(role))
+                                            id=str(role))
         hosts = kwargs.get('hosts', '')
         hosts_allow = kwargs.get('hosts_allow', '')
         if hosts or hosts_allow:
