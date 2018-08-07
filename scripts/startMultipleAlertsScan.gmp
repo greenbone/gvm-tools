@@ -1,0 +1,218 @@
+# -*- coding: utf-8 -*-
+# Description:
+# Script for gvm-pyshell
+#
+# Author:
+# Henning Häcker
+#
+# Copyright:
+# Copyright (C) 2018
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+debug = True  # flag for debugging information output
+
+# IMPORTANT: change both email addresses to make this work
+recipientEmail = "hhaecker@inovex.de"
+senderEmail = "hhaecker@inovex.de"
+
+if recipientEmail == "alice@example.org" or senderEmail == "bob@example.org":
+    print("WARNING: please change both email addresses first")
+    quit("exiting..")
+
+# returns a list containing all port_list names
+def get_port_list_names():
+    res = gmp.get_port_lists()
+    port_names_list = [""]
+    for x in res.findall("port_list/name"):
+        s = str(x.text)
+        port_names_list.append(s)
+    return port_names_list
+
+try:
+    # get all configs of the openvas instance
+    res = gmp.get_configs()
+    config_ids = res.xpath('config/@id')
+
+    # configurable template
+    template = "fast"
+
+    # match the config abbreviation to accepted config names
+    config_list = ['Full and fast', 'Full and fast ultimate', 'Full and very deep',
+                   'Full and very deep ultimate', 'System Discovery']
+    template_abbreviation_mapper = {
+        "fast": config_list[0],
+        "fast-ulti": config_list[1],
+        "deep": config_list[2],
+        "deep-ulti": config_list[3],
+        "discovery": config_list[4]
+    }
+    config_id = "-"
+    for conf in res.xpath('config'):
+        id = conf.xpath('@id')[0]
+        name = conf.xpath('name/text()')[0]
+
+        # get the config id of the desired template
+        if template_abbreviation_mapper.get(template, "-") == name:
+            config_id = id
+            if debug:
+                print("%s: %s" % (name,config_id))
+            break
+    # check for existence of the desired config
+    if config_id == "-":
+        print("error: could not recognize template '%s'\nvalid template names are: %s\n"
+              % (template, config_list))
+        exit()
+
+    # find a targetName
+    targets = gmp.get_targets()
+    target_ids = targets.xpath('target/@id')
+    counter = 0
+    exists = True
+    # iterate over existing targets and find a vacant targetName
+    while exists:
+        exists = False
+        targetName = "targetName%s" % str(counter)
+        for target in targets.xpath('target'):
+            name = target.xpath('name/text()')[0]
+            if name == targetName:
+                exists = True
+                break
+        counter += 1
+    if debug:
+        print("target name: %s" % targetName)
+
+    # iterate over existing port lists and find a vacant name
+    new_port_list_name = "portlistName"
+    counter = 0
+    while True:
+        portlist_name = '%s%s'%(new_port_list_name, str(counter))
+        if portlist_name not in get_port_list_names():
+            break
+        counter += 1
+
+    # configurable port string
+    port_string = "T:80-80"
+    # create port list
+    portlist = gmp.create_port_list(portlist_name, port_string)
+    portlist_id = portlist.xpath('@id')[0]
+    if debug:
+        print("Portlist-name:\t%s" % str(portlist_name))
+        print("Portlist-id:\t%s" % str(portlist_id))
+
+    # configurable hosts
+    hosts = "localhost"
+
+    # integrate port list id into create_target
+    res = gmp.create_target(targetName, True, hosts=hosts, port_list=dict(id=portlist_id))
+    target_id = res.xpath('@id')[0]
+
+    # configurable alert name
+    alert_name = recipientEmail
+
+    # create alert if necessarry
+    alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
+    alert_id = None
+    alert = alert_object.xpath('alert')
+    if len(alert) == 0:
+        print("creating alert")
+        gmp.create_alert(alert_name, ["Always"],
+                         ["Task run status changed", {"status": "Done"}],
+                         ["Email", {"""Task '$n': $e
+
+After the event $e,
+the following condition was met: $c
+
+This email escalation is configured to attach report format '$r'.
+Full details and other report formats are available on the scan engine.
+
+$t
+
+Note:
+This email was sent to you as a configured security scan escalation.
+Please contact your local system administrator if you think you
+should not have received it.
+""": "message",
+                                    "2": "notice", senderEmail: "from_address",
+                                    "[OpenVAS-Manager] Task": "subject",
+                                    "c402cc3e-b531-11e1-9163-406186ea4fc5": "notice_attach_format",
+                                    recipientEmail: "to_address"
+                                    }])
+        alert_object = gmp.get_alerts(filter='name=%s' % recipientEmail)
+        alert = alert_object.xpath('alert')
+        alert_id = alert[0].get('id', 'no id found')
+    else:
+        alert_id = alert[0].get('id', 'no id found')
+        if debug:
+            print("alert_id: %s" % str(alert_id))
+
+    # second configurable alert name
+    alert_name2 = "%s-2"%recipientEmail
+
+    # create second alert if necessarry
+    alert_object2 = gmp.get_alerts(filter='name=%s' % alert_name2)
+    alert_id2 = None
+    alert2 = alert_object2.xpath('alert')
+    if len(alert2) == 0:
+        print("creating alert")
+        gmp.create_alert(alert_name2, ["Always"],
+                         ["Task run status changed", {"status": "Done"}],
+                         ["Email", {"""Task '$n': $e
+
+After the event $e,
+the following condition was met: $c
+
+This email escalation is configured to attach report format '$r'.
+Full details and other report formats are available on the scan engine.
+
+$t
+
+Note:
+This email was sent to you as a configured security scan escalation.
+Please contact your local system administrator if you think you
+should not have received it.
+""": "message",
+                                    "2": "notice", senderEmail: "from_address",
+                                    "[OpenVAS-Manager] Task": "subject",
+                                    recipientEmail: "to_address"
+                                    }])
+        alert_object2 = gmp.get_alerts(filter='name=%s' % recipientEmail)
+        alert2 = alert_object2.xpath('alert')
+        alert_id2 = alert2[0].get('id', 'no id found')
+    else:
+        alert_id2 = alert2[0].get('id', 'no id found')
+        if debug:
+            print("alert_id2: %s" % str(alert_id2))
+
+    # Create the task
+    res = gmp.get_scanners()
+    scanner_ids = res.xpath('scanner/@id')
+    scanner_id = scanner_ids[1] # default scanner
+    task_name = "name%s" % str(counter)
+    task_comment = "test comment"
+    alerts = [alert_id,alert_id2]
+    res = gmp.create_task(task_name, config_id, target_id, scanner_id, alerts, task_comment)
+    # Start the task
+    task_id = res.xpath('@id')[0]
+    gmp.start_task(task_id)
+    print('Task started: %s' % task_name)
+
+    if debug:
+        # Stop the task (for performance reasons)
+        gmp.stop_task(task_id)
+        print('Task stopped')
+except:
+    raise
+else:
+    print("\nScript finished\n")
