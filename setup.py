@@ -53,7 +53,7 @@ setup(
     license='GPL v3',
 
     packages=find_packages(),
-    install_requires=['paramiko', 'lxml'],
+    install_requires=['paramiko', 'lxml', 'defusedxml'],
     entry_points={
         'console_scripts': [
             'gvm-pyshell=gmp.clients.gvm_pyshell:main',
