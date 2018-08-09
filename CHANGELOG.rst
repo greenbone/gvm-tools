@@ -7,6 +7,23 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 
+gvm-tools 1.4.1 (2018-08-10)
+----------------------------
+
+This is the first maintenance release of the gvm-tools module 1.4 for the
+Greenbone Vulnerability Management (GVM) framework.
+
+This release covers bug fixes in 'create' and 'modify' methods.
+
+Many thanks to everyone who has contributed to this release:
+Raphael Grewe, Juan Jose Nicola and Jan-Oliver Wagner
+
+Main changes compared to gvm-tools-1.4.0:
+
+* Fix bugs for create and modify command methods.
+* Improve unit tests.
+* Improve documentation.
+
 gvm-tools 1.4.0 (2018-08-09)
 ----------------------------
 
