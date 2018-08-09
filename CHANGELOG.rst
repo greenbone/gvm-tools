@@ -1,3 +1,42 @@
+SUMMARY OF RELEASE CHANGES FOR GVM-TOOLS
+=======================================
+
+For detailed code changes, please visit
+https://github.com/greenbone/gvm-tools/commits/master
+or get the entire source code repository and view log history:
+$ git clone https://github.com/greenbone/gvm-tools.git
+$ cd gvm-tools && git log
+
+gvm-tools 1.4.0 (2018-08-09)
+----------------------------
+
+This is the first release of the gvm-tools module 1.4 for the
+Greenbone Vulnerability Management (GVM) framework.
+
+This release covers bug fixes, robustness improvements and an extended GMP
+scripts collection.
+
+Many thanks to everyone who has contributed to this release:
+Raphael Grewe, Mirko Hansen, Henning Häcker, David Kleuker, Juan Jose Nicola,
+Timo Pollmeier, Bjoern Ricks, Joshua Schwartz, Jan-Oliver Wagner and
+Michael Wiegand.
+
+Main changes compared to gvm-tools-1.4.0:
+
+* Correct XML encoding for commands
+* Fix bug for long GMP commands through SSHConnection
+* Add new GMP scripts: create_targets_from_host_list.gmp,
+  gen-random-targets.gmp, send-schedules.gmp, send-targets.gmp,
+  send-tasks.gmp, send_delta_emails.gmp, startAlertScan.gmp,
+  update-task-target.gmp.
+* Improve and extend 'create' and 'modify' command methods
+* Add support for accessing the raw response
+* Improve unit tests
+* Allow anonymous connections
+* Require lxml and defusedxml python modules
+* Improve documentation
+* Several code improvements
+
 1.3.1 - 2017-12-14
 ------------------
 * Improved stability with ssh connections again

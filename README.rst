@@ -16,7 +16,7 @@ Vulnerability Manager (GVM). The tools essentially aid accessing
 the communication protocols GMP (Greenbone Management Protocol) and
 OSP (Open Scanner Protocol).
 
-**Current Version: 1.3.1**
+**Current Version: 1.4.0**
 
 This module is comprised of interactive and non-interactive clients
 as well as supporting libraries. The programming language Python
@@ -31,6 +31,7 @@ GVM-Tools requires Python >= 3 along with the following libraries::
 - python3-paramiko
 - python3-lxml
 - python3-dialog
+- python3-defusedxml
 
 Some scripts need additional requirements.
 
