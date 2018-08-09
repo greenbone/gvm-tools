@@ -35,7 +35,8 @@ from gmp.gmp import _gmp
 logger = logging.getLogger(__name__)
 
 BUF_SIZE = 1024
-
+DEFAULT_READ_TIMEOUT = 60 # in seconds
+DEFAULT_TIMEOUT = 60 # in seconds
 
 class GMPError(Exception):
     pass
@@ -61,6 +62,18 @@ class GVMConnection:
 
         # initialize variables
         self.sock = None
+        self.first_element = None
+        self.parser = None
+        self.cmd = None
+
+    def valid_xml(self):
+        for action, obj in self.parser.read_events():
+            if not self.first_element and action in 'start':
+                self.first_element = obj.tag
+
+            if self.first_element and action in 'end' and str(self.first_element) == str(obj.tag):
+                return True
+        return False
 
     def readAll(self):
         # just a stub
@@ -819,7 +832,7 @@ class SSHConnection(GVMConnection):
         self.hostname = kwargs.get('hostname', '127.0.0.1')
         self.port = kwargs.get('port', 22)
         self.raw_response = kwargs.get('raw_response', False)
-        self.timeout = kwargs.get('timeout', 5)
+        self.timeout = kwargs.get('timeout', DEFAULT_TIMEOUT)
         self.ssh_user = kwargs.get('ssh_user', 'gmp')
         self.ssh_password = kwargs.get('ssh_password', '')
         self.shell_mode = kwargs.get('shell_mode', False)
@@ -849,7 +862,7 @@ class SSHConnection(GVMConnection):
         self.first_element = None
         self.parser = etree.XMLPullParser(('start', 'end'))
 
-        response = b''
+        response = ''
 
         while True:
             data = self.stdout.channel.recv(BUF_SIZE)
@@ -859,11 +872,11 @@ class SSHConnection(GVMConnection):
 
             self.parser.feed(data)
 
-            response += data
+            response += data.decode('utf-8')
 
             if self.valid_xml():
                 break
-        return response.decode('utf-8')
+        return response
 
     def cmdSplitter(self, max_len):
         """ Receive the cmd string longer than max_len
@@ -896,16 +909,6 @@ class SSHConnection(GVMConnection):
         else:
             self.stdin.channel.send(self.cmd)
 
-    def valid_xml(self):
-        for action, obj in self.parser.read_events():
-            if not self.first_element and action in 'start':
-                self.first_element = obj.tag
-
-            if self.first_element and action in 'end' and str(self.first_element) == str(obj.tag):
-                return True
-        return False
-
-
 class TLSConnection(GVMConnection):
     """TLS class to connect, read and write from GVM via tls secured socket
 
@@ -920,7 +923,7 @@ class TLSConnection(GVMConnection):
         self.hostname = kwargs.get('hostname', '127.0.0.1')
         self.port = kwargs.get('port', 9390)
         self.raw_response = kwargs.get('raw_response', False)
-        self.timeout = kwargs.get('timeout', 60)
+        self.timeout = kwargs.get('timeout', DEFAULT_TIMEOUT)
         self.shell_mode = kwargs.get('shell_mode', False)
         self.cert = kwargs.get('certfile', None)
         self.cacert = kwargs.get('cafile', None)
@@ -969,24 +972,36 @@ class UnixSocketConnection(GVMConnection):
         self.sockpath = kwargs.get('sockpath',
                                    '/usr/local/var/run/gvmd.sock')
         self.shell_mode = kwargs.get('shell_mode', False)
-        self.timeout = kwargs.get('timeout', 60)
+        self.timeout = kwargs.get('timeout', DEFAULT_TIMEOUT)
+        self.read_timeout = kwargs.get('read_timeout', DEFAULT_READ_TIMEOUT)
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) #pylint: disable=E1101
         self.sock.settimeout(self.timeout)
         self.sock.connect(self.sockpath)
 
     def readAll(self):
+        self.first_element = None
+        self.parser = etree.XMLPullParser(('start', 'end'))
         response = ''
-        while True:
-            data = self.sock.recv(BUF_SIZE)
-            # Todo: Why does the sleep helps here? Sometimes it will break
-            # here because the message is missing some bytes at the end.
-            # Same script and with tls or ssh, then it works flawless without
-            # "sleep()"
-            time.sleep(0.000001)
-            response += data.decode()
-            if len(data) < BUF_SIZE:
-                break
 
+        read_timeout = self.read_timeout
+        break_timeout = time.time() + read_timeout
+        old_timeout = self.sock.gettimeout()
+        self.sock.settimeout(5)  # in seconds
+
+        while time.time() < break_timeout:
+            data = b''
+            try:
+                data = self.sock.recv(BUF_SIZE)
+            except (socket.timeout) as exception:
+                logger.debug('Warning: No data recieved from server: {0}'.format(exception))
+                continue
+            self.parser.feed(data)
+            response += data.decode('utf-8')
+            if len(data) < BUF_SIZE:
+                if self.valid_xml():
+                    break
+
+        self.sock.settimeout(old_timeout)
         return response
 
     def sendAll(self, cmd):
