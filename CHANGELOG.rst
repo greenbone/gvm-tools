@@ -21,7 +21,7 @@ Raphael Grewe, Mirko Hansen, Henning Häcker, David Kleuker, Juan Jose Nicola,
 Timo Pollmeier, Bjoern Ricks, Joshua Schwartz, Jan-Oliver Wagner and
 Michael Wiegand.
 
-Main changes compared to gvm-tools-1.4.0:
+Main changes compared to gvm-tools-1.3.1:
 
 * Correct XML encoding for commands
 * Fix bug for long GMP commands through SSHConnection
