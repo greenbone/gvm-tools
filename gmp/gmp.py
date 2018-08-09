@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from lxml import etree
-import defusedxml.ElementTree as secET
+import defusedxml.lxml as secET
 
 
 class _gmp:
@@ -521,7 +521,6 @@ class _gmp:
 
         task_id = kwargs.get('task_id', '')
         task_name = kwargs.get('task_name', '')
-        task = ''
 
         xmlRoot = etree.Element('create_report')
         comment = kwargs.get('comment', '')
@@ -543,7 +542,7 @@ class _gmp:
             _xmlInAsset.text = in_assets
 
         xmlReport = secET.fromstring(report_xml_string)
-        xmlRoot.append(Report)
+        xmlRoot.append(xmlReport)
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
@@ -854,7 +853,7 @@ class _gmp:
 
         if hosts is not None:
             _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(host_allow))
+                                         allow=str(hosts_allow))
             _xmlHosts.text = hosts
 
         if ifaces is not None:
@@ -953,7 +952,7 @@ class _gmp:
         for key, value in auth_conf_settings.items():
             _xmlAuthConf = etree.SubElement(_xmlGroup, 'auth_conf_setting')
             _xmlKey = etree.SubElement(_xmlAuthConf, 'key')
-            _xmlKey.text = Key
+            _xmlKey.text = key
             _xmlValue = etree.SubElement(_xmlAuthConf, 'value')
             _xmlValue.text = value
 
@@ -991,7 +990,7 @@ class _gmp:
                 for nvt in nvt_oid:
                     _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
             else:
-                    _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
+                _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
 
         elif selection in 'family_selection':
             family = kwargs.get('family')
@@ -1323,7 +1322,7 @@ class _gmp:
             raise Exception('modify_report_format: Missing parameter')
 
         xmlRoot = etree.Element('modify_report_format',
-                                report_format_id=repor_format_id)
+                                report_format_id=report_format_id)
 
         active = kwargs.get('active', '')
         if active:
@@ -1507,7 +1506,7 @@ class _gmp:
             resource_id = resource['id']
             resource_type = resource['type']
             _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            resource_id=resource)
+                                            resource_id=resource_id)
             _xmlRType = etree.SubElement(_xmlResource, 'type')
             _xmlRType.text = resource_type
 
@@ -1595,7 +1594,7 @@ class _gmp:
 
         scanner = kwargs.get('scanner', '')
         if scanner:
-            _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
+            _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner)
 
         schedule_periods = kwargs.get('schedule_periods', '')
         if schedule_periods:
@@ -1617,7 +1616,6 @@ class _gmp:
 
         preferences = kwargs.get('preferences', '')
         if preferences:
-            preferences_list = []
             _xmlPrefs = etree.SubElement(xmlRoot, 'preferences')
             for n in range(len(preferences["scanner_name"])):
                 preferences_scanner_name = preferences["scanner_name"][n]
@@ -1660,7 +1658,6 @@ class _gmp:
             _xmlPass.text = password
 
         role_ids = kwargs.get('role_ids', '')
-        role_txt = ''
         if len(role_ids) > 0:
             for role in role_ids:
                 _xmlRole = etree.SubElement(xmlRoot, 'role',
@@ -1669,7 +1666,7 @@ class _gmp:
         hosts_allow = kwargs.get('hosts_allow', '')
         if hosts or hosts_allow:
             _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(host_allow))
+                                         allow=str(hosts_allow))
             _xmlHosts.text = hosts
 
         ifaces = kwargs.get('ifaces', '')
