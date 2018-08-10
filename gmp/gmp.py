@@ -25,7 +25,7 @@ import defusedxml.lxml as secET
 
 
 class _gmp:
-    """GMP - Greenbone Manager Protocol
+    """GMP - Greenbone Management Protocol
     """
 
     def createAgentCommand(self, installer, signature, name, comment='',
