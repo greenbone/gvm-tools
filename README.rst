@@ -33,6 +33,10 @@ GVM-Tools requires Python >= 3 along with the following libraries::
 - python3-dialog
 - python3-defusedxml
 
+The file 'requirements.txt' is used for CI tests to ensure the CI tests
+happen in a defined known-good environment and are not affected by sudden
+changes in the dependent modules.
+
 Some scripts need additional requirements.
 
 Installing
