@@ -24,6 +24,28 @@
 import unittest
 from gmp.gmp import _gmp
 
+class GMPCreateFilterCommandTestCase(unittest.TestCase):
+    FILTER_NAME = "special filter"
+
+    def setUp(self):
+        self.gmp = _gmp()
+
+    def test_AllAvailableFilters_CorrectCmd(self):
+        filter_names_list = ['Agent', 'Alert', 'Asset', 'Credential',
+             'Filter', 'Group', 'Note', 'Override', 'Permission', 'Port List',
+              'Report', 'Report Format', 'Result', 'Role', 'Schedule', 'SecInfo',
+               'Config', 'Tag', 'Target', 'Task', 'User']
+        for filter_name in filter_names_list:
+            cmd = self.gmp.createFilterCommand(name=self.FILTER_NAME, make_unique=True,
+                  kwargs={'term': 'sort-reverse=threat result_hosts_only=1 notes=1 \
+                  overrides=1 levels=hml first=1 rows=1000', 'type': filter_name})
+            self.assertEqual('<create_filter><name>{0}<make_unique>True'\
+                             '</make_unique></name><term>sort-reverse=threat '\
+                             'result_hosts_only=1 notes=1                   '\
+                             'overrides=1 levels=hml first=1 rows=1000</term>'\
+                             '<type>{1}</type></create_filter>'.format(self.FILTER_NAME,
+                             filter_name),cmd)
+
 class GMPCreateTaskCommandTestCase(unittest.TestCase):
 
     TASK_NAME = "important task"
