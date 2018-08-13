@@ -36,6 +36,15 @@ class GMPCreateTaskCommandTestCase(unittest.TestCase):
     def setUp(self):
         self.gmp = _gmp()
 
+    def test_WithoutAlert_CorrectCmd(self):
+        cmd = self.gmp.createTaskCommand(
+            self.TASK_NAME, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID, comment=self.COMMENT)
+
+        self.assertEqual('<create_task><name>{0}</name><comment>{1}</comment>' \
+                         '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
+                         '</create_task>'.format(self.TASK_NAME, 
+                         self.COMMENT, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID), cmd)
+
     def test_SingleAlert_CorrectCmd(self):
         cmd = self.gmp.createTaskCommand(
             self.TASK_NAME, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID,self.ALERT_ID, self.COMMENT)
