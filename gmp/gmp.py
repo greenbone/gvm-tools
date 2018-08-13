@@ -74,7 +74,7 @@ class _gmp:
             methods += '</method>'
 
         if filter_id:
-            filter_id = '<filter id=%s/>' % filter_id
+            filter_id = '<filter id="%s"/>' % filter_id
 
         if copy:
             copy = '<copy>%s</copy>' % copy
@@ -218,7 +218,10 @@ class _gmp:
 
         filter_type = kwargs.get('type', '')
         if filter_type:
-            if filter_type not in ('cc', 'snmp', 'up', 'usk'):
+            if filter_type not in ('Agent', 'Alert', 'Asset', 'Credential',
+             'Filter', 'Group', 'Note', 'Override', 'Permission', 'Port List',
+              'Report', 'Report Format', 'Result', 'Role', 'Schedule', 'SecInfo',
+               'Config', 'Tag', 'Target', 'Task', 'User'):
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
             filter_type = '<type>%s</type>' % filter_type
