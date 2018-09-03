@@ -87,7 +87,7 @@ class _gmp:
 
         if len(method) > 1:
             _xmlMethods = etree.SubElement(xmlRoot, 'method')
-            _xmlMethods = method[0]
+            _xmlMethods.text = method[0]
             for value, key in method[1].items():
                 _xmlData = etree.SubElement(_xmlMethods, 'data')
                 _xmlData.text = value
@@ -99,11 +99,11 @@ class _gmp:
 
         if copy:
             _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy = copy
+            _xmlCopy.text = copy
 
         if comment:
             _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment = comment
+            _xmlComment.text = comment
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
