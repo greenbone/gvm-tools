@@ -85,6 +85,14 @@ Reads a file with GMP commands and return the result.
 gvm-cli socket --gmp-username foo --gmp-password bar < myfile.gmp
 ```
 
+Note that `gvm-cli` will by default raise an exception when a command is
+rejected by the server. If this kind of error handling is not desired, the
+unparsed XML response can be requested using the `--raw` parameter:
+
+```
+gvm-cli socket --raw --xml "<authenticate/>"
+```
+
 ### gvm-pyshell
 
 This tool has a lot more features than the simple gvm-cli client. You
