@@ -34,7 +34,7 @@ from sys import version_info, exit
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open('README.md', 'r', 'utf-8') as f:
     long_description = f.read()
 
 with open(path.join(here, 'VERSION'), encoding='utf-8') as f:
@@ -48,6 +48,7 @@ setup(
     version=version,
     description='Library and clients to speak with GVM over GMP or OSP',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Raphael Grewe',
     author_email='raphael.grewe@greenbone.net',
     license='GPL v3',

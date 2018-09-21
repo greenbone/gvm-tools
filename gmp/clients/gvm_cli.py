@@ -122,6 +122,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     parent_parser.add_argument('--gmp-username', help='GMP username.')
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument('-X', '--xml', help='The XML request to send.')
+    parent_parser.add_argument('-r', '--raw', help='Return raw XML.',
+                               action='store_true', default=False)
     parent_parser.add_argument('infile', nargs='?', type=open,
                                default=sys.stdin)
     parser_ssh = subparsers.add_parser(
@@ -193,14 +195,15 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     try:
         if 'socket' in args.connection_type:
             gvm = UnixSocketConnection(sockpath=args.sockpath,
+                                       raw_response=args.raw,
                                        timeout=args.timeout)
         elif 'tls' in args.connection_type:
             gvm = TLSConnection(hostname=args.hostname, port=9390,
-                                timeout=args.timeout)
+                                raw_response=args.raw, timeout=args.timeout)
         else:
             gvm = SSHConnection(
                 hostname=args.hostname, port=args.port, timeout=args.timeout,
-                ssh_user=args.ssh_user, ssh_password='')
+                raw_response=args.raw, ssh_user=args.ssh_user, ssh_password='')
     except Exception as e:
         print(e)
         sys.exit(1)
