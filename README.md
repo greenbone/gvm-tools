@@ -1,10 +1,15 @@
-[![image](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
+<img src="https://www.greenbone.net/wp-content/uploads/01_Logo-mit-Schriftzug_500px_on_white_horiz1.jpg" alt="Greenbone Logo" width="400px">
 
-# GVM-Tools
+# Greenbone Vulnerability Management Tools
+
+[![GitHub release](https://img.shields.io/github/release/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/gvm-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/gvm-tools/?branch=master)
+[![codecov](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
+[![CircleCI](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
 
 ## Introduction
 
-*GVM-Tools* is a collection of tools that help with remote controlling a
+The Greenbone Vulnerability Management Tools or GVM-Tools in short are a collection of tools that help with remote controlling a
 Greenbone Security Manager (GSM) appliance and its underlying Greenbone
 Vulnerability Manager (GVM). The tools essentially aid accessing the
 communication protocols GMP (Greenbone Management Protocol) and OSP
