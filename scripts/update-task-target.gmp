@@ -4,7 +4,6 @@
 #
 # Authors:
 # Joshua Schwartz <joshua.schwartz@greenbone.net>
-# Junbo Huang <junbo.huang@greenbone.net>
 #
 # Copyright:
 # Copyright (C) 2018 Greenbone Networks GmbH
@@ -29,7 +28,7 @@ len_args = len(args.script) - 1
 if len_args is not 2:
     message = """
     This script will update target hosts information for a desired task.
-    Two parameters after the script name is required.
+    Two parameters after the script name are required.
 
     1. <hosts_file> --.csv file containing desired target hosts
     2. <task_uuid>  --uuid of task to be modified
@@ -63,76 +62,68 @@ def load_host_file(filename):
             if len(host) == 0:
                 continue
             host_list.append(host)
+
     except IOError as e:
         error_and_exit("Failed to read host_file: {} (exit)".format(str(e)))
 
     if len(host_list) == 0:
         error_and_exit("Host file is empty (exit)")
 
-    return host_list
+    hosts_string = ', '.join(map(str, host_list))
+
+    return hosts_string
 
 
-def copy_send_target(hosts_string, task_name, old_target_id):
+def copy_send_target(old_target_id):
+    hosts_string = load_host_file(hosts_file)
+    keywords = {
+                'make_unique': True,
+                'hosts': hosts_string
+                }
+
+    keywords['comment'] = 'This target was automatically modified: {}'\
+                          .format(time.strftime("%Y/%m/%d-%H:%M:%S"))
+
     old_target = gmp.get_targets(target_id=old_target_id)[0]
-    name = old_target.find('name').text
 
-    comment = 'This target was automatically modified: {}'\
-              .format(time.strftime("%Y/%m/%d-%H:%M:%S"))
-   
-    reverse_lookup_only = old_target.find('reverse_lookup_only').text
-    if reverse_lookup_only is '0':
-        reverse_lookup_only = ''
-    
-    reverse_lookup_unify = old_target.find('reverse_lookup_unify').text
-    if reverse_lookup_unify is '0':
-        reverse_lookup_unify = ''
-    
-    port_list = {}
-    port_list['id'] = old_target.xpath('port_list/@id')[0]
+    objekts = ['reverse_lookup_only', 'reverse_lookup_unify', 'name']
+    for objekt in objekts:
+        var = old_target.xpath('{}/text()'.format(objekt))[0]
+        if var is '0':
+            var = ''
+        keywords['{}'.format(objekt)] = var
 
-    new_target = gmp.create_target(
-                                   name=name,
-                                   make_unique=True,
-                                   hosts=hosts_string,
-                                   comment=comment,
-                                   reverse_lookup_only=reverse_lookup_only,
-                                   reverse_lookup_unify=reverse_lookup_unify,
-                                   port_list=port_list
-                                   )
+    keywords['port_list'] = {'id': old_target.xpath('port_list/@id')[0]}
+
+    new_target_id = gmp.create_target(**keywords).xpath('@id')[0]
 
     print('\n  New target created!\n')
-    print('Target id: {}'.format(new_target.xpath('@id')[0]))
-    print('Target name: {}\n'.format(name))
-
-    return new_target
-
-
-def create_target_hosts(host_list, task_id, task_name, old_target_id):
-    map(str.strip, host_list)
-    hosts_string = ", ".join(host_list)
-    new_target = copy_send_target(hosts_string, task_name, old_target_id)
-
-    new_target_id = new_target.xpath('@id')[0]
-    modify_task_target(new_target_id, task_id)
+    print('Target_id:   {}'.format(new_target_id))
+    print('Target_name: {}\n'.format(keywords['name']))
 
     return new_target_id
 
 
-def modify_task_target(new_target_id, task_id):
+def create_target_hosts(task_id, old_target_id):
+    new_target_id = copy_send_target(old_target_id)
+
     gmp.modify_task(
                     task_id=task_id,
                     target_id=new_target_id
                     )
 
+    print('  Task successfully modified!\n')
+
 
 def main(hosts_file, task_id):
-    hosts_list = load_host_file(hosts_file)
     task = gmp.get_tasks(task_id=task_id)[1]
-    task_name = task.find('name').text
     old_target_id = task.xpath('target/@id')[0]
+    create_target_hosts(task_id, old_target_id)
+    try:
+        gmp.delete_target(target_id=old_target_id)
 
-    create_target_hosts(hosts_list, task_id, task_name, old_target_id)
-    gmp.delete_target(target_id=old_target_id)
+    except GMPError as e:
+        pass
 
 main(hosts_file, task_id)
 sys.exit(0)
