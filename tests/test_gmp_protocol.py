@@ -32,7 +32,7 @@ class GMPCreateFilterCommandTestCase(unittest.TestCase):
 
     def test_AllAvailableFilters_CorrectCmd(self):
         for filter_name in self.gmp.FILTER_NAMES:
-            cmd = self.gmp.createFilterCommand(name=self.FILTER_NAME, make_unique=True,
+            cmd = self.gmp.createFilterCommand(name=self.FILTER_NAME, make_unique="True",
                   kwargs={'term': 'sort-reverse=threat result_hosts_only=1 notes=1 \
                   overrides=1 levels=hml first=1 rows=1000', 'type': filter_name})
             self.assertEqual('<create_filter><name>{0}<make_unique>True'\
