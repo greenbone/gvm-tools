@@ -443,5 +443,66 @@ class GMPCreateTargetCommandTestCase(unittest.TestCase):
                 str(context.exception))
 
 
+class GMPCreateReportCommandTestCase(unittest.TestCase):
+    TASK_ID = '00000000-0000-0000-0000-000000000001'
+    TASK_NAME = 'unit test task'
+    COMMENT = 'This is a comment'
+    REPORT_XML_STRING = (
+        '<report id="67a62fb7-b238-4f0e-bc48-59bde8939cdc"><results max="1"' +
+        ' start="1"><result id="f180b40f-49dd-4856-81ed-8c1195afce80">' +
+        '<severity>0.0</severity><nvt oid="1.3.6.1.4.1.25623.1.0.10330"/>' +
+        '<host>132.67.253.114</host></result></results></report>'
+    )
+
+    def setUp(self):
+        self.gmp = _gmp()
+
+    def tearDown(self):
+        pass
+
+    def test_Create_ReportCmd_Taskid(self):
+        cmd = self.gmp.createReportCommand(self.REPORT_XML_STRING,
+                                           {
+                                               'task_id': self.TASK_ID,
+                                           })
+
+        self.assertEqual('<create_report><task id="' + self.TASK_ID + '"/>' +
+                         self.REPORT_XML_STRING + '</create_report>',
+                         cmd)
+
+    def test_Create_ReportCmd_Taskname(self):
+        cmd = self.gmp.createReportCommand(self.REPORT_XML_STRING,
+                                           {
+                                               'task_name': self.TASK_NAME,
+                                               'comment': self.COMMENT,
+                                           })
+
+        self.assertEqual('<create_report><task>' +
+                         '<name>' + self.TASK_NAME + '</name>' +
+                         '<comment>' + self.COMMENT + '</comment>' +
+                         '</task>' + self.REPORT_XML_STRING + '</create_report>',
+                         cmd)
+
+    def test_Create_ReportCmd_noreport(self):
+        NO_REPORT = None
+        args = {
+            'task_name': self.TASK_NAME,
+            'comment': self.COMMENT,
+        }
+
+        self.assertRaises(ValueError,
+                          self.gmp.createReportCommand,
+                          NO_REPORT,
+                          args
+        )
+
+    def test_Create_ReportCmd_notask(self):
+        args = {'comment': self.COMMENT}
+        self.assertRaises(ValueError,
+                          self.gmp.createReportCommand,
+                          self.REPORT_XML_STRING,
+                          args
+        )
+
 if __name__ == '__main__':
     unittest.main()
