@@ -221,7 +221,7 @@ class _gmp:
 
         filter_type = kwargs.get('type', '')
         if filter_type:
-            if filter_type not in FILTER_NAMES:
+            if filter_type not in self.FILTER_NAMES:
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
             filter_type = '<type>%s</type>' % filter_type
