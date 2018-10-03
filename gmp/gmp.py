@@ -839,7 +839,7 @@ class _gmp:
           if isinstance(alert_ids, str):
             #if a single id is given as a string wrap it into a list
             alert_ids=[alert_ids]
-          if isinstance(alert_id, list):
+          if isinstance(alert_ids, list):
             #parse all given alert id's
             for alert in alert_ids:
               _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
