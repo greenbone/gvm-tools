@@ -825,7 +825,9 @@ class _gmp:
         return etree.tostring(xmlRoot).decode('utf-8')
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          alert_ids=[], comment=''):
+                          alert_ids=None, comment=''):
+        if alert_ids is None:
+            alert_ids = []
         xmlRoot = etree.Element('create_task')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
