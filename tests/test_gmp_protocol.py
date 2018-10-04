@@ -63,7 +63,7 @@ class GMPCreateTaskCommandTestCase(unittest.TestCase):
         self.assertEqual('<create_task><name>{0}</name><comment>{1}</comment>' \
                          '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
                          '<alert id="{5}"/><alert id="{6}"/><alert id="{7}"/>' \
-                         '</create_task>'.format(self.TASK_NAME, 
+                         '</create_task>'.format(self.TASK_NAME,
                          self.COMMENT, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID, self.ALERT_ID,
                          alert_id2, alert_id3), cmd)
 
