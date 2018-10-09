@@ -24,8 +24,8 @@
 debug = True  # flag for debugging information output
 
 # IMPORTANT: change both email addresses to make this work
-recipientEmail = "hhaecker@inovex.de"
-senderEmail = "hhaecker@inovex.de"
+recipientEmail = "alice@example.org"
+senderEmail = "bob@example.org"
 
 if recipientEmail == "alice@example.org" or senderEmail == "bob@example.org":
     print("WARNING: please change both email addresses first")
