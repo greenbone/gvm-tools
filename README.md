@@ -3,6 +3,7 @@
 # Greenbone Vulnerability Management Tools
 
 [![GitHub release](https://img.shields.io/github/release/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
+[![PyPI](https://img.shields.io/pypi/v/gvm-tools.svg)](https://pypi.org/project/gvm-tools/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/gvm-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/gvm-tools/?branch=master)
 [![codecov](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
 [![CircleCI](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
@@ -32,7 +33,7 @@ GVM-Tools requires Python >= 3 along with the following libraries:
     - python3-dialog
     - python3-defusedxml
 
-The file 'requirements.txt' is used for CI tests to ensure the CI tests
+The file `requirements.txt` is used for CI tests to ensure the CI tests
 happen in a defined known-good environment and are not affected by
 sudden changes in the dependent modules.
 
@@ -40,18 +41,13 @@ Some scripts need additional requirements.
 
 ## Installing
 
-To install it, after downloading the repository, you can use `pip` like
-that:
+You can install the latest stable release of gvm-tools from the Python Package Index using [pip](https://pip.pypa.io/):
+
+    pip install gvm-tools
+
+alternatively download or clone this repository and install the latest development version:
 
     pip install .
-
-Otherwise you can use python itself to install it:
-
-    # System
-    python3 setup.py install
-
-    # Local
-    python3 setup.py install --user
 
 ## Clients
 
