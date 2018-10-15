@@ -920,8 +920,19 @@ class TLSConnection(GVMConnection):
         self.raw_response = kwargs.get('raw_response', False)
         self.timeout = kwargs.get('timeout', 60)
         self.shell_mode = kwargs.get('shell_mode', False)
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
+        self.cert = kwargs.get('certfile', None)
+        self.cacert = kwargs.get('cafile', None)
+        self.key = kwargs.get('keyfile', None)
+        if self.cert and self.cacert and self.key:
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH,
+                                                 cafile=self.cacert)
+            context.check_hostname = False
+            context.load_cert_chain(certfile=self.cert, keyfile=self.key)
+            new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock = context.wrap_socket(new_socket, server_side=False)
+        else:
+            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+            self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
         self.sock.settimeout(self.timeout)
         self.sock.connect((self.hostname, int(self.port)))
 
