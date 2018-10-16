@@ -257,7 +257,10 @@ class _gmp:
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
         _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
-        _xmlUnique.text = make_unique
+        if make_unique:
+            _xmlUnique.text = '1'
+        else:
+            _xmlUnique.text = '0'
 
         comment = kwargs.get('comment', '')
         if comment:
