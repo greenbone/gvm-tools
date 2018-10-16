@@ -27,7 +27,10 @@ import defusedxml.lxml as secET
 class _gmp:
     """GMP - Greenbone Management Protocol
     """
-
+    FILTER_NAMES = ['Agent', 'Alert', 'Asset', 'Credential',
+             'Filter', 'Group', 'Note', 'Override', 'Permission', 'Port List',
+              'Report', 'Report Format', 'Result', 'Role', 'Schedule', 'SecInfo',
+               'Config', 'Tag', 'Target', 'Task', 'User']
     def createAgentCommand(self, installer, signature, name, comment='',
                            copy='', howto_install='', howto_use=''):
 
@@ -273,7 +276,7 @@ class _gmp:
 
         filter_type = kwargs.get('type', '')
         if filter_type:
-            if filter_type not in ('cc', 'snmp', 'up', 'usk'):
+            if filter_type not in self.FILTER_NAMES:
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
             _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
