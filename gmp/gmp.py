@@ -822,7 +822,9 @@ class _gmp:
         return etree.tostring(xmlRoot).decode('utf-8')
 
     def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          alert_id='', comment=''):
+                          alert_ids=None, comment=''):
+        if alert_ids is None:
+            alert_ids = []
         xmlRoot = etree.Element('create_task')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
@@ -831,9 +833,17 @@ class _gmp:
         _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
         _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
         _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
-        # if given the alert_id is wrapped and integrated suitably as xml
-        if len(alert_id) > 0:
-            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert_id))
+
+        #if given the alert_id is wrapped and integrated suitably as xml
+        if len(alert_ids)>0:
+          if isinstance(alert_ids, str):
+            #if a single id is given as a string wrap it into a list
+            alert_ids=[alert_ids]
+          if isinstance(alert_ids, list):
+            #parse all given alert id's
+            for alert in alert_ids:
+              _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
+
         return etree.tostring(xmlRoot).decode('utf-8')
 
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
