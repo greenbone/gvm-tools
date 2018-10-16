@@ -4,11 +4,10 @@ If reporting an issue please try to provide the information asked below.
 Before reporting an issue please:
 
 1. make sure that you're using the latest published GVM components for the
-   release you are using: http://openvas.org/install-source.html.
+   release you are using: https://community.greenbone.net/t/about-the-source-edition-gse-category/176.
 2. check the list of issues whether it isn't already reported.
 3. be aware that this is not a support forum. If your issue is more a question
-   than a bug report, please check http://openvas.org/ for available support
-   options.
+   than a bug report, please use https://community.greenbone.net/c/gmp instead.
 -->
 
 ### Expected behavior
@@ -43,4 +42,3 @@ Before reporting an issue please:
 ```
 
 ```
-
