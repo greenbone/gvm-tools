@@ -73,6 +73,12 @@ Returns the current version.
 gvm-cli socket --xml "<get_version/>"
 ```
 
+Returns the current version using a TLS connection with certificates.
+
+```
+gvm-cli tls --hostname 192.168.0.10 --port 1234 --certfile '/tmp/certs/cert.pem' --keyfile '/tmp/certs/key.pem' --cafile '/tmp/certs/cert.pem' --xml "<get_version/>"
+```
+
 Return all
 tasks.
 

@@ -143,6 +143,12 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                             help='Hostname or IP-Address.')
     parser_tls.add_argument('--port', required=False,
                             default=9390, help='Port. Default: 9390.')
+    parser_tls.add_argument('--certfile', required=False, default=None,
+                            help='Path to the certificate file.')
+    parser_tls.add_argument('--keyfile', required=False, default=None,
+                            help='Path to key certificate file.')
+    parser_tls.add_argument('--cafile', required=False, default=None,
+                            help='Path to CA certificate file.')
 
     parser_socket = subparsers.add_parser(
         'socket', help='Use UNIX-Socket connection for gmp service.',
@@ -198,7 +204,10 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                                        raw_response=args.raw,
                                        timeout=args.timeout)
         elif 'tls' in args.connection_type:
-            gvm = TLSConnection(hostname=args.hostname, port=9390,
+            gvm = TLSConnection(hostname=args.hostname, port=args.port,
+                                certfile=args.certfile,
+                                keyfile=args.keyfile,
+                                cafile=args.cafile,
                                 raw_response=args.raw, timeout=args.timeout)
         else:
             gvm = SSHConnection(
