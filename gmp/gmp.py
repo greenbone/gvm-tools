@@ -846,6 +846,7 @@ class _gmp:
             #parse all given alert id's
             for alert in alert_ids:
               _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
+
         return etree.tostring(xmlRoot).decode('utf-8')
 
     def createUserCommand(self, name, password, copy='', hosts_allow='0',
