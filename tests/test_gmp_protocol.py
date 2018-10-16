@@ -24,6 +24,49 @@
 import unittest
 from gmp.gmp import _gmp
 
+class GMPCreateTaskCommandTestCase(unittest.TestCase):
+
+    TASK_NAME = "important task"
+    CONFIG_ID = "cd0641e7-40b8-4e2c-811e-6b39d6d4b904"
+    TARGET_ID = '267a3405-e84a-47da-97b2-5fa0d2e8995e'
+    SCANNER_ID = 'b64c81b2-b9de-11e3-a2e9-406186ea4fc5'
+    ALERT_ID = '3ab38c6a-30ac-407a-98db-ad6e74c98b9a'
+    COMMENT = 'this task has been created for test purposes'
+
+    def setUp(self):
+        self.gmp = _gmp()
+
+    def test_WithoutAlert_CorrectCmd(self):
+        cmd = self.gmp.createTaskCommand(
+            self.TASK_NAME, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID, comment=self.COMMENT)
+
+        self.assertEqual('<create_task><name>{0}</name><comment>{1}</comment>' \
+                         '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
+                         '</create_task>'.format(self.TASK_NAME,
+                         self.COMMENT, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID), cmd)
+
+    def test_SingleAlert_CorrectCmd(self):
+        cmd = self.gmp.createTaskCommand(
+            self.TASK_NAME, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID,self.ALERT_ID, self.COMMENT)
+
+        self.assertEqual('<create_task><name>{0}</name><comment>{1}</comment>' \
+                         '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
+                         '<alert id="{5}"/></create_task>'.format(self.TASK_NAME,
+                         self.COMMENT, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID, self.ALERT_ID), cmd)
+
+    def test_MultipleAlerts_CorrectCmd(self):
+        alert_id2 = 'fb3d6f82-d706-4f99-9e53-d7d85257e25f'
+        alert_id3 = 'a33864a9-d3fd-44b3-8717-972bfb01dfcf'
+        alert_ids = [self.ALERT_ID, alert_id2, alert_id3]
+        cmd = self.gmp.createTaskCommand(
+            self.TASK_NAME, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID, alert_ids, self.COMMENT)
+        self.assertEqual('<create_task><name>{0}</name><comment>{1}</comment>' \
+                         '<config id="{2}"/><target id="{3}"/><scanner id="{4}"/>' \
+                         '<alert id="{5}"/><alert id="{6}"/><alert id="{7}"/>' \
+                         '</create_task>'.format(self.TASK_NAME,
+                         self.COMMENT, self.CONFIG_ID, self.TARGET_ID, self.SCANNER_ID, self.ALERT_ID,
+                         alert_id2, alert_id3), cmd)
+
 class GMPCreateTargetCommandTestCase(unittest.TestCase):
     TARGET_NAME = 'Unittest Target'
     TARGET_HOST = '127.0.0.1'
