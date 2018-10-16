@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # Description:
-# setup file for clients
+# setup script for packaging
 #
 # Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
+# David Kleuker <david.kleuker@greenbone.net>
 #
 # Copyright:
 # Copyright (C) 2017 Greenbone Networks GmbH
@@ -21,40 +20,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A setuptools based setup module.
-"""
-
-# Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-# To use a consistent encoding
-from codecs import open
-from os import path
-from sys import version_info, exit
 
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open('README.md', 'r', 'utf-8') as f:
-    long_description = f.read()
-
-with open(path.join(here, 'VERSION'), encoding='utf-8') as f:
+with open('VERSION', 'r') as f:
     version = f.read()
 
-if version_info < (3,):
-    exit('Python < 3 is not supported')
+with open('README.md', 'r') as f:
+    long_description = f.read()
 
 setup(
     name='gvm-tools',
     version=version,
+    author='Greenbone Networks GmbH',
+    author_email='info@greenbone.net',
     description='Library and clients to speak with GVM over GMP or OSP',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Raphael Grewe',
-    author_email='raphael.grewe@greenbone.net',
-    license='GPL v3',
-
+    url='https://github.com/greenbone/gvm-tools',
     packages=find_packages(),
-    install_requires=['paramiko', 'lxml', 'defusedxml'],
     entry_points={
         'console_scripts': [
             'gvm-pyshell=gmp.clients.gvm_pyshell:main',
@@ -62,8 +45,20 @@ setup(
             'gvm-dialog=gmp.clients.gvm_dialog:main',
         ],
     },
-    data_files=[('', ['VERSION'])],
+    install_requires=['paramiko', 'lxml', 'defusedxml'],
+    python_requires='>=3',
     package_data={
-        '': ['VERSION']
-    }
+        '': ['VERSION'],
+    },
+    classifiers=[
+        # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Programming Language :: Python :: 3',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )
