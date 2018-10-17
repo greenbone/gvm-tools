@@ -9,3 +9,4 @@ paramiko = "*"
 defusedxml = "*"
 
 [dev-packages]
+coverage = "*"
