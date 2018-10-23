@@ -883,7 +883,7 @@ class SSHConnection(GVMConnection):
         Input:
            max_len  The max length of a block to be sent.
         """
-        i_start = 0;
+        i_start = 0
         i_end = max_len
         sent_bytes = 0
         while sent_bytes < len(self.cmd):
