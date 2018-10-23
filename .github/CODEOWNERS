@@ -1,2 +1,5 @@
 # default reviewers
 *                 @greenbone/gvm-dev
+
+# pylint config
+.pylintrc         @bjoernricks @wiegandm @davidak
