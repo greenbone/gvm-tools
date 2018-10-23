@@ -859,7 +859,7 @@ class SSHConnection(GVMConnection):
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
                 paramiko.SSHException, OSError) as e:
-            logger.debug('SSH Connection failed: ' + str(e))
+            logger.debug('SSH Connection failed: %s', e)
             raise
 
     def read_all(self):
@@ -905,11 +905,11 @@ class SSHConnection(GVMConnection):
         return sent_bytes
 
     def send_all(self, cmd, max_len=4095):
-        logger.debug('SSH:send(): ' + cmd)
+        logger.debug('SSH:send(): %s', cmd)
         self.cmd = str(cmd)
         if len(self.cmd) > max_len:
             sent_bytes = self.cmd_splitter(max_len)
-            logger.debug("SSH: {0} bytes sent.".format(sent_bytes))
+            logger.debug("SSH: %i bytes sent.", sent_bytes)
         else:
             self.stdin.channel.send(self.cmd)
 
