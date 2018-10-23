@@ -209,7 +209,7 @@ class GVMConnection:
         else:
             return self.ask_yes_or_no(text)
 
-    def authenticate(self, username, password, withCommand=''):
+    def authenticate(self, username, password):
         """Authenticate on GVM.
 
         The generated authenticate command will be send to server.
@@ -218,14 +218,12 @@ class GVMConnection:
         Keyword Arguments:
             username {str} -- Username
             password {str} -- Password
-            withCommands {str} -- XML commands (default: {''})
 
         Returns:
             None or <string> -- Response from server.
         """
         cmd = self.gmp_generator.create_authenticate_command(
-            username=username, password=password,
-            withCommands=str(withCommand))
+            username=username, password=password)
 
         self.send(cmd)
         return self.read()
