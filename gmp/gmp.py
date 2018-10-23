@@ -71,7 +71,8 @@ class GVMConnection:
             if not self.first_element and action in 'start':
                 self.first_element = obj.tag
 
-            if self.first_element and action in 'end' and str(self.first_element) == str(obj.tag):
+            if self.first_element and action in 'end' and \
+                    str(self.first_element) == str(obj.tag):
                 return True
         return False
 
@@ -853,7 +854,8 @@ class SSHConnection(GVMConnection):
                 port=int(self.port),
                 allow_agent=False,
                 look_for_keys=False)
-            self.stdin, self.stdout, self.stderr = self.sock.exec_command("", get_pty=False)
+            self.stdin, self.stdout, self.stderr = self.sock.exec_command(
+                "", get_pty=False)
 
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
