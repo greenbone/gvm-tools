@@ -844,14 +844,15 @@ class GmpCommandFactory:
         _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
 
         #if given the alert_id is wrapped and integrated suitably as xml
-        if len(alert_ids)>0:
-          if isinstance(alert_ids, str):
-            #if a single id is given as a string wrap it into a list
-            alert_ids=[alert_ids]
-          if isinstance(alert_ids, list):
-            #parse all given alert id's
-            for alert in alert_ids:
-              _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
+        if len(alert_ids) > 0:
+            if isinstance(alert_ids, str):
+                #if a single id is given as a string wrap it into a list
+                alert_ids = [alert_ids]
+            if isinstance(alert_ids, list):
+                #parse all given alert id's
+                for alert in alert_ids:
+                    _xmlAlert = etree.SubElement(
+                        xmlRoot, 'alert', id=str(alert))
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
