@@ -80,7 +80,7 @@ class GmpCommandFactory:
         return etree.tostring(xmlRoot).decode('utf-8')
 
     def create_alert_command(self, name, condition, event, method, filter_id='',
-                           copy='', comment=''):
+                             copy='', comment=''):
 
         xmlRoot = etree.Element('create_alert')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -903,7 +903,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyAgentCommand(self, agent_id, name='', comment=''):
+    def modify_agent_command(self, agent_id, name='', comment=''):
         if not agent_id:
             raise ValueError('modify_agent requires an agent_id element')
 
@@ -918,8 +918,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyAlertCommand(self, alert_id, kwargs):
-
+    def modify_alert_command(self, alert_id, kwargs):
         if not alert_id:
             raise ValueError('modify_alert requires an agent_id element')
 
@@ -971,8 +970,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyAuthCommand(self, group_name,  auth_conf_settings):
-
+    def modify_auth_command(self, group_name, auth_conf_settings):
         if not group_name:
             raise ValueError('modify_auth requires a group element '
                              'with a name attribute')
@@ -992,8 +990,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyConfigCommand(self, selection, kwargs):
-
+    def modify_config_command(self, selection, kwargs):
         if selection not in ('nvt_pref', 'sca_pref',
                              'family_selection', 'nvt_selection'):
             raise ValueError('selection must be one of nvt_pref, sca_pref, '
@@ -1043,8 +1040,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyCredentialCommand(self, credential_id, kwargs):
-
+    def modify_credential_command(self, credential_id, kwargs):
         if not credential_id:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
@@ -1133,8 +1129,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyFilterCommand(self, filter_id, kwargs):
-
+    def modify_filter_command(self, filter_id, kwargs):
         if not filter_id:
             raise ValueError('modify_filter requires a filter_id attribute')
 
@@ -1170,8 +1165,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyGroupCommand(self, group_id, kwargs):
-
+    def modify_group_command(self, group_id, kwargs):
         if not group_id:
             raise ValueError('modify_group requires a group_id attribute')
 
@@ -1194,8 +1188,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyNoteCommand(self, note_id, text, kwargs):
-
+    def modify_note_command(self, note_id, text, kwargs):
         if not note_id:
             raise ValueError('modify_note requires a note_id attribute')
         if not text:
@@ -1240,8 +1233,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyOverrideCommand(self, override_id, text, kwargs):
-
+    def modify_override_command(self, override_id, text, kwargs):
         xmlRoot = etree.Element('modify_override',
                                 override_id=override_id)
         _xmlText = etree.SubElement(xmlRoot, 'text')
@@ -1292,8 +1284,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyPermissionCommand(self, permission_id, kwargs):
-
+    def modify_permission_command(self, permission_id, kwargs):
         if not permission_id:
             raise ValueError('modify_permission requires '
                              'a permission_id element')
@@ -1330,8 +1321,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyPortListCommand(self, port_list_id, kwargs):
-
+    def modify_port_list_command(self, port_list_id, kwargs):
         if not port_list_id:
             raise ValueError('modify_port_list requires '
                              'a port_list_id attribute')
@@ -1350,8 +1340,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyReportFormatCommand(self, report_format_id, kwargs):
-
+    def modify_report_format_command(self, report_format_id, kwargs):
         if len(kwargs) < 1:
             raise Exception('modify_report_format: Missing parameter')
 
@@ -1385,8 +1374,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyRoleCommand(self, role_id, kwargs):
-
+    def modify_role_command(self, role_id, kwargs):
         if not role_id:
             raise ValueError('modify_role requires a role_id element')
 
@@ -1410,15 +1398,15 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyScannerCommand(self, scanner_id, host, port, type, kwargs):
-
+    def modify_scanner_command(self, scanner_id, host, port, scanner_type,
+                               kwargs):
         if not scanner_id:
             raise ValueError('modify_scanner requires a scanner_id element')
         if not host:
             raise ValueError('modify_scanner requires a host element')
         if not port:
             raise ValueError('modify_scanner requires a port element')
-        if not type:
+        if not scanner_type:
             raise ValueError('modify_scanner requires a type element')
 
         xmlRoot = etree.Element('modify_scanner', scanner_id=scanner_id)
@@ -1427,7 +1415,7 @@ class GmpCommandFactory:
         _xmlPort = etree.SubElement(xmlRoot, 'port')
         _xmlPort.text = port
         _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
+        _xmlType.text = scanner_type
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1451,8 +1439,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyScheduleCommand(self, schedule_id, kwargs):
-
+    def modify_schedule_command(self, schedule_id, kwargs):
         if not schedule_id:
             raise ValueError('modify_schedule requires a schedule_id element')
 
@@ -1508,8 +1495,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyTagCommand(self, tag_id, kwargs):
-
+    def modify_tag_command(self, tag_id, kwargs):
         if not tag_id:
             raise ValueError('modify_tag requires a tag_id element')
 
@@ -1546,8 +1532,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyTargetCommand(self, target_id, kwargs):
-
+    def modify_target_command(self, target_id, kwargs):
         if not target_id:
             raise ValueError('modify_target requires a target_id element')
 
@@ -1605,8 +1590,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyTaskCommand(self, task_id, kwargs):
-
+    def modify_task_command(self, task_id, kwargs):
         if not task_id:
             raise ValueError('modify_task requires a task_id element')
 
@@ -1671,10 +1655,10 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyUserCommand(self, kwargs):
-
+    def modify_user_command(self, kwargs):
         user_id = kwargs.get('user_id', '')
         name = kwargs.get('name', '')
+
         if not user_id and not name:
             raise ValueError('modify_user requires '
                              'either a user_id or a name element')

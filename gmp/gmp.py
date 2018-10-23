@@ -643,12 +643,12 @@ class GVMConnection:
         return self.read()
 
     def modify_agent(self, agent_id, name='', comment=''):
-        cmd = self.gmp_generator.modifyAgentCommand(agent_id, name, comment)
+        cmd = self.gmp_generator.modify_agent_command(agent_id, name, comment)
         self.send(cmd)
         return self.read()
 
     def modify_alert(self, alert_id, **kwargs):
-        cmd = self.gmp_generator.modifyAlertCommand(alert_id, kwargs)
+        cmd = self.gmp_generator.modify_alert_command(alert_id, kwargs)
         self.send(cmd)
         return self.read()
 
@@ -659,49 +659,51 @@ class GVMConnection:
         return self.read()
 
     def modify_auth(self, group_name, auth_conf_settings):
-        cmd = self.gmp_generator.modifyAuthCommand(group_name,
-                                                   auth_conf_settings)
+        cmd = self.gmp_generator.modify_auth_command(group_name,
+                                                     auth_conf_settings)
         self.send(cmd)
         return self.read()
 
     def modify_config(self, selection, **kwargs):
-        cmd = self.gmp_generator.modifyConfigCommand(selection, kwargs)
+        cmd = self.gmp_generator.modify_config_command(selection, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_credential(self, credential_id, **kwargs):
-        cmd = self.gmp_generator.modifyCredentialCommand(credential_id, kwargs)
+        cmd = self.gmp_generator.modify_credential_command(
+            credential_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_filter(self, filter_id, **kwargs):
-        cmd = self.gmp_generator.modifyFilterCommand(filter_id, kwargs)
+        cmd = self.gmp_generator.modify_filter_command(filter_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_group(self, group_id, **kwargs):
-        cmd = self.gmp_generator.modifyGroupCommand(group_id, kwargs)
+        cmd = self.gmp_generator.modify_group_command(group_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_note(self, note_id, text, **kwargs):
-        cmd = self.gmp_generator.modifyNoteCommand(note_id, text, kwargs)
+        cmd = self.gmp_generator.modify_note_command(note_id, text, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_override(self, override_id, text, **kwargs):
-        cmd = self.gmp_generator.modifyOverrideCommand(override_id, text,
-                                                       kwargs)
+        cmd = self.gmp_generator.modify_override_command(override_id, text,
+                                                         kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_permission(self, permission_id, **kwargs):
-        cmd = self.gmp_generator.modifyPermissionCommand(permission_id, kwargs)
+        cmd = self.gmp_generator.modify_permission_command(
+            permission_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_port_list(self, port_list_id, **kwargs):
-        cmd = self.gmp_generator.modifyPortListCommand(port_list_id, kwargs)
+        cmd = self.gmp_generator.modify_port_list_command(port_list_id, kwargs)
         self.send(cmd)
         return self.read()
 
@@ -712,24 +714,24 @@ class GVMConnection:
         return self.read()
 
     def modify_report_format(self, report_format_id, **kwargs):
-        cmd = self.gmp_generator.modifyReportFormatCommand(report_format_id,
-                                                           kwargs)
+        cmd = self.gmp_generator.modify_report_format_command(report_format_id,
+                                                              kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_role(self, role_id, **kwargs):
-        cmd = self.gmp_generator.modifyRoleCommand(role_id, kwargs)
+        cmd = self.gmp_generator.modify_role_command(role_id, kwargs)
         self.send(cmd)
         return self.read()
 
-    def modify_scanner(self, scanner_id, host, port, type, **kwargs):
-        cmd = self.gmp_generator.modifyScannerCommand(scanner_id, host, port,
-                                                      type, kwargs)
+    def modify_scanner(self, scanner_id, host, port, scanner_type, **kwargs):
+        cmd = self.gmp_generator.modify_scanner_command(scanner_id, host, port,
+                                                        scanner_type, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_schedule(self, schedule_id, **kwargs):
-        cmd = self.gmp_generator.modifyScheduleCommand(schedule_id, kwargs)
+        cmd = self.gmp_generator.modify_schedule_command(schedule_id, kwargs)
         self.send(cmd)
         return self.read()
 
@@ -741,22 +743,22 @@ class GVMConnection:
         return self.read()
 
     def modify_tag(self, tag_id, **kwargs):
-        cmd = self.gmp_generator.modifyTagCommand(tag_id, kwargs)
+        cmd = self.gmp_generator.modify_tag_command(tag_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_target(self, target_id, **kwargs):
-        cmd = self.gmp_generator.modifyTargetCommand(target_id, kwargs)
+        cmd = self.gmp_generator.modify_target_command(target_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_task(self, task_id, **kwargs):
-        cmd = self.gmp_generator.modifyTaskCommand(task_id, kwargs)
+        cmd = self.gmp_generator.modify_task_command(task_id, kwargs)
         self.send(cmd)
         return self.read()
 
     def modify_user(self, **kwargs):
-        cmd = self.gmp_generator.modifyUserCommand(kwargs)
+        cmd = self.gmp_generator.modify_user_command(kwargs)
         self.send(cmd)
         return self.read()
 
