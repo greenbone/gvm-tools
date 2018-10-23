@@ -198,13 +198,13 @@ class GVMConnection:
         return msg
 
     def ask_yes_or_no(self, text):
-        yes = set(['yes', 'y', 'ye', ''])
-        no = set(['no', 'n'])
+        yes_values = set(['yes', 'y', 'ye', ''])
+        no_values = set(['no', 'n'])
 
         choice = input(text).lower()
-        if choice in yes:
+        if choice in yes_values:
             return True
-        elif choice in no:
+        elif choice in no_values:
             return False
         else:
             return self.ask_yes_or_no(text)
