@@ -113,8 +113,7 @@ class GVMConnection:
             lxml.etree._Element or <string> -- Response from server.
         """
         response = self.read_all()
-        logger.debug('read() {0} Bytes response: {1}'.format(
-            len(response), response))
+        logger.debug('read() %i Bytes response: %s', len(response), response)
 
         if response is None or len(str(response)) == 0:
             raise OSError('Connection was closed by remote server')
@@ -139,7 +138,7 @@ class GVMConnection:
             if self.sock is not None:
                 self.sock.close()
         except OSError as e:
-            logger.debug('Connection closing error: {0}'.format(e))
+            logger.debug('Connection closing error: %s', e)
 
     def check_command_status(self, xml):
         """Check gmp response
@@ -174,11 +173,11 @@ class GVMConnection:
                         self.authenticated = True
 
             if 'OK' not in status_text:
-                logger.info('An error occurred on gvm: ' + status_text)
+                logger.info('An error occurred on gvm: %s', status_text)
                 raise GMPError(status_text)
 
         except etree.Error as e:
-            logger.error('etree.XML(xml): ' + str(e))
+            logger.error('etree.XML(xml): %s', e)
             raise
 
     def arguments_to_string(self, kwargs):
@@ -998,7 +997,8 @@ class UnixSocketConnection(GVMConnection):
             try:
                 data = self.sock.recv(BUF_SIZE)
             except (socket.timeout) as exception:
-                logger.debug('Warning: No data recieved from server: {0}'.format(exception))
+                logger.debug('Warning: No data recieved from server: %s',
+                             exception)
                 continue
             self.parser.feed(data)
             response += data.decode('utf-8')
