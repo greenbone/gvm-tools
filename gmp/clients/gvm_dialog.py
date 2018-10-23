@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# GVM-Dialog for communication with the GVM.
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,15 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
 import logging
 import sys
+
 from dialog import Dialog
+
 from lxml import etree
+
 from gmp.helper import get_version
-from gmp.gvm_connection import (SSHConnection,
-                                TLSConnection,
-                                UnixSocketConnection)
+from gmp.gmp import (SSHConnection,
+                     TLSConnection,
+                     UnixSocketConnection)
 
 __version__ = get_version()
 
