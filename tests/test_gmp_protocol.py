@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Testcases to test gmp protocol
-#
-# Authors:
-# Michael Wiegand <michael.wiegand@greenbone.net>
-#
-# Copyright:
 # Copyright (C) 2018 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
