@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Commandcreator for gmp commands.
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,1681 +15,990 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import logging
+import socket
+import ssl
+import time
+
+from io import StringIO
+
+import paramiko
+
 from lxml import etree
-import defusedxml.lxml as secET
+
+from gmp.xml import GmpCommandFactory
+
+logger = logging.getLogger(__name__)
+
+BUF_SIZE = 1024
+DEFAULT_READ_TIMEOUT = 60 # in seconds
+DEFAULT_TIMEOUT = 60 # in seconds
+MAX_SSH_COMMAND_LENGTH = 4095
+
+class GMPError(Exception):
+    pass
 
 
-class _gmp:
-    """GMP - Greenbone Management Protocol
+class GVMConnection:
+    """Wrapper for GMP
+
+    This class helps users to connect to their GVM via Secure Shell,
+    UNIX-Socket or secured connection on port 9390.
+
+    Variables:
+        gmp_generator {object} -- Instance of the gmp generator.
+        authenticated {bool} -- GMP-User authenticated.
     """
-    FILTER_NAMES = ['Agent', 'Alert', 'Asset', 'Credential',
-             'Filter', 'Group', 'Note', 'Override', 'Permission', 'Port List',
-              'Report', 'Report Format', 'Result', 'Role', 'Schedule', 'SecInfo',
-               'Config', 'Tag', 'Target', 'Task', 'User']
-    def createAgentCommand(self, installer, signature, name, comment='',
-                           copy='', howto_install='', howto_use=''):
 
-        xmlRoot = etree.Element('create_agent')
-        _xmlInstaller = etree.SubElement(xmlRoot, 'installer')
-        _xmlInstaller.text = installer
-        _xmlSignature = etree.SubElement(_xmlInstaller, 'signature')
-        _xmlSignature.text = signature
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+    def __init__(self):
+        # GMP Message Creator
+        self.gmp_generator = GmpCommandFactory()
 
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+        # Is authenticated on gvm
+        self.authenticated = False
 
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+        # initialize variables
+        self.sock = None
+        self.first_element = None
+        self.parser = None
+        self.cmd = None
 
-        if howto_install:
-            _xmlHowtoinstall = etree.SubElement(xmlRoot, 'howto_install')
-            _xmlHowtoinstall.text = howto_install
+    def valid_xml(self):
+        for action, obj in self.parser.read_events():
+            if not self.first_element and action in 'start':
+                self.first_element = obj.tag
 
-        if howto_use:
-            _xmlHowtouse = etree.SubElement(xmlRoot, 'howto_use')
-            _xmlHowtouse.text = howto_use
+            if self.first_element and action in 'end' and \
+                    str(self.first_element) == str(obj.tag):
+                return True
+        return False
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+    def read_all(self):
+        raise NotImplementedError
 
-    def createAlertCommand(self, name, condition, event, method, filter_id='',
-                           copy='', comment=''):
+    def send_all(self, cmd):
+        raise NotImplementedError
 
-        xmlRoot = etree.Element('create_alert')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+    def send(self, cmd):
+        """Call the send_all(string) method.
 
-        if len(condition) > 1:
-            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
-            _xmlConditions.text = condition[0]
-            for value, key in condition[1].items():
-                _xmlData = etree.SubElement(_xmlConditions, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
-        elif condition[0] == "Always":
-            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
-            _xmlConditions.text = condition[0]
+        Nothing more ;-)
 
-        if len(event) > 1:
-            _xmlEvents = etree.SubElement(xmlRoot, 'event')
-            _xmlEvents.text = event[0]
-            for value, key in event[1].items():
-                _xmlData = etree.SubElement(_xmlEvents, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+        Arguments:
+            cmd {string} -- XML-Source
+        """
+        try:
+            self.send_all(cmd)
+            logger.debug(cmd)
+        except paramiko.SSHException as e:
+            print(e)
+        except OSError as e:
+            logger.info(e)
+            raise
 
-        if len(method) > 1:
-            _xmlMethods = etree.SubElement(xmlRoot, 'method')
-            _xmlMethods.text = method[0]
-            for value, key in method[1].items():
-                _xmlData = etree.SubElement(_xmlMethods, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+    def read(self):
+        """Call the read_all() method of the chosen connection type.
 
-        if filter_id:
-            _xmlFilter = etree.SubElement(xmlRoot, 'filter', id=filter_id)
+        Try to read all from the open socket connection.
+        Check for status attribute in xml code.
+        If the program is in shell-mode, then it returns a lxml root element,
+        otherwise the plain xml.
+        If the response is either None or the length is zero,
+        then the connection was terminated from the server.
 
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+        Returns:
+            lxml.etree._Element or <string> -- Response from server.
+        """
+        response = self.read_all()
+        logger.debug('read() %i Bytes response: %s', len(response), response)
 
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+        if response is None or len(str(response)) == 0:
+            raise OSError('Connection was closed by remote server')
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        if hasattr(self, 'raw_response') and self.raw_response is True: #pylint: disable=E1101
+            return response
 
-    def createAssetCommand(self, name, asset_type, comment=''):
-        if asset_type not in ('host', 'os'):
-            raise ValueError('create_asset requires asset_type to be either '
-                             'host or os')
-        xmlRoot = etree.Element('create_asset')
-        _xmlAsset = etree.SubElement(xmlRoot, 'asset')
-        _xmlType = etree.SubElement(_xmlAsset, 'type')
-        _xmlType.text = asset_type
-        _xmlName = etree.SubElement(_xmlAsset, 'name')
-        _xmlName.text = name
+        self.check_command_status(response)
 
-        if comment:
-            _xmlComment = etree.SubElement(_xmlAsset, 'comment')
-            _xmlComment.text = comment
+        if hasattr(self, 'shell_mode') and self.shell_mode is True: #pylint: disable=E1101
+            parser = etree.XMLParser(encoding='utf-8', recover=True)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+            logger.info('Shell mode activated')
+            f = StringIO(response)
+            tree = etree.parse(f, parser)
+            return tree.getroot()
+        else:
+            return response
 
-    def createAuthenticateCommand(self, username, password, withCommands=''):
-        """Generates string for authentification on GVM
+    def close(self):
+        try:
+            if self.sock is not None:
+                self.sock.close()
+        except OSError as e:
+            logger.debug('Connection closing error: %s', e)
 
-        Creates the gmp authentication xml string.
-        Inserts the username and password into it.
+    def check_command_status(self, xml):
+        """Check gmp response
 
-        Keyword Arguments:
-            username {str} -- Username for GVM User
-            password {str} -- Password for GVM User
-            withCommands {str} -- Additional commands default: {''})
+        Look into the gmp response and check for the status in the root element
+
+        Arguments:
+            xml {string} -- XML-Source
+
+        Returns:
+            bool -- True if valid, otherwise False
         """
 
-        xmlRoot = etree.Element('authenticate')
-        _xmlCredentials = etree.SubElement(xmlRoot, 'credentials')
-        _xmlUser = etree.SubElement(_xmlCredentials, 'username')
-        _xmlUser.text = username
-        _xmlPass = etree.SubElement(_xmlCredentials, 'password')
-        _xmlPass.text = password
-        if len(withCommands) is 0:
-            return etree.tostring(xmlRoot).decode('utf-8')
+        if xml is 0 or xml is None:
+            raise GMPError('XML Command is empty')
 
-        xmlRootCmd = etree.Element('commands')
-        cmds = secET.fromstring(withCommands)
-        xmlRootCmd.append(xmlRoot)
-        xmlRootCmd.append(cmds)
-        return etree.tostring(xmlRootCmd).decode('utf-8')
+        try:
+            parser = etree.XMLParser(encoding='utf-8', recover=True)
+            if etree.iselement(xml):
+                root = etree.ElementTree(xml, parser=parser).getroot()
+            else:
+                root = etree.XML(xml, parser=parser)
+            status = root.attrib['status']
+            status_text = root.attrib['status_text']
 
-    def createConfigCommand(self, copy_id, name):
+            if not self.authenticated:
+                auth = root.find('authenticate_response')
+                if auth is not None:
+                    status = auth.attrib['status']
+                    status_text = auth.attrib['status_text']
+                    if status != '400':
+                        self.authenticated = True
 
-        xmlRoot = etree.Element('create_config')
-        _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-        _xmlCopy.text = copy_id
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        return etree.tostring(xmlRoot).decode('utf-8')
+            if 'OK' not in status_text:
+                logger.info('An error occurred on gvm: %s', status_text)
+                raise GMPError(status_text)
 
-    def createCredentialCommand(self, name, kwargs):
+        except etree.Error as e:
+            logger.error('etree.XML(xml): %s', e)
+            raise
 
-        xmlRoot = etree.Element('create_credential')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+    def arguments_to_string(self, kwargs):
+        """Convert arguments
 
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+        Converts dictionaries into gmp arguments string
 
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+        Arguments:
+            kwargs {dict} -- Arguments
 
-        allow_insecure = kwargs.get('allow_insecure', '')
-        if allow_insecure:
-            _xmlAllowinsecure = etree.SubElement(xmlRoot, 'allow_insecure')
-            _xmlAllowinsecure.text = allow_insecure
+        Returns:
+            string -- Arguments as string
+        """
+        msg = ''
+        for key, value in kwargs.items():
+            msg += str(key) + '=\'' + str(value) + '\' '
 
-        certificate = kwargs.get('certificate', '')
-        if certificate:
-            _xmlCertificate = etree.SubElement(xmlRoot, 'certificate')
-            _xmlCertificate.text = certificate
+        return msg
 
-        key = kwargs.get('key', '')
-        if key:
-            phrase = key['phrase']
-            private = key['private']
-            if not phrase:
-                raise ValueError('create_credential requires a phrase element')
-            if not private:
-                raise ValueError('create_credential requires a '
-                                 'private element')
+    def ask_yes_or_no(self, text):
+        yes_values = set(['yes', 'y', 'ye', ''])
+        no_values = set(['no', 'n'])
 
-            _xmlKey = etree.SubElement(xmlRoot, 'key')
-            _xmlKeyphrase = etree.SubElement(_xmlKey, 'phrase')
-            _xmlKeyphrase.text = phrase
-            _xmlKeyprivate = etree.SubElement(_xmlKey, 'private')
-            _xmlKeyprivate.text = private
-
-        login = kwargs.get('login', '')
-        if login:
-            _xmlLogin = etree.SubElement(xmlRoot, 'login')
-            _xmlLogin.text = login
-
-        password = kwargs.get('password', '')
-        if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
-
-        auth_algorithm = kwargs.get('auth_algorithm', '')
-        if auth_algorithm:
-            if auth_algorithm not in ('md5', 'sha1'):
-                raise ValueError('create_credential requires auth_algorithm '
-                                 'to be either md5 or sha1')
-            _xmlAuthalg = etree.SubElement(xmlRoot, 'auth_algorithm')
-            _xmlAuthalg.text = auth_algorithm
-
-        community = kwargs.get('community', '')
-        if community:
-            _xmlCommunity = etree.SubElement(xmlRoot, 'community')
-            _xmlCommunity.text = community
-
-        privacy = kwargs.get('privacy', '')
-        if privacy:
-            algorithm = privacy.algorithm
-            if algorithm not in ('aes', 'des'):
-                raise ValueError('create_credential requires algorithm '
-                                 'to be either aes or des')
-            p_password = privacy.password
-            _xmlPrivacy = etree.SubElement(xmlRoot, 'privacy')
-            _xmlAlgorithm = etree.SubElement(_xmlPrivacy, 'algorithm')
-            _xmlAlgorithm.text = algorithm
-            _xmlPpass = etree.SubElement(_xmlPrivacy, 'password')
-            _xmlPpass.text = p_password
-
-        cred_type = kwargs.get('type', '')
-        if cred_type:
-            if cred_type not in ('cc', 'snmp', 'up', 'usk'):
-                raise ValueError('create_credential requires type '
-                                 'to be either cc, snmp, up or usk')
-            _xmlCredtype = etree.SubElement(xmlRoot, 'type')
-            _xmlCredtype.text = cred_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createFilterCommand(self, name, make_unique, kwargs):
-
-        xmlRoot = etree.Element('create_filter')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
-        if make_unique:
-            _xmlUnique.text = '1'
+        choice = input(text).lower()
+        if choice in yes_values:
+            return True
+        elif choice in no_values:
+            return False
         else:
-            _xmlUnique.text = '0'
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        term = kwargs.get('term', '')
-        if term:
-            _xmlTerm = etree.SubElement(xmlRoot, 'term')
-            _xmlTerm.text = term
-
-        filter_type = kwargs.get('type', '')
-        if filter_type:
-            if filter_type not in self.FILTER_NAMES:
-                raise ValueError('create_filter requires type '
-                                 'to be either cc, snmp, up or usk')
-            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
-            _xmlFiltertype.text = filter_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createGroupCommand(self, name, kwargs):
-
-        xmlRoot = etree.Element('create_group')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        special = kwargs.get('special', '')
-        if special:
-            _xmlSpecial = etree.SubElement(xmlRoot, 'specials')
-            _xmlFull = etree.SubElement(_xmlSpecial, 'full')
-
-        users = kwargs.get('users', '')
-        if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createNoteCommand(self, text, nvt_oid, kwargs):
-
-        xmlRoot = etree.Element('create_note')
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-        _xmlNvt = etree.SubElement(xmlRoot, 'nvt', oid=nvt_oid)
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        hosts = kwargs.get('hosts', '')
-        if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
-
-        port = kwargs.get('port', '')
-        if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
-
-        result_id = kwargs.get('result_id', '')
-        if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
-
-        severity = kwargs.get('severity', '')
-        if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
-
-        task_id = kwargs.get('task_id', '')
-        if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
-
-        threat = kwargs.get('threat', '')
-        if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createOverrideCommand(self, text, nvt_oid, kwargs):
-
-        xmlRoot = etree.Element('create_override')
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-        _xmlNvt = etree.SubElement(xmlRoot, 'nvt', oid=nvt_oid)
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        hosts = kwargs.get('hosts', '')
-        if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
-
-        port = kwargs.get('port', '')
-        if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
-
-        result_id = kwargs.get('result_id', '')
-        if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
-
-        severity = kwargs.get('severity', '')
-        if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
-
-        new_severity = kwargs.get('new_severity', '')
-        if new_severity:
-            _xmlNSeverity = etree.SubElement(xmlRoot, 'new_severity')
-            _xmlNSeverity.text = new_severity
-
-        task_id = kwargs.get('task_id', '')
-        if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
-
-        threat = kwargs.get('threat', '')
-        if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
-
-        new_threat = kwargs.get('new_threat', '')
-        if new_threat:
-            _xmlNThreat = etree.SubElement(xmlRoot, 'new_threat')
-            _xmlNThreat.text = new_threat
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createPermissionCommand(self, name, subject_id, type, kwargs):
-        # pretty(gmp.create_permission('get_version',
-        # 'cc9cac5e-39a3-11e4-abae-406186ea4fc5', 'role'))
-        # libs.gvm_connection.GMPError: Error in NAME
-        # TODO: Research why!!
-
-        if not name:
-            raise ValueError('create_permission requires a name element')
-        if not subject_id:
-            raise ValueError('create_permission requires a subject_id element')
-        if type not in ('user', 'group', 'role'):
-            raise ValueError('create_permission requires type '
-                             'to be either user, group or role')
-
-        xmlRoot = etree.Element('create_permission')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
-        _xmlType = etree.SubElement(_xmlSubject, 'type')
-        _xmlType.text = type
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        resource = kwargs.get('resource', '')
-        if resource:
-            resource_id = resource.id
-            resource_type = resource.type
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createPortListCommand(self, name, port_range, kwargs):
-
-        if not name:
-            raise ValueError('create_port_list requires a name element')
-        if not port_range:
-            raise ValueError('create_port_list requires a port_range element')
-
-        xmlRoot = etree.Element('create_port_list')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlPortrange = etree.SubElement(xmlRoot, 'port_range')
-        _xmlPortrange.text = port_range
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createPortRangeCommand(self, port_list_id, start, end, type,
-                               comment=''):
-
-        if not port_list_id:
-            raise ValueError('create_port_range requires '
-                             'a port_list_id element')
-        if not type:
-            raise ValueError('create_port_range requires a type element')
-
-        xmlRoot = etree.Element('create_port_range')
-        _xmlPlist = etree.SubElement(xmlRoot, 'port_list', id=port_list_id)
-        _xmlStart = etree.SubElement(xmlRoot, 'start')
-        _xmlStart.text = start
-        _xmlEnd = etree.SubElement(xmlRoot, 'end')
-        _xmlEnd.text = end
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
-
-        if len(comment):
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createReportCommand(self, report_xml_string, kwargs):
-
-        if not report_xml_string:
-            raise ValueError('create_report requires a report')
-
-        task_id = kwargs.get('task_id', '')
-        task_name = kwargs.get('task_name', '')
-
-        xmlRoot = etree.Element('create_report')
-        comment = kwargs.get('comment', '')
-        if task_id:
-            _xmlTask = etree.SubElement(xmlRoot, 'task', id=task_id)
-        elif task_name:
-            _xmlTask = etree.SubElement(xmlRoot, 'task')
-            _xmlName = etree.SubElement(_xmlTask, 'name')
-            _xmlName.text = task_name
-            if comment:
-                _xmlComment = etree.SubElement(_xmlTask, 'comment')
-                _xmlComment.text = comment
-        else:
-            raise ValueError('create_report requires an id or name for a task')
-
-        in_assets = kwargs.get('in_assets', '')
-        if in_assets:
-            _xmlInAsset = etree.SubElement(xmlRoot, 'in_assets')
-            _xmlInAsset.text = in_assets
-
-        xmlReport = secET.fromstring(report_xml_string)
-        xmlRoot.append(xmlReport)
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createRoleCommand(self, name, kwargs):
-
-        if not name:
-            raise ValueError('create_role requires a name element')
-
-        xmlRoot = etree.Element('create_role')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        users = kwargs.get('users', '')
-        if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createScannerCommand(self, name, host, port, type, ca_pub,
-                             credential_id, kwargs):
-        if not name:
-            raise ValueError('create_scanner requires a name element')
-        if not host:
-            raise ValueError('create_scanner requires a host element')
-        if not port:
-            raise ValueError('create_scanner requires a port element')
-        if not type:
-            raise ValueError('create_scanner requires a type element')
-        if not ca_pub:
-            raise ValueError('create_scanner requires a ca_pub element')
-        if not credential_id:
-            raise ValueError('create_scanner requires a credential_id element')
-
-        xmlRoot = etree.Element('create_scanner')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlHost = etree.SubElement(xmlRoot, 'host')
-        _xmlHost.text = host
-        _xmlPort = etree.SubElement(xmlRoot, 'port')
-        _xmlPort.text = port
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
-        _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
-        _xmlCAPub.text = ca_pub
-        _xmlCred = etree.SubElement(xmlRoot, 'credential',
-                                    id=str(credential_id))
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createScheduleCommand(self, name, kwargs):
-        if not name:
-            raise ValueError('create_schedule requires a name element')
-
-        xmlRoot = etree.Element('create_schedule')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        first_time = kwargs.get('first_time', '')
-        if first_time:
-            first_time_minute = first_time['minute']
-            first_time_hour = first_time['hour']
-            first_time_day_of_month = first_time['day_of_month']
-            first_time_month = first_time['month']
-            first_time_year = first_time['year']
-
-            _xmlFtime = etree.SubElement(xmlRoot, 'first_time')
-            _xmlMinute = etree.SubElement(_xmlFtime, 'minute')
-            _xmlMinute.text = str(first_time_minute)
-            _xmlHour = etree.SubElement(_xmlFtime, 'hour')
-            _xmlHour.text = str(first_time_hour)
-            _xmlDay = etree.SubElement(_xmlFtime, 'day_of_month')
-            _xmlDay.text = str(first_time_day_of_month)
-            _xmlMonth = etree.SubElement(_xmlFtime, 'month')
-            _xmlMonth.text = str(first_time_month)
-            _xmlYear = etree.SubElement(_xmlFtime, 'year')
-            _xmlYear.text = str(first_time_year)
-
-        duration = kwargs.get('duration', '')
-        if len(duration) > 1:
-            _xmlDuration = etree.SubElement(xmlRoot, 'duration')
-            _xmlDuration.text = str(duration[0])
-            _xmlUnit = etree.SubElement(_xmlDuration, 'unit')
-            _xmlUnit.text = str(duration[1])
-
-        period = kwargs.get('period', '')
-        if len(period) > 1:
-            _xmlPeriod = etree.SubElement(xmlRoot, 'period')
-            _xmlPeriod.text = str(period[0])
-            _xmlPUnit = etree.SubElement(_xmlPeriod, 'unit')
-            _xmlPUnit.text = str(period[1])
-
-        timezone = kwargs.get('timezone', '')
-        if timezone:
-            _xmlTimezone = etree.SubElement(xmlRoot, 'timezone')
-            _xmlTimezone.text = str(timezone)
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createTagCommand(self, name, resource_id, resource_type, kwargs):
-
-        xmlRoot = etree.Element('create_tag')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                        id=str(resource_id))
-        _xmlRType = etree.SubElement(_xmlResource, 'type')
-        _xmlRType.text = resource_type
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        value = kwargs.get('value', '')
-        if value:
-            _xmlValue = etree.SubElement(xmlRoot, 'value')
-            _xmlValue.text = value
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createTargetCommand(self, name, make_unique, kwargs):
-
-        if not name:
-            raise ValueError('create_target requires a name element')
-
-        xmlRoot = etree.Element('create_target')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        if make_unique:
-            unique = '1'
-        else:
-            unique = '0'
-        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
-        _xmlUnique.text = unique
-
-        if 'asset_hosts' in kwargs:
-            hosts = kwargs.get('asset_hosts')
-            filter = hosts['filter']
-            _xmlHosts = etree.SubElement(xmlRoot, 'asset_hosts',
-                                         filter=str(filter))
-        elif 'hosts' in kwargs:
-            hosts = kwargs.get('hosts')
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
-        else:
-            raise ValueError('create_target requires either a hosts or '
-                             'an asset_hosts element')
-
-        if 'comment' in kwargs:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = kwargs.get('comment')
-
-        if 'copy' in kwargs:
-            # NOTE: It seems that hosts/asset_hosts is silently ignored by the
-            # server when copy is supplied. But for specification conformance
-            # we raise the ValueError above and consider copy optional.
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = kwargs.get('copy')
-
-        if 'exclude_hosts' in kwargs:
-            _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
-            _xmlExHosts.text = kwargs.get('exclude_hosts')
-
-        if 'ssh_credential' in kwargs:
-            ssh_credential = kwargs.get('ssh_credential')
-            if 'id' in ssh_credential:
-                _xmlSSH = etree.SubElement(xmlRoot, 'ssh_credential',
-                                           id=ssh_credential['id'])
-                _xmlSSH.text = ''
-                if 'port' in ssh_credential:
-                    _xmlSSHport = etree.SubElement(_xmlSSH, 'port')
-                    _xmlSSHport.text = ssh_credential['port']
-            else:
-                raise ValueError('ssh_credential requires an id attribute')
-
-        if 'smb_credential' in kwargs:
-            smb_credential = kwargs.get('smb_credential')
-            if 'id' in smb_credential:
-                _xmlSMB = etree.SubElement(xmlRoot, 'smb_credential',
-                                           id=smb_credential['id'])
-            else:
-                raise ValueError('smb_credential requires an id attribute')
-
-        if 'esxi_credential' in kwargs:
-            esxi_credential = kwargs.get('esxi_credential')
-            if 'id' in esxi_credential:
-                _xmlEsxi = etree.SubElement(xmlRoot, 'esxi_credential',
-                                            id=esxi_credential['id'])
-            else:
-                raise ValueError('esxi_credential requires an id attribute')
-
-        if 'snmp_credential' in kwargs:
-            snmp_credential = kwargs.get('snmp_credential')
-            if 'id' in snmp_credential:
-                _xmlSnmp = etree.SubElement(xmlRoot, 'snmp_credential',
-                                            id=snmp_credential['id'])
-            else:
-                raise ValueError('snmp_credential requires an id attribute')
-
-        if 'alive_tests' in kwargs:
-            # NOTE: As the alive_tests are referenced by their name and some
-            # names contain ampersand ('&') characters it should be considered
-            # replacing any characters special to XML in the variable with
-            # their corresponding entities.
-            _xmlAlive = etree.SubElement(xmlRoot, 'alive_tests')
-            _xmlAlive.text = kwargs.get('alive_tests')
-
-        if 'reverse_lookup_only' in kwargs:
-            reverse_lookup_only = kwargs.get('reverse_lookup_only')
-            _xmlLookup = etree.SubElement(xmlRoot, 'reverse_lookup_only')
-            if reverse_lookup_only:
-                _xmlLookup.text = '1'
-            else:
-                _xmlLookup.text = '0'
-
-        if 'reverse_lookup_unify' in kwargs:
-            reverse_lookup_unify = kwargs.get('reverse_lookup_unify')
-            _xmlLookupU = etree.SubElement(xmlRoot, 'reverse_lookup_unify')
-            if reverse_lookup_unify:
-                _xmlLookupU.text = '1'
-            else:
-                _xmlLookupU.text = '0'
-
-        if 'port_range' in kwargs:
-            _xmlPortR = etree.SubElement(xmlRoot, 'port_range')
-            _xmlPortR.text = kwargs.get('port_range')
-
-        if 'port_list' in kwargs:
-            port_list = kwargs.get('port_list')
-            if 'id' in port_list:
-                _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
-                                             id=str(port_list['id']))
-            else:
-                raise ValueError('port_list requires an id attribute')
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          alert_ids=None, comment=''):
+            return self.ask_yes_or_no(text)
+
+    def authenticate(self, username, password):
+        """Authenticate on GVM.
+
+        The generated authenticate command will be send to server.
+        After that a response is read from socket.
+
+        Keyword Arguments:
+            username {str} -- Username
+            password {str} -- Password
+
+        Returns:
+            None or <string> -- Response from server.
+        """
+        cmd = self.gmp_generator.create_authenticate_command(
+            username=username, password=password)
+
+        self.send(cmd)
+        return self.read()
+
+    def create_agent(self, installer, signature, name, comment='', copy='',
+                     howto_install='', howto_use=''):
+        cmd = self.gmp_generator.create_agent_command(
+            installer, signature, name, comment, copy, howto_install,
+            howto_use)
+        self.send(cmd)
+        return self.read()
+
+    def create_alert(self, name, condition, event, method, filter_id='',
+                     copy='', comment=''):
+        cmd = self.gmp_generator.create_alert_command(name, condition, event,
+                                                      method, filter_id, copy,
+                                                      comment)
+        self.send(cmd)
+        return self.read()
+
+    def create_asset(self, name, asset_type, comment=''):
+        # TODO: Add the missing second method. Also the docs are not complete!
+        cmd = self.gmp_generator.create_asset_command(name, asset_type, comment)
+        self.send(cmd)
+        return self.read()
+
+    def create_config(self, copy_id, name):
+        cmd = self.gmp_generator.create_config_command(copy_id, name)
+        self.send(cmd)
+        return self.read()
+
+    def create_credential(self, name, **kwargs):
+        cmd = self.gmp_generator.create_credential_command(name, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_filter(self, name, make_unique, **kwargs):
+        cmd = self.gmp_generator.create_filter_command(name, make_unique,
+                                                       kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_group(self, name, **kwargs):
+        cmd = self.gmp_generator.create_group_command(name, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    # TODO: Create notes with comment returns bogus element. Research
+    def create_note(self, text, nvt_oid, **kwargs):
+        cmd = self.gmp_generator.create_note_command(text, nvt_oid, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_override(self, text, nvt_oid, **kwargs):
+        cmd = self.gmp_generator.create_override_command(text, nvt_oid, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_permission(self, name, subject_id, permission_type, **kwargs):
+        cmd = self.gmp_generator.create_permission_command(
+            name, subject_id, permission_type, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_port_list(self, name, port_range, **kwargs):
+        cmd = self.gmp_generator.create_port_list_command(name, port_range,
+                                                          kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_port_range(self, port_list_id, start, end, port_range_type,
+                          comment=''):
+        cmd = self.gmp_generator.create_port_range_command(
+            port_list_id, start, end, port_range_type, comment)
+        self.send(cmd)
+        return self.read()
+
+    def create_report(self, report_xml_string, **kwargs):
+        cmd = self.gmp_generator.create_report_command(report_xml_string,
+                                                       kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_role(self, name, **kwargs):
+        cmd = self.gmp_generator.create_role_command(name, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_scanner(self, name, host, port, scanner_type, ca_pub,
+                       credential_id, **kwargs):
+        cmd = self.gmp_generator.create_scanner_command(name, host, port,
+                                                        scanner_type, ca_pub,
+                                                        credential_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_schedule(self, name, **kwargs):
+        cmd = self.gmp_generator.create_schedule_command(name, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_tag(self, name, resource_id, resource_type, **kwargs):
+        cmd = self.gmp_generator.create_tag_command(name, resource_id,
+                                                    resource_type, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_target(self, name, make_unique, **kwargs):
+        # TODO: Missing variables
+        cmd = self.gmp_generator.create_target_command(name, make_unique,
+                                                       kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def create_task(self, name, config_id, target_id, scanner_id,
+                    alert_ids=None, comment=''):
         if alert_ids is None:
             alert_ids = []
-        xmlRoot = etree.Element('create_task')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlComment = etree.SubElement(xmlRoot, 'comment')
-        _xmlComment.text = comment
-        _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
-        _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
-        _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
-
-        #if given the alert_id is wrapped and integrated suitably as xml
-        if len(alert_ids)>0:
-          if isinstance(alert_ids, str):
-            #if a single id is given as a string wrap it into a list
-            alert_ids=[alert_ids]
-          if isinstance(alert_ids, list):
-            #parse all given alert id's
-            for alert in alert_ids:
-              _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def createUserCommand(self, name, password, copy='', hosts_allow='0',
-                          ifaces_allow='0', role_ids=(), hosts=None,
-                          ifaces=None):
-        xmlRoot = etree.Element('create_user')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
-
-        if hosts is not None:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(hosts_allow))
-            _xmlHosts.text = hosts
-
-        if ifaces is not None:
-            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
-                                          allow=str(ifaces_allow))
-            _xmlIFaces.text = ifaces
-
-        if len(role_ids) > 0:
-            for role in role_ids:
-                _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                            allow=str(role))
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyAgentCommand(self, agent_id, name='', comment=''):
-
-        if not agent_id:
-            raise ValueError('modify_agent requires an agent_id element')
-
-        xmlRoot = etree.Element('modify_agent', agent_id=str(agent_id))
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyAlertCommand(self, alert_id, kwargs):
-
-        if not alert_id:
-            raise ValueError('modify_alert requires an agent_id element')
-
-        xmlRoot = etree.Element('modify_alert', alert_id=str(alert_id))
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        filter_id = kwargs.get('filter_id', '')
-        if filter_id:
-            _xmlFilter = etree.SubElement(xmlRoot, 'filter', id=filter_id)
-
-        event = kwargs.get('event', '')
-        if len(event) > 1:
-            _xmlEvent = etree.SubElement(xmlRoot, 'event')
-            _xmlEvent.text = event[0]
-            for value, key in event[1].items():
-                _xmlData = etree.SubElement(_xmlEvent, 'data')
-                _xmlData.text = value
-                _xmlDName = etree.SubElement(_xmlData, 'name')
-                _xmlDName.text = key
-
-        condition = kwargs.get('condition', '')
-        if len(condition) > 1:
-            _xmlCond = etree.SubElement(xmlRoot, 'condition')
-            _xmlCond.text = condition[0]
-            for value, key in condition[1].items():
-                _xmlData = etree.SubElement(_xmlCond, 'data')
-                _xmlData.text = value
-                _xmlDName = etree.SubElement(_xmlData, 'name')
-                _xmlDName.text = key
-
-        method = kwargs.get('method', '')
-        if len(method) > 1:
-            _xmlMethod = etree.SubElement(xmlRoot, 'method')
-            _xmlMethod.text = method[0]
-            for value, key in method[1].items():
-                _xmlData = etree.SubElement(_xmlMethod, 'data')
-                _xmlData.text = value
-                _xmlDName = etree.SubElement(_xmlData, 'name')
-                _xmlDName.text = key
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyAuthCommand(self, group_name,  auth_conf_settings):
-
-        if not group_name:
-            raise ValueError('modify_auth requires a group element '
-                             'with a name attribute')
-        if not auth_conf_settings:
-            raise ValueError('modify_auth requires '
-                             'an auth_conf_settings element')
-
-        xmlRoot = etree.Element('modify_auth')
-        _xmlGroup = etree.SubElement(xmlRoot, 'group', name=str(group_name))
-
-        for key, value in auth_conf_settings.items():
-            _xmlAuthConf = etree.SubElement(_xmlGroup, 'auth_conf_setting')
-            _xmlKey = etree.SubElement(_xmlAuthConf, 'key')
-            _xmlKey.text = key
-            _xmlValue = etree.SubElement(_xmlAuthConf, 'value')
-            _xmlValue.text = value
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyConfigCommand(self, selection, kwargs):
-
-        if selection not in ('nvt_pref', 'sca_pref',
-                             'family_selection', 'nvt_selection'):
-            raise ValueError('selection must be one of nvt_pref, sca_pref, '
-                             'family_selection or nvt_selection')
-        config_id = kwargs.get('config_id')
-
-        xmlRoot = etree.Element('modify_config', config_id=str(config_id))
-
-        if selection in 'nvt_pref':
-            nvt_oid = kwargs.get('nvt_oid')
-            name = kwargs.get('name')
-            value = kwargs.get('value')
-            _xmlPref = etree.SubElement(xmlRoot, 'preference')
-            _xmlNvt = etree.SubElement(_xmlPref, 'nvt', oid=nvt_oid)
-            _xmlName = etree.SubElement(_xmlPref, 'name')
-            _xmlName.text = name
-            _xmlValue = etree.SubElement(_xmlPref, 'value')
-            _xmlValue.text = value
-
-        elif selection in 'nvt_selection':
-            nvt_oid = kwargs.get('nvt_oid')
-            family = kwargs.get('family')
-            _xmlNvtSel = etree.SubElement(xmlRoot, 'nvt_selection')
-            _xmlFamily = etree.SubElement(_xmlNvtSel, 'family')
-            _xmlFamily.text = family
-
-            if isinstance(nvt_oid, list):
-                for nvt in nvt_oid:
-                    _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
-            else:
-                _xmlNvt = etree.SubElement(_xmlNvtSel, 'nvt', oid=nvt)
-
-        elif selection in 'family_selection':
-            family = kwargs.get('family')
-            _xmlFamSel = etree.SubElement(xmlRoot, 'family_selection')
-            _xmlGrow = etree.SubElement(_xmlFamSel, 'growing')
-            _xmlGrow.text = '1'
-            _xmlFamily = etree.SubElement(_xmlFamSel, 'family')
-            _xmlName = etree.SubElement(_xmlFamily, 'name')
-            _xmlName.text = family
-            _xmlAll = etree.SubElement(_xmlFamily, 'all')
-            _xmlAll.text = '1'
-            _xmlGrowI = etree.SubElement(_xmlFamily, 'growing')
-            _xmlGrowI.text = '1'
-        else:
-            raise NotImplementedError
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyCredentialCommand(self, credential_id, kwargs):
-
-        if not credential_id:
-            raise ValueError('modify_credential requires '
-                             'a credential_id attribute')
-
-        xmlRoot = etree.Element('modify_credential',
-                                credential_id=credential_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        allow_insecure = kwargs.get('allow_insecure', '')
-        if allow_insecure:
-            _xmlAllowinsecure = etree.SubElement(xmlRoot, 'allow_insecure')
-            _xmlAllowinsecure.text = allow_insecure
-
-        certificate = kwargs.get('certificate', '')
-        if certificate:
-            _xmlCertificate = etree.SubElement(xmlRoot, 'certificate')
-            _xmlCertificate.text = certificate
-
-        key = kwargs.get('key', '')
-        if key:
-            phrase = key['phrase']
-            private = key['private']
-            if not phrase:
-                raise ValueError('modify_credential requires a phrase element')
-            if not private:
-                raise ValueError('modify_credential requires '
-                                 'a private element')
-            _xmlKey = etree.SubElement(xmlRoot, 'key')
-            _xmlKeyphrase = etree.SubElement(_xmlKey, 'phrase')
-            _xmlKeyphrase.text = phrase
-            _xmlKeyprivate = etree.SubElement(_xmlKey, 'private')
-            _xmlKeyprivate.text = private
-
-        login = kwargs.get('login', '')
-        if login:
-            _xmlLogin = etree.SubElement(xmlRoot, 'login')
-            _xmlLogin.text = login
-
-        password = kwargs.get('password', '')
-        if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
-
-        auth_algorithm = kwargs.get('auth_algorithm', '')
-        if auth_algorithm:
-            if auth_algorithm not in ('md5', 'sha1'):
-                raise ValueError('modify_credential requires auth_algorithm '
-                                 'to be either md5 or sha1')
-            _xmlAuthalg = etree.SubElement(xmlRoot, 'auth_algorithm')
-            _xmlAuthalg.text = auth_algorithm
-
-        community = kwargs.get('community', '')
-        if community:
-            _xmlCommunity = etree.SubElement(xmlRoot, 'community')
-            _xmlCommunity.text = community
-
-        privacy = kwargs.get('privacy', '')
-        if privacy:
-            algorithm = privacy.algorithm
-            if algorithm not in ('aes', 'des'):
-                raise ValueError('modify_credential requires algorithm '
-                                 'to be either aes or des')
-            p_password = privacy.password
-            _xmlPrivacy = etree.SubElement(xmlRoot, 'privacy')
-            _xmlAlgorithm = etree.SubElement(_xmlPrivacy, 'algorithm')
-            _xmlAlgorithm.text = algorithm
-            _xmlPpass = etree.SubElement(_xmlPrivacy, 'password')
-            _xmlPpass.text = p_password
-
-        cred_type = kwargs.get('type', '')
-        if cred_type:
-            if cred_type not in ('cc', 'snmp', 'up', 'usk'):
-                raise ValueError('modify_credential requires type '
-                                 'to be either cc, snmp, up or usk')
-            _xmlCredtype = etree.SubElement(xmlRoot, 'type')
-            _xmlCredtype.text = cred_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyFilterCommand(self, filter_id, kwargs):
-
-        if not filter_id:
-            raise ValueError('modify_filter requires a filter_id attribute')
-
-        xmlRoot = etree.Element('modify_filter', filter_id=filter_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
-
-        term = kwargs.get('term', '')
-        if term:
-            _xmlTerm = etree.SubElement(xmlRoot, 'term')
-            _xmlTerm.text = term
-
-        filter_type = kwargs.get('type', '')
-        if filter_type:
-            if filter_type not in ('cc', 'snmp', 'up', 'usk'):
-                raise ValueError('modify_filter requires type '
-                                 'to be either cc, snmp, up or usk')
-            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
-            _xmlFiltertype.text = filter_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyGroupCommand(self, group_id, kwargs):
-
-        if not group_id:
-            raise ValueError('modify_group requires a group_id attribute')
-
-        xmlRoot = etree.Element('modify_group', group_id=group_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        users = kwargs.get('users', '')
-        if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyNoteCommand(self, note_id, text, kwargs):
-
-        if not note_id:
-            raise ValueError('modify_note requires a note_id attribute')
-        if not text:
-            raise ValueError('modify_note requires a text element')
-
-        xmlRoot = etree.Element('modify_note', note_id=note_id)
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
-
-        hosts = kwargs.get('hosts', '')
-        if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
-
-        port = kwargs.get('port', '')
-        if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
-
-        result_id = kwargs.get('result_id', '')
-        if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
-
-        severity = kwargs.get('severity', '')
-        if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
-
-        task_id = kwargs.get('task_id', '')
-        if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
-
-        threat = kwargs.get('threat', '')
-        if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyOverrideCommand(self, override_id, text, kwargs):
-
-        xmlRoot = etree.Element('modify_override',
-                                override_id=override_id)
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
-
-        hosts = kwargs.get('hosts', '')
-        if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
-
-        port = kwargs.get('port', '')
-        if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
-
-        result_id = kwargs.get('result_id', '')
-        if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
-
-        severity = kwargs.get('severity', '')
-        if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
-
-        new_severity = kwargs.get('new_severity', '')
-        if new_severity:
-            _xmlNSeverity = etree.SubElement(xmlRoot, 'new_severity')
-            _xmlNSeverity.text = new_severity
-
-        task_id = kwargs.get('task_id', '')
-        if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
-
-        threat = kwargs.get('threat', '')
-        if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
-
-        new_threat = kwargs.get('new_threat', '')
-        if new_threat:
-            _xmlNThreat = etree.SubElement(xmlRoot, 'new_threat')
-            _xmlNThreat.text = new_threat
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyPermissionCommand(self, permission_id, kwargs):
-
-        if not permission_id:
-            raise ValueError('modify_permission requires '
-                             'a permission_id element')
-
-        xmlRoot = etree.Element('modify_permission',
-                                permission_id=permission_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        resource = kwargs.get('resource', '')
-        if resource:
-            resource_id = resource['id']
-            resource_type = resource['type']
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
-
-        subject = kwargs.get('subject', '')
-        if subject:
-            subject_id = subject['id']
-            subject_type = subject['type']
-            _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
-            _xmlType = etree.SubElement(_xmlSubject, 'type')
-            _xmlType.text = subject_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyPortListCommand(self, port_list_id, kwargs):
-
-        if not port_list_id:
-            raise ValueError('modify_port_list requires '
-                             'a port_list_id attribute')
-        xmlRoot = etree.Element('modify_port_list',
-                                port_list_id=port_list_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyReportFormatCommand(self, report_format_id, kwargs):
-
-        if len(kwargs) < 1:
-            raise Exception('modify_report_format: Missing parameter')
-
-        xmlRoot = etree.Element('modify_report_format',
-                                report_format_id=report_format_id)
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-            summary = kwargs.get('summary', '')
-        if summary:
-            _xmlSummary = etree.SubElement(xmlRoot, 'summary')
-            _xmlSummary.text = summary
-
-        param = kwargs.get('param', '')
-        if param:
-            p_name = param[0]
-            p_value = param[1]
-            _xmlParam = etree.SubElement(xmlRoot, 'param')
-            _xmlPname = etree.SubElement(_xmlParam, 'name')
-            _xmlPname.text = p_name
-            _xmlValue = etree.SubElement(_xmlParam, 'value')
-            _xmlValue.text = p_value
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyRoleCommand(self, role_id, kwargs):
-
-        if not role_id:
-            raise ValueError('modify_role requires a role_id element')
-
-        xmlRoot = etree.Element('modify_role',
-                                role_id=role_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        users = kwargs.get('users', '')
-        if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyScannerCommand(self, scanner_id, host, port, type, kwargs):
-
-        if not scanner_id:
-            raise ValueError('modify_scanner requires a scanner_id element')
-        if not host:
-            raise ValueError('modify_scanner requires a host element')
-        if not port:
-            raise ValueError('modify_scanner requires a port element')
-        if not type:
-            raise ValueError('modify_scanner requires a type element')
-
-        xmlRoot = etree.Element('modify_scanner', scanner_id=scanner_id)
-        _xmlHost = etree.SubElement(xmlRoot, 'host')
-        _xmlHost.text = host
-        _xmlPort = etree.SubElement(xmlRoot, 'port')
-        _xmlPort.text = port
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        ca_pub = kwargs.get('ca_pub', '')
-        if ca_pub:
-            _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
-            _xmlCAPub.text = ca_pub
-
-        credential_id = kwargs.get('credential_id', '')
-        if credential_id:
-            _xmlCred = etree.SubElement(xmlRoot, 'credential',
-                                        id=str(credential_id))
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyScheduleCommand(self, schedule_id, kwargs):
-
-        if not schedule_id:
-            raise ValueError('modify_schedule requires a schedule_id element')
-
-        xmlRoot = etree.Element('modify_schedule', schedule_id=schedule_id)
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        first_time = kwargs.get('first_time', '')
-        if first_time:
-            first_time_minute = first_time['minute']
-            first_time_hour = first_time['hour']
-            first_time_day_of_month = first_time['day_of_month']
-            first_time_month = first_time['month']
-            first_time_year = first_time['year']
-
-            _xmlFtime = etree.SubElement(xmlRoot, 'first_time')
-            _xmlMinute = etree.SubElement(_xmlFtime, 'minute')
-            _xmlMinute.text = str(first_time_minute)
-            _xmlHour = etree.SubElement(_xmlFtime, 'hour')
-            _xmlHour.text = str(first_time_hour)
-            _xmlDay = etree.SubElement(_xmlFtime, 'day_of_month')
-            _xmlDay.text = str(first_time_day_of_month)
-            _xmlMonth = etree.SubElement(_xmlFtime, 'month')
-            _xmlMonth.text = str(first_time_month)
-            _xmlYear = etree.SubElement(_xmlFtime, 'year')
-            _xmlYear.text = str(first_time_year)
-
-        duration = kwargs.get('duration', '')
-        if len(duration) > 1:
-            _xmlDuration = etree.SubElement(xmlRoot, 'duration')
-            _xmlDuration.text = str(duration[0])
-            _xmlUnit = etree.SubElement(_xmlDuration, 'unit')
-            _xmlUnit.text = str(duration[1])
-
-        period = kwargs.get('period', '')
-        if len(period) > 1:
-            _xmlPeriod = etree.SubElement(xmlRoot, 'period')
-            _xmlPeriod.text = str(period[0])
-            _xmlPUnit = etree.SubElement(_xmlPeriod, 'unit')
-            _xmlPUnit.text = str(period[1])
-
-        timezone = kwargs.get('timezone', '')
-        if timezone:
-            _xmlTimezone = etree.SubElement(xmlRoot, 'timezone')
-            _xmlTimezone.text = str(timezone)
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyTagCommand(self, tag_id, kwargs):
-
-        if not tag_id:
-            raise ValueError('modify_tag requires a tag_id element')
-
-        xmlRoot = etree.Element('modify_tag', tag_id=str(tag_id))
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        value = kwargs.get('value', '')
-        if value:
-            _xmlValue = etree.SubElement(xmlRoot, 'value')
-            _xmlValue.text = value
-
-        active = kwargs.get('active', '')
-        if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = value
-
-        resource = kwargs.get('resource', '')
-        if resource:
-            resource_id = resource['id']
-            resource_type = resource['type']
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            resource_id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyTargetCommand(self, target_id, kwargs):
-
-        if not target_id:
-            raise ValueError('modify_target requires a target_id element')
-
-        xmlRoot = etree.Element('modify_target', target_id=target_id)
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        hosts = kwargs.get('hosts', '')
-        if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
-
-        copy = kwargs.get('copy', '')
-        if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = kwargs.get('copy')
-
-        exclude_hosts = kwargs.get('exclude_hosts', '')
-        if exclude_hosts:
-            _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
-            _xmlExHosts.text = kwargs.get('exclude_hosts')
-
-        alive_tests = kwargs.get('alive_tests', '')
-        if alive_tests:
-            _xmlAlive = etree.SubElement(xmlRoot, 'alive_tests')
-            _xmlAlive.text = kwargs.get('alive_tests')
-
-        reverse_lookup_only = kwargs.get('reverse_lookup_only', '')
-        if reverse_lookup_only:
-            _xmlLookup = etree.SubElement(xmlRoot, 'reverse_lookup_only')
-            _xmlLookup.text = reverse_lookup_only
-
-        reverse_lookup_unify = kwargs.get('reverse_lookup_unify', '')
-        if reverse_lookup_unify:
-            _xmlLookupU = etree.SubElement(xmlRoot, 'reverse_lookup_unify')
-            _xmlLookupU.text = reverse_lookup_unify
-
-        port_range = kwargs.get('port_range', '')
-        if port_range:
-            _xmlPortR = etree.SubElement(xmlRoot, 'port_range')
-            _xmlPortR.text = kwargs.get('port_range')
-
-        port_list = kwargs.get('port_list', '')
-        if port_list:
-            _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
-                                         id=str(port_list))
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyTaskCommand(self, task_id, kwargs):
-
-        if not task_id:
-            raise ValueError('modify_task requires a task_id element')
-
-        xmlRoot = etree.Element('modify_task', task_id=task_id)
-
-        name = kwargs.get('name', '')
-        if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
-        comment = kwargs.get('comment', '')
-        if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
-
-        target_id = kwargs.get('target_id', '')
-        if target_id:
-            _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
-
-        scanner = kwargs.get('scanner', '')
-        if scanner:
-            _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner)
-
-        schedule_periods = kwargs.get('schedule_periods', '')
-        if schedule_periods:
-            _xmlPeriod = etree.SubElement(xmlRoot, 'schedule_periods')
-            _xmlPeriod.text = str(schedule_periods)
-
-        schedule = kwargs.get('schedule', '')
-        if schedule:
-            _xmlSched = etree.SubElement(xmlRoot, 'schedule', id=str(schedule))
-
-        alert = kwargs.get('alert', '')
-        if alert:
-            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
-
-        observers = kwargs.get('observers', '')
-        if observers:
-            _xmlObserver = etree.SubElement(xmlRoot, 'observers')
-            _xmlObserver.text = str(observers)
-
-        preferences = kwargs.get('preferences', '')
-        if preferences:
-            _xmlPrefs = etree.SubElement(xmlRoot, 'preferences')
-            for n in range(len(preferences["scanner_name"])):
-                preferences_scanner_name = preferences["scanner_name"][n]
-                preferences_value = preferences["value"][n]
-                _xmlPref = etree.SubElement(_xmlPrefs, 'preference')
-                _xmlScan = etree.SubElement(_xmlPref, 'scanner_name')
-                _xmlScan.text = preferences_scanner_name
-                _xmlVal = etree.SubElement(_xmlPref, 'value')
-                _xmlVal.text = preferences_value
-
-        file = kwargs.get('file', '')
-        if file:
-            file_name = file['name']
-            file_action = file['action']
-            if file_action != "update" and file_action != "remove":
-                raise ValueError('action can only be "update" or "remove"!')
-            _xmlFile = etree.SubElement(xmlRoot, 'file', name=file_name,
-                                        action=file_action)
-
-        return etree.tostring(xmlRoot).decode('utf-8')
-
-    def modifyUserCommand(self, kwargs):
-
+        cmd = self.gmp_generator.create_task_command(
+            name, config_id, target_id, scanner_id, alert_ids, comment)
+        self.send(cmd)
+        return self.read()
+
+    def create_user(self, name, password, copy='', hosts_allow='0',
+                    ifaces_allow='0', role_ids=(), hosts=None, ifaces=None):
+        cmd = self.gmp_generator.create_user_command(
+            name, password, copy, hosts_allow, ifaces_allow, role_ids,
+            hosts, ifaces)
+        self.send(cmd)
+        return self.read()
+
+    def delete_agent(self, **kwargs):
+        self.send('<delete_agent {0}/>'.format(
+            self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def delete_alert(self, **kwargs):
+        # if self.ask_yes_or_no('Are you sure to delete this alert? '):
+        self.send(
+            '<delete_alert {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def delete_asset(self, asset_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this asset? '):
+        self.send('<delete_asset asset_id="{0}" ultimate="{1}"/>'
+                  .format(asset_id, ultimate))
+        return self.read()
+
+    def delete_config(self, config_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this config? '):
+        self.send('<delete_config config_id="{0}" ultimate="{1}"/>'
+                  .format(config_id, ultimate))
+        return self.read()
+
+    def delete_credential(self, credential_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this credential? '):
+        self.send(
+            '<delete_credential credential_id="{0}" ultimate="{1}"/>'.format
+            (credential_id, ultimate))
+        return self.read()
+
+    def delete_filter(self, filter_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this filter? '):
+        self.send('<delete_filter filter_id="{0}" ultimate="{1}"/>'
+                  .format(filter_id, ultimate))
+        return self.read()
+
+    def delete_group(self, group_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this group? '):
+        self.send('<delete_group group_id="{0}" ultimate="{1}"/>'
+                  .format(group_id, ultimate))
+        return self.read()
+
+    def delete_note(self, note_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this note? '):
+        self.send('<delete_note note_id="{0}" ultimate="{1}"/>'
+                  .format(note_id, ultimate))
+        return self.read()
+
+    def delete_override(self, override_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this override? '):
+        self.send('<delete_override override_id="{0}" ultimate="{1}"/>'
+                  .format(override_id, ultimate))
+        return self.read()
+
+    def delete_permission(self, permission_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this permission? '):
+        self.send('<delete_permission permission_id="{0}" ultimate="{1}"/>'
+                  .format(permission_id, ultimate))
+        return self.read()
+
+    def delete_port_list(self, port_list_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this port_list? '):
+        self.send('<delete_port_list port_list_id="{0}" ultimate="{1}"/>'
+                  .format(port_list_id, ultimate))
+        return self.read()
+
+    def delete_port_range(self, port_range_id):
+        # if self.ask_yes_or_no('Are you sure to delete this port_range? '):
+        self.send('<delete_port_range port_range_id="{0}"/>'
+                  .format(port_range_id))
+        return self.read()
+
+    def delete_report(self, report_id):
+        # if self.ask_yes_or_no('Are you sure to delete this report? '):
+        self.send('<delete_report report_id="{0}"/>'
+                  .format(report_id))
+        return self.read()
+
+    def delete_report_format(self, report_format_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this report_format? '):
+        self.send('<delete_report_format report_format_id="{0}" \
+                   ultimate="{1}"/>'.format(report_format_id, ultimate))
+        return self.read()
+
+    def delete_role(self, role_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this role? '):
+        self.send('<delete_role role_id="{0}" ultimate="{1}"/>'
+                  .format(role_id, ultimate))
+        return self.read()
+
+    def delete_scanner(self, scanner_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this scanner? '):
+        self.send('<delete_scanner scanner_id="{0}" ultimate="{1}"/>'
+                  .format(scanner_id, ultimate))
+        return self.read()
+
+    def delete_schedule(self, schedule_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this schedule? '):
+        self.send('<delete_schedule schedule_id="{0}" ultimate="{1}"/>'
+                  .format(schedule_id, ultimate))
+        return self.read()
+
+    def delete_tag(self, tag_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this tag? '):
+        self.send('<delete_tag tag_id="{0}" ultimate="{1}"/>'
+                  .format(tag_id, ultimate))
+        return self.read()
+
+    def delete_target(self, target_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this target? '):
+        self.send('<delete_target target_id="{0}" ultimate="{1}"/>'
+                  .format(target_id, ultimate))
+        return self.read()
+
+    def delete_task(self, task_id, ultimate=0):
+        # if self.ask_yes_or_no('Are you sure to delete this task? '):
+        self.send('<delete_task task_id="{0}" ultimate="{1}"/>'
+                  .format(task_id, ultimate))
+        return self.read()
+
+    def delete_user(self, **kwargs):
         user_id = kwargs.get('user_id', '')
+        if user_id:
+            user_id = ' user_id="%s"' % user_id
+
         name = kwargs.get('name', '')
-        if not user_id and not name:
-            raise ValueError('modify_user requires '
-                             'either a user_id or a name element')
+        if name:
+            name = ' name="%s"' % name
 
-        xmlRoot = etree.Element('modify_user', user_id=str(user_id))
+        inheritor_id = kwargs.get('inheritor_id', '')
+        if inheritor_id:
+            inheritor_id = ' inheritor_id="%s"' % inheritor_id
 
-        new_name = kwargs.get('new_name', '')
-        if new_name:
-            _xmlName = etree.SubElement(xmlRoot, 'new_name')
-            _xmlName.text = new_name
+        inheritor_name = kwargs.get('inheritor_name', '')
+        if inheritor_name:
+            inheritor_name = ' inheritor_name="%s"' % inheritor_name
 
-        password = kwargs.get('password', '')
-        if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
+        self.send('<delete_user{0}{1}{2}{3}/>'
+                  .format(user_id, name, inheritor_id, inheritor_name))
+        return self.read()
 
-        role_ids = kwargs.get('role_ids', '')
-        if len(role_ids) > 0:
-            for role in role_ids:
-                _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                            id=str(role))
-        hosts = kwargs.get('hosts', '')
-        hosts_allow = kwargs.get('hosts_allow', '')
-        if hosts or hosts_allow:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(hosts_allow))
-            _xmlHosts.text = hosts
+    def describe_auth(self):
+        self.send('<describe_auth/>')
+        return self.read()
 
-        ifaces = kwargs.get('ifaces', '')
-        ifaces_allow = kwargs.get('ifaces_allow', '')
-        if ifaces or ifaces_allow:
-            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
-                                          allow=str(ifaces_allow))
-            _xmlIFaces.text = ifaces
+    def empty_trashcan(self):
+        self.send('<empty_trashcan/>')
+        return self.read()
 
-        sources = kwargs.get('sources', '')
-        if sources:
-            _xmlSource = etree.SubElement(xmlRoot, 'sources')
-            _xmlSource.text = sources
+    def get_agents(self, **kwargs):
+        self.send('<get_agents {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+    def get_aggregates(self, **kwargs):
+        self.send(
+            '<get_aggregates {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_alerts(self, **kwargs):
+        self.send('<get_alerts {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_assets(self, **kwargs):
+        self.send('<get_assets {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_credentials(self, **kwargs):
+        self.send(
+            '<get_credentials {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_configs(self, **kwargs):
+        self.send('<get_configs {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_feeds(self, **kwargs):
+        self.send('<get_feeds {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_filters(self, **kwargs):
+        self.send('<get_filters {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_groups(self, **kwargs):
+        self.send('<get_groups {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_info(self, **kwargs):
+        self.send('<get_info {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_notes(self, **kwargs):
+        self.send('<get_notes {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_nvts(self, **kwargs):
+        self.send('<get_nvts {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_nvt_families(self, **kwargs):
+        self.send(
+            '<get_nvt_families {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_overrides(self, **kwargs):
+        self.send(
+            '<get_overrides {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_permissions(self, **kwargs):
+        self.send(
+            '<get_permissions {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_port_lists(self, **kwargs):
+        self.send(
+            '<get_port_lists {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_preferences(self, **kwargs):
+        self.send(
+            '<get_preferences {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_reports(self, **kwargs):
+        self.send('<get_reports {0}/>'
+                  .format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_report_formats(self, **kwargs):
+        self.send('<get_report_formats {0}/>'.format(
+            self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_results(self, **kwargs):
+        self.send('<get_results {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_roles(self, **kwargs):
+        self.send('<get_roles {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_scanners(self, **kwargs):
+        self.send('<get_scanners {0}/>'.format(
+            self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_schedules(self, **kwargs):
+        self.send(
+            '<get_schedules {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_settings(self, **kwargs):
+        self.send('<get_settings {0}/>'.format(
+            self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_system_reports(self, **kwargs):
+        self.send('<get_system_reports {0}/>'.format(
+            self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_tags(self, **kwargs):
+        self.send('<get_tags {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_targets(self, **kwargs):
+        self.send('<get_targets {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_tasks(self, **kwargs):
+        self.send('<get_tasks {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_users(self, **kwargs):
+        self.send('<get_users {0}/>'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def get_version(self):
+        self.send('<get_version/>')
+        return self.read()
+
+    def help(self, **kwargs):
+        self.send('<help {0} />'.format(self.arguments_to_string(kwargs)))
+        return self.read()
+
+    def modify_agent(self, agent_id, name='', comment=''):
+        cmd = self.gmp_generator.modify_agent_command(agent_id, name, comment)
+        self.send(cmd)
+        return self.read()
+
+    def modify_alert(self, alert_id, **kwargs):
+        cmd = self.gmp_generator.modify_alert_command(alert_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_asset(self, asset_id, comment):
+        cmd = '<modify_asset asset_id="%s"><comment>%s</comment>' \
+              '</modify_asset>' % (asset_id, comment)
+        self.send(cmd)
+        return self.read()
+
+    def modify_auth(self, group_name, auth_conf_settings):
+        cmd = self.gmp_generator.modify_auth_command(group_name,
+                                                     auth_conf_settings)
+        self.send(cmd)
+        return self.read()
+
+    def modify_config(self, selection, **kwargs):
+        cmd = self.gmp_generator.modify_config_command(selection, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_credential(self, credential_id, **kwargs):
+        cmd = self.gmp_generator.modify_credential_command(
+            credential_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_filter(self, filter_id, **kwargs):
+        cmd = self.gmp_generator.modify_filter_command(filter_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_group(self, group_id, **kwargs):
+        cmd = self.gmp_generator.modify_group_command(group_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_note(self, note_id, text, **kwargs):
+        cmd = self.gmp_generator.modify_note_command(note_id, text, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_override(self, override_id, text, **kwargs):
+        cmd = self.gmp_generator.modify_override_command(override_id, text,
+                                                         kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_permission(self, permission_id, **kwargs):
+        cmd = self.gmp_generator.modify_permission_command(
+            permission_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_port_list(self, port_list_id, **kwargs):
+        cmd = self.gmp_generator.modify_port_list_command(port_list_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_report(self, report_id, comment):
+        cmd = '<modify_report report_id="{0}"><comment>{1}</comment>' \
+              '</modify_report>'.format(report_id, comment)
+        self.send(cmd)
+        return self.read()
+
+    def modify_report_format(self, report_format_id, **kwargs):
+        cmd = self.gmp_generator.modify_report_format_command(report_format_id,
+                                                              kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_role(self, role_id, **kwargs):
+        cmd = self.gmp_generator.modify_role_command(role_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_scanner(self, scanner_id, host, port, scanner_type, **kwargs):
+        cmd = self.gmp_generator.modify_scanner_command(scanner_id, host, port,
+                                                        scanner_type, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_schedule(self, schedule_id, **kwargs):
+        cmd = self.gmp_generator.modify_schedule_command(schedule_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_setting(self, setting_id, name, value):
+        cmd = '<modify_setting setting_id="{0}"><name>{1}</name>' \
+              '<value>{2}</value></modify_setting>' \
+              ''.format(setting_id, name, value)
+        self.send(cmd)
+        return self.read()
+
+    def modify_tag(self, tag_id, **kwargs):
+        cmd = self.gmp_generator.modify_tag_command(tag_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_target(self, target_id, **kwargs):
+        cmd = self.gmp_generator.modify_target_command(target_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_task(self, task_id, **kwargs):
+        cmd = self.gmp_generator.modify_task_command(task_id, kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def modify_user(self, **kwargs):
+        cmd = self.gmp_generator.modify_user_command(kwargs)
+        self.send(cmd)
+        return self.read()
+
+    def move_task(self, task_id, slave_id):
+        self.send('<move_task task_id="{0}" slave_id="{1}"/>'
+                  .format(task_id, slave_id))
+        return self.read()
+
+    def restore(self, entity_id):
+        self.send('<restore id="{0}"/>'.format(entity_id))
+        return self.read()
+
+    def resume_task(self, task_id):
+        self.send('<resume_task task_id="{0}"/>'.format(task_id))
+        return self.read()
+
+    def start_task(self, task_id):
+        self.send('<start_task task_id="{0}"/>'.format(task_id))
+        return self.read()
+
+    def stop_task(self, task_id):
+        self.send('<stop_task task_id="{0}"/>'.format(task_id))
+        return self.read()
+
+    def sync_cert(self):
+        self.send('<sync_cert/>')
+        return self.read()
+
+    def sync_config(self):
+        self.send('<sync_config/>')
+        return self.read()
+
+    def sync_feed(self):
+        self.send('<sync_feed/>')
+        return self.read()
+
+    def sync_scap(self):
+        self.send('<sync_scap/>')
+        return self.read()
+
+    def test_alert(self, alert_id):
+        self.send('<test_alert alert_id="{0}"/>'.format(alert_id))
+        return self.read()
+
+    def verify_agent(self, agent_id):
+        self.send('<verify_agent agent_id="{0}"/>'.format(agent_id))
+        return self.read()
+
+    def verify_report_format(self, report_format_id):
+        self.send('<verify_report_format report_format_id="{0}"/>'.format(
+            report_format_id))
+        return self.read()
+
+    def verify_scanner(self, scanner_id):
+        self.send('<verify_scanner scanner_id="{0}"/>'.format(scanner_id))
+        return self.read()
+
+
+class SSHConnection(GVMConnection):
+    """SSH Class to connect, read and write from GVM via SSH
+
+    [description]
+
+    Variables:
+        sock {[type]} -- Channel from paramiko after successful connection
+
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.hostname = kwargs.get('hostname', '127.0.0.1')
+        self.port = kwargs.get('port', 22)
+        self.raw_response = kwargs.get('raw_response', False)
+        self.timeout = kwargs.get('timeout', DEFAULT_TIMEOUT)
+        self.ssh_user = kwargs.get('ssh_user', 'gmp')
+        self.ssh_password = kwargs.get('ssh_password', '')
+        self.shell_mode = kwargs.get('shell_mode', False)
+        self.sock = paramiko.SSHClient()
+        # self.sock.load_system_host_keys()
+        # self.sock.set_missing_host_key_policy(paramiko.WarningPolicy())
+        self.sock.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        try:
+            self.sock.connect(
+                hostname=self.hostname,
+                username=self.ssh_user,
+                password=self.ssh_password,
+                timeout=self.timeout,
+                port=int(self.port),
+                allow_agent=False,
+                look_for_keys=False)
+            self.stdin, self.stdout, self.stderr = self.sock.exec_command(
+                "", get_pty=False)
+
+        except (paramiko.BadHostKeyException,
+                paramiko.AuthenticationException,
+                paramiko.SSHException, OSError) as e:
+            logger.debug('SSH Connection failed: %s', e)
+            raise
+
+    def read_all(self):
+        self.first_element = None
+        self.parser = etree.XMLPullParser(('start', 'end'))
+
+        response = ''
+
+        while True:
+            data = self.stdout.channel.recv(BUF_SIZE)
+            # Connection was closed by server
+            if not data:
+                break
+
+            self.parser.feed(data)
+
+            response += data.decode('utf-8')
+
+            if self.valid_xml():
+                break
+        return response
+
+    def cmd_splitter(self):
+        """ Receive the cmd string longer than MAX_SSH_COMMAND_LENGTH
+        and send it in blocks not longer than MAX_SSH_COMMAND_LENGTH.
+        """
+        i_start = 0
+        i_end = MAX_SSH_COMMAND_LENGTH
+        sent_bytes = 0
+        while sent_bytes < len(self.cmd):
+            time.sleep(0.01)
+            self.stdin.channel.send(self.cmd[i_start:i_end])
+            i_start = i_end
+            if i_end > len(self.cmd):
+                i_end = len(self.cmd)
+            else:
+                i_end = i_end + MAX_SSH_COMMAND_LENGTH
+            sent_bytes += (i_end - i_start)
+
+        return sent_bytes
+
+    def send_all(self, cmd):
+        logger.debug('SSH:send(): %s', cmd)
+        self.cmd = str(cmd)
+        if len(self.cmd) > MAX_SSH_COMMAND_LENGTH:
+            sent_bytes = self.cmd_splitter()
+            logger.debug("SSH: %i bytes sent.", sent_bytes)
+        else:
+            self.stdin.channel.send(self.cmd)
+
+class TLSConnection(GVMConnection):
+    """TLS class to connect, read and write from GVM via tls secured socket
+
+    [description]
+
+    Variables:
+        sock {socket.socket} -- Socket that holds the connection
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.hostname = kwargs.get('hostname', '127.0.0.1')
+        self.port = kwargs.get('port', 9390)
+        self.raw_response = kwargs.get('raw_response', False)
+        self.timeout = kwargs.get('timeout', DEFAULT_TIMEOUT)
+        self.shell_mode = kwargs.get('shell_mode', False)
+        self.cert = kwargs.get('certfile', None)
+        self.cacert = kwargs.get('cafile', None)
+        self.key = kwargs.get('keyfile', None)
+        if self.cert and self.cacert and self.key:
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH,
+                                                 cafile=self.cacert)
+            context.check_hostname = False
+            context.load_cert_chain(certfile=self.cert, keyfile=self.key)
+            new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock = context.wrap_socket(new_socket, server_side=False)
+        else:
+            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+            self.sock = context.wrap_socket(socket.socket(socket.AF_INET))
+        self.sock.settimeout(self.timeout)
+        self.sock.connect((self.hostname, int(self.port)))
+
+    def send_all(self, cmd):
+        self.sock.send(cmd.encode())
+
+    def read_all(self):
+        response = ''
+        while True:
+            data = self.sock.read(BUF_SIZE)
+
+            response += data.decode(errors='ignore')
+            if len(data) < BUF_SIZE:
+                break
+        return response
+
+
+class UnixSocketConnection(GVMConnection):
+    """UNIX-Socket class to connect, read, write from GVM
+    via direct communicating UNIX-Socket
+
+    [description]
+
+    Variables:
+        sock {socket.socket} -- Socket that holds the connection
+        sockpath {string} -- Path to UNIX-Socket
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.raw_response = kwargs.get('raw_response', False)
+        self.sockpath = kwargs.get('sockpath',
+                                   '/usr/local/var/run/gvmd.sock')
+        self.shell_mode = kwargs.get('shell_mode', False)
+        self.timeout = kwargs.get('timeout', DEFAULT_TIMEOUT)
+        self.read_timeout = kwargs.get('read_timeout', DEFAULT_READ_TIMEOUT)
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) #pylint: disable=E1101
+        self.sock.settimeout(self.timeout)
+        self.sock.connect(self.sockpath)
+
+    def read_all(self):
+        self.first_element = None
+        self.parser = etree.XMLPullParser(('start', 'end'))
+        response = ''
+
+        read_timeout = self.read_timeout
+        break_timeout = time.time() + read_timeout
+        old_timeout = self.sock.gettimeout()
+        self.sock.settimeout(5)  # in seconds
+
+        while time.time() < break_timeout:
+            data = b''
+            try:
+                data = self.sock.recv(BUF_SIZE)
+            except (socket.timeout) as exception:
+                logger.debug('Warning: No data recieved from server: %s',
+                             exception)
+                continue
+            self.parser.feed(data)
+            response += data.decode('utf-8')
+            if len(data) < BUF_SIZE:
+                if self.valid_xml():
+                    break
+
+        self.sock.settimeout(old_timeout)
+        return response
+
+    def send_all(self, cmd):
+        self.sock.send(cmd.encode())
