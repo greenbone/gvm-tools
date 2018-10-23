@@ -304,10 +304,6 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_report_format(self):
-        # TODO: Seems to be a complex task. It is needed?
-        raise NotImplementedError
-
     def create_role(self, name, **kwargs):
         cmd = self.gmp_generator.create_role_command(name, kwargs)
         self.send(cmd)
@@ -774,10 +770,6 @@ class GVMConnection:
     def resume_task(self, task_id):
         self.send('<resume_task task_id="{0}"/>'.format(task_id))
         return self.read()
-
-    def run_wizard(self):
-        # TODO: Is this required?
-        raise NotImplementedError
 
     def start_task(self, task_id):
         self.send('<start_task task_id="{0}"/>'.format(task_id))
