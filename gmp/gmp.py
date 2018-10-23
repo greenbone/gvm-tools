@@ -282,9 +282,9 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_permission(self, name, subject_id, type, **kwargs):
-        cmd = self.gmp_generator.create_permission_command(name, subject_id,
-                                                           type, kwargs)
+    def create_permission(self, name, subject_id, permission_type, **kwargs):
+        cmd = self.gmp_generator.create_permission_command(
+            name, subject_id, permission_type, kwargs)
         self.send(cmd)
         return self.read()
 
@@ -294,9 +294,10 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_port_range(self, port_list_id, start, end, type, comment=''):
-        cmd = self.gmp_generator.create_port_range_command(port_list_id, start,
-                                                           end, type, comment)
+    def create_port_range(self, port_list_id, start, end, port_range_type,
+                          comment=''):
+        cmd = self.gmp_generator.create_port_range_command(
+            port_list_id, start, end, port_range_type, comment)
         self.send(cmd)
         return self.read()
 
@@ -315,11 +316,11 @@ class GVMConnection:
         self.send(cmd)
         return self.read()
 
-    def create_scanner(self, name, host, port, type, ca_pub, credential_id,
-                       **kwargs):
-        cmd = self.gmp_generator.create_scanner_command(name, host, port, type,
-                                                        ca_pub, credential_id,
-                                                        kwargs)
+    def create_scanner(self, name, host, port, scanner_type, ca_pub,
+                       credential_id, **kwargs):
+        cmd = self.gmp_generator.create_scanner_command(name, host, port,
+                                                        scanner_type, ca_pub,
+                                                        credential_id, kwargs)
         self.send(cmd)
         return self.read()
 
