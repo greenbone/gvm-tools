@@ -30,7 +30,7 @@ from io import StringIO
 from lxml import etree
 import paramiko
 
-from gmp.xml import _gmp
+from gmp.xml import GmpCommandFactory
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class GVMConnection:
 
     def __init__(self):
         # GMP Message Creator
-        self.gmp_generator = _gmp()
+        self.gmp_generator = GmpCommandFactory()
 
         # Is authenticated on gvm
         self.authenticated = False

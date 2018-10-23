@@ -24,9 +24,11 @@ from lxml import etree
 import defusedxml.lxml as secET
 
 
-class _gmp:
-    """GMP - Greenbone Management Protocol
+class GmpCommandFactory:
+
+    """Factory to create gmp - Greenbone Manangement Protocol - commands
     """
+
     FILTER_NAMES = ['Agent', 'Alert', 'Asset', 'Credential',
              'Filter', 'Group', 'Note', 'Override', 'Permission', 'Port List',
               'Report', 'Report Format', 'Result', 'Role', 'Schedule', 'SecInfo',
