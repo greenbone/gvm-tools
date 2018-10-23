@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 BUF_SIZE = 1024
 DEFAULT_READ_TIMEOUT = 60 # in seconds
 DEFAULT_TIMEOUT = 60 # in seconds
+MAX_SSH_COMMAND_LENGTH = 4095
 
 class GMPError(Exception):
     pass
@@ -875,15 +876,12 @@ class SSHConnection(GVMConnection):
                 break
         return response
 
-    def cmd_splitter(self, max_len):
-        """ Receive the cmd string longer than max_len
-        and send it in blocks not longer than max_len.
-
-        Input:
-           max_len  The max length of a block to be sent.
+    def cmd_splitter(self):
+        """ Receive the cmd string longer than MAX_SSH_COMMAND_LENGTH
+        and send it in blocks not longer than MAX_SSH_COMMAND_LENGTH.
         """
         i_start = 0
-        i_end = max_len
+        i_end = MAX_SSH_COMMAND_LENGTH
         sent_bytes = 0
         while sent_bytes < len(self.cmd):
             time.sleep(0.01)
@@ -892,16 +890,16 @@ class SSHConnection(GVMConnection):
             if i_end > len(self.cmd):
                 i_end = len(self.cmd)
             else:
-                i_end = i_end + max_len
+                i_end = i_end + MAX_SSH_COMMAND_LENGTH
             sent_bytes += (i_end - i_start)
 
         return sent_bytes
 
-    def send_all(self, cmd, max_len=4095):
+    def send_all(self, cmd):
         logger.debug('SSH:send(): %s', cmd)
         self.cmd = str(cmd)
-        if len(self.cmd) > max_len:
-            sent_bytes = self.cmd_splitter(max_len)
+        if len(self.cmd) > MAX_SSH_COMMAND_LENGTH:
+            sent_bytes = self.cmd_splitter()
             logger.debug("SSH: %i bytes sent.", sent_bytes)
         else:
             self.stdin.channel.send(self.cmd)
