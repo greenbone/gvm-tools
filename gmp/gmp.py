@@ -882,7 +882,7 @@ class SSHConnection(GVMConnection):
                 break
         return response
 
-    def cmdSplitter(self, max_len):
+    def cmd_splitter(self, max_len):
         """ Receive the cmd string longer than max_len
         and send it in blocks not longer than max_len.
 
@@ -908,7 +908,7 @@ class SSHConnection(GVMConnection):
         logger.debug('SSH:send(): ' + cmd)
         self.cmd = str(cmd)
         if len(self.cmd) > max_len:
-            sent_bytes = self.cmdSplitter(max_len)
+            sent_bytes = self.cmd_splitter(max_len)
             logger.debug("SSH: {0} bytes sent.".format(sent_bytes))
         else:
             self.stdin.channel.send(self.cmd)
