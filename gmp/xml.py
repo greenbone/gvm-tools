@@ -30,11 +30,13 @@ class GmpCommandFactory:
     """
 
     FILTER_NAMES = ['Agent', 'Alert', 'Asset', 'Credential',
-             'Filter', 'Group', 'Note', 'Override', 'Permission', 'Port List',
-              'Report', 'Report Format', 'Result', 'Role', 'Schedule', 'SecInfo',
-               'Config', 'Tag', 'Target', 'Task', 'User']
-    def createAgentCommand(self, installer, signature, name, comment='',
-                           copy='', howto_install='', howto_use=''):
+                    'Filter', 'Group', 'Note', 'Override', 'Permission',
+                    'Port List', 'Report', 'Report Format', 'Result', 'Role',
+                    'Schedule', 'SecInfo', 'Config', 'Tag', 'Target', 'Task',
+                    'User']
+
+    def create_agent_command(self, installer, signature, name, comment='',
+                             copy='', howto_install='', howto_use=''):
 
         xmlRoot = etree.Element('create_agent')
         _xmlInstaller = etree.SubElement(xmlRoot, 'installer')
@@ -62,7 +64,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createAlertCommand(self, name, condition, event, method, filter_id='',
+    def create_alert_command(self, name, condition, event, method, filter_id='',
                            copy='', comment=''):
 
         xmlRoot = etree.Element('create_alert')
@@ -112,7 +114,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createAssetCommand(self, name, asset_type, comment=''):
+    def create_asset_command(self, name, asset_type, comment=''):
         if asset_type not in ('host', 'os'):
             raise ValueError('create_asset requires asset_type to be either '
                              'host or os')
@@ -129,7 +131,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createAuthenticateCommand(self, username, password, withCommands=''):
+    def create_authenticate_command(self, username, password, withCommands=''):
         """Generates string for authentification on GVM
 
         Creates the gmp authentication xml string.
@@ -156,7 +158,7 @@ class GmpCommandFactory:
         xmlRootCmd.append(cmds)
         return etree.tostring(xmlRootCmd).decode('utf-8')
 
-    def createConfigCommand(self, copy_id, name):
+    def create_config_command(self, copy_id, name):
 
         xmlRoot = etree.Element('create_config')
         _xmlCopy = etree.SubElement(xmlRoot, 'copy')
@@ -165,7 +167,7 @@ class GmpCommandFactory:
         _xmlName.text = name
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createCredentialCommand(self, name, kwargs):
+    def create_credential_command(self, name, kwargs):
 
         xmlRoot = etree.Element('create_credential')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -253,7 +255,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createFilterCommand(self, name, make_unique, kwargs):
+    def create_filter_command(self, name, make_unique, kwargs):
 
         xmlRoot = etree.Element('create_filter')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -289,7 +291,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createGroupCommand(self, name, kwargs):
+    def create_group_command(self, name, kwargs):
 
         xmlRoot = etree.Element('create_group')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -317,7 +319,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createNoteCommand(self, text, nvt_oid, kwargs):
+    def create_note_command(self, text, nvt_oid, kwargs):
 
         xmlRoot = etree.Element('create_note')
         _xmlText = etree.SubElement(xmlRoot, 'text')
@@ -369,7 +371,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createOverrideCommand(self, text, nvt_oid, kwargs):
+    def create_override_command(self, text, nvt_oid, kwargs):
 
         xmlRoot = etree.Element('create_override')
         _xmlText = etree.SubElement(xmlRoot, 'text')
@@ -431,7 +433,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createPermissionCommand(self, name, subject_id, type, kwargs):
+    def create_permission_command(self, name, subject_id, type, kwargs):
         # pretty(gmp.create_permission('get_version',
         # 'cc9cac5e-39a3-11e4-abae-406186ea4fc5', 'role'))
         # libs.gvm_connection.GMPError: Error in NAME
@@ -473,7 +475,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createPortListCommand(self, name, port_range, kwargs):
+    def create_port_list_command(self, name, port_range, kwargs):
 
         if not name:
             raise ValueError('create_port_list requires a name element')
@@ -498,8 +500,8 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createPortRangeCommand(self, port_list_id, start, end, type,
-                               comment=''):
+    def create_port_range_command(self, port_list_id, start, end, type,
+                                  comment=''):
 
         if not port_list_id:
             raise ValueError('create_port_range requires '
@@ -522,7 +524,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createReportCommand(self, report_xml_string, kwargs):
+    def create_report_command(self, report_xml_string, kwargs):
 
         if not report_xml_string:
             raise ValueError('create_report requires a report')
@@ -554,7 +556,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createRoleCommand(self, name, kwargs):
+    def create_role_command(self, name, kwargs):
 
         if not name:
             raise ValueError('create_role requires a name element')
@@ -580,8 +582,8 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createScannerCommand(self, name, host, port, type, ca_pub,
-                             credential_id, kwargs):
+    def create_scanner_command(self, name, host, port, type, ca_pub,
+                               credential_id, kwargs):
         if not name:
             raise ValueError('create_scanner requires a name element')
         if not host:
@@ -621,7 +623,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createScheduleCommand(self, name, kwargs):
+    def create_schedule_command(self, name, kwargs):
         if not name:
             raise ValueError('create_schedule requires a name element')
 
@@ -680,7 +682,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createTagCommand(self, name, resource_id, resource_type, kwargs):
+    def create_tag_command(self, name, resource_id, resource_type, kwargs):
 
         xmlRoot = etree.Element('create_tag')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -712,8 +714,7 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createTargetCommand(self, name, make_unique, kwargs):
-
+    def create_target_command(self, name, make_unique, kwargs):
         if not name:
             raise ValueError('create_target requires a name element')
 
@@ -829,8 +830,8 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          alert_ids=None, comment=''):
+    def create_task_command(self, name, config_id, target_id, scanner_id,
+                            alert_ids=None, comment=''):
         if alert_ids is None:
             alert_ids = []
         xmlRoot = etree.Element('create_task')
@@ -854,9 +855,9 @@ class GmpCommandFactory:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createUserCommand(self, name, password, copy='', hosts_allow='0',
-                          ifaces_allow='0', role_ids=(), hosts=None,
-                          ifaces=None):
+    def create_user_command(self, name, password, copy='', hosts_allow='0',
+                            ifaces_allow='0', role_ids=(), hosts=None,
+                            ifaces=None):
         xmlRoot = etree.Element('create_user')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
@@ -887,7 +888,6 @@ class GmpCommandFactory:
         return etree.tostring(xmlRoot).decode('utf-8')
 
     def modifyAgentCommand(self, agent_id, name='', comment=''):
-
         if not agent_id:
             raise ValueError('modify_agent requires an agent_id element')
 

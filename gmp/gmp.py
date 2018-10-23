@@ -223,7 +223,7 @@ class GVMConnection:
         Returns:
             None or <string> -- Response from server.
         """
-        cmd = self.gmp_generator.createAuthenticateCommand(
+        cmd = self.gmp_generator.create_authenticate_command(
             username=username, password=password,
             withCommands=str(withCommand))
 
@@ -232,7 +232,7 @@ class GVMConnection:
 
     def create_agent(self, installer, signature, name, comment='', copy='',
                      howto_install='', howto_use=''):
-        cmd = self.gmp_generator.createAgentCommand(
+        cmd = self.gmp_generator.create_agent_command(
             installer, signature, name, comment, copy, howto_install,
             howto_use)
         self.send(cmd)
@@ -240,69 +240,71 @@ class GVMConnection:
 
     def create_alert(self, name, condition, event, method, filter_id='',
                      copy='', comment=''):
-        cmd = self.gmp_generator.createAlertCommand(name, condition, event,
-                                                    method, filter_id, copy,
-                                                    comment)
+        cmd = self.gmp_generator.create_alert_command(name, condition, event,
+                                                      method, filter_id, copy,
+                                                      comment)
         self.send(cmd)
         return self.read()
 
     def create_asset(self, name, asset_type, comment=''):
         # TODO: Add the missing second method. Also the docs are not complete!
-        cmd = self.gmp_generator.createAssetCommand(name, asset_type, comment)
+        cmd = self.gmp_generator.create_asset_command(name, asset_type, comment)
         self.send(cmd)
         return self.read()
 
     def create_config(self, copy_id, name):
-        cmd = self.gmp_generator.createConfigCommand(copy_id, name)
+        cmd = self.gmp_generator.create_config_command(copy_id, name)
         self.send(cmd)
         return self.read()
 
     def create_credential(self, name, **kwargs):
-        cmd = self.gmp_generator.createCredentialCommand(name, kwargs)
+        cmd = self.gmp_generator.create_credential_command(name, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_filter(self, name, make_unique, **kwargs):
-        cmd = self.gmp_generator.createFilterCommand(name, make_unique, kwargs)
+        cmd = self.gmp_generator.create_filter_command(name, make_unique,
+                                                       kwargs)
         self.send(cmd)
         return self.read()
 
     def create_group(self, name, **kwargs):
-        cmd = self.gmp_generator.createGroupCommand(name, kwargs)
+        cmd = self.gmp_generator.create_group_command(name, kwargs)
         self.send(cmd)
         return self.read()
 
     # TODO: Create notes with comment returns bogus element. Research
     def create_note(self, text, nvt_oid, **kwargs):
-        cmd = self.gmp_generator.createNoteCommand(text, nvt_oid, kwargs)
+        cmd = self.gmp_generator.create_note_command(text, nvt_oid, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_override(self, text, nvt_oid, **kwargs):
-        cmd = self.gmp_generator.createOverrideCommand(text, nvt_oid, kwargs)
+        cmd = self.gmp_generator.create_override_command(text, nvt_oid, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_permission(self, name, subject_id, type, **kwargs):
-        cmd = self.gmp_generator.createPermissionCommand(name, subject_id,
-                                                         type, kwargs)
+        cmd = self.gmp_generator.create_permission_command(name, subject_id,
+                                                           type, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_port_list(self, name, port_range, **kwargs):
-        cmd = self.gmp_generator.createPortListCommand(name, port_range,
-                                                       kwargs)
+        cmd = self.gmp_generator.create_port_list_command(name, port_range,
+                                                          kwargs)
         self.send(cmd)
         return self.read()
 
     def create_port_range(self, port_list_id, start, end, type, comment=''):
-        cmd = self.gmp_generator.createPortRangeCommand(port_list_id, start,
-                                                        end, type, comment)
+        cmd = self.gmp_generator.create_port_range_command(port_list_id, start,
+                                                           end, type, comment)
         self.send(cmd)
         return self.read()
 
     def create_report(self, report_xml_string, **kwargs):
-        cmd = self.gmp_generator.createReportCommand(report_xml_string, kwargs)
+        cmd = self.gmp_generator.create_report_command(report_xml_string,
+                                                       kwargs)
         self.send(cmd)
         return self.read()
 
@@ -311,46 +313,48 @@ class GVMConnection:
         raise NotImplementedError
 
     def create_role(self, name, **kwargs):
-        cmd = self.gmp_generator.createRoleCommand(name, kwargs)
+        cmd = self.gmp_generator.create_role_command(name, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_scanner(self, name, host, port, type, ca_pub, credential_id,
                        **kwargs):
-        cmd = self.gmp_generator.createScannerCommand(name, host, port, type,
-                                                      ca_pub, credential_id,
-                                                      kwargs)
+        cmd = self.gmp_generator.create_scanner_command(name, host, port, type,
+                                                        ca_pub, credential_id,
+                                                        kwargs)
         self.send(cmd)
         return self.read()
 
     def create_schedule(self, name, **kwargs):
-        cmd = self.gmp_generator.createScheduleCommand(name, kwargs)
+        cmd = self.gmp_generator.create_schedule_command(name, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_tag(self, name, resource_id, resource_type, **kwargs):
-        cmd = self.gmp_generator.createTagCommand(name, resource_id,
-                                                  resource_type, kwargs)
+        cmd = self.gmp_generator.create_tag_command(name, resource_id,
+                                                    resource_type, kwargs)
         self.send(cmd)
         return self.read()
 
     def create_target(self, name, make_unique, **kwargs):
         # TODO: Missing variables
-        cmd = self.gmp_generator.createTargetCommand(name, make_unique, kwargs)
+        cmd = self.gmp_generator.create_target_command(name, make_unique,
+                                                       kwargs)
         self.send(cmd)
         return self.read()
 
-    def create_task(self, name, config_id, target_id, scanner_id, alert_ids=None, comment=''):
+    def create_task(self, name, config_id, target_id, scanner_id,
+                    alert_ids=None, comment=''):
         if alert_ids is None:
             alert_ids = []
-        cmd = self.gmp_generator.createTaskCommand(
+        cmd = self.gmp_generator.create_task_command(
             name, config_id, target_id, scanner_id, alert_ids, comment)
         self.send(cmd)
         return self.read()
 
     def create_user(self, name, password, copy='', hosts_allow='0',
                     ifaces_allow='0', role_ids=(), hosts=None, ifaces=None):
-        cmd = self.gmp_generator.createUserCommand(
+        cmd = self.gmp_generator.create_user_command(
             name, password, copy, hosts_allow, ifaces_allow, role_ids,
             hosts, ifaces)
         self.send(cmd)
