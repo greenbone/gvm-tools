@@ -30,9 +30,9 @@ import os.path
 import sys
 
 from gmp.helper import get_version
-from gmp.gvm_connection import (SSHConnection,
-                                TLSConnection,
-                                UnixSocketConnection)
+from gmp.gmp import (SSHConnection,
+                     TLSConnection,
+                     UnixSocketConnection)
 
 __version__ = get_version()
 
