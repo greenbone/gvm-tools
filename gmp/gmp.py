@@ -763,8 +763,8 @@ class GVMConnection:
                   .format(task_id, slave_id))
         return self.read()
 
-    def restore(self, id):
-        self.send('<restore id="{0}"/>'.format(id))
+    def restore(self, entity_id):
+        self.send('<restore id="{0}"/>'.format(entity_id))
         return self.read()
 
     def resume_task(self, task_id):
@@ -795,20 +795,21 @@ class GVMConnection:
         self.send('<sync_scap/>')
         return self.read()
 
-    def test_alert(self, id):
-        self.send('<test_alert alert_id="{0}"/>'.format(id))
+    def test_alert(self, alert_id):
+        self.send('<test_alert alert_id="{0}"/>'.format(alert_id))
         return self.read()
 
-    def verify_agent(self, id):
-        self.send('<verify_agent agent_id="{0}"/>'.format(id))
+    def verify_agent(self, agent_id):
+        self.send('<verify_agent agent_id="{0}"/>'.format(agent_id))
         return self.read()
 
-    def verify_report_format(self, id):
-        self.send('<verify_report_format report_format_id="{0}"/>'.format(id))
+    def verify_report_format(self, report_format_id):
+        self.send('<verify_report_format report_format_id="{0}"/>'.format(
+            report_format_id))
         return self.read()
 
-    def verify_scanner(self, id):
-        self.send('<verify_scanner scanner_id="{0}"/>'.format(id))
+    def verify_scanner(self, scanner_id):
+        self.send('<verify_scanner scanner_id="{0}"/>'.format(scanner_id))
         return self.read()
 
 
