@@ -75,14 +75,14 @@ class GVMConnection:
                 return True
         return False
 
-    def readAll(self):
+    def read_all(self):
         raise NotImplementedError
 
-    def sendAll(self, cmd):
+    def send_all(self, cmd):
         raise NotImplementedError
 
     def send(self, cmd):
-        """Call the sendAll(string) method.
+        """Call the send_all(string) method.
 
         Nothing more ;-)
 
@@ -90,7 +90,7 @@ class GVMConnection:
             cmd {string} -- XML-Source
         """
         try:
-            self.sendAll(cmd)
+            self.send_all(cmd)
             logger.debug(cmd)
         except paramiko.SSHException as e:
             print(e)
@@ -99,7 +99,7 @@ class GVMConnection:
             raise
 
     def read(self):
-        """Call the readAll() method of the chosen connection type.
+        """Call the read_all() method of the chosen connection type.
 
         Try to read all from the open socket connection.
         Check for status attribute in xml code.
@@ -111,7 +111,7 @@ class GVMConnection:
         Returns:
             lxml.etree._Element or <string> -- Response from server.
         """
-        response = self.readAll()
+        response = self.read_all()
         logger.debug('read() {0} Bytes response: {1}'.format(
             len(response), response))
 
@@ -121,7 +121,7 @@ class GVMConnection:
         if hasattr(self, 'raw_response') and self.raw_response is True: #pylint: disable=E1101
             return response
 
-        self.checkCommandStatus(response)
+        self.check_command_status(response)
 
         if hasattr(self, 'shell_mode') and self.shell_mode is True: #pylint: disable=E1101
             parser = etree.XMLParser(encoding='utf-8', recover=True)
@@ -140,7 +140,7 @@ class GVMConnection:
         except OSError as e:
             logger.debug('Connection closing error: {0}'.format(e))
 
-    def checkCommandStatus(self, xml):
+    def check_command_status(self, xml):
         """Check gmp response
 
         Look into the gmp response and check for the status in the root element
@@ -180,7 +180,7 @@ class GVMConnection:
             logger.error('etree.XML(xml): ' + str(e))
             raise
 
-    def argumentsToString(self, kwargs):
+    def arguments_to_string(self, kwargs):
         """Convert arguments
 
         Converts dictionaries into gmp arguments string
@@ -361,13 +361,14 @@ class GVMConnection:
         return self.read()
 
     def delete_agent(self, **kwargs):
-        self.send('<delete_agent {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<delete_agent {0}/>'.format(
+            self.arguments_to_string(kwargs)))
         return self.read()
 
     def delete_alert(self, **kwargs):
         # if self.ask_yes_or_no('Are you sure to delete this alert? '):
         self.send(
-            '<delete_alert {0}/>'.format(self.argumentsToString(kwargs)))
+            '<delete_alert {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def delete_asset(self, asset_id, ultimate=0):
@@ -509,130 +510,132 @@ class GVMConnection:
         return self.read()
 
     def get_agents(self, **kwargs):
-        self.send('<get_agents {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_agents {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_aggregates(self, **kwargs):
         self.send(
-            '<get_aggregates {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_aggregates {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_alerts(self, **kwargs):
-        self.send('<get_alerts {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_alerts {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_assets(self, **kwargs):
-        self.send('<get_assets {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_assets {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_credentials(self, **kwargs):
         self.send(
-            '<get_credentials {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_credentials {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_configs(self, **kwargs):
-        self.send('<get_configs {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_configs {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_feeds(self, **kwargs):
-        self.send('<get_feeds {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_feeds {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_filters(self, **kwargs):
-        self.send('<get_filters {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_filters {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_groups(self, **kwargs):
-        self.send('<get_groups {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_groups {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_info(self, **kwargs):
-        self.send('<get_info {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_info {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_notes(self, **kwargs):
-        self.send('<get_notes {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_notes {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_nvts(self, **kwargs):
-        self.send('<get_nvts {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_nvts {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_nvt_families(self, **kwargs):
         self.send(
-            '<get_nvt_families {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_nvt_families {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_overrides(self, **kwargs):
         self.send(
-            '<get_overrides {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_overrides {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_permissions(self, **kwargs):
         self.send(
-            '<get_permissions {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_permissions {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_port_lists(self, **kwargs):
         self.send(
-            '<get_port_lists {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_port_lists {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_preferences(self, **kwargs):
         self.send(
-            '<get_preferences {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_preferences {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_reports(self, **kwargs):
         self.send('<get_reports {0}/>'
-                  .format(self.argumentsToString(kwargs)))
+                  .format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_report_formats(self, **kwargs):
-        self.send(
-            '<get_report_formats {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_report_formats {0}/>'.format(
+            self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_results(self, **kwargs):
-        self.send('<get_results {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_results {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_roles(self, **kwargs):
-        self.send('<get_roles {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_roles {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_scanners(self, **kwargs):
-        self.send('<get_scanners {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_scanners {0}/>'.format(
+            self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_schedules(self, **kwargs):
         self.send(
-            '<get_schedules {0}/>'.format(self.argumentsToString(kwargs)))
+            '<get_schedules {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_settings(self, **kwargs):
-        self.send('<get_settings {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_settings {0}/>'.format(
+            self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_system_reports(self, **kwargs):
-        self.send(
-            '<get_system_reports {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_system_reports {0}/>'.format(
+            self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_tags(self, **kwargs):
-        self.send('<get_tags {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_tags {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_targets(self, **kwargs):
-        self.send('<get_targets {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_targets {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_tasks(self, **kwargs):
-        self.send('<get_tasks {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_tasks {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_users(self, **kwargs):
-        self.send('<get_users {0}/>'.format(self.argumentsToString(kwargs)))
+        self.send('<get_users {0}/>'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def get_version(self):
@@ -640,7 +643,7 @@ class GVMConnection:
         return self.read()
 
     def help(self, **kwargs):
-        self.send('<help {0} />'.format(self.argumentsToString(kwargs)))
+        self.send('<help {0} />'.format(self.arguments_to_string(kwargs)))
         return self.read()
 
     def modify_agent(self, agent_id, name='', comment=''):
@@ -860,7 +863,7 @@ class SSHConnection(GVMConnection):
             logger.debug('SSH Connection failed: ' + str(e))
             raise
 
-    def readAll(self):
+    def read_all(self):
         self.first_element = None
         self.parser = etree.XMLPullParser(('start', 'end'))
 
@@ -902,7 +905,7 @@ class SSHConnection(GVMConnection):
 
         return sent_bytes
 
-    def sendAll(self, cmd, max_len=4095):
+    def send_all(self, cmd, max_len=4095):
         logger.debug('SSH:send(): ' + cmd)
         self.cmd = str(cmd)
         if len(self.cmd) > max_len:
@@ -943,10 +946,10 @@ class TLSConnection(GVMConnection):
         self.sock.settimeout(self.timeout)
         self.sock.connect((self.hostname, int(self.port)))
 
-    def sendAll(self, cmd):
+    def send_all(self, cmd):
         self.sock.send(cmd.encode())
 
-    def readAll(self):
+    def read_all(self):
         response = ''
         while True:
             data = self.sock.read(BUF_SIZE)
@@ -980,7 +983,7 @@ class UnixSocketConnection(GVMConnection):
         self.sock.settimeout(self.timeout)
         self.sock.connect(self.sockpath)
 
-    def readAll(self):
+    def read_all(self):
         self.first_element = None
         self.parser = etree.XMLPullParser(('start', 'end'))
         response = ''
@@ -1006,5 +1009,5 @@ class UnixSocketConnection(GVMConnection):
         self.sock.settimeout(old_timeout)
         return response
 
-    def sendAll(self, cmd):
+    def send_all(self, cmd):
         self.sock.send(cmd.encode())
