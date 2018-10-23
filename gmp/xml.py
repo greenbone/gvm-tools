@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Commandcreator for gmp commands.
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
