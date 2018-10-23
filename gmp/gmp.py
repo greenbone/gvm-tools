@@ -20,10 +20,12 @@ import logging
 import socket
 import ssl
 import time
+
 from io import StringIO
 
-from lxml import etree
 import paramiko
+
+from lxml import etree
 
 from gmp.xml import GmpCommandFactory
 

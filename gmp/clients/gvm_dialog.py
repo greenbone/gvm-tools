@@ -15,11 +15,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
 import logging
 import sys
+
 from dialog import Dialog
+
 from lxml import etree
+
 from gmp.helper import get_version
 from gmp.gmp import (SSHConnection,
                      TLSConnection,

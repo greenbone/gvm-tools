@@ -17,15 +17,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from argparse import RawTextHelpFormatter
 import code
 import configparser
 import getpass
 import logging
 import os
 import sys
-from gmp.helper import get_version
+
+from argparse import RawTextHelpFormatter
+
 from lxml import etree
+
+from gmp.helper import get_version
 from gmp.gmp import (SSHConnection,
                      TLSConnection,
                      UnixSocketConnection)
