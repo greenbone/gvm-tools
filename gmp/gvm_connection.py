@@ -30,7 +30,7 @@ from io import StringIO
 from lxml import etree
 import paramiko
 
-from gmp.gmp import _gmp
+from gmp.xml import _gmp
 
 logger = logging.getLogger(__name__)
 

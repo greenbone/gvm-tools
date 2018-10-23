@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from gmp.gmp import _gmp
+from gmp.xml import _gmp
 
 class GMPCreateFilterCommandTestCase(unittest.TestCase):
     FILTER_NAME = "special filter"
