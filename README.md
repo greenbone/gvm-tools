@@ -33,10 +33,6 @@ GVM-Tools requires Python >= 3 along with the following libraries:
     - python3-dialog
     - python3-defusedxml
 
-The file `requirements.txt` is used for CI tests to ensure the CI tests
-happen in a defined known-good environment and are not affected by
-sudden changes in the dependent modules.
-
 Some scripts need additional requirements.
 
 ## Installing
@@ -48,6 +44,21 @@ You can install the latest stable release of gvm-tools from the Python Package I
 alternatively download or clone this repository and install the latest development version:
 
     pip install .
+
+## Development
+
+For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+to keep you python packages separated in different environments. First install
+pipenv via pip
+
+    pip install --user pipenv
+
+Afterwards run
+
+    pipenv install --dev
+
+in the checkout directory of gvm-tools (the directory containing the Pipfile) to
+install all dependencies including the packages only required for development.
 
 ## Clients
 
