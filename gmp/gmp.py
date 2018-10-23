@@ -76,12 +76,10 @@ class GVMConnection:
         return False
 
     def readAll(self):
-        # just a stub
-        pass
+        raise NotImplementedError
 
     def sendAll(self, cmd):
-        # just a stub
-        pass
+        raise NotImplementedError
 
     def send(self, cmd):
         """Call the sendAll(string) method.
