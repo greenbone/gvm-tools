@@ -149,6 +149,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         parents=[parent_parser])
     parser_socket.add_argument(
         '--sockpath', nargs='?', default='/usr/local/var/run/gvmd.sock',
+        help='Depreacted. Use --socketpath instead')
+    parser_socket.add_argument(
+        '--socketpath', nargs='?', default='/usr/local/var/run/gvmd.sock',
         help='UNIX-Socket path. Default: /usr/local/var/run/gvmd.sock.')
 
     parser.add_argument(
@@ -194,7 +197,11 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     # Open the right connection. SSH at last for default
     try:
         if 'socket' in args.connection_type:
-            gvm = UnixSocketConnection(sockpath=args.sockpath,
+            socketpath = args.socketpath
+            if socketpath is None:
+                socketpath = args.sockpath
+
+            gvm = UnixSocketConnection(sockpath=socketpath,
                                        raw_response=args.raw,
                                        timeout=args.timeout)
         elif 'tls' in args.connection_type:
