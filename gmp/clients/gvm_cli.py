@@ -23,8 +23,6 @@ import logging
 import os.path
 import sys
 
-from argparse import RawTextHelpFormatter
-
 from gmp.helper import get_version
 from gmp.gmp import (SSHConnection,
                      TLSConnection,
@@ -70,7 +68,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog='gvm-cli',
         description=help_text,
-        formatter_class=RawTextHelpFormatter,
+        formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
 usage: gvm-cli [-h] [--version] [connection_type] ...
