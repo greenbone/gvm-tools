@@ -19,5 +19,6 @@
 Main module for gvm-tools
 """
 
+from gmp.error import GmpError
 from gmp.gmp import Gmp
 from gmp.helper import get_version
