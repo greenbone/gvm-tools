@@ -7,6 +7,7 @@ name = "pypi"
 lxml = "*"
 paramiko = "*"
 defusedxml = "*"
+pythondialog = "*"
 
 [dev-packages]
 coverage = "*"
