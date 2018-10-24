@@ -1,22 +1,19 @@
-<img src="https://www.greenbone.net/wp-content/uploads/01_Logo-mit-Schriftzug_500px_on_white_horiz1.jpg" alt="Greenbone Logo" width="400px">
+![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_logo_resilience_horizontal.png)
 
 # Greenbone Vulnerability Management Tools
 
-[![GitHub release](https://img.shields.io/github/release/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
-[![PyPI](https://img.shields.io/pypi/v/gvm-tools.svg)](https://pypi.org/project/gvm-tools/)
+[![GitHub releases](https://img.shields.io/github/release/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
+[![PyPI release](https://img.shields.io/pypi/v/gvm-tools.svg)](https://pypi.org/project/gvm-tools/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/gvm-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/gvm-tools/?branch=master)
-[![codecov](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
+[![code test coverage](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
 [![CircleCI](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
 
-## Introduction
-
-The Greenbone Vulnerability Management Tools or GVM-Tools in short are a collection of tools that help with remote controlling a
+The Greenbone Vulnerability Management Tools or gvm-tools in short
+are a collection of tools that help with remote controlling a
 Greenbone Security Manager (GSM) appliance and its underlying Greenbone
 Vulnerability Manager (GVM). The tools essentially aid accessing the
 communication protocols GMP (Greenbone Management Protocol) and OSP
 (Open Scanner Protocol).
-
-**Current Version: 1.4.1**
 
 This module is comprised of interactive and non-interactive clients as
 well as supporting libraries. The programming language Python is
@@ -24,7 +21,27 @@ supported directly for interactive scripting and library use. But it is
 also possible to issue remote GMP/OSP commands without programming in
 Python.
 
-## Requirements
+## Table of Contents
+
+* [Installation](#installation)
+  * [Requirements](#requirements)
+  * [Install using pip](#install-using-pip)
+* [Usage](#usage)
+  * [gvm-cli](#gvm-cli)
+     * [Example program use](#example-program-use)
+  * [gvm-pyshell](#gvm-pyshell)
+     * [Example program use](#example-program-use-1)
+     * [Example script](#example-script)
+     * [More example scripts](#more-example-scripts)
+  * [gvm-dialog](#gvm-dialog)
+* [Support](#support)
+* [Maintainer](#maintainer)
+* [Contributing](#contributing)
+* [License](#license)
+
+## Installation
+
+### Requirements
 
 GVM-Tools requires Python >= 3 along with the following libraries:
 
@@ -35,7 +52,7 @@ GVM-Tools requires Python >= 3 along with the following libraries:
 
 Some scripts need additional requirements.
 
-## Installing
+### Install using pip
 
 You can install the latest stable release of gvm-tools from the Python Package Index using [pip](https://pip.pypa.io/):
 
@@ -45,22 +62,7 @@ alternatively download or clone this repository and install the latest developme
 
     pip install .
 
-## Development
-
-For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
-to keep you python packages separated in different environments. First install
-pipenv via pip
-
-    pip install --user pipenv
-
-Afterwards run
-
-    pipenv install --dev
-
-in the checkout directory of gvm-tools (the directory containing the Pipfile) to
-install all dependencies including the packages only required for development.
-
-## Clients
+## Usage
 
 There are several clients to communicate via GMP/OSP.
 
@@ -173,3 +175,34 @@ Example:
 ```
 gvm-dialog socket
 ```
+
+## Support
+
+For any question on the usage of gvm-tools or gmp scripts please use the [Greenbone Community Portal](https://community.greenbone.net/c/gmp). If you found a problem with the software, please [create an issue](https://github.com/greenbone/gvm-tools/issues) on GitHub.
+
+## Maintainer
+
+This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.net/).
+
+## Contributing
+
+Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/gvm-tools/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/gvm-tools/issues).
+
+For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+to keep you python packages separated in different environments. First install
+pipenv via pip
+
+    pip install --user pipenv
+
+Afterwards run
+
+    pipenv install --dev
+
+in the checkout directory of gvm-tools (the directory containing the Pipfile) to
+install all dependencies including the packages only required for development.
+
+## License
+
+Copyright (C) 2017-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+
+Licensed under the [GNU General Public License v3.0 or later](LICENSE).
