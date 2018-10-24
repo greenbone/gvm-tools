@@ -47,6 +47,33 @@ def arguments_to_string(kwargs):
 
     return msg
 
+def _check_command_status(xml):
+    """Check gmp response
+
+    Look into the gmp response and check for the status in the root element
+
+    Arguments:
+        xml {string} -- XML-Source
+
+    Returns:
+        bool -- True if valid, otherwise False
+    """
+
+    if xml is 0 or xml is None:
+        logger.error('XML Command is empty')
+        return False
+
+    try:
+        parser = etree.XMLParser(encoding='utf-8', recover=True)
+
+        root = etree.XML(xml, parser=parser)
+        status = root.attrib['status']
+        return status is not None and status[0] == '2'
+
+    except etree.Error as e:
+        logger.error('etree.XML(xml): %s', e)
+        return False
+
 
 class GmpError(Exception):
     """A exception for gmp errors
@@ -67,46 +94,6 @@ class Gmp:
 
         # Is authenticated on gvm
         self._authenticated = False
-
-    def _check_command_status(self, xml):
-        """Check gmp response
-
-        Look into the gmp response and check for the status in the root element
-
-        Arguments:
-            xml {string} -- XML-Source
-
-        Returns:
-            bool -- True if valid, otherwise False
-        """
-
-        if xml is 0 or xml is None:
-            raise GmpError('XML Command is empty')
-
-        try:
-            parser = etree.XMLParser(encoding='utf-8', recover=True)
-            if etree.iselement(xml):
-                root = etree.ElementTree(xml, parser=parser).getroot()
-            else:
-                root = etree.XML(xml, parser=parser)
-            status = root.attrib['status']
-            status_text = root.attrib['status_text']
-
-            if not self.is_authenticated():
-                auth = root.find('authenticate_response')
-                if auth is not None:
-                    status = auth.attrib['status']
-                    status_text = auth.attrib['status_text']
-                    if status != '400':
-                        self.authenticated = True
-
-            if 'OK' not in status_text:
-                logger.info('An error occurred on gvm: %s', status_text)
-                raise GmpError(status_text)
-
-        except etree.Error as e:
-            logger.error('etree.XML(xml): %s', e)
-            raise
 
     def _read(self):
         """Read a command response from gvmd
@@ -133,8 +120,6 @@ class Gmp:
 
         if getattr(self, 'raw_response', False):
             return response
-
-        self._check_command_status(response)
 
         if getattr(self, 'shell_mode', False):
             parser = etree.XMLParser(encoding='utf-8', recover=True)
