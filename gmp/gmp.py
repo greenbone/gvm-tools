@@ -25,6 +25,7 @@ from io import StringIO
 
 from lxml import etree
 
+from gmp.error import GmpError
 from gmp.xml import GmpCommandFactory
 
 logger = logging.getLogger(__name__)
@@ -73,12 +74,6 @@ def _check_command_status(xml):
     except etree.Error as e:
         logger.error('etree.XML(xml): %s', e)
         return False
-
-
-class GmpError(Exception):
-    """A exception for gmp errors
-    """
-    pass
 
 
 class Gmp:
