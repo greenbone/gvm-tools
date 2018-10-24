@@ -33,7 +33,6 @@ Python.
      * [Example program use](#example-program-use-1)
      * [Example script](#example-script)
      * [More example scripts](#more-example-scripts)
-  * [gvm-dialog](#gvm-dialog)
 * [Support](#support)
 * [Maintainer](#maintainer)
 * [Contributing](#contributing)
@@ -47,7 +46,6 @@ GVM-Tools requires Python >= 3 along with the following libraries:
 
     - python3-paramiko
     - python3-lxml
-    - python3-dialog
     - python3-defusedxml
 
 Some scripts need additional requirements.
@@ -163,18 +161,6 @@ pretty(task_names)
 There is a growing collection of gmp-scripts in the folder "scripts/".
 Some of them might be exactly what you need and all of them help writing
 your own gmp scripts.
-
-### gvm-dialog
-
-With gvm-dialog you'll get a terminal-based dialog.
-
-This client is **experimental**.
-
-Example:
-
-```
-gvm-dialog socket
-```
 
 ## Support
 

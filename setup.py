@@ -42,7 +42,6 @@ setup(
         'console_scripts': [
             'gvm-pyshell=gmp.clients.gvm_pyshell:main',
             'gvm-cli=gmp.clients.gvm_cli:main',
-            'gvm-dialog=gmp.clients.gvm_dialog:main',
         ],
     },
     install_requires=['paramiko', 'lxml', 'defusedxml'],
