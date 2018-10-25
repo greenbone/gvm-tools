@@ -186,8 +186,11 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?', default='/usr/local/var/run/gvmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/gvmd.sock.')
+        '--sockpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        help='Depreacted. Use --socketpath instead')
+    parser_socket.add_argument(
+        '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        help='UNIX-Socket path. Default: %(default)s.')
 
     parser.add_argument(
         '-V', '--version', action='version',
@@ -210,7 +213,11 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     global gmp
     if 'socket' in args.connection_type:
         try:
-            gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True,
+        socketpath = args.socketpath
+        if socketpath is None:
+            socketpath = args.sockpath
+
+            gmp = UnixSocketConnection(sockpath=socketpath, shell_mode=True,
                                        timeout=args.timeout)
         except OSError as e:
             print('{0}: {1}'.format(e, args.sockpath))
