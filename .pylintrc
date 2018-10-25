@@ -40,7 +40,9 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=len-as-condition
+disable=len-as-condition,
+        attribute-defined-outside-init,
+        missing-docstring
 #disable=print-statement,
 #       parameter-unpacking,
 #       unpacking-in-except,
@@ -250,7 +252,7 @@ inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
 method-rgx=[a-z_][a-z0-9_]+$
 
 # Regular expression which should only match correct module names
-module-rgx=[a-z]+$
+module-rgx=([a-z]+)|(test_*)$
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
@@ -407,10 +409,10 @@ known-third-party=enchant
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=5
+max-args=15
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=20
 
 # Maximum number of boolean expressions in a if statement
 max-bool-expr=5
@@ -425,7 +427,7 @@ max-locals=15
 max-parents=7
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=30
 
 # Maximum number of return / yield for function / method body
 max-returns=6
@@ -434,7 +436,7 @@ max-returns=6
 max-statements=50
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=2
+min-public-methods=0
 
 
 [CLASSES]
