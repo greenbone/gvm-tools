@@ -21,8 +21,6 @@ Module for communication with gvmd
 
 import logging
 
-from io import StringIO
-
 from lxml import etree
 
 from gmp.error import GmpError
@@ -80,7 +78,7 @@ class Gmp:
     """Wrapper for Greenbone Management Protocol
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, transform=None):
         # GMP Message Creator
         self._generator = GmpCommandFactory()
         self._connection = connection
@@ -90,46 +88,39 @@ class Gmp:
         # Is authenticated on gvm
         self._authenticated = False
 
+        self._transform_callable = transform
+
     def _read(self):
         """Read a command response from gvmd
 
-        Try to read from the open connection.
-
-        Check for status attribute in xml code.
-
-        If the program is in shell-mode, then it returns a lxml root element,
-        otherwise the plain xml.
-
-        If the response is either None or the length is zero,
-        then the connection was terminated from the server.
-
         Returns:
-            lxml.etree._Element or <string> -- Response from server.
+            <string> -- Response from server.
         """
         response = self._connection.read()
 
         logger.debug('read() %i Bytes response: %s', len(response), response)
 
         if response is None or len(str(response)) == 0:
-            raise OSError('Connection was closed by remote server')
+            raise GmpError('Connection was closed by remote server')
 
-        if getattr(self, 'raw_response', False):
-            return response
+        return response
 
-        if getattr(self, 'shell_mode', False):
-            parser = etree.XMLParser(encoding='utf-8', recover=True)
-
-            logger.info('Shell mode activated')
-            f = StringIO(response)
-            tree = etree.parse(f, parser)
-            return tree.getroot()
-        else:
-            return response
+    def _send(self, data):
+        """Send a command to gsad
+        """
+        self._connect()
+        self._connection.send(data)
 
     def _connect(self):
         if not self.is_connected():
             self._connection.connect()
             self._connected = True
+
+    def _transform(self, data):
+        transform = self._transform_callable
+        if transform is None:
+            return data
+        return transform(data)
 
     def is_connected(self):
         return self._connected
@@ -145,9 +136,9 @@ class Gmp:
     def send_command(self, cmd):
         """Send a command to gsad
         """
-        self._connect()
-        self._connection.send(cmd)
-        return self._read()
+        self._send(cmd)
+        response = self._read()
+        return self._transform(response)
 
     def authenticate(self, username, password):
         """Authenticate on GVM.
@@ -160,12 +151,18 @@ class Gmp:
             password {str} -- Password
 
         Returns:
-            None or <string> -- Response from server.
+            <string> -- Response from server.
         """
         cmd = self._generator.create_authenticate_command(
             username=username, password=password)
 
-        return self.send_command(cmd)
+        self._send(cmd)
+        response = self._read()
+
+        if _check_command_status(response):
+            self._authenticated = True
+
+        return self._transform(response)
 
     def create_agent(self, installer, signature, name, comment='', copy='',
                      howto_install='', howto_use=''):
