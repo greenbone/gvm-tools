@@ -44,6 +44,31 @@ FILTER_NAMES = [
     'User',
 ]
 
+class XmlCommandElement:
+
+    def __init__(self, element):
+        self._element = element
+
+    def add_element(self, name, text=None, attrs=None):
+        node = etree.SubElement(self._element, name, attrib=attrs)
+        node.text = text
+        return XmlCommandElement(node)
+
+    def set_attribute(self, name, value):
+        self._element.set(name, value)
+
+    def to_string(self):
+        return etree.tostring(self._element).decode('utf-8')
+
+    def __str__(self):
+        return self.to_string()
+
+
+class XmlCommand(XmlCommandElement):
+
+    def __init__(self, name):
+        super().__init__(etree.Element(name))
+
 
 class GmpCommandFactory:
 
@@ -53,101 +78,80 @@ class GmpCommandFactory:
     def create_agent_command(self, installer, signature, name, comment='',
                              copy='', howto_install='', howto_use=''):
 
-        xmlRoot = etree.Element('create_agent')
-        _xmlInstaller = etree.SubElement(xmlRoot, 'installer')
-        _xmlInstaller.text = installer
-        _xmlSignature = etree.SubElement(_xmlInstaller, 'signature')
-        _xmlSignature.text = signature
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_agent')
+        cmd.add_element('installer', installer)
+        cmd.add_element('signature', signature)
+        cmd.add_element('name', name)
 
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         if howto_install:
-            _xmlHowtoinstall = etree.SubElement(xmlRoot, 'howto_install')
-            _xmlHowtoinstall.text = howto_install
+            cmd.add_element('howto_install', howto_install)
 
         if howto_use:
-            _xmlHowtouse = etree.SubElement(xmlRoot, 'howto_use')
-            _xmlHowtouse.text = howto_use
+            cmd.add_element('howto_use', howto_use)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_alert_command(self, name, condition, event, method, filter_id='',
                              copy='', comment=''):
 
-        xmlRoot = etree.Element('create_alert')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_alert')
+        cmd.add_element('name', name)
 
         if len(condition) > 1:
-            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
-            _xmlConditions.text = condition[0]
+            conditions = cmd.add_element('condition', condition[0])
             for value, key in condition[1].items():
-                _xmlData = etree.SubElement(_xmlConditions, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+                _data = conditions.add_element('data', value)
+                _data.add_element('name', key)
+
         elif condition[0] == "Always":
-            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
-            _xmlConditions.text = condition[0]
+            conditions = cmd.add_element('condition', condition[0])
 
         if len(event) > 1:
-            _xmlEvents = etree.SubElement(xmlRoot, 'event')
-            _xmlEvents.text = event[0]
+            events = cmd.add_element('event', event[0])
             for value, key in event[1].items():
-                _xmlData = etree.SubElement(_xmlEvents, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+                _data = events.add_element('data', value)
+                _data.add_element('name', key)
 
         if len(method) > 1:
-            _xmlMethods = etree.SubElement(xmlRoot, 'method')
-            _xmlMethods.text = method[0]
+            methods = cmd.add_element('method', method[0])
             for value, key in method[1].items():
-                _xmlData = etree.SubElement(_xmlMethods, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+                _data = methods.add_element('data', value)
+                _data.add_element('name', key)
 
         if filter_id:
-            _xmlFilter = etree.SubElement(xmlRoot, 'filter', id=filter_id)
+            cmd.add_element('filter')
+            cmd.set_attribute('id', filter_id)
 
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_asset_command(self, name, asset_type, comment=''):
         if asset_type not in ('host', 'os'):
             raise ValueError('create_asset requires asset_type to be either '
                              'host or os')
-        xmlRoot = etree.Element('create_asset')
-        _xmlAsset = etree.SubElement(xmlRoot, 'asset')
-        _xmlType = etree.SubElement(_xmlAsset, 'type')
-        _xmlType.text = asset_type
-        _xmlName = etree.SubElement(_xmlAsset, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_asset')
+        asset = cmd.add_element('asset')
+        asset.add_element('type', asset_type)
+        asset.add_element('name', name)
 
         if comment:
-            _xmlComment = etree.SubElement(_xmlAsset, 'comment')
-            _xmlComment.text = comment
+            asset.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
-    def create_authenticate_command(self, username, password, withCommands=''):
-        """Generates string for authentification on GVM
+    def create_authenticate_command(self, username, password):
+        """Generates string for authentification on gvmd
 
         Creates the gmp authentication xml string.
         Inserts the username and password into it.
@@ -155,23 +159,14 @@ class GmpCommandFactory:
         Keyword Arguments:
             username {str} -- Username for GVM User
             password {str} -- Password for GVM User
-            withCommands {str} -- Additional commands default: {''})
         """
+        cmd = XmlCommand('authenticate')
 
-        xmlRoot = etree.Element('authenticate')
-        _xmlCredentials = etree.SubElement(xmlRoot, 'credentials')
-        _xmlUser = etree.SubElement(_xmlCredentials, 'username')
-        _xmlUser.text = username
-        _xmlPass = etree.SubElement(_xmlCredentials, 'password')
-        _xmlPass.text = password
-        if len(withCommands) is 0:
-            return etree.tostring(xmlRoot).decode('utf-8')
+        credentials = cmd.add_element('credentials')
+        credentials.add_element('username', username)
+        credentials.add_element('password', password)
 
-        xmlRootCmd = etree.Element('commands')
-        cmds = secET.fromstring(withCommands)
-        xmlRootCmd.append(xmlRoot)
-        xmlRootCmd.append(cmds)
-        return etree.tostring(xmlRootCmd).decode('utf-8')
+        return cmd.to_string()
 
     def create_config_command(self, copy_id, name):
 
