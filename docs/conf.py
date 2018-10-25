@@ -12,10 +12,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
+import gmp
 
 # -- Project information -----------------------------------------------------
 
@@ -24,9 +25,10 @@ copyright = '2018, Greenbone Networks GmbH'
 author = 'Greenbone Networks GmbH'
 
 # The short X.Y version
-version = ''
+
+version = '{0}.{1}'.format(gmp.VERSION[0], gmp.VERSION[1])
 # The full version, including alpha/beta/rc tags
-release = ''
+release = gmp.get_version()
 
 
 # -- General configuration ---------------------------------------------------
