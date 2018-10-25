@@ -252,7 +252,7 @@ inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
 method-rgx=[a-z_][a-z0-9_]+$
 
 # Regular expression which should only match correct module names
-module-rgx=[a-z]+$
+module-rgx=([a-z]+)|(test_*)$
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
