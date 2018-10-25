@@ -46,7 +46,7 @@ HELP_TEXT = """
 
     gvm-cli socket --xml "<get_version/>"
     gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
-    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.gmp
+    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.xml
 
     Further Information about GMP see here:
     http://docs.greenbone.net/index.html#api_documentation
