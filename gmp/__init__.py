@@ -18,7 +18,15 @@
 """
 Main module for gvm-tools
 """
-
 from gmp.error import GmpError
 from gmp.gmp import Gmp
-from gmp.helper import get_version
+
+VERSION = (2, 0, 0, 'dev', 1)
+
+def get_version():
+    if len(VERSION) > 3:
+        version = '.'.join(str(x) for x in VERSION[:4])
+        version += str(VERSION[4])
+    else:
+        version = '.'.join(str(x) for x in VERSION)
+    return version

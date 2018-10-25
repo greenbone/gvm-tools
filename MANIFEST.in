@@ -1,2 +1,1 @@
 include scripts/clean-slave.gmp
-include VERSION
