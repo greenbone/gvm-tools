@@ -23,12 +23,14 @@ import logging
 import os.path
 import sys
 
-from argparse import RawTextHelpFormatter
-
-from gmp.helper import get_version
-from gmp.gmp import (SSHConnection,
-                     TLSConnection,
-                     UnixSocketConnection)
+from gmp import Gmp, get_version
+from gmp.connection import (SSHConnection,
+                            TLSConnection,
+                            UnixSocketConnection,
+                            DEFAULT_UNIX_SOCKET_PATH,
+                            DEFAULT_TIMEOUT,
+                            DEFAULT_GVM_PORT)
+from gmp.transform import CheckCommandTransform
 
 __version__ = get_version()
 
@@ -70,7 +72,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog='gvm-cli',
         description=help_text,
-        formatter_class=RawTextHelpFormatter,
+        formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
 usage: gvm-cli [-h] [--version] [connection_type] ...
@@ -108,13 +110,13 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     parent_parser.set_defaults(**defaults)
 
     parent_parser.add_argument(
-        '--timeout', required=False, default=60, type=int,
-        help='Wait <seconds> for response or if value -1, then wait '
-             'continuously. Default: 60')
+        '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
+        help='Wait <seconds> for response or if value is -1, then wait '
+             'indefinitely. Default: %(default)s.')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Activates logging. Default level: INFO.')
+        help='Activates logging. Default level: %(default)s.')
     parent_parser.add_argument('--gmp-username', help='GMP username.')
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument('-X', '--xml', help='The XML request to send.')
@@ -128,9 +130,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     parser_ssh.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
     parser_ssh.add_argument('--port', required=False,
-                            default=22, help='Port. Default: 22.')
+                            default=22, help='Port. Default: %(default)s.')
     parser_ssh.add_argument('--ssh-user', default='gmp',
-                            help='SSH Username. Default: gmp.')
+                            help='SSH Username. Default: %(default)s.')
 
     parser_tls = subparsers.add_parser(
         'tls', help='Use TLS secured connection for gmp service.',
@@ -138,7 +140,8 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
     parser_tls.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
     parser_tls.add_argument('--port', required=False,
-                            default=9390, help='Port. Default: 9390.')
+                            default=DEFAULT_GVM_PORT,
+                            help='Port. Default: %(default)s.')
     parser_tls.add_argument('--certfile', required=False, default=None,
                             help='Path to the certificate file.')
     parser_tls.add_argument('--keyfile', required=False, default=None,
@@ -150,8 +153,11 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?', default='/usr/local/var/run/gvmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/gvmd.sock.')
+        '--sockpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        help='Depreacted. Use --socketpath instead')
+    parser_socket.add_argument(
+        '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        help='UNIX-Socket path. Default: %(default)s.')
 
     parser.add_argument(
         '-V', '--version', action='version',
@@ -194,33 +200,52 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                                             args.gmp_username + ': ')
 
     # Open the right connection. SSH at last for default
-    try:
-        if 'socket' in args.connection_type:
-            gvm = UnixSocketConnection(sockpath=args.sockpath,
-                                       raw_response=args.raw,
-                                       timeout=args.timeout)
-        elif 'tls' in args.connection_type:
-            gvm = TLSConnection(hostname=args.hostname, port=args.port,
-                                certfile=args.certfile,
-                                keyfile=args.keyfile,
-                                cafile=args.cafile,
-                                raw_response=args.raw, timeout=args.timeout)
-        else:
-            gvm = SSHConnection(
-                hostname=args.hostname, port=args.port, timeout=args.timeout,
-                raw_response=args.raw, ssh_user=args.ssh_user, ssh_password='')
-    except Exception as e:
-        print(e)
-        sys.exit(1)
+    if 'socket' in args.connection_type:
+        socketpath = args.socketpath
+        if socketpath is None:
+            socketpath = args.sockpath
+
+        connection = UnixSocketConnection(
+            timeout=args.timeout,
+            path=socketpath
+        )
+    elif 'tls' in args.connection_type:
+        connection = TLSConnection(
+            timeout=args.timeout,
+            hostname=args.hostname,
+            port=args.port,
+            certfile=args.certfile,
+            keyfile=args.keyfile,
+            cafile=args.cafile,
+        )
+    else:
+        connection = SSHConnection(
+            timeout=args.timeout,
+            hostname=args.hostname,
+            port=args.port,
+            username=args.ssh_user,
+            password=args.ssh_password
+        )
+
+    if args.raw:
+        transform = None
+    else:
+        transform = CheckCommandTransform()
+
+    gvm = Gmp(connection, transform=transform)
 
     if args.gmp_username:
         gvm.authenticate(args.gmp_username, args.gmp_password)
 
-    gvm.send(xml)
+    try:
+        result = gvm.send_command(xml)
 
-    result = gvm.read()
-    print(result)
-    gvm.close()
+        print(result)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+    gvm.disconnect()
 
     sys.exit(0)
 

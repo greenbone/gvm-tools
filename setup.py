@@ -20,10 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=invalid-name
+
 from setuptools import setup, find_packages
 
-with open('VERSION', 'r') as f:
-    version = f.read()
+version = __import__('gmp').get_version()
 
 with open('README.md', 'r') as f:
     long_description = f.read()
@@ -46,9 +47,6 @@ setup(
     },
     install_requires=['paramiko', 'lxml', 'defusedxml'],
     python_requires='>=3',
-    package_data={
-        '': ['VERSION'],
-    },
     classifiers=[
         # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',

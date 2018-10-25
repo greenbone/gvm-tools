@@ -7,12 +7,13 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 
-# gvm-tools 1.5.0 (unreleased)
+# gvm-tools 2.0.0 (unreleased)
 
-- Removed experimental gvm-dialog application
-- Use pipenv for development
-- Use consistent naming for modules, tests and scripts
-- Split tests into several python modules
+- Removed experimental gvm-dialog application.
+- Use pipenv for development.
+- Use consistent naming for modules, tests and scripts.
+- Split tests into several python modules.
+- Python API cleanup. The python api is declared stable now.
 
 # gvm-tools 1.4.1 (2018-08-10)
 
