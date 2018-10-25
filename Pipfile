@@ -11,3 +11,4 @@ defusedxml = "*"
 [dev-packages]
 coverage = "*"
 pylint = "*"
+sphinx = "*"
