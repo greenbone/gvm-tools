@@ -245,7 +245,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     try:
         gmp.authenticate(args.gmp_username, args.gmp_password)
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print('Please check your credentials!')
         print(e)
         sys.exit(1)
