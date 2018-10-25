@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Module for communication with gvmd
+Module for communication with gvmd in Greenbone Management Protocol version 7
 """
 
 import logging
@@ -28,6 +28,7 @@ from gmp.xml import GmpCommandFactory
 
 logger = logging.getLogger(__name__)
 
+PROTOCOL_VERSION = (7,)
 
 def arguments_to_string(kwargs):
     """Convert arguments
@@ -89,6 +90,10 @@ class Gmp:
         self._authenticated = False
 
         self._transform_callable = transform
+
+    @staticmethod
+    def get_protocol_version():
+        return '.'.join(str(x) for x in PROTOCOL_VERSION)
 
     def _read(self):
         """Read a command response from gvmd
