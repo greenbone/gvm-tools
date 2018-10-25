@@ -34,7 +34,7 @@ class GMPCreateFilterCommandTestCase(unittest.TestCase):
                 name=self.FILTER_NAME, make_unique=True,
                 kwargs={
                     'term': 'sort-reverse=threat result_hosts_only=1 '
-                        'notes=1 overrides=1 levels=hml first=1 rows=1000',
+                            'notes=1 overrides=1 levels=hml first=1 rows=1000',
                     'type': filter_type
                 })
 
