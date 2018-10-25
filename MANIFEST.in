@@ -1,1 +1,3 @@
-include scripts/clean-slave.gmp
+include scripts/*
+include README.md
+include CHANGELOG.md
