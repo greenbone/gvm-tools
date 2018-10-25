@@ -70,7 +70,7 @@ class XmlCommand(XmlCommandElement):
         super().__init__(etree.Element(name))
 
 
-class GmpCommandFactory:
+class _GmpCommandFactory:
 
     """Factory to create gmp - Greenbone Manangement Protocol - commands
     """

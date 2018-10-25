@@ -18,7 +18,7 @@
 
 import unittest
 
-from gmp.xml import GmpCommandFactory
+from gmp.xml import _GmpCommandFactory as GmpCommandFactory
 
 
 class GMPCreateTargetCommandTestCase(unittest.TestCase):

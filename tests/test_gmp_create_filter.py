@@ -18,7 +18,7 @@
 
 import unittest
 
-from gmp.xml import GmpCommandFactory, FILTER_NAMES
+from gmp.xml import _GmpCommandFactory as GmpCommandFactory, FILTER_NAMES
 
 
 class GMPCreateFilterCommandTestCase(unittest.TestCase):

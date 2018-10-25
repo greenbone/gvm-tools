@@ -24,7 +24,7 @@ import logging
 from lxml import etree
 
 from gmp.error import GmpError
-from gmp.xml import GmpCommandFactory
+from gmp.xml import _GmpCommandFactory as GmpCommandFactory
 
 logger = logging.getLogger(__name__)
 
