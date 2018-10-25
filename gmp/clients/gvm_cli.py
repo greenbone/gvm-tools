@@ -36,7 +36,7 @@ __version__ = get_version()
 
 logger = logging.getLogger(__name__)
 
-help_text = """
+HELP_TEXT = """
     gvm-cli {version} (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services via
@@ -71,7 +71,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog='gvm-cli',
-        description=help_text,
+        description=HELP_TEXT,
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
