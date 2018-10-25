@@ -27,6 +27,8 @@ import paramiko
 
 from lxml import etree
 
+from gmp.error import GmpError
+
 logger = logging.getLogger(__name__)
 
 BUF_SIZE = 1024
@@ -56,7 +58,11 @@ class XmlReader:
         return False
 
     def _feed_xml(self, data):
-        self._parser.feed(data)
+        try:
+            self._parser.feed(data)
+        except etree.ParseError as e:
+            raise GmpError("Can't parse xml response. Response data "
+                           "read {0}".format(data), e)
 
 
 class GVMConnection:
