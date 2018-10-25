@@ -104,7 +104,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
             path = os.path.expanduser(args.config)
             config.read(path)
             defaults = dict(config.items('Auth'))
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             print(str(e))
 
     parent_parser.set_defaults(**defaults)
@@ -241,7 +241,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         result = gvm.send_command(xml)
 
         print(result)
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print(e)
         sys.exit(1)
 
