@@ -2,4 +2,7 @@
 *                 @greenbone/gvm-dev
 
 # pylint config
-.pylintrc         @bjoernricks @wiegandm @davidak
+.pylintrc         @bjoernricks @greenbone/qm
+
+# coverage config
+.coveragerc       @greenbone/qm

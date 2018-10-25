@@ -36,7 +36,7 @@ __version__ = get_version()
 
 logger = logging.getLogger(__name__)
 
-help_text = """
+HELP_TEXT = """
     gvm-cli {version} (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services via
@@ -46,7 +46,7 @@ help_text = """
 
     gvm-cli socket --xml "<get_version/>"
     gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
-    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.gmp
+    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.xml
 
     Further Information about GMP see here:
     http://docs.greenbone.net/index.html#api_documentation
@@ -71,7 +71,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog='gvm-cli',
-        description=help_text,
+        description=HELP_TEXT,
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
@@ -104,7 +104,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
             path = os.path.expanduser(args.config)
             config.read(path)
             defaults = dict(config.items('Auth'))
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             print(str(e))
 
     parent_parser.set_defaults(**defaults)
@@ -241,7 +241,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
         result = gvm.send_command(xml)
 
         print(result)
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print(e)
         sys.exit(1)
 

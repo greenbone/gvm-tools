@@ -41,8 +41,8 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'gvm-pyshell=gmp.clients.gvm_pyshell:main',
-            'gvm-cli=gmp.clients.gvm_cli:main',
+            'gvm-pyshell=gmp.clients.pyshell:main',
+            'gvm-cli=gmp.clients.cli:main',
         ],
     },
     install_requires=['paramiko', 'lxml', 'defusedxml'],
