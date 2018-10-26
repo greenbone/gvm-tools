@@ -3,13 +3,13 @@
 Developer Interface
 ===================
 
-.. module:: gmp
-
 This part of the documentation covers all public interfaces of gvm-tools.
 
 
 Main Interface
 --------------
+
+.. automodule:: gmp
 
 .. autoclass:: Gmp
    :inherited-members:
@@ -19,7 +19,7 @@ Main Interface
 Connections
 -----------
 
-.. module:: gmp.connection
+.. automodule:: gmp.connection
 
 .. autoclass:: SSHConnection
    :inherited-members:
