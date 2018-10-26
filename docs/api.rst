@@ -35,3 +35,9 @@ Transforms
 
 .. automodule:: gmp.transform
     :members:
+
+Errors
+------
+
+.. automodule:: gmp.error
+    :members:
