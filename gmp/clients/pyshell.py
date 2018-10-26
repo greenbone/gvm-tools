@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# GVM-PyShell for communication with the GVM.
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,18 +17,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from argparse import RawTextHelpFormatter
 import code
 import configparser
 import getpass
 import logging
 import os
 import sys
-from gmp.helper import get_version
+
 from lxml import etree
-from gmp.gvm_connection import (SSHConnection,
-                                TLSConnection,
-                                UnixSocketConnection)
+
+from gmp import Gmp, get_version
+from gmp.connection import (SSHConnection,
+                            TLSConnection,
+                            UnixSocketConnection,
+                            DEFAULT_UNIX_SOCKET_PATH,
+                            DEFAULT_TIMEOUT,
+                            DEFAULT_GVM_PORT)
+from gmp.transform import EtreeCheckCommandTransform
 
 
 __version__ = get_version()
@@ -112,7 +112,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog='gvm-pyshell',
         description=help_text,
-        formatter_class=RawTextHelpFormatter,
+        formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
 usage: gvm-pyshell [-h] [--version] [connection_type] ...
@@ -150,9 +150,9 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parent_parser.set_defaults(**defaults)
 
     parent_parser.add_argument(
-        '--timeout', required=False, default=60, type=int,
+        '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
         help='Wait <seconds> for response or if value -1, then wait '
-             'continuously. Default: 60')
+             'continuously. Default: %(default)s')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
@@ -172,9 +172,9 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parser_ssh.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
     parser_ssh.add_argument('--port', required=False,
-                            default=22, help='Port. Default: 22.')
+                            default=22, help='Port. Default: %(default)s.')
     parser_ssh.add_argument('--ssh-user', default='gmp',
-                            help='SSH Username. Default: gmp.')
+                            help='SSH Username. Default: %(default)s.')
 
     parser_tls = subparsers.add_parser(
         'tls', help='Use TLS secured connection for gmp service.',
@@ -182,14 +182,18 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parser_tls.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
     parser_tls.add_argument('--port', required=False,
-                            default=9390, help='Port. Default: 9390.')
+                            default=DEFAULT_GVM_PORT,
+                            help='Port. Default: %(default)s.')
 
     parser_socket = subparsers.add_parser(
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?', default='/usr/local/var/run/gvmd.sock',
-        help='UNIX-Socket path. Default: /usr/local/var/run/gvmd.sock.')
+        '--sockpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        help='Depreacted. Use --socketpath instead')
+    parser_socket.add_argument(
+        '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        help='UNIX-Socket path. Default: %(default)s.')
 
     parser.add_argument(
         '-V', '--version', action='version',
@@ -209,46 +213,39 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         args.timeout = None
 
     # Open the right connection. SSH at last for default
-    global gmp
     if 'socket' in args.connection_type:
-        try:
-            gmp = UnixSocketConnection(sockpath=args.sockpath, shell_mode=True,
-                                       timeout=args.timeout)
-        except OSError as e:
-            print('{0}: {1}'.format(e, args.sockpath))
-            sys.exit(1)
+        socketpath = args.socketpath
+        if socketpath is None:
+            socketpath = args.sockpath
 
+        connection = UnixSocketConnection(path=socketpath,
+                                          timeout=args.timeout)
     elif 'tls' in args.connection_type:
-        try:
-            gmp = TLSConnection(hostname=args.hostname, port=args.port,
-                                timeout=args.timeout, shell_mode=True)
-        except OSError as e:
-            print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
-                                                    args.port))
-            sys.exit(1)
+        connection = TLSConnection(hostname=args.hostname, port=args.port,
+                                   timeout=args.timeout)
     else:
-        try:
-            gmp = SSHConnection(hostname=args.hostname, port=args.port,
-                                timeout=args.timeout, ssh_user=args.ssh_user,
-                                ssh_password='', shell_mode=True)
-        except Exception as e:
-            print('{0}: Host: {1} Port: {2}'.format(e, args.hostname,
-                                                    args.port))
-            sys.exit(1)
+        connection = SSHConnection(hostname=args.hostname, port=args.port,
+                                   timeout=args.timeout, username=args.ssh_user,
+                                   password='')
 
     # Ask for login credentials if none are given
     if not args.gmp_username:
-        while True:
+        while len(args.gmp_username) == 0:
             args.gmp_username = input('Enter username: ')
-            if len(args.gmp_username) is not 0:
-                break
+
     if not args.gmp_password:
-        args.gmp_password = getpass.getpass('Enter password for ' +
-                                            args.gmp_username + ': ')
+        args.gmp_password = getpass.getpass(
+            'Enter password for {0}: '.format(args.gmp_username))
+
+    global gmp
+
+    # return an Etree at successful responses and raise execption on
+    # unsuccessful ones
+    gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
 
     try:
         gmp.authenticate(args.gmp_username, args.gmp_password)
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         print('Please check your credentials!')
         print(e)
         sys.exit(1)
@@ -260,23 +257,22 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     only_script = not args.interactive and with_script
 
     if no_script_no_interactive:
-        enterInteractiveMode()
+        enter_interactive_mode()
 
     if only_interactive:
-        enterInteractiveMode()
+        enter_interactive_mode()
 
     if script_and_interactive:
         load(args.script[0])
-        enterInteractiveMode()
+        enter_interactive_mode()
 
     if only_script:
         load(args.script[0])
 
-    gmp.close()
+    gmp.disconnect()
 
 
-def enterInteractiveMode():
-    gmp.shell_mode = True
+def enter_interactive_mode():
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
@@ -317,6 +313,7 @@ def load(path):
         exec(file, globals())
     except OSError as e:
         print(str(e))
+
 
 if __name__ == '__main__':
     main()

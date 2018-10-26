@@ -1,21 +1,19 @@
-<img src="https://www.greenbone.net/wp-content/uploads/01_Logo-mit-Schriftzug_500px_on_white_horiz1.jpg" alt="Greenbone Logo" width="400px">
+![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_logo_resilience_horizontal.png)
 
 # Greenbone Vulnerability Management Tools
 
-[![GitHub release](https://img.shields.io/github/release/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
+[![GitHub releases](https://img.shields.io/github/release/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
+[![PyPI release](https://img.shields.io/pypi/v/gvm-tools.svg)](https://pypi.org/project/gvm-tools/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/gvm-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/gvm-tools/?branch=master)
-[![codecov](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
+[![code test coverage](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
 [![CircleCI](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
 
-## Introduction
-
-The Greenbone Vulnerability Management Tools or GVM-Tools in short are a collection of tools that help with remote controlling a
+The Greenbone Vulnerability Management Tools or gvm-tools in short
+are a collection of tools that help with remote controlling a
 Greenbone Security Manager (GSM) appliance and its underlying Greenbone
 Vulnerability Manager (GVM). The tools essentially aid accessing the
 communication protocols GMP (Greenbone Management Protocol) and OSP
 (Open Scanner Protocol).
-
-**Current Version: 1.4.1**
 
 This module is comprised of interactive and non-interactive clients as
 well as supporting libraries. The programming language Python is
@@ -23,37 +21,46 @@ supported directly for interactive scripting and library use. But it is
 also possible to issue remote GMP/OSP commands without programming in
 Python.
 
-## Requirements
+## Table of Contents
+
+* [Installation](#installation)
+  * [Requirements](#requirements)
+  * [Install using pip](#install-using-pip)
+* [Usage](#usage)
+  * [gvm-cli](#gvm-cli)
+     * [Example program use](#example-program-use)
+  * [gvm-pyshell](#gvm-pyshell)
+     * [Example program use](#example-program-use-1)
+     * [Example script](#example-script)
+     * [More example scripts](#more-example-scripts)
+* [Support](#support)
+* [Maintainer](#maintainer)
+* [Contributing](#contributing)
+* [License](#license)
+
+## Installation
+
+### Requirements
 
 GVM-Tools requires Python >= 3 along with the following libraries:
 
     - python3-paramiko
     - python3-lxml
-    - python3-dialog
     - python3-defusedxml
-
-The file 'requirements.txt' is used for CI tests to ensure the CI tests
-happen in a defined known-good environment and are not affected by
-sudden changes in the dependent modules.
 
 Some scripts need additional requirements.
 
-## Installing
+### Install using pip
 
-To install it, after downloading the repository, you can use `pip` like
-that:
+You can install the latest stable release of gvm-tools from the Python Package Index using [pip](https://pip.pypa.io/):
+
+    pip install gvm-tools
+
+alternatively download or clone this repository and install the latest development version:
 
     pip install .
 
-Otherwise you can use python itself to install it:
-
-    # System
-    python3 setup.py install
-
-    # Local
-    python3 setup.py install --user
-
-## Clients
+## Usage
 
 There are several clients to communicate via GMP/OSP.
 
@@ -75,6 +82,12 @@ Returns the current version.
 
 ```
 gvm-cli socket --xml "<get_version/>"
+```
+
+Returns the current version using a TLS connection with certificates.
+
+```
+gvm-cli tls --hostname 192.168.0.10 --port 1234 --certfile '/tmp/certs/cert.pem' --keyfile '/tmp/certs/key.pem' --cafile '/tmp/certs/cert.pem' --xml "<get_version/>"
 ```
 
 Return all
@@ -149,14 +162,33 @@ There is a growing collection of gmp-scripts in the folder "scripts/".
 Some of them might be exactly what you need and all of them help writing
 your own gmp scripts.
 
-### gvm-dialog
+## Support
 
-With gvm-dialog you'll get a terminal-based dialog.
+For any question on the usage of gvm-tools or gmp scripts please use the [Greenbone Community Portal](https://community.greenbone.net/c/gmp). If you found a problem with the software, please [create an issue](https://github.com/greenbone/gvm-tools/issues) on GitHub.
 
-This client is **experimental**.
+## Maintainer
 
-Example:
+This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.net/).
 
-```
-gvm-dialog socket
-```
+## Contributing
+
+Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/gvm-tools/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/gvm-tools/issues).
+
+For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+to keep you python packages separated in different environments. First install
+pipenv via pip
+
+    pip install --user pipenv
+
+Afterwards run
+
+    pipenv install --dev
+
+in the checkout directory of gvm-tools (the directory containing the Pipfile) to
+install all dependencies including the packages only required for development.
+
+## License
+
+Copyright (C) 2017-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+
+Licensed under the [GNU General Public License v3.0 or later](LICENSE).

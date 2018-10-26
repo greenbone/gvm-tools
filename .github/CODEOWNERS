@@ -1,2 +1,8 @@
 # default reviewers
-*                 @greenbone/gvm-tools-dev
+*                 @greenbone/gvm-dev
+
+# pylint config
+.pylintrc         @bjoernricks @greenbone/qm
+
+# coverage config
+.coveragerc       @greenbone/qm

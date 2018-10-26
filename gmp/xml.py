@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Commandcreator for gmp commands.
+# Copyright (C) 2018 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,112 +15,143 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from lxml import etree
+
 import defusedxml.lxml as secET
 
+from lxml import etree
 
-class _gmp:
-    """GMP - Greenbone Management Protocol
+FILTER_NAMES = [
+    'Agent',
+    'Alert',
+    'Asset',
+    'Config',
+    'Credential',
+    'Filter',
+    'Group',
+    'Note',
+    'Override',
+    'Permission',
+    'Port List',
+    'Report',
+    'Report Format',
+    'Result',
+    'Role',
+    'Schedule',
+    'SecInfo',
+    'Tag',
+    'Target',
+    'Task',
+    'User',
+]
+
+class XmlCommandElement:
+
+    def __init__(self, element):
+        self._element = element
+
+    def add_element(self, name, text=None, attrs=None):
+        node = etree.SubElement(self._element, name, attrib=attrs)
+        node.text = text
+        return XmlCommandElement(node)
+
+    def set_attribute(self, name, value):
+        self._element.set(name, value)
+
+    def to_string(self):
+        return etree.tostring(self._element).decode('utf-8')
+
+    def __str__(self):
+        return self.to_string()
+
+
+class XmlCommand(XmlCommandElement):
+
+    def __init__(self, name):
+        super().__init__(etree.Element(name))
+
+
+class _GmpCommandFactory:
+
+    """Factory to create gmp - Greenbone Manangement Protocol - commands
     """
 
-    def createAgentCommand(self, installer, signature, name, comment='',
-                           copy='', howto_install='', howto_use=''):
+    def create_agent_command(self, installer, signature, name, comment='',
+                             copy='', howto_install='', howto_use=''):
 
-        xmlRoot = etree.Element('create_agent')
-        _xmlInstaller = etree.SubElement(xmlRoot, 'installer')
-        _xmlInstaller.text = installer
-        _xmlSignature = etree.SubElement(_xmlInstaller, 'signature')
-        _xmlSignature.text = signature
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_agent')
+        cmd.add_element('installer', installer)
+        cmd.add_element('signature', signature)
+        cmd.add_element('name', name)
 
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         if howto_install:
-            _xmlHowtoinstall = etree.SubElement(xmlRoot, 'howto_install')
-            _xmlHowtoinstall.text = howto_install
+            cmd.add_element('howto_install', howto_install)
 
         if howto_use:
-            _xmlHowtouse = etree.SubElement(xmlRoot, 'howto_use')
-            _xmlHowtouse.text = howto_use
+            cmd.add_element('howto_use', howto_use)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
-    def createAlertCommand(self, name, condition, event, method, filter_id='',
-                           copy='', comment=''):
+    def create_alert_command(self, name, condition, event, method, filter_id='',
+                             copy='', comment=''):
 
-        xmlRoot = etree.Element('create_alert')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_alert')
+        cmd.add_element('name', name)
 
         if len(condition) > 1:
-            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
-            _xmlConditions.text = condition[0]
+            conditions = cmd.add_element('condition', condition[0])
             for value, key in condition[1].items():
-                _xmlData = etree.SubElement(_xmlConditions, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+                _data = conditions.add_element('data', value)
+                _data.add_element('name', key)
+
         elif condition[0] == "Always":
-            _xmlConditions = etree.SubElement(xmlRoot, 'condition')
-            _xmlConditions.text = condition[0]
+            conditions = cmd.add_element('condition', condition[0])
 
         if len(event) > 1:
-            _xmlEvents = etree.SubElement(xmlRoot, 'event')
-            _xmlEvents.text = event[0]
+            events = cmd.add_element('event', event[0])
             for value, key in event[1].items():
-                _xmlData = etree.SubElement(_xmlEvents, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+                _data = events.add_element('data', value)
+                _data.add_element('name', key)
 
         if len(method) > 1:
-            _xmlMethods = etree.SubElement(xmlRoot, 'method')
-            _xmlMethods.text = method[0]
+            methods = cmd.add_element('method', method[0])
             for value, key in method[1].items():
-                _xmlData = etree.SubElement(_xmlMethods, 'data')
-                _xmlData.text = value
-                _xmlName = etree.SubElement(_xmlData, 'name')
-                _xmlName.text = key
+                _data = methods.add_element('data', value)
+                _data.add_element('name', key)
 
         if filter_id:
-            _xmlFilter = etree.SubElement(xmlRoot, 'filter', id=filter_id)
+            cmd.add_element('filter')
+            cmd.set_attribute('id', filter_id)
 
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
-    def createAssetCommand(self, name, asset_type, comment=''):
+    def create_asset_command(self, name, asset_type, comment=''):
         if asset_type not in ('host', 'os'):
             raise ValueError('create_asset requires asset_type to be either '
                              'host or os')
-        xmlRoot = etree.Element('create_asset')
-        _xmlAsset = etree.SubElement(xmlRoot, 'asset')
-        _xmlType = etree.SubElement(_xmlAsset, 'type')
-        _xmlType.text = asset_type
-        _xmlName = etree.SubElement(_xmlAsset, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_asset')
+        asset = cmd.add_element('asset')
+        asset.add_element('type', asset_type)
+        asset.add_element('name', name)
 
         if comment:
-            _xmlComment = etree.SubElement(_xmlAsset, 'comment')
-            _xmlComment.text = comment
+            asset.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
-    def createAuthenticateCommand(self, username, password, withCommands=''):
-        """Generates string for authentification on GVM
+    def create_authenticate_command(self, username, password):
+        """Generates string for authentification on gvmd
 
         Creates the gmp authentication xml string.
         Inserts the username and password into it.
@@ -133,25 +159,16 @@ class _gmp:
         Keyword Arguments:
             username {str} -- Username for GVM User
             password {str} -- Password for GVM User
-            withCommands {str} -- Additional commands default: {''})
         """
+        cmd = XmlCommand('authenticate')
 
-        xmlRoot = etree.Element('authenticate')
-        _xmlCredentials = etree.SubElement(xmlRoot, 'credentials')
-        _xmlUser = etree.SubElement(_xmlCredentials, 'username')
-        _xmlUser.text = username
-        _xmlPass = etree.SubElement(_xmlCredentials, 'password')
-        _xmlPass.text = password
-        if len(withCommands) is 0:
-            return etree.tostring(xmlRoot).decode('utf-8')
+        credentials = cmd.add_element('credentials')
+        credentials.add_element('username', username)
+        credentials.add_element('password', password)
 
-        xmlRootCmd = etree.Element('commands')
-        cmds = secET.fromstring(withCommands)
-        xmlRootCmd.append(xmlRoot)
-        xmlRootCmd.append(cmds)
-        return etree.tostring(xmlRootCmd).decode('utf-8')
+        return cmd.to_string()
 
-    def createConfigCommand(self, copy_id, name):
+    def create_config_command(self, copy_id, name):
 
         xmlRoot = etree.Element('create_config')
         _xmlCopy = etree.SubElement(xmlRoot, 'copy')
@@ -160,7 +177,7 @@ class _gmp:
         _xmlName.text = name
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createCredentialCommand(self, name, kwargs):
+    def create_credential_command(self, name, kwargs):
 
         xmlRoot = etree.Element('create_credential')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -248,13 +265,16 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createFilterCommand(self, name, make_unique, kwargs):
+    def create_filter_command(self, name, make_unique, kwargs):
 
         xmlRoot = etree.Element('create_filter')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
         _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
-        _xmlUnique.text = make_unique
+        if make_unique:
+            _xmlUnique.text = '1'
+        else:
+            _xmlUnique.text = '0'
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -273,7 +293,7 @@ class _gmp:
 
         filter_type = kwargs.get('type', '')
         if filter_type:
-            if filter_type not in ('cc', 'snmp', 'up', 'usk'):
+            if filter_type not in FILTER_NAMES:
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
             _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
@@ -281,7 +301,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createGroupCommand(self, name, kwargs):
+    def create_group_command(self, name, kwargs):
 
         xmlRoot = etree.Element('create_group')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -309,7 +329,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createNoteCommand(self, text, nvt_oid, kwargs):
+    def create_note_command(self, text, nvt_oid, kwargs):
 
         xmlRoot = etree.Element('create_note')
         _xmlText = etree.SubElement(xmlRoot, 'text')
@@ -361,7 +381,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createOverrideCommand(self, text, nvt_oid, kwargs):
+    def create_override_command(self, text, nvt_oid, kwargs):
 
         xmlRoot = etree.Element('create_override')
         _xmlText = etree.SubElement(xmlRoot, 'text')
@@ -423,7 +443,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createPermissionCommand(self, name, subject_id, type, kwargs):
+    def create_permission_command(self, name, subject_id, type, kwargs):
         # pretty(gmp.create_permission('get_version',
         # 'cc9cac5e-39a3-11e4-abae-406186ea4fc5', 'role'))
         # libs.gvm_connection.GMPError: Error in NAME
@@ -465,7 +485,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createPortListCommand(self, name, port_range, kwargs):
+    def create_port_list_command(self, name, port_range, kwargs):
 
         if not name:
             raise ValueError('create_port_list requires a name element')
@@ -490,8 +510,8 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createPortRangeCommand(self, port_list_id, start, end, type,
-                               comment=''):
+    def create_port_range_command(self, port_list_id, start, end, type,
+                                  comment=''):
 
         if not port_list_id:
             raise ValueError('create_port_range requires '
@@ -514,7 +534,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createReportCommand(self, report_xml_string, kwargs):
+    def create_report_command(self, report_xml_string, kwargs):
 
         if not report_xml_string:
             raise ValueError('create_report requires a report')
@@ -546,7 +566,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createRoleCommand(self, name, kwargs):
+    def create_role_command(self, name, kwargs):
 
         if not name:
             raise ValueError('create_role requires a name element')
@@ -572,8 +592,8 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createScannerCommand(self, name, host, port, type, ca_pub,
-                             credential_id, kwargs):
+    def create_scanner_command(self, name, host, port, type, ca_pub,
+                               credential_id, kwargs):
         if not name:
             raise ValueError('create_scanner requires a name element')
         if not host:
@@ -613,7 +633,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createScheduleCommand(self, name, kwargs):
+    def create_schedule_command(self, name, kwargs):
         if not name:
             raise ValueError('create_schedule requires a name element')
 
@@ -672,7 +692,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createTagCommand(self, name, resource_id, resource_type, kwargs):
+    def create_tag_command(self, name, resource_id, resource_type, kwargs):
 
         xmlRoot = etree.Element('create_tag')
         _xmlName = etree.SubElement(xmlRoot, 'name')
@@ -704,8 +724,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createTargetCommand(self, name, make_unique, kwargs):
-
+    def create_target_command(self, name, make_unique, kwargs):
         if not name:
             raise ValueError('create_target requires a name element')
 
@@ -821,8 +840,10 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createTaskCommand(self, name, config_id, target_id, scanner_id,
-                          alert_id='', comment=''):
+    def create_task_command(self, name, config_id, target_id, scanner_id,
+                            alert_ids=None, comment=''):
+        if alert_ids is None:
+            alert_ids = []
         xmlRoot = etree.Element('create_task')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
@@ -831,14 +852,23 @@ class _gmp:
         _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
         _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
         _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
-        # if given the alert_id is wrapped and integrated suitably as xml
-        if len(alert_id) > 0:
-            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert_id))
+
+        #if given the alert_id is wrapped and integrated suitably as xml
+        if len(alert_ids) > 0:
+            if isinstance(alert_ids, str):
+                #if a single id is given as a string wrap it into a list
+                alert_ids = [alert_ids]
+            if isinstance(alert_ids, list):
+                #parse all given alert id's
+                for alert in alert_ids:
+                    _xmlAlert = etree.SubElement(
+                        xmlRoot, 'alert', id=str(alert))
+
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def createUserCommand(self, name, password, copy='', hosts_allow='0',
-                          ifaces_allow='0', role_ids=(), hosts=None,
-                          ifaces=None):
+    def create_user_command(self, name, password, copy='', hosts_allow='0',
+                            ifaces_allow='0', role_ids=(), hosts=None,
+                            ifaces=None):
         xmlRoot = etree.Element('create_user')
         _xmlName = etree.SubElement(xmlRoot, 'name')
         _xmlName.text = name
@@ -868,8 +898,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyAgentCommand(self, agent_id, name='', comment=''):
-
+    def modify_agent_command(self, agent_id, name='', comment=''):
         if not agent_id:
             raise ValueError('modify_agent requires an agent_id element')
 
@@ -884,8 +913,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyAlertCommand(self, alert_id, kwargs):
-
+    def modify_alert_command(self, alert_id, kwargs):
         if not alert_id:
             raise ValueError('modify_alert requires an agent_id element')
 
@@ -937,8 +965,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyAuthCommand(self, group_name,  auth_conf_settings):
-
+    def modify_auth_command(self, group_name, auth_conf_settings):
         if not group_name:
             raise ValueError('modify_auth requires a group element '
                              'with a name attribute')
@@ -958,8 +985,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyConfigCommand(self, selection, kwargs):
-
+    def modify_config_command(self, selection, kwargs):
         if selection not in ('nvt_pref', 'sca_pref',
                              'family_selection', 'nvt_selection'):
             raise ValueError('selection must be one of nvt_pref, sca_pref, '
@@ -1009,8 +1035,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyCredentialCommand(self, credential_id, kwargs):
-
+    def modify_credential_command(self, credential_id, kwargs):
         if not credential_id:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
@@ -1099,8 +1124,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyFilterCommand(self, filter_id, kwargs):
-
+    def modify_filter_command(self, filter_id, kwargs):
         if not filter_id:
             raise ValueError('modify_filter requires a filter_id attribute')
 
@@ -1136,8 +1160,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyGroupCommand(self, group_id, kwargs):
-
+    def modify_group_command(self, group_id, kwargs):
         if not group_id:
             raise ValueError('modify_group requires a group_id attribute')
 
@@ -1160,8 +1183,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyNoteCommand(self, note_id, text, kwargs):
-
+    def modify_note_command(self, note_id, text, kwargs):
         if not note_id:
             raise ValueError('modify_note requires a note_id attribute')
         if not text:
@@ -1206,8 +1228,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyOverrideCommand(self, override_id, text, kwargs):
-
+    def modify_override_command(self, override_id, text, kwargs):
         xmlRoot = etree.Element('modify_override',
                                 override_id=override_id)
         _xmlText = etree.SubElement(xmlRoot, 'text')
@@ -1258,8 +1279,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyPermissionCommand(self, permission_id, kwargs):
-
+    def modify_permission_command(self, permission_id, kwargs):
         if not permission_id:
             raise ValueError('modify_permission requires '
                              'a permission_id element')
@@ -1296,8 +1316,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyPortListCommand(self, port_list_id, kwargs):
-
+    def modify_port_list_command(self, port_list_id, kwargs):
         if not port_list_id:
             raise ValueError('modify_port_list requires '
                              'a port_list_id attribute')
@@ -1316,8 +1335,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyReportFormatCommand(self, report_format_id, kwargs):
-
+    def modify_report_format_command(self, report_format_id, kwargs):
         if len(kwargs) < 1:
             raise Exception('modify_report_format: Missing parameter')
 
@@ -1351,8 +1369,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyRoleCommand(self, role_id, kwargs):
-
+    def modify_role_command(self, role_id, kwargs):
         if not role_id:
             raise ValueError('modify_role requires a role_id element')
 
@@ -1376,15 +1393,15 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyScannerCommand(self, scanner_id, host, port, type, kwargs):
-
+    def modify_scanner_command(self, scanner_id, host, port, scanner_type,
+                               kwargs):
         if not scanner_id:
             raise ValueError('modify_scanner requires a scanner_id element')
         if not host:
             raise ValueError('modify_scanner requires a host element')
         if not port:
             raise ValueError('modify_scanner requires a port element')
-        if not type:
+        if not scanner_type:
             raise ValueError('modify_scanner requires a type element')
 
         xmlRoot = etree.Element('modify_scanner', scanner_id=scanner_id)
@@ -1393,7 +1410,7 @@ class _gmp:
         _xmlPort = etree.SubElement(xmlRoot, 'port')
         _xmlPort.text = port
         _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
+        _xmlType.text = scanner_type
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -1417,8 +1434,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyScheduleCommand(self, schedule_id, kwargs):
-
+    def modify_schedule_command(self, schedule_id, kwargs):
         if not schedule_id:
             raise ValueError('modify_schedule requires a schedule_id element')
 
@@ -1474,8 +1490,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyTagCommand(self, tag_id, kwargs):
-
+    def modify_tag_command(self, tag_id, kwargs):
         if not tag_id:
             raise ValueError('modify_tag requires a tag_id element')
 
@@ -1512,8 +1527,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyTargetCommand(self, target_id, kwargs):
-
+    def modify_target_command(self, target_id, kwargs):
         if not target_id:
             raise ValueError('modify_target requires a target_id element')
 
@@ -1571,8 +1585,7 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyTaskCommand(self, task_id, kwargs):
-
+    def modify_task_command(self, task_id, kwargs):
         if not task_id:
             raise ValueError('modify_task requires a task_id element')
 
@@ -1637,10 +1650,10 @@ class _gmp:
 
         return etree.tostring(xmlRoot).decode('utf-8')
 
-    def modifyUserCommand(self, kwargs):
-
+    def modify_user_command(self, kwargs):
         user_id = kwargs.get('user_id', '')
         name = kwargs.get('name', '')
+
         if not user_id and not name:
             raise ValueError('modify_user requires '
                              'either a user_id or a name element')

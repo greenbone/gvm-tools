@@ -16,17 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Main module for gvm-tools
+Module for Gmp errors
 """
-from gmp.error import GmpError
-from gmp.protocol.v7 import Gmp
 
-VERSION = (2, 0, 0, 'dev', 1)
-
-def get_version():
-    if len(VERSION) > 3:
-        version = '.'.join(str(x) for x in VERSION[:4])
-        version += str(VERSION[4])
-    else:
-        version = '.'.join(str(x) for x in VERSION)
-    return version
+class GmpError(Exception):
+    """A exception for gmp errors
+    """
+    pass
