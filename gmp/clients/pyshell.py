@@ -184,6 +184,14 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parser_tls.add_argument('--port', required=False,
                             default=DEFAULT_GVM_PORT,
                             help='Port. Default: %(default)s.')
+    parser_tls.add_argument('--certfile', required=False, default=None,
+                            help='Path to the client certificate file.')
+    parser_tls.add_argument('--keyfile', required=False, default=None,
+                            help='Path to key certificate file.')
+    parser_tls.add_argument('--cafile', required=False, default=None,
+                            help='Path to CA certificate file.')
+    parser_tls.add_argument('--no-credentials', required=False, default=False,
+                            help='Use only certificates.')
 
     parser_socket = subparsers.add_parser(
         'socket', help='Use UNIX-Socket connection for gmp service.',
@@ -221,34 +229,45 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         connection = UnixSocketConnection(path=socketpath,
                                           timeout=args.timeout)
     elif 'tls' in args.connection_type:
-        connection = TLSConnection(hostname=args.hostname, port=args.port,
-                                   timeout=args.timeout)
+        connection = TLSConnection(
+            timeout=args.timeout,
+            hostname=args.hostname,
+            port=args.port,
+            certfile=args.certfile,
+            keyfile=args.keyfile,
+            cafile=args.cafile,
+        )
     else:
         connection = SSHConnection(hostname=args.hostname, port=args.port,
                                    timeout=args.timeout, username=args.ssh_user,
                                    password='')
-
-    # Ask for login credentials if none are given
-    if not args.gmp_username:
-        while len(args.gmp_username) == 0:
-            args.gmp_username = input('Enter username: ')
-
-    if not args.gmp_password:
-        args.gmp_password = getpass.getpass(
-            'Enter password for {0}: '.format(args.gmp_username))
-
     global gmp
+    if ('tls' in args.connection_type and (
+            not args.certfile or
+            not args.keyfile or
+            not args.cafile)
+          ):
+        # Ask for login credentials if none are given.
+        if not args.gmp_username:
+            while len(args.gmp_username) == 0:
+                args.gmp_username = input('Enter username: ')
 
-    # return an Etree at successful responses and raise execption on
-    # unsuccessful ones
-    gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
+        if not args.gmp_password:
+            args.gmp_password = getpass.getpass(
+                'Enter password for {0}: '.format(args.gmp_username))
 
-    try:
-        gmp.authenticate(args.gmp_username, args.gmp_password)
-    except Exception as e: # pylint: disable=broad-except
-        print('Please check your credentials!')
-        print(e)
-        sys.exit(1)
+        # return an Etree at successful responses and raise execption on
+        # unsuccessful ones
+        gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
+
+        try:
+            gmp.authenticate(args.gmp_username, args.gmp_password)
+        except Exception as e: # pylint: disable=broad-except
+            print('Please check your credentials!')
+            print(e)
+            sys.exit(1)
+    else:
+        gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
