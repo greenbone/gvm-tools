@@ -18,7 +18,6 @@
 """
 Main module for gvm-tools
 """
-from gmp.error import GmpError
 from gmp.protocol.v7 import Gmp
 
 VERSION = (2, 0, 0, 'dev', 1)
