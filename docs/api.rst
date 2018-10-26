@@ -21,6 +21,9 @@ Connections
 
 .. automodule:: gmp.connection
 
+.. autoclass:: GmpConnection
+   :inherited-members:
+
 .. autoclass:: SSHConnection
    :inherited-members:
 
