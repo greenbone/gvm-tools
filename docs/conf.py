@@ -106,6 +106,15 @@ html_static_path = ['_static']
 # 'searchbox.html']``.
 #
 # html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'sidebarlogo.html',
+        'localtoc.html',
+        'relations.html',
+        'searchbox.html'
+    ],
+}
+
 html_show_sourcelink = False
 
 
