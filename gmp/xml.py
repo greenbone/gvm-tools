@@ -777,34 +777,28 @@ class _GmpCommandFactory:
     def create_user_command(self, name, password, copy='', hosts_allow='0',
                             ifaces_allow='0', role_ids=(), hosts=None,
                             ifaces=None):
-        xmlRoot = etree.Element('create_user')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        """Generates xml string for create user on gvmd."""
+        cmd = XmlCommand('create_user')
+        cmd.add_element('name', name)
 
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
+            cmd.add_element('password', password)
 
         if hosts is not None:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(hosts_allow))
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts, attrs={'allow': str(hosts_allow)})
 
         if ifaces is not None:
-            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
-                                          allow=str(ifaces_allow))
-            _xmlIFaces.text = ifaces
+            cmd.add_element('ifaces', ifaces,
+                            attrs={'allow': str(ifaces_allow)})
 
         if len(role_ids) > 0:
             for role in role_ids:
-                _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                            allow=str(role))
+                cmd.add_element('role', attrs={'allow': str(role)})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_agent_command(self, agent_id, name='', comment=''):
         if not agent_id:
