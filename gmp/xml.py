@@ -417,33 +417,28 @@ class _GmpCommandFactory:
             raise ValueError('create_permission requires type '
                              'to be either user, group or role')
 
-        xmlRoot = etree.Element('create_permission')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
-        _xmlType = etree.SubElement(_xmlSubject, 'type')
-        _xmlType.text = type
+        cmd = XmlCommand('create_permission')
+        cmd.add_element('name', name)
+        _xmlSubject = cmd.add_element('subject', attrs={'id': subject_id})
+        _xmlSubject.add_element('type', type)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource.id
             resource_type = resource.type
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
+            _xmlResource = cmd.add_element('resource',
+                                            attrs={'id': resource_id})
+            _xmlResource.add_element('type', resource_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_port_list_command(self, name, port_range, kwargs):
 
