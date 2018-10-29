@@ -306,56 +306,49 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_note_command(self, text, nvt_oid, kwargs):
+        """Generates xml string for create note on gvmd."""
 
-        xmlRoot = etree.Element('create_note')
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-        _xmlNvt = etree.SubElement(xmlRoot, 'nvt', oid=nvt_oid)
+        cmd = XmlCommand('create_note')
+         cmd.add_element('text', text)
+         cmd.add_element('nvt', attrs={"oid": nvt_oid})
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts)
 
         port = kwargs.get('port', '')
         if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
+           cmd.add_element('port', port)
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
+            cmd.add_element('result', attrs={'id': result_id})
 
         severity = kwargs.get('severity', '')
         if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
+            cmd.add_element('severity', severity)
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
+            cmd.add_element('task', attrs={'id': task_id})
 
         threat = kwargs.get('threat', '')
         if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
+            cmd.add_element('threat', threat)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_override_command(self, text, nvt_oid, kwargs):
 
