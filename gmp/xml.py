@@ -125,8 +125,7 @@ class _GmpCommandFactory:
                 _data.add_element('name', key)
 
         if filter_id:
-            cmd.add_element('filter')
-            cmd.set_attribute('id', filter_id)
+            cmd.add_element('filter', attrs={'id': filter_id})
 
         if copy:
             cmd.add_element('copy', copy)
