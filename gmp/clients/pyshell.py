@@ -140,8 +140,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
             path = os.path.expanduser(args_before.config)
             config.read(path)
             defaults = dict(config.items('Auth'))
-        except Exception as e:
-            print(str(e))
+        except Exception as e: # pylint: disable=broad-except
+            print(str(e), file=sys.stderr)
 
     parent_parser.set_defaults(**defaults)
 
