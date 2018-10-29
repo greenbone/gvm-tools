@@ -40,7 +40,7 @@ __version__ = get_version()
 
 logger = logging.getLogger(__name__)
 
-help_text = """
+HELP_TEXT = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services
@@ -101,7 +101,8 @@ class Help(object):
 
     def __repr__(self):
         # do pwd command
-        return help_text
+        return HELP_TEXT
+
 help = Help()
 
 # gmp has to be global, so the load-function has the correct namespace
@@ -111,7 +112,7 @@ gmp = None
 def main():
     parser = argparse.ArgumentParser(
         prog='gvm-pyshell',
-        description=help_text,
+        description=HELP_TEXT,
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
