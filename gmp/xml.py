@@ -250,40 +250,35 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_filter_command(self, name, make_unique, kwargs):
+        """Generates xml string for create filter on gvmd."""
 
-        xmlRoot = etree.Element('create_filter')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
+        cmd = XmlCommand('create_filter')
+        _xmlName = cmd.add_element('name', name)
         if make_unique:
-            _xmlUnique.text = '1'
+            _xmlName.add_element('make_unique', '1')
         else:
-            _xmlUnique.text = '0'
+            _xmlName.add_element('make_unique', '0')
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         term = kwargs.get('term', '')
         if term:
-            _xmlTerm = etree.SubElement(xmlRoot, 'term')
-            _xmlTerm.text = term
+            cmd.add_element('term', term)
 
         filter_type = kwargs.get('type', '')
         if filter_type:
             if filter_type not in FILTER_NAMES:
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
-            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
-            _xmlFiltertype.text = filter_type
+            cmd.add_element('type', filter_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_group_command(self, name, kwargs):
 
