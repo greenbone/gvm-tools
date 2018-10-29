@@ -540,6 +540,7 @@ class _GmpCommandFactory:
 
     def create_scanner_command(self, name, host, port, type, ca_pub,
                                credential_id, kwargs):
+        """Generates xml string for create scanner on gvmd."""
         if not name:
             raise ValueError('create_scanner requires a name element')
         if not host:
@@ -553,31 +554,23 @@ class _GmpCommandFactory:
         if not credential_id:
             raise ValueError('create_scanner requires a credential_id element')
 
-        xmlRoot = etree.Element('create_scanner')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlHost = etree.SubElement(xmlRoot, 'host')
-        _xmlHost.text = host
-        _xmlPort = etree.SubElement(xmlRoot, 'port')
-        _xmlPort.text = port
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
-        _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
-        _xmlCAPub.text = ca_pub
-        _xmlCred = etree.SubElement(xmlRoot, 'credential',
-                                    id=str(credential_id))
+        cmd = XmlCommand('create_scanner')
+        cmd.add_element('name', name)
+        cmd.add_element('host', host)
+        cmd.add_element('port', port)
+        cmd.add_element('type', type)
+        cmd.add_element('ca_pub', ca_pub)
+        cmd.add_element('credential', attrs={'id': str(credential_id)})
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_schedule_command(self, name, kwargs):
         if not name:
