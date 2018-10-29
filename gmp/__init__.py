@@ -16,13 +16,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Main module for gvm-tools
+Main module of gvm-tools.
+
+This module exposes the main entry to gvm-tools.
+The provided Gmp class implements the current stable `Greenbone Management
+Protocol`_.
+
+For details about the possible supported protocol versions please take a look at
+:py:mod:`gmp.protocol`.
+
+.. _Greenbone Management Protocol:
+    https://docs.greenbone.net/API/GMP/gmp.html
 """
 from gmp.protocol.v7 import Gmp
 
 VERSION = (2, 0, 0, 'dev', 1)
 
 def get_version():
+    """Returns the version of gvm-tools as a string in `PEP440`_ compliant
+    format.
+
+    Returns:
+        str: Current version of gvm-tools
+
+    .. _PEP440:
+       https://www.python.org/dev/peps/pep-0440
+    """
     if len(VERSION) > 3:
         version = '.'.join(str(x) for x in VERSION[:4])
         version += str(VERSION[4])
