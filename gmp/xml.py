@@ -168,13 +168,12 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_config_command(self, copy_id, name):
+        """Generates xml string for create config on gvmd."""
+        cmd = XmlCommand('create_config')
+        cmd.add_element('copy', copy_id)
+        cmd.add_element('name', name)
 
-        xmlRoot = etree.Element('create_config')
-        _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-        _xmlCopy.text = copy_id
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_credential_command(self, name, kwargs):
 
