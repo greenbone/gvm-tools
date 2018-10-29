@@ -441,29 +441,25 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_port_list_command(self, name, port_range, kwargs):
-
+        """Generates xml string for create port list on gvmd."""
         if not name:
             raise ValueError('create_port_list requires a name element')
         if not port_range:
             raise ValueError('create_port_list requires a port_range element')
 
-        xmlRoot = etree.Element('create_port_list')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlPortrange = etree.SubElement(xmlRoot, 'port_range')
-        _xmlPortrange.text = port_range
+        cmd = XmlCommand('create_port_list')
+        cmd.add_element('name', name)
+        cmd.add_element('port_range', port_range)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_port_range_command(self, port_list_id, start, end, type,
                                   comment=''):
