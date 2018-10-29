@@ -57,6 +57,10 @@ class XmlCommandElement:
     def set_attribute(self, name, value):
         self._element.set(name, value)
 
+    def append_xml_str(self, xml_text):
+        node = secET.fromstring(xml_text)
+        self._element.append(node)
+
     def to_string(self):
         return etree.tostring(self._element).decode('utf-8')
 
