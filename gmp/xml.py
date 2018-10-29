@@ -573,22 +573,20 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_schedule_command(self, name, kwargs):
+        """Generates xml string for create schedule on gvmd."""
         if not name:
             raise ValueError('create_schedule requires a name element')
 
-        xmlRoot = etree.Element('create_schedule')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_schedule')
+        cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         first_time = kwargs.get('first_time', '')
         if first_time:
@@ -598,38 +596,28 @@ class _GmpCommandFactory:
             first_time_month = first_time['month']
             first_time_year = first_time['year']
 
-            _xmlFtime = etree.SubElement(xmlRoot, 'first_time')
-            _xmlMinute = etree.SubElement(_xmlFtime, 'minute')
-            _xmlMinute.text = str(first_time_minute)
-            _xmlHour = etree.SubElement(_xmlFtime, 'hour')
-            _xmlHour.text = str(first_time_hour)
-            _xmlDay = etree.SubElement(_xmlFtime, 'day_of_month')
-            _xmlDay.text = str(first_time_day_of_month)
-            _xmlMonth = etree.SubElement(_xmlFtime, 'month')
-            _xmlMonth.text = str(first_time_month)
-            _xmlYear = etree.SubElement(_xmlFtime, 'year')
-            _xmlYear.text = str(first_time_year)
+            _xmlFtime = cmd.add_element('first_time')
+            _xmlFtime.add_element('minute', first_time_minute)
+            _xmlFtime.add_element('hour', str(first_time_hour))
+            _xmlFtime.add_element('day_of_month', str(first_time_day_of_month))
+            _xmlFtime.add_element('month', str(first_time_month))
+            _xmlFtime.add_element('year', str(first_time_year))
 
         duration = kwargs.get('duration', '')
         if len(duration) > 1:
-            _xmlDuration = etree.SubElement(xmlRoot, 'duration')
-            _xmlDuration.text = str(duration[0])
-            _xmlUnit = etree.SubElement(_xmlDuration, 'unit')
-            _xmlUnit.text = str(duration[1])
+            _xmlDuration = cmd.add_element('duration', str(duration[0]))
+            _xmlDuration.add_element('unit', str(duration[1]))
 
         period = kwargs.get('period', '')
         if len(period) > 1:
-            _xmlPeriod = etree.SubElement(xmlRoot, 'period')
-            _xmlPeriod.text = str(period[0])
-            _xmlPUnit = etree.SubElement(_xmlPeriod, 'unit')
-            _xmlPUnit.text = str(period[1])
+            _xmlPeriod = cmd.add_element('period', str(period[0]))
+            _xmlPeriod.add_element('unit', str(period[1]))
 
         timezone = kwargs.get('timezone', '')
         if timezone:
-            _xmlTimezone = etree.SubElement(xmlRoot, 'timezone')
-            _xmlTimezone.text = str(timezone)
+            cmd.add_element('timezone', str(timezone))
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_tag_command(self, name, resource_id, resource_type, kwargs):
 
