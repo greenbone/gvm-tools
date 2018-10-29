@@ -751,16 +751,16 @@ class _GmpCommandFactory:
 
     def create_task_command(self, name, config_id, target_id, scanner_id,
                             alert_ids=None, comment=''):
+        """Generates xml string for create task on gvmd."""
+
         if alert_ids is None:
             alert_ids = []
-        xmlRoot = etree.Element('create_task')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlComment = etree.SubElement(xmlRoot, 'comment')
-        _xmlComment.text = comment
-        _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
-        _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
-        _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
+        cmd = XmlCommand('create_task')
+        cmd.add_element('name', name)
+        cmd.add_element('comment', comment)
+        cmd.add_element('config', attrs={'id': config_id})
+        cmd.add_element('target', attrs={'id': target_id})
+        cmd.add_element('scanner', attrs={'id': scanner_id})
 
         #if given the alert_id is wrapped and integrated suitably as xml
         if len(alert_ids) > 0:
@@ -770,10 +770,9 @@ class _GmpCommandFactory:
             if isinstance(alert_ids, list):
                 #parse all given alert id's
                 for alert in alert_ids:
-                    _xmlAlert = etree.SubElement(
-                        xmlRoot, 'alert', id=str(alert))
+                    cmd.add_element('alert', attrs={'id': str(alert)})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_user_command(self, name, password, copy='', hosts_allow='0',
                             ifaces_allow='0', role_ids=(), hosts=None,
