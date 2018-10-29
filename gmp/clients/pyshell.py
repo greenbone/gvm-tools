@@ -103,11 +103,6 @@ class Help(object):
         # do pwd command
         return HELP_TEXT
 
-help = Help()
-
-# gmp has to be global, so the load-function has the correct namespace
-gmp = None
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -209,7 +204,6 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
 
-    global args
     args = parser.parse_args(remaining_args)
 
     # Sets the logging
@@ -279,30 +273,37 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     only_interactive = not with_script and args.interactive
     only_script = not args.interactive and with_script
 
-    if no_script_no_interactive:
-        enter_interactive_mode()
+    global_vars = get_globals_dict(gmp, args)
 
-    if only_interactive:
-        enter_interactive_mode()
+    if only_interactive or no_script_no_interactive:
+        enter_interactive_mode(global_vars)
 
-    if script_and_interactive:
-        load(args.script[0])
-        enter_interactive_mode()
+    if script_and_interactive or only_script:
+        script_name = args.script[0]
+        load(script_name, global_vars)
 
-    if only_script:
-        load(args.script[0])
+    if not only_script:
+        enter_interactive_mode(global_vars)
 
     gmp.disconnect()
 
 
-def enter_interactive_mode():
+def get_globals_dict(gmp, args):
+    return {
+        'gmp': gmp,
+        'help': Help(),
+        'args': args,
+        'pretty': pretty_print,
+    }
+
+def enter_interactive_mode(global_vars):
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
-        local=dict(globals(), **locals()))
+        local=dict(global_vars, **locals()))
 
 
-def pretty(xml):
+def pretty_print(xml):
     """Prints beautiful XML-Code
 
     This function gets an object of list<lxml.etree._Element>
@@ -322,7 +323,7 @@ def pretty(xml):
         print(etree.tostring(xml, pretty_print=True).decode('utf-8'))
 
 
-def load(path):
+def load(path, global_vars):
     """Loads a file into the interactive console
 
     Loads a file into the interactive console and execute it.
@@ -333,7 +334,8 @@ def load(path):
     """
     try:
         file = open(path, 'r', newline='').read()
-        exec(file, globals())
+
+        exec(file, global_vars) # pylint: disable=exec-used
     except OSError as e:
         print(str(e))
 
