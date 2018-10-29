@@ -516,30 +516,27 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_role_command(self, name, kwargs):
+        """Generates xml string for create role on gvmd."""
 
         if not name:
             raise ValueError('create_role requires a name element')
 
-        xmlRoot = etree.Element('create_role')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_role')
+        cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         users = kwargs.get('users', '')
         if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
+            cmd.add_element('users', users)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_scanner_command(self, name, host, port, type, ca_pub,
                                credential_id, kwargs):
