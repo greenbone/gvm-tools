@@ -313,8 +313,8 @@ class _GmpCommandFactory:
         """Generates xml string for create note on gvmd."""
 
         cmd = XmlCommand('create_note')
-         cmd.add_element('text', text)
-         cmd.add_element('nvt', attrs={"oid": nvt_oid})
+        cmd.add_element('text', text)
+        cmd.add_element('nvt', attrs={"oid": nvt_oid})
 
         active = kwargs.get('active', '')
         if active:
