@@ -620,36 +620,31 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_tag_command(self, name, resource_id, resource_type, kwargs):
+        """Generates xml string for create tag on gvmd."""
 
-        xmlRoot = etree.Element('create_tag')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                        id=str(resource_id))
-        _xmlRType = etree.SubElement(_xmlResource, 'type')
-        _xmlRType.text = resource_type
+        cmd = XmlCommand('create_tag')
+        _cmd.add_element('name', name)
+        _xmlResource = cmd.add_element('resource',
+                                       attrs={'id': str(resource_id)})
+        _xmlResource.add_element('type', resource_type)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         value = kwargs.get('value', '')
         if value:
-            _xmlValue = etree.SubElement(xmlRoot, 'value')
-            _xmlValue.text = value
+            cmd.add_element('value', value)
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_target_command(self, name, make_unique, kwargs):
         if not name:
