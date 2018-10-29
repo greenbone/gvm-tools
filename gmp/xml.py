@@ -463,6 +463,7 @@ class _GmpCommandFactory:
 
     def create_port_range_command(self, port_list_id, start, end, type,
                                   comment=''):
+        """Generates xml string for create port range on gvmd."""
 
         if not port_list_id:
             raise ValueError('create_port_range requires '
@@ -470,20 +471,16 @@ class _GmpCommandFactory:
         if not type:
             raise ValueError('create_port_range requires a type element')
 
-        xmlRoot = etree.Element('create_port_range')
-        _xmlPlist = etree.SubElement(xmlRoot, 'port_list', id=port_list_id)
-        _xmlStart = etree.SubElement(xmlRoot, 'start')
-        _xmlStart.text = start
-        _xmlEnd = etree.SubElement(xmlRoot, 'end')
-        _xmlEnd.text = end
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
+        cmd.add_element('create_port_range')
+        cmd.add_element('port_list', attrs={'id': port_list_id})
+        cmd.add_element('start', start)
+        cmd.add_element('end', end)
+        cmd.add_element('type', type)
 
         if len(comment):
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_report_command(self, report_xml_string, kwargs):
 
