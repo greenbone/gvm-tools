@@ -28,7 +28,6 @@ For details about the possible supported protocol versions please take a look at
 .. _Greenbone Management Protocol:
     https://docs.greenbone.net/API/GMP/gmp.html
 """
-from gmp.error import GmpError
 from gmp.protocol.v7 import Gmp
 
 VERSION = (2, 0, 0, 'dev', 1)
