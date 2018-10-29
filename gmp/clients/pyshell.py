@@ -198,7 +198,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        '--sockpath', nargs='?',
         help='Depreacted. Use --socketpath instead')
     parser_socket.add_argument(
         '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
@@ -223,9 +223,12 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     # Open the right connection. SSH at last for default
     if 'socket' in args.connection_type:
-        socketpath = args.socketpath
+        socketpath = args.sockpath
         if socketpath is None:
-            socketpath = args.sockpath
+            socketpath = args.socketpath
+        else:
+            print('The --sockpath parameter has been deprecated. Please use '
+                  '--socketpath instead', file=sys.stderr)
 
         connection = UnixSocketConnection(path=socketpath,
                                           timeout=args.timeout)
