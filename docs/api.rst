@@ -21,6 +21,9 @@ Connections
 
 .. automodule:: gmp.connection
 
+.. autoclass:: GmpConnection
+   :inherited-members:
+
 .. autoclass:: SSHConnection
    :inherited-members:
 
@@ -35,6 +38,11 @@ Transforms
 
 .. automodule:: gmp.transform
     :members:
+
+Protocols
+---------
+
+.. automodule:: gmp.protocol
 
 Errors
 ------

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Module for connections to gvmd daemon
+Module for connections to gvmd daemon.
 """
 import logging
 import socket as socketlib
@@ -65,7 +65,7 @@ class XmlReader:
                            "read {0}".format(data), e)
 
 
-class GVMConnection:
+class GmpConnection:
     """
     Base class for establishing a connection to gvmd.
     """
@@ -106,7 +106,7 @@ class GVMConnection:
             logger.debug('Connection closing error: %s', e)
 
 
-class SSHConnection(GVMConnection, XmlReader):
+class SSHConnection(GmpConnection, XmlReader):
     """
     SSH Class to connect, read and write from GVM via SSH
     """
@@ -192,7 +192,7 @@ class SSHConnection(GVMConnection, XmlReader):
             self._stdin.channel.send(data)
 
 
-class TLSConnection(GVMConnection):
+class TLSConnection(GmpConnection):
     """
     TLS class to connect, read and write from gvmd via tls secured socket
     """
@@ -234,7 +234,7 @@ class TLSConnection(GVMConnection):
         return response
 
 
-class UnixSocketConnection(GVMConnection, XmlReader):
+class UnixSocketConnection(GmpConnection, XmlReader):
     """
     UNIX-Socket class to connect, read, write from gsad via direct
     communicating UNIX-Socket

@@ -76,7 +76,25 @@ def _check_command_status(xml):
 
 
 class Gmp:
-    """Wrapper for Greenbone Management Protocol
+    """Python interface for Greenbone Management Protocol
+
+    This class implements the `Greenbone Management Protocol version 7`_
+
+    Attributes:
+        connection (:class:`gmp.connection.GmpConnection`): Connection to use to
+            talk with the gvmd daemon. See :mod:`gmp.connection` for possible
+            connection types.
+        transform (`callable`_, optional): Optional transform callable to
+            convert response data. After each request the callable gets passed
+            the plain response data which can be used to check the data and/or
+            conversion into different representaitions like a xml dom.
+
+            See :mod:`gmp.transform` for existing transforms.
+
+    .. _Greenbone Management Protocol version 7:
+        https://docs.greenbone.net/API/GMP/gmp-7.0.html
+    .. _callable:
+        https://docs.python.org/3.6/library/functions.html#callable
     """
 
     def __init__(self, connection, transform=None):
@@ -93,13 +111,18 @@ class Gmp:
 
     @staticmethod
     def get_protocol_version():
+        """Allow to determine the Greenbone Management Protocol version.
+
+            Returns:
+                str: Implemented version of the Greenbone Management Protocol
+        """
         return '.'.join(str(x) for x in PROTOCOL_VERSION)
 
     def _read(self):
         """Read a command response from gvmd
 
         Returns:
-            <string> -- Response from server.
+            str: Response from server.
         """
         response = self._connection.read()
 
@@ -111,7 +134,10 @@ class Gmp:
         return response
 
     def _send(self, data):
-        """Send a command to gsad
+        """Send a command to gvmd
+
+        Args:
+            data (str): Data to be send over the connection to gvmd
         """
         self._connect()
         self._connection.send(data)
@@ -128,35 +154,65 @@ class Gmp:
         return transform(data)
 
     def is_connected(self):
+        """Status of the current connection to gvmd
+
+        Returns:
+            bool: True if a connection to gvmd has been established.
+        """
         return self._connected
 
     def is_authenticated(self):
+        """Checks if the user is authenticated
+
+        If the user is authenticated privilged GMP commands like get_tasks
+        may be send to gvmd.
+
+        Returns:
+            bool: True if an authenticated connection to gvmd has been established.
+        """
         return self._authenticated
 
     def disconnect(self):
+        """Disconnect the connection to gvmd.
+
+        Ends and closes the connection to gvmd.
+        """
         if self.is_connected():
             self._connection.disconnect()
             self._connected = False
 
     def send_command(self, cmd):
-        """Send a command to gsad
+        """Send a GMP command to gsad
+
+        If the class isn't connected to gvmd yet the connection will be
+        established automatically.
+
+        Arguments:
+            cmd (str): GMP command as string to be send over the connection to
+                gvmd.
+
+        Returns:
+            any: The actual returned type depends on the set transform.
+
+            Per default - if no transform is set explicitly - the response is
+            returned as string.
         """
         self._send(cmd)
         response = self._read()
         return self._transform(response)
 
     def authenticate(self, username, password):
-        """Authenticate on GVM.
+        """Authenticate to gvmd.
 
         The generated authenticate command will be send to server.
-        After that a response is read from socket.
+        Afterwards the response is read, tranformed and returned.
 
-        Keyword Arguments:
-            username {str} -- Username
-            password {str} -- Password
+        Arguments:
+            username (str): Username
+            password (str): Password
 
         Returns:
-            <string> -- Response from server.
+            any, str by default: Transformed response from server.
         """
         cmd = self._generator.create_authenticate_command(
             username=username, password=password)
