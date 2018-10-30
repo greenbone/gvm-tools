@@ -19,12 +19,9 @@
 import argparse
 import code
 import configparser
-import getpass
 import logging
 import os
 import sys
-
-from lxml import etree
 
 from gmp import Gmp, get_version
 from gmp.connection import (SSHConnection,
@@ -40,7 +37,7 @@ __version__ = get_version()
 
 logger = logging.getLogger(__name__)
 
-help_text = """
+HELP_TEXT = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services
@@ -101,17 +98,13 @@ class Help(object):
 
     def __repr__(self):
         # do pwd command
-        return help_text
-help = Help()
-
-# gmp has to be global, so the load-function has the correct namespace
-gmp = None
+        return HELP_TEXT
 
 
 def main():
     parser = argparse.ArgumentParser(
         prog='gvm-pyshell',
-        description=help_text,
+        description=HELP_TEXT,
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False,
         epilog="""
@@ -144,8 +137,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
             path = os.path.expanduser(args_before.config)
             config.read(path)
             defaults = dict(config.items('Auth'))
-        except Exception as e:
-            print(str(e))
+        except Exception as e: # pylint: disable=broad-except
+            print(str(e), file=sys.stderr)
 
     parent_parser.set_defaults(**defaults)
 
@@ -197,7 +190,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         'socket', help='Use UNIX-Socket connection for gmp service.',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+        '--sockpath', nargs='?',
         help='Depreacted. Use --socketpath instead')
     parser_socket.add_argument(
         '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
@@ -208,7 +201,6 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         version='%(prog)s {version}'.format(version=__version__),
         help='Show program\'s version number and exit')
 
-    global args
     args = parser.parse_args(remaining_args)
 
     # Sets the logging
@@ -222,9 +214,12 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     # Open the right connection. SSH at last for default
     if 'socket' in args.connection_type:
-        socketpath = args.socketpath
+        socketpath = args.sockpath
         if socketpath is None:
-            socketpath = args.sockpath
+            socketpath = args.socketpath
+        else:
+            print('The --sockpath parameter has been deprecated. Please use '
+                  '--socketpath instead', file=sys.stderr)
 
         connection = UnixSocketConnection(path=socketpath,
                                           timeout=args.timeout)
@@ -241,33 +236,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         connection = SSHConnection(hostname=args.hostname, port=args.port,
                                    timeout=args.timeout, username=args.ssh_user,
                                    password='')
-    global gmp
-    if ('tls' in args.connection_type and (
-            not args.certfile or
-            not args.keyfile or
-            not args.cafile)
-          ):
-        # Ask for login credentials if none are given.
-        if not args.gmp_username:
-            while len(args.gmp_username) == 0:
-                args.gmp_username = input('Enter username: ')
 
-        if not args.gmp_password:
-            args.gmp_password = getpass.getpass(
-                'Enter password for {0}: '.format(args.gmp_username))
-
-        # return an Etree at successful responses and raise execption on
-        # unsuccessful ones
-        gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
-
-        try:
-            gmp.authenticate(args.gmp_username, args.gmp_password)
-        except Exception as e: # pylint: disable=broad-except
-            print('Please check your credentials!')
-            print(e)
-            sys.exit(1)
-    else:
-        gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
+    gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
@@ -275,50 +245,36 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     only_interactive = not with_script and args.interactive
     only_script = not args.interactive and with_script
 
-    if no_script_no_interactive:
-        enter_interactive_mode()
+    global_vars = get_globals_dict(gmp, args)
 
-    if only_interactive:
-        enter_interactive_mode()
+    if only_interactive or no_script_no_interactive:
+        enter_interactive_mode(global_vars)
 
-    if script_and_interactive:
-        load(args.script[0])
-        enter_interactive_mode()
+    if script_and_interactive or only_script:
+        script_name = args.script[0]
+        load(script_name, global_vars)
 
-    if only_script:
-        load(args.script[0])
+    if not only_script:
+        enter_interactive_mode(global_vars)
 
     gmp.disconnect()
 
 
-def enter_interactive_mode():
+def get_globals_dict(gmp, args):
+    return {
+        'gmp': gmp,
+        'help': Help(),
+        'args': args,
+    }
+
+def enter_interactive_mode(global_vars):
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
-        local=dict(globals(), **locals()))
+        local=dict(global_vars, **locals()))
 
 
-def pretty(xml):
-    """Prints beautiful XML-Code
-
-    This function gets an object of list<lxml.etree._Element>
-    or directly a lxml element.
-    Print it with good readable format.
-
-    Arguments:
-        xml {obj} -- list<lxml.etree._Element> or directly a lxml element
-    """
-    if isinstance(xml, list):
-        for item in xml:
-            if etree.iselement(item):
-                print(etree.tostring(item, pretty_print=True).decode('utf-8'))
-            else:
-                print(item)
-    elif etree.iselement(xml):
-        print(etree.tostring(xml, pretty_print=True).decode('utf-8'))
-
-
-def load(path):
+def load(path, global_vars):
     """Loads a file into the interactive console
 
     Loads a file into the interactive console and execute it.
@@ -329,7 +285,8 @@ def load(path):
     """
     try:
         file = open(path, 'r', newline='').read()
-        exec(file, globals())
+
+        exec(file, global_vars) # pylint: disable=exec-used
     except OSError as e:
         print(str(e))
 

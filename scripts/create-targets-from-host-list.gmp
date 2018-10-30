@@ -21,35 +21,37 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import time
 
-len_args = len(args.script) - 1
-if len_args is not 1:
-    message = """
-    This script pulls hostnames from a text file and creates a target \
-for each.
-    One parameter after the script name is required.
+from gmp.clients.helper import authenticate
 
-    1. <hosts_textfile>  -- text file containing hostnames
 
-    Example:
-        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
---gmp-password=pass scripts/create_targets_from_host_list.gmp \
-example_host_textfile
-    """
-    print(message)
-    quit()
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 1:
+        message = """
+        This script pulls hostnames from a text file and creates a target \
+    for each.
+        One parameter after the script name is required.
 
-hostname = args.hostname
-host_file = args.script[1]
+        1. <hosts_textfile>  -- text file containing hostnames
+
+        Example:
+            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+    --gmp-password=pass scripts/create_targets_from_host_list.gmp \
+    example_host_textfile
+        """
+        print(message)
+        quit()
 
 
 def error_and_exit(msg):
-    sys.stderr.write("\nError: {}\n".format(msg))
+    print("\nError: {}\n".format(msg), file=sys.stderr)
     sys.exit(1)
 
 
-def load_host_file(host_file):
+def load_host_list(host_file):
     try:
         with open(host_file) as f:
             content = f.readlines()
@@ -64,8 +66,8 @@ def load_host_file(host_file):
     return host_list
 
 
-def send_targets(host_list):
-    print('\nSending targets from {} to {}...'.format(host_file, hostname))
+def send_targets(gmp, host_name, host_file, host_list):
+    print('\nSending targets from {} to {}...'.format(host_file, host_name))
 
     for host in host_list:
         name = "Target for {}".format(host)
@@ -73,13 +75,27 @@ def send_targets(host_list):
         hosts = host
 
         gmp.create_target(
-                          name=name,
-                          make_unique=True,
-                          comment=comment,
-                          hosts=hosts
-                          )
+            name=name,
+            make_unique=True,
+            comment=comment,
+            hosts=hosts
+        )
 
-host_list = load_host_file(host_file)
-send_targets(host_list)
 
-print('\n  Target(s) created!\n')
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    hostname = args.hostname
+    hostfile = args.script[1]
+
+    hostlist = load_host_list(hostfile)
+    send_targets(gmp, hostname, hostfile, hostlist)
+
+    print('\n  Target(s) created!\n')
+
+
+main()

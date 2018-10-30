@@ -21,37 +21,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 from lxml import etree as e
 
-len_args = len(args.script) - 1
-if len_args is not 1:
-    message = """
-    This script pulls tasks data from an xml document and feeds it to \
-a desired GSM
-    One parameter after the script name is required.
+from gmp.clients.helper import authenticate
 
-    1. <xml_doc>  -- .xml file containing tasks
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 1:
+        message = """
+        This script pulls tasks data from an xml document and feeds it to \
+    a desired GSM
+        One parameter after the script name is required.
 
-    Example:
-        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
---gmp-password=pass scripts/send-tasks.gmp example_file.xml
-    """
+        1. <xml_doc>  -- .xml file containing tasks
 
-    print(message)
-    quit()
+        Example:
+            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+    --gmp-password=pass scripts/send-tasks.gmp example_file.xml
+        """
 
-hostname = args.hostname
-xml_doc = args.script[1]
+        print(message)
+        quit()
 
 
 def error_and_exit(msg):
-    sys.stderr.write("\nError: {}\n".format(msg))
+    print("\nError: {}\n".format(msg), file=sys.stderr)
     sys.exit(1)
 
 
 def yes_or_no(question):
     reply = str(input(question + ' (y/n): ')).lower().strip()
-    
+
     if reply[0] == ('y'):
         return True
     elif reply[0] == ('n'):
@@ -88,20 +90,24 @@ def interactive_options(task, keywords):
     options_list = ['config', 'scanner', 'target']
     for option in options_list:
         object_id = task.xpath('{}/@id'.format(option))[0]
+
         exec('object_xml = gmp.get_{}s()'.format(option), globals())
+
         object_dict, object_list = {}, []
+
         for i in object_xml.xpath('{}'.format(option)):
             object_dict[i.find('name').text] = i.xpath('@id')[0]
             object_list.append(i.find('name').text)
         if object_id in object_dict.values():
             keywords['{}_id'.format(option)] = object_id
         elif object_id not in object_dict.values() and len(object_dict) != 0:
-            response = yes_or_no("\nRequired Field: failed to detect {}_id: {}... \
-                                 \nWould you like to select from available options, or exit the script?"
-                                 .format(
-                                         option,
-                                         task.xpath('{}/@id'.format(option))[0]
-                                         ))
+            response = yes_or_no(
+                "\nRequired Field: failed to detect {}_id: {}... "
+                "\nWould you like to select from available options, or exit "
+                "the script?".format(
+                    option, task.xpath('{}/@id'.format(option))[0])
+            )
+
             if response is True:
                 counter = 1
                 print("{} options:".format(option.capitalize()))
@@ -109,22 +115,22 @@ def interactive_options(task, keywords):
                     print("    {} - {}".format(counter, j))
                     counter += 1
                 answer = numerical_option(
-                                          "\nPlease enter the number of your choice.",
-                                          len(object_list)
-                                          )
-                keywords['{}_id'.format(option)] = object_dict[object_list[answer - 1]]
+                    "\nPlease enter the number of your choice.",
+                    len(object_list)
+                )
+                keywords['{}_id'.format(
+                    option)] = object_dict[object_list[answer - 1]]
             else:
                 print("\nTerminating...")
                 quit()
         else:
-            error_and_exit("Failed to detect {}_id in either {} or on the GSM... \
-                           \nThis field is required; therefore the script is unable to continue.\n"
-                           .format(option, xml_doc))
+            error_and_exit(
+                "Failed to detect {}_id"
+                "\nThis field is required therefore the script is unable to "
+                "continue.\n".format(option))
 
 
-def parse_send_xml_tree(xml_tree):
-    print('\nSending tasks from {} to {}...'.format(xml_doc, hostname))
-
+def parse_send_xml_tree(gmp, xml_tree):
     for task in xml_tree.xpath('task'):
         keywords = {'name': task.find('name').text}
 
@@ -138,7 +144,8 @@ def parse_send_xml_tree(xml_tree):
         mod_keywords = {'task_id': new_task.xpath('//@id')[0]}
 
         if task.find('schedule_periods').text != 0:
-            mod_keywords['schedule_periods'] = int(task.find('schedule_periods').text)
+            mod_keywords['schedule_periods'] = int(
+                task.find('schedule_periods').text)
 
         if task.find('observers').text:
             mod_keywords['observers'] = task.find('observers').text
@@ -168,7 +175,23 @@ def parse_send_xml_tree(xml_tree):
         if len(mod_keywords) > 1:
             gmp.modify_task(**mod_keywords)
 
-xml_tree = create_xml_tree(xml_doc)
-parse_send_xml_tree(xml_tree)
 
-print('\n  Task(s) sent!\n')
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    hostname = args.hostname
+    xml_doc = args.script[1]
+
+    print('\nSending tasks from {} to {}...'.format(xml_doc, hostname))
+
+    xml_tree = create_xml_tree(xml_doc)
+    parse_send_xml_tree(gmp, xml_tree)
+
+    print('\n  Task(s) sent!\n')
+
+
+main()

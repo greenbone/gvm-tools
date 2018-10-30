@@ -22,122 +22,119 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import base64
+import datetime
+import sched
 import smtplib
+import sys
+import time
+
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
-import sched
-import time
-import datetime
-import base64
 
-len_args = len(args.script) - 1
-if len_args is not 0:
-    message = """
-    This script, once started, will continously send delta
-    reports via email for selected tasks.
-
-    Example for starting up the routine:
-        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
---gmp-password=pass scripts/projekt.gmp
-
-    The routine follows this procedure:
-
-    Every <interval> minutes do:
-      Get all tasks where the tag <task_tag> is attached.
-      For each of these tasks get the finished reports:
-        If less than 2 reports, continue with next task
-        If latest report has tag "delta_alert_sent", continue with next task
-        Create a CSV report from the delta of latest vs. previous report
-          where filtered for only the new results.
-        Send the CSV as an attachment to the configured email address.
-    """
-    print(message)
-    quit()
-
-interval = 60  # in minutes
-task_tag = 'send_delta_alert'
-report_tag_name = 'delta_alert_sent'
-email_subject = 'Delta Report'
-from_address = 'admin@example.com'
-to_addresses = ['user1@example.com', 'user2@example.com']
-mta_address = 'mail.example.com'
-mta_port = 25
-mta_user = 'admin@example.com'
-mta_password = 'mysecret'
-
-print('send_delta_alerts starting up with following settings:')
-print('GSM:           %s' % args.hostname)
-print('User:          %s' % args.gmp_username)
-print('Interval:      %d minutes' % interval)
-print('Task tag:      %s' % task_tag)
-print('Email subject: %s' % email_subject)
-print('From Address:  %s' % from_address)
-print('To Addresses:  %s' % to_addresses)
-print('MTA Address:   %s' % mta_address)
-print('MTA Port:      %s' % mta_port)
-print('MTA User:      %s' % mta_user)
-print('MTA Password:  <will not be printed here>')
-print()
+from gmp.clients.helper import authenticate
 
 
-def execute_send_delta_emails(sc):
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 0:
+        message = """
+        This script, once started, will continously send delta
+        reports via email for selected tasks.
+
+        Example for starting up the routine:
+            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+    --gmp-password=pass scripts/projekt.gmp
+
+        The routine follows this procedure:
+
+        Every <interval> minutes do:
+        Get all tasks where the tag <task_tag> is attached.
+        For each of these tasks get the finished reports:
+            If less than 2 reports, continue with next task
+            If latest report has tag "delta_alert_sent", continue with next task
+            Create a CSV report from the delta of latest vs. previous report
+            where filtered for only the new results.
+            Send the CSV as an attachment to the configured email address.
+        """
+        print(message)
+        quit()
+
+
+def execute_send_delta_emails(sc, **kwargs):
+    gmp = kwargs.get('gmp')
+    task_tag = kwargs.get('task_tag')
+    interval = kwargs.get('interval')
+    email_subject = kwargs.get('emai_subject')
+    to_addresses = kwargs.get('to_addresses')
+    from_address = kwargs.get('from_address')
+    mta_address = kwargs.get('mta_address')
+    mta_user = kwargs.get('mta_user')
+    mta_port = kwargs.get('mta_port')
+    mta_password = kwargs.get('mta_password')
+    report_tag_name = kwargs.get('report_tag_name')
+
     print('Retrieving task list ...')
+
     task_filter = 'tag=%s' % task_tag
     tasks = gmp.get_tasks(filter=task_filter).xpath('task')
     print('Found %d task(s) with tag "%s".' % (len(tasks), task_tag))
 
     for task in tasks:
         task_id = task.xpath('@id')[0]
-        print('Processing task "%s" (%s)...' % (task.xpath('name/text()')[0], task_id))
+        print('Processing task "%s" (%s)...' %
+              (task.xpath('name/text()')[0], task_id))
 
-        reports = gmp.get_reports(report_filter='task_id=%s and        \
-                                                status=Done            \
-                                                sort-reverse=date'
-                                  % task_id).xpath('report')
+        reports = gmp.get_reports(
+            report_filter='task_id={0} and status=Done '
+                          'sort-reverse=date'.format(task_id)).xpath('report')
         print('  Found %d report(s).' % len(reports))
         if len(reports) < 2:
             print('  Delta-reporting requires at least 2 finished reports.')
             continue
 
-        if reports[0].xpath('report/user_tags/tag/name[text()="delta_alert_sent"]'):
+        if reports[0].xpath('report/user_tags/tag/'
+                            'name[text()="delta_alert_sent"]'):
             print('  Delta report for latest finished report already sent')
             continue
 
-        print("  Latest finished report not send yet. Preparing delta report...")
+        print('  Latest finished report not send yet. Preparing delta '
+              'report...')
 
         delta_report = gmp.get_reports(
             report_id=reports[0].xpath('@id')[0],
             delta_report_id=reports[1].xpath('@id')[0],
             filter='delta_states=n',
             format_id='c1645568-627a-11e3-a660-406186ea4fc5'
-            )
+        )
 
         csv_in_b64 = delta_report.xpath('report/text()')[0]
         csv = base64.b64decode(csv_in_b64)
 
         print("  Composing Email...")
-        COMMASPACE = ', '
         alert_email = MIMEMultipart()
         alert_email['Subject'] = email_subject
-        alert_email['To'] = COMMASPACE.join(to_addresses)
+        alert_email['To'] = ', '.join(to_addresses)
         alert_email['From'] = from_address
         alert_email['Date'] = formatdate(localtime=True)
 
         report_attachment = MIMEBase('application', "octet-stream")
-        report_attachment.add_header('Content-Disposition', 'attachment', filename='delta.csv')
+        report_attachment.add_header(
+            'Content-Disposition', 'attachment', filename='delta.csv')
         report_attachment.set_payload(csv)
         alert_email.attach(report_attachment)
 
         print("  Sending Email...")
         try:
-            with smtplib.SMTP(mta_address, mta_port) as s:
-                s.ehlo()
-                s.starttls()
-                s.ehlo()
-                s.login(mta_user, mta_password)  # if required
-                s.sendmail(from_address, to_addresses, alert_email.as_string())
-                s.close()
+            with smtplib.SMTP(mta_address, mta_port) as smtp:
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+                smtp.login(mta_user, mta_password)  # if required
+                smtp.sendmail(from_address, to_addresses,
+                              alert_email.as_string())
+                smtp.close()
                 print("  Email has been sent!")
 
                 gmp.create_tag(
@@ -145,20 +142,69 @@ def execute_send_delta_emails(sc):
                     resource_id=reports[0].xpath('@id')[0],
                     resource_type='report',
                     value=datetime.datetime.now()
-                    )
-        except:
+                )
+        except Exception: # pylint: disable=broad-except
             print("  Unable to send the email. Error: ", sys.exc_info()[0])
             # raise # in case an error should stop the script
             continue  # ignore the problem for the time being
 
     print("\nCheck will be repeated in {} minutes...\n".format(interval))
-    sc.enter(interval*60, 1, execute_send_delta_emails, (sc,))
+    sc.enter(interval * 60, 1, execute_send_delta_emails, argument=(sc,),
+             kwargs=kwargs)
 
 
-print('Entering loop with interval %s minutes ...' % interval)
+def main():
+    # pylint: disable=undefined-variable
 
-s = sched.scheduler(time.time, time.sleep)
+    check_args(args)
 
-# Enter the scheduled execution with the given interval
-s.enter(0, 1, execute_send_delta_emails, (s,))
-s.run()
+    authenticate(gmp, args)
+
+    interval = 60  # in minutes
+    task_tag = 'send_delta_alert'
+    report_tag_name = 'delta_alert_sent'
+    email_subject = 'Delta Report'
+    from_address = 'admin@example.com'
+    to_addresses = ['user1@example.com', 'user2@example.com']
+    mta_address = 'mail.example.com'
+    mta_port = 25
+    mta_user = 'admin@example.com'
+    mta_password = 'mysecret'
+
+    print('send_delta_alerts starting up with following settings:')
+    print('GSM:           %s' % args.hostname)
+    print('User:          %s' % args.gmp_username)
+    print('Interval:      %d minutes' % interval)
+    print('Task tag:      %s' % task_tag)
+    print('Email subject: %s' % email_subject)
+    print('From Address:  %s' % from_address)
+    print('To Addresses:  %s' % to_addresses)
+    print('MTA Address:   %s' % mta_address)
+    print('MTA Port:      %s' % mta_port)
+    print('MTA User:      %s' % mta_user)
+    print('MTA Password:  <will not be printed here>')
+    print()
+
+    print('Entering loop with interval %s minutes ...' % interval)
+
+    schedule = sched.scheduler(time.time, time.sleep)
+
+    # Enter the scheduled execution with the given interval
+    schedule.enter(
+        0, 1, execute_send_delta_emails, argument=(schedule,), kwargs={
+            'gmp': gmp,
+            'task_tag': task_tag,
+            'interval': interval,
+            'email_subject': email_subject,
+            'to_addresses': to_addresses,
+            'from_address': from_address,
+            'mta_address': mta_address,
+            'mta_password': mta_password,
+            'mta_port': mta_port,
+            'mta_user': mta_user,
+            'report_tag_name': report_tag_name,
+        })
+    schedule.run()
+
+
+main()

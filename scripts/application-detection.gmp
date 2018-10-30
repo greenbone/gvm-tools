@@ -6,7 +6,7 @@
 # Raphael Grewe <raphael.grewe@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# Copyright (C) 2017 - 2018 Greenbone Networks GmbH
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,31 +21,47 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-message = """
-    This script will display all hosts with the searched applications!
+from gmp.clients.helper import authenticate
 
-    Example:
-        $ gvm-pyshell socket scripts/application-detection.gmp
-"""
-print(message)
 
-appname = input('What application are you looking for? ')
-print('')
-r = gmp.get_reports(type='assets', filter=appname, result_hosts_only=1)
+def print_assets(gmp, appname):
+    res = gmp.get_reports(type='assets', filter=appname, result_hosts_only=1)
 
-hosts = r.xpath('//host')
+    hosts = res.xpath('//host')
 
-for host in hosts:
-    ip = host.xpath('ip/text()')[0]
-    hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
-    if len(hostname) is 0:
-        hostname = ""
-    else:
-        hostname = hostname[0]
+    for host in hosts:
+        ip = host.xpath('ip/text()')[0]
+        hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
+        if len(hostname) is 0:
+            hostname = ""
+        else:
+            hostname = hostname[0]
 
-    print('{ip} ({hostname})'.format(ip=hostname, hostname=ip))
-    apps = host.xpath('detail/name[text() = "App"]/../value[contains(text(), '
-                      '"{0}")]/text()'.format(appname))
-    for app in apps:
-        print('\t' + app)
-    print('\n')
+        print('{ip} ({hostname})'.format(ip=hostname, hostname=ip))
+        apps = host.xpath('detail/name[text() = "App"]/../value['
+                          'contains(text(), "{0}")]/text()'.format(appname))
+        for app in apps:
+            print('\t' + app)
+        print('\n')
+
+
+def main():
+    # pylint: disable=undefined-variable
+
+    message = """
+        This script will display all hosts with the searched applications!
+
+        Example:
+            $ gvm-pyshell socket scripts/application-detection.gmp
+    """
+    print(message)
+
+    authenticate(gmp, args)
+
+    appname = input('What application are you looking for? ')
+    print('')
+
+    print_assets(gmp, appname)
+
+
+main()

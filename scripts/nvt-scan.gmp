@@ -22,77 +22,98 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from gmp.gvm_connection import GMPError
 
-len_args = len(args.script) - 1
-if len_args is not 2:
-    message = """
-    This script creates a new task with specific host and nvt!
-    It needs two parameters after the script name.
-    First one is the oid of the nvt and the second one is the
-    chosen scan target.
-
-    Example:
-        $ gvm-pyshell socket scripts/nvt-scan.gmp \
-1.3.6.1.4.1.25623.1.0.106223 localhost
-    """
-    print(message)
-    quit()
-
-nvt_oid = args.script[1]
-target = args.script[2]
+from gmp.clients.helper import authenticate
+from gmp.error import GmpError
 
 
-# Create new config
-copy_id = '085569ce-73ed-11df-83c3-002264764cea'
-config_name = nvt_oid
-config_id = ''
-try:
-    res = gmp.create_config(copy_id, config_name)
-    config_id = res.xpath('@id')[0]
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 2:
+        message = """
+        This script creates a new task with specific host and nvt!
+        It needs two parameters after the script name.
+        First one is the oid of the nvt and the second one is the
+        chosen scan target.
 
-    # Modify the config with an nvt oid
-    nvt = gmp.get_nvts(nvt_oid=nvt_oid, details=1)
-    family = nvt.xpath('nvt/family/text()')[0]
-
-    gmp.modify_config('nvt_selection', config_id=config_id,
-                      nvt_oid=nvt_oid, family=family)
-
-    # This nvts must be present to work
-    family = 'Port scanners'
-    nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
-    gmp.modify_config('nvt_selection', config_id=config_id,
-                      nvt_oid=nvts, family=family)
-
-except GMPError as e:
-    res = gmp.get_configs(filter='name=%s' % config_name)
-    config_id = res.xpath('config/@id')[0]
+        Example:
+            $ gvm-pyshell socket scripts/nvt-scan.gmp \
+    1.3.6.1.4.1.25623.1.0.106223 localhost
+        """
+        print(message)
+        quit()
 
 
-# Create target
-name = hosts = target
-target_id = ''
+def create_config(gmp, nvt_oid):
+    # Create new config
+    copy_id = '085569ce-73ed-11df-83c3-002264764cea'
+    config_name = nvt_oid
+    config_id = ''
 
-try:
-    res = gmp.create_target(name, True, hosts=hosts)
-    target_id = res.xpath('@id')[0]
-except GMPError as e:
-    res = gmp.get_targets(filter='name=%s hosts=%s' % (name, hosts))
-    target_id = res.xpath('target/@id')[0]
+    try:
+        res = gmp.create_config(copy_id, config_name)
+        config_id = res.xpath('@id')[0]
+
+        # Modify the config with an nvt oid
+        nvt = gmp.get_nvts(nvt_oid=nvt_oid, details=1)
+        family = nvt.xpath('nvt/family/text()')[0]
+
+        gmp.modify_config('nvt_selection', config_id=config_id,
+                          nvt_oid=nvt_oid, family=family)
+
+        # This nvts must be present to work
+        family = 'Port scanners'
+        nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
+        gmp.modify_config('nvt_selection', config_id=config_id,
+                          nvt_oid=nvts, family=family)
+
+    except GmpError:
+        res = gmp.get_configs(filter='name=%s' % config_name)
+        config_id = res.xpath('config/@id')[0]
+
+    return config_id
 
 
-# Standard Scanner OpenVAS Default
-scanner_id = '08b69003-5fc2-4037-a479-93b440211c73'
+def create_target(gmp, name):
+    try:
+        res = gmp.create_target(name, True, hosts=name)
+        target_id = res.xpath('@id')[0]
+    except GmpError:
+        res = gmp.get_targets(filter='name=%s hosts=%s' % (name, name))
+        target_id = res.xpath('target/@id')[0]
+
+    return target_id
 
 
-# Create task
-task_name = '%s_%s_%s' % (target, nvt_oid,
-                          datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-res = gmp.create_task(task_name, config_id, target_id,
-                      scanner_id)
-task_id = res.xpath('@id')[0]
+def create_and_start_task(gmp, name, nvt_oid, config_id, target_id):
+    # Standard Scanner OpenVAS Default
+    scanner_id = '08b69003-5fc2-4037-a479-93b440211c73'
+
+    # Create task
+    task_name = '%s_%s_%s' % (name, nvt_oid,
+                              datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    res = gmp.create_task(task_name, config_id, target_id, scanner_id)
+    task_id = res.xpath('@id')[0]
+
+    # Start the task
+    gmp.start_task(task_id)
+    print('\nTask %s started' % task_id)
 
 
-# Start the task
-gmp.start_task(task_id)
-print('\nTask %s started' % task_id)
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    nvt_oid = args.script[1]
+    target_name = args.script[2]
+
+    config_id = create_config(gmp, nvt_oid)
+    target_id = create_target(gmp, target_name)
+
+    create_and_start_task(gmp, target_name, nvt_oid, config_id, target_id)
+
+
+main()

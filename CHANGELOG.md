@@ -9,11 +9,35 @@ $ cd gvm-tools && git log
 
 # gvm-tools 2.0.0 (unreleased)
 
+## GMP Scripts
+
+- GMPError got renamed to GmpError and must be imported from gmp.error module.
+  ```python
+  from gmp.error import GmpError as GMPError
+  ```
+- Added new client helper module.
+- Scripts must run the authentification do call priviliged gmp commands.
+  ```python
+  from gmp.clients.helper import authenticate
+
+  authenticate(gmp, args)
+  ```
+- pretty function isn't available as a global function in the scripts anymore.
+  It must be imported seperately like
+  ```python
+  from gmp.clients.helper import pretty_print as pretty
+  ```
+
+## API
+
+- Python API cleanup. The python API is declared stable now.
+
+## Other
+
+- Use consistent naming for modules, tests and scripts.
 - Removed experimental gvm-dialog application.
 - Use pipenv for development.
-- Use consistent naming for modules, tests and scripts.
 - Split tests into several python modules.
-- Python API cleanup. The python api is declared stable now.
 
 # gvm-tools 1.4.1 (2018-08-10)
 

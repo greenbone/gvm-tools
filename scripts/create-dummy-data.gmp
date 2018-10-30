@@ -24,37 +24,52 @@
 import random
 import string
 
+from gmp.clients.helper import authenticate
+
 
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-count = 50
-config_ids = []
-target_ids = []
+def create_data(gmp, count):
+    config_ids = []
+    target_ids = []
 
-for i in range(0, count):
-    name = id_generator()
-    gmp.create_credential(name, login=name, password=name)
+    for _ in range(0, count):
+        name = id_generator()
+        gmp.create_credential(name, login=name, password=name)
 
-for i in range(0, count):
-    name = id_generator()
-    gmp.create_port_list(name, port_range='T:1-42')
+    for _ in range(0, count):
+        name = id_generator()
+        gmp.create_port_list(name, port_range='T:1-42')
 
-for i in range(0, count):
-    name = id_generator()
-    res = gmp.create_config('085569ce-73ed-11df-83c3-002264764cea', name)
-    config_ids.append(res.xpath('@id')[0])
+    for _ in range(0, count):
+        name = id_generator()
+        res = gmp.create_config('085569ce-73ed-11df-83c3-002264764cea', name)
+        config_ids.append(res.xpath('@id')[0])
 
-for i in range(0, count):
-    name = id_generator()
-    res = gmp.create_target(name, 42, hosts='127.0.0.1')
+    for _ in range(0, count):
+        name = id_generator()
+        res = gmp.create_target(name, 42, hosts='127.0.0.1')
 
-    target_ids.append(res.xpath('@id')[0])
+        target_ids.append(res.xpath('@id')[0])
 
-for i in range(0, count):
-    name = id_generator()
-    config_id = random.choice(config_ids)
-    target_id = random.choice(target_ids)
-    gmp.create_task(name, config_id, target_id,
-                    '08b69003-5fc2-4037-a479-93b440211c73')
+    for _ in range(0, count):
+        name = id_generator()
+        config_id = random.choice(config_ids)
+        target_id = random.choice(target_ids)
+        gmp.create_task(name, config_id, target_id,
+                        '08b69003-5fc2-4037-a479-93b440211c73')
+
+
+def main():
+    # pylint: disable=undefined-variable
+
+    authenticate(gmp, args)
+
+    count = 50
+
+    create_data(gmp, count)
+
+
+main()

@@ -22,61 +22,86 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import date, timedelta
+
 from terminaltables import AsciiTable
 
-len_args = len(args.script) - 1
-if len_args < 2:
-    message = """
-    This script will display all vulnerabilities from the hosts of the
-    reports in a given month!
-    It needs two parameters after the script name.
-    First one is the month and second one is the year.
-    Both parameters are plain numbers, so no text.
-    Explicitly made for GOS 4.X.
-
-    Example:
-        $ gvm-pyshell scripts/monthly-report2.gmp 05 2017
-    """
-    print(message)
-    quit()
-
-month = int(args.script[1])
-year = int(args.script[2])
-from_date = date(year, month, 1)
-to_date = from_date + timedelta(days=31)
-# To have the first day in month
-to_date = to_date.replace(day=1)
+from gmp.clients.helper import authenticate
 
 
-asset_filter = "rows=-1 and modified>{0} and modified<{1}".format(from_date.isoformat(), to_date.isoformat())
-assets_xml = gmp.get_assets(type='host', filter=asset_filter)
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args < 2:
+        message = """
+        This script will display all vulnerabilities from the hosts of the
+        reports in a given month!
+        It needs two parameters after the script name.
+        First one is the month and second one is the year.
+        Both parameters are plain numbers, so no text.
+        Explicitly made for GOS 4.X.
 
-sum_high = 0
-sum_medium = 0
-sum_low = 0
-table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
+        Example:
+            $ gvm-pyshell scripts/monthly-report2.gmp 05 2017
+        """
+        print(message)
+        quit()
 
-for asset in assets_xml.xpath('asset'):
-    ip = asset.xpath('name/text()')[0]
-    hostname = asset.xpath('identifiers/identifier/name[text()="hostname"]/../value/text()')[0]
-    severity = asset.xpath('host/severity/value/text()')[0]
 
-    results = gmp.get_results(details=0, filter='host={0} and severity>0.0'.format(ip))
+def print_reports(gmp, from_date, to_date):
+    asset_filter = "rows=-1 and modified>{0} and modified<{1}".format(
+        from_date.isoformat(), to_date.isoformat())
 
-    low = int(results.xpath('count(//result/threat[text()="Low"])'))
-    sum_low += low
+    assets_xml = gmp.get_assets(type='host', filter=asset_filter)
 
-    medium = int(results.xpath('count(//result/threat[text()="Medium"])'))
-    sum_medium += medium
+    sum_high = 0
+    sum_medium = 0
+    sum_low = 0
+    table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
 
-    high = int(results.xpath('count(//result/threat[text()="High"])'))
-    sum_high += high
+    for asset in assets_xml.xpath('asset'):
+        ip = asset.xpath('name/text()')[0]
+        hostname = asset.xpath(
+            'identifiers/identifier/name[text()="hostname"]/../value/text()')[0]
 
-    best_os_cpe_report_id = asset.xpath('host/detail/name[text()="best_os_cpe"]/../source/@id')[0]
+        results = gmp.get_results(
+            details=0, filter='host={0} and severity>0.0'.format(ip))
 
-    table_data.append([hostname, ip, best_os_cpe_report_id, high, medium, low])
+        low = int(results.xpath('count(//result/threat[text()="Low"])'))
+        sum_low += low
 
-table = AsciiTable(table_data)
-print(table.table + '\n')
-print("Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}\nLow: {2}\n\n"
-      .format(int(sum_high), int(sum_medium), int(sum_low), from_date.isoformat(), to_date.isoformat()))
+        medium = int(results.xpath('count(//result/threat[text()="Medium"])'))
+        sum_medium += medium
+
+        high = int(results.xpath('count(//result/threat[text()="High"])'))
+        sum_high += high
+
+        best_os_cpe_report_id = asset.xpath(
+            'host/detail/name[text()="best_os_cpe"]/../source/@id')[0]
+
+        table_data.append(
+            [hostname, ip, best_os_cpe_report_id, high, medium, low])
+
+    table = AsciiTable(table_data)
+    print(table.table + '\n')
+    print('Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}'
+          '\nLow: {2}\n\n'.format(int(sum_high), int(sum_medium), int(sum_low),
+                                  from_date.isoformat(), to_date.isoformat()))
+
+
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    month = int(args.script[1])
+    year = int(args.script[2])
+    from_date = date(year, month, 1)
+    to_date = from_date + timedelta(days=31)
+    # To have the first day in month
+    to_date = to_date.replace(day=1)
+
+    print_reports(gmp, from_date, to_date)
+
+
+main()

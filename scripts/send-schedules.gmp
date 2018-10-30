@@ -21,34 +21,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import dateutil.parser
+# requires python-dateutil
+
+import sys
+
 from lxml import etree as e
 
-len_args = len(args.script) - 1
-if len_args is not 1:
-    message = """
-    This script pulls schedule data from an xml document and feeds it to \
-a desired GSM
-    One parameter after the script name is required.
+import dateutil.parser
 
-    1. <xml_doc>  -- .xml file containing schedules
+from gmp.clients.helper import authenticate
 
-    Example:
-        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
---gmp-password=pass scripts/send-schedules.gmp example_file.xml
 
-    Note: In order to use this script python-dateutil must first be installed:
-        $ pip install python-dateutil
-    """
-    print(message)
-    quit()
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 1:
+        message = """
+        This script pulls schedule data from an xml document and feeds it to \
+    a desired GSM
+        One parameter after the script name is required.
 
-hostname = args.hostname
-xml_doc = args.script[1]
+        1. <xml_doc>  -- .xml file containing schedules
+
+        Example:
+            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+    --gmp-password=pass scripts/send-schedules.gmp example_file.xml
+
+        Note: In order to use this script python-dateutil must first be installed:
+            $ pip install python-dateutil
+        """
+        print(message)
+        quit()
 
 
 def error_and_exit(msg):
-    sys.stderr.write("Error: {}\n".format(msg))
+    print("Error: {}\n".format(msg), file=sys.stderr)
     sys.exit(1)
 
 
@@ -66,12 +72,10 @@ def create_xml_tree(xml_doc):
     return xml_tree
 
 
-def parse_send_xml_tree(xml_tree):
-    print('\nSending schedules from {} to {}...'.format(xml_doc, hostname))
-
+def parse_send_xml_tree(gmp, xml_tree):
     for schedule in xml_tree.xpath('schedule'):
         name = schedule.find('name').text
-        
+
         comment = schedule.find('comment').text
         if comment is None:
             comment = ''
@@ -84,7 +88,7 @@ def parse_send_xml_tree(xml_tree):
         first_time['minute'] = f_time.minute
         first_time['month'] = f_time.month
         first_time['year'] = f_time.year
-       
+
         duration = schedule.find('simple_duration').text
         duration_unit = schedule.find('simple_duration').find('unit').text
         duration = [duration, duration_unit]
@@ -100,15 +104,32 @@ def parse_send_xml_tree(xml_tree):
         timezone_abbrev = schedule.find('timezone_abbrev').text
 
         gmp.create_schedule(
-                            name=name,
-                            first_time=first_time,
-                            duration=duration,
-                            period=period,
-                            comment=comment,
-                            timezone=timezone_abbrev
-                            )
+            name=name,
+            first_time=first_time,
+            duration=duration,
+            period=period,
+            comment=comment,
+            timezone=timezone_abbrev
+        )
 
-xml_tree = create_xml_tree(xml_doc)
-parse_send_xml_tree(xml_tree)
 
-print('\n  Schedule(s) created!\n')
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    hostname = args.hostname
+    xml_doc = args.script[1]
+
+    print('\nSending schedules from {} to {}...'.format(xml_doc, hostname))
+
+    xml_tree = create_xml_tree(xml_doc)
+    parse_send_xml_tree(gmp, xml_tree)
+
+    print('\n  Schedule(s) created!\n')
+
+
+
+main()
