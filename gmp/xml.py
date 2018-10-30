@@ -623,7 +623,7 @@ class _GmpCommandFactory:
         """Generates xml string for create tag on gvmd."""
 
         cmd = XmlCommand('create_tag')
-        _cmd.add_element('name', name)
+        cmd.add_element('name', name)
         _xmlResource = cmd.add_element('resource',
                                        attrs={'id': str(resource_id)})
         _xmlResource.add_element('type', resource_type)
