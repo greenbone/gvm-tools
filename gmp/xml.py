@@ -1174,23 +1174,22 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_port_list_command(self, port_list_id, kwargs):
+        """Generates xml string for modify port list on gvmd."""
         if not port_list_id:
             raise ValueError('modify_port_list requires '
                              'a port_list_id attribute')
-        xmlRoot = etree.Element('modify_port_list',
-                                port_list_id=port_list_id)
+        cmd = XmlCommand('modify_port_list')
+        cmd.set_attribute('port_list_id', port_list_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_report_format_command(self, report_format_id, kwargs):
         if len(kwargs) < 1:
