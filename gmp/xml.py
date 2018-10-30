@@ -1140,41 +1140,38 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_permission_command(self, permission_id, kwargs):
+        """Generates xml string for modify permission on gvmd."""
         if not permission_id:
             raise ValueError('modify_permission requires '
                              'a permission_id element')
 
-        xmlRoot = etree.Element('modify_permission',
-                                permission_id=permission_id)
+        cmd = XmlCommand('modify_permission')
+        cmd.set_attribute('permission_id', permission_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource['id']
             resource_type = resource['type']
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
+            _xmlresource = cmd.add_element('resource',
+                                           attrs={'id': resource_id})
+            _xmlresource.add_element('type', resource_type)
 
         subject = kwargs.get('subject', '')
         if subject:
             subject_id = subject['id']
             subject_type = subject['type']
-            _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
-            _xmlType = etree.SubElement(_xmlSubject, 'type')
-            _xmlType.text = subject_type
+            _xmlsubject = cmd.add_element('subject', attrs={'id': subject_id})
+            _xmlsubject.add_element('type', subject_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_port_list_command(self, port_list_id, kwargs):
         if not port_list_id:
