@@ -89,6 +89,9 @@ class Help(object):
     """Help class to overwrite the help function from python itself.
     """
 
+    def __call__(self):
+        return print(HELP_TEXT)
+
     def __repr__(self):
         # do pwd command
         return HELP_TEXT
