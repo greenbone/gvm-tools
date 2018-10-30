@@ -57,6 +57,11 @@ class XmlCommandElement:
     def set_attribute(self, name, value):
         self._element.set(name, value)
 
+    def append_xml_str(self, xml_text):
+        """Append a xml element in string format."""
+        node = secET.fromstring(xml_text)
+        self._element.append(node)
+
     def to_string(self):
         return etree.tostring(self._element).decode('utf-8')
 
@@ -125,8 +130,7 @@ class _GmpCommandFactory:
                 _data.add_element('name', key)
 
         if filter_id:
-            cmd.add_element('filter')
-            cmd.set_attribute('id', filter_id)
+            cmd.add_element('filter', attrs={'id': filter_id})
 
         if copy:
             cmd.add_element('copy', copy)
@@ -169,39 +173,33 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def create_config_command(self, copy_id, name):
+        """Generates xml string for create config on gvmd."""
+        cmd = XmlCommand('create_config')
+        cmd.add_element('copy', copy_id)
+        cmd.add_element('name', name)
 
-        xmlRoot = etree.Element('create_config')
-        _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-        _xmlCopy.text = copy_id
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_credential_command(self, name, kwargs):
-
-        xmlRoot = etree.Element('create_credential')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        """Generates xml string for create credential on gvmd."""
+        cmd = XmlCommand('create_credential')
+        cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         allow_insecure = kwargs.get('allow_insecure', '')
         if allow_insecure:
-            _xmlAllowinsecure = etree.SubElement(xmlRoot, 'allow_insecure')
-            _xmlAllowinsecure.text = allow_insecure
+            cmd.add_element('allow_insecure', allow_insecure)
 
         certificate = kwargs.get('certificate', '')
         if certificate:
-            _xmlCertificate = etree.SubElement(xmlRoot, 'certificate')
-            _xmlCertificate.text = certificate
+            cmd.add_element('certificate', certificate)
 
         key = kwargs.get('key', '')
         if key:
@@ -213,34 +211,28 @@ class _GmpCommandFactory:
                 raise ValueError('create_credential requires a '
                                  'private element')
 
-            _xmlKey = etree.SubElement(xmlRoot, 'key')
-            _xmlKeyphrase = etree.SubElement(_xmlKey, 'phrase')
-            _xmlKeyphrase.text = phrase
-            _xmlKeyprivate = etree.SubElement(_xmlKey, 'private')
-            _xmlKeyprivate.text = private
+            _xmlkey = cmd.add_element('key')
+            _xmlkey.add_element('phrase', phrase)
+            _xmlkey.add_element('private', private)
 
         login = kwargs.get('login', '')
         if login:
-            _xmlLogin = etree.SubElement(xmlRoot, 'login')
-            _xmlLogin.text = login
+            cmd.add_element('login', login)
 
         password = kwargs.get('password', '')
         if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
+            cmd.add_element('password', password)
 
         auth_algorithm = kwargs.get('auth_algorithm', '')
         if auth_algorithm:
             if auth_algorithm not in ('md5', 'sha1'):
                 raise ValueError('create_credential requires auth_algorithm '
                                  'to be either md5 or sha1')
-            _xmlAuthalg = etree.SubElement(xmlRoot, 'auth_algorithm')
-            _xmlAuthalg.text = auth_algorithm
+            cmd.add_element('auth_algorithm', auth_algorithm)
 
         community = kwargs.get('community', '')
         if community:
-            _xmlCommunity = etree.SubElement(xmlRoot, 'community')
-            _xmlCommunity.text = community
+            cmd.add_element('community', community)
 
         privacy = kwargs.get('privacy', '')
         if privacy:
@@ -249,199 +241,172 @@ class _GmpCommandFactory:
                 raise ValueError('create_credential requires algorithm '
                                  'to be either aes or des')
             p_password = privacy.password
-            _xmlPrivacy = etree.SubElement(xmlRoot, 'privacy')
-            _xmlAlgorithm = etree.SubElement(_xmlPrivacy, 'algorithm')
-            _xmlAlgorithm.text = algorithm
-            _xmlPpass = etree.SubElement(_xmlPrivacy, 'password')
-            _xmlPpass.text = p_password
+            _xmlprivacy = cmd.add_element('privacy')
+            _xmlprivacy.add_element('algorithm', algorithm)
+            _xmlprivacy.add_element('password', p_password)
 
         cred_type = kwargs.get('type', '')
         if cred_type:
             if cred_type not in ('cc', 'snmp', 'up', 'usk'):
                 raise ValueError('create_credential requires type '
                                  'to be either cc, snmp, up or usk')
-            _xmlCredtype = etree.SubElement(xmlRoot, 'type')
-            _xmlCredtype.text = cred_type
+            cmd.add_element('type', cred_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_filter_command(self, name, make_unique, kwargs):
+        """Generates xml string for create filter on gvmd."""
 
-        xmlRoot = etree.Element('create_filter')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
+        cmd = XmlCommand('create_filter')
+        _xmlname = cmd.add_element('name', name)
         if make_unique:
-            _xmlUnique.text = '1'
+            _xmlname.add_element('make_unique', '1')
         else:
-            _xmlUnique.text = '0'
+            _xmlname.add_element('make_unique', '0')
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         term = kwargs.get('term', '')
         if term:
-            _xmlTerm = etree.SubElement(xmlRoot, 'term')
-            _xmlTerm.text = term
+            cmd.add_element('term', term)
 
         filter_type = kwargs.get('type', '')
         if filter_type:
             if filter_type not in FILTER_NAMES:
                 raise ValueError('create_filter requires type '
                                  'to be either cc, snmp, up or usk')
-            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
-            _xmlFiltertype.text = filter_type
+            cmd.add_element('type', filter_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_group_command(self, name, kwargs):
+        """Generates xml string for create group on gvmd."""
 
-        xmlRoot = etree.Element('create_group')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_group')
+        cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         special = kwargs.get('special', '')
         if special:
-            _xmlSpecial = etree.SubElement(xmlRoot, 'specials')
-            _xmlFull = etree.SubElement(_xmlSpecial, 'full')
+            _xmlspecial = cmd.add_element('specials')
+            _xmlspecial.add_element('full')
 
         users = kwargs.get('users', '')
         if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
+            cmd.add_element('users', users)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_note_command(self, text, nvt_oid, kwargs):
+        """Generates xml string for create note on gvmd."""
 
-        xmlRoot = etree.Element('create_note')
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-        _xmlNvt = etree.SubElement(xmlRoot, 'nvt', oid=nvt_oid)
+        cmd = XmlCommand('create_note')
+        cmd.add_element('text', text)
+        cmd.add_element('nvt', attrs={"oid": nvt_oid})
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts)
 
         port = kwargs.get('port', '')
         if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
+            cmd.add_element('port', port)
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
+            cmd.add_element('result', attrs={'id': result_id})
 
         severity = kwargs.get('severity', '')
         if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
+            cmd.add_element('severity', severity)
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
+            cmd.add_element('task', attrs={'id': task_id})
 
         threat = kwargs.get('threat', '')
         if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
+            cmd.add_element('threat', threat)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_override_command(self, text, nvt_oid, kwargs):
+        """Generates xml string for create override on gvmd."""
 
-        xmlRoot = etree.Element('create_override')
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
-        _xmlNvt = etree.SubElement(xmlRoot, 'nvt', oid=nvt_oid)
+        cmd = XmlCommand('create_override')
+        cmd.add_element('text', text)
+        cmd.add_element('nvt', attrs={'oid': nvt_oid})
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts)
 
         port = kwargs.get('port', '')
         if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
+            cmd.add_element('port', port)
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
+            cmd.add_element('result', attrs={'id': result_id})
 
         severity = kwargs.get('severity', '')
         if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
+            cmd.add_element('severity', severity)
 
         new_severity = kwargs.get('new_severity', '')
         if new_severity:
-            _xmlNSeverity = etree.SubElement(xmlRoot, 'new_severity')
-            _xmlNSeverity.text = new_severity
+            cmd.add_element('new_severity', new_severity)
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
+            cmd.add_element('task', attrs={'id': task_id})
 
         threat = kwargs.get('threat', '')
         if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
+            cmd.add_element('threat', threat)
 
         new_threat = kwargs.get('new_threat', '')
         if new_threat:
-            _xmlNThreat = etree.SubElement(xmlRoot, 'new_threat')
-            _xmlNThreat.text = new_threat
+            cmd.add_element('new_threat', new_threat)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_permission_command(self, name, subject_id, type, kwargs):
         # pretty(gmp.create_permission('get_version',
@@ -457,61 +422,53 @@ class _GmpCommandFactory:
             raise ValueError('create_permission requires type '
                              'to be either user, group or role')
 
-        xmlRoot = etree.Element('create_permission')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlSubject = etree.SubElement(xmlRoot, 'subject', id=subject_id)
-        _xmlType = etree.SubElement(_xmlSubject, 'type')
-        _xmlType.text = type
+        cmd = XmlCommand('create_permission')
+        cmd.add_element('name', name)
+        _xmlsubject = cmd.add_element('subject', attrs={'id': subject_id})
+        _xmlsubject.add_element('type', type)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource.id
             resource_type = resource.type
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
+            _xmlresource = cmd.add_element('resource',
+                                           attrs={'id': resource_id})
+            _xmlresource.add_element('type', resource_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_port_list_command(self, name, port_range, kwargs):
-
+        """Generates xml string for create port list on gvmd."""
         if not name:
             raise ValueError('create_port_list requires a name element')
         if not port_range:
             raise ValueError('create_port_list requires a port_range element')
 
-        xmlRoot = etree.Element('create_port_list')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlPortrange = etree.SubElement(xmlRoot, 'port_range')
-        _xmlPortrange.text = port_range
+        cmd = XmlCommand('create_port_list')
+        cmd.add_element('name', name)
+        cmd.add_element('port_range', port_range)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_port_range_command(self, port_list_id, start, end, type,
                                   comment=''):
+        """Generates xml string for create port range on gvmd."""
 
         if not port_list_id:
             raise ValueError('create_port_range requires '
@@ -519,22 +476,19 @@ class _GmpCommandFactory:
         if not type:
             raise ValueError('create_port_range requires a type element')
 
-        xmlRoot = etree.Element('create_port_range')
-        _xmlPlist = etree.SubElement(xmlRoot, 'port_list', id=port_list_id)
-        _xmlStart = etree.SubElement(xmlRoot, 'start')
-        _xmlStart.text = start
-        _xmlEnd = etree.SubElement(xmlRoot, 'end')
-        _xmlEnd.text = end
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
+        cmd = XmlCommand('create_port_range')
+        cmd.add_element('port_list', attrs={'id': port_list_id})
+        cmd.add_element('start', start)
+        cmd.add_element('end', end)
+        cmd.add_element('type', type)
 
-        if len(comment):
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+        if comment:
+            cmd.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_report_command(self, report_xml_string, kwargs):
+        """Generates xml string for create report on gvmd."""
 
         if not report_xml_string:
             raise ValueError('create_report requires a report')
@@ -542,58 +496,52 @@ class _GmpCommandFactory:
         task_id = kwargs.get('task_id', '')
         task_name = kwargs.get('task_name', '')
 
-        xmlRoot = etree.Element('create_report')
+        cmd = XmlCommand('create_report')
         comment = kwargs.get('comment', '')
         if task_id:
-            _xmlTask = etree.SubElement(xmlRoot, 'task', id=task_id)
+            cmd.add_element('task', attrs={'id': task_id})
         elif task_name:
-            _xmlTask = etree.SubElement(xmlRoot, 'task')
-            _xmlName = etree.SubElement(_xmlTask, 'name')
-            _xmlName.text = task_name
+            _xmltask = cmd.add_element('task')
+            _xmltask.add_element('name', task_name)
             if comment:
-                _xmlComment = etree.SubElement(_xmlTask, 'comment')
-                _xmlComment.text = comment
+                _xmltask.add_element('comment', comment)
         else:
             raise ValueError('create_report requires an id or name for a task')
 
         in_assets = kwargs.get('in_assets', '')
         if in_assets:
-            _xmlInAsset = etree.SubElement(xmlRoot, 'in_assets')
-            _xmlInAsset.text = in_assets
+            cmd.add_element('in_assets', in_assets)
 
-        xmlReport = secET.fromstring(report_xml_string)
-        xmlRoot.append(xmlReport)
+        cmd.append_xml_str(report_xml_string)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_role_command(self, name, kwargs):
+        """Generates xml string for create role on gvmd."""
 
         if not name:
             raise ValueError('create_role requires a name element')
 
-        xmlRoot = etree.Element('create_role')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_role')
+        cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         users = kwargs.get('users', '')
         if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
+            cmd.add_element('users', users)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_scanner_command(self, name, host, port, type, ca_pub,
                                credential_id, kwargs):
+        """Generates xml string for create scanner on gvmd."""
         if not name:
             raise ValueError('create_scanner requires a name element')
         if not host:
@@ -607,49 +555,39 @@ class _GmpCommandFactory:
         if not credential_id:
             raise ValueError('create_scanner requires a credential_id element')
 
-        xmlRoot = etree.Element('create_scanner')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlHost = etree.SubElement(xmlRoot, 'host')
-        _xmlHost.text = host
-        _xmlPort = etree.SubElement(xmlRoot, 'port')
-        _xmlPort.text = port
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = type
-        _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
-        _xmlCAPub.text = ca_pub
-        _xmlCred = etree.SubElement(xmlRoot, 'credential',
-                                    id=str(credential_id))
+        cmd = XmlCommand('create_scanner')
+        cmd.add_element('name', name)
+        cmd.add_element('host', host)
+        cmd.add_element('port', port)
+        cmd.add_element('type', type)
+        cmd.add_element('ca_pub', ca_pub)
+        cmd.add_element('credential', attrs={'id': str(credential_id)})
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_schedule_command(self, name, kwargs):
+        """Generates xml string for create schedule on gvmd."""
         if not name:
             raise ValueError('create_schedule requires a name element')
 
-        xmlRoot = etree.Element('create_schedule')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_schedule')
+        cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         first_time = kwargs.get('first_time', '')
         if first_time:
@@ -659,146 +597,122 @@ class _GmpCommandFactory:
             first_time_month = first_time['month']
             first_time_year = first_time['year']
 
-            _xmlFtime = etree.SubElement(xmlRoot, 'first_time')
-            _xmlMinute = etree.SubElement(_xmlFtime, 'minute')
-            _xmlMinute.text = str(first_time_minute)
-            _xmlHour = etree.SubElement(_xmlFtime, 'hour')
-            _xmlHour.text = str(first_time_hour)
-            _xmlDay = etree.SubElement(_xmlFtime, 'day_of_month')
-            _xmlDay.text = str(first_time_day_of_month)
-            _xmlMonth = etree.SubElement(_xmlFtime, 'month')
-            _xmlMonth.text = str(first_time_month)
-            _xmlYear = etree.SubElement(_xmlFtime, 'year')
-            _xmlYear.text = str(first_time_year)
+            _xmlftime = cmd.add_element('first_time')
+            _xmlftime.add_element('minute', first_time_minute)
+            _xmlftime.add_element('hour', str(first_time_hour))
+            _xmlftime.add_element('day_of_month', str(first_time_day_of_month))
+            _xmlftime.add_element('month', str(first_time_month))
+            _xmlftime.add_element('year', str(first_time_year))
 
         duration = kwargs.get('duration', '')
         if len(duration) > 1:
-            _xmlDuration = etree.SubElement(xmlRoot, 'duration')
-            _xmlDuration.text = str(duration[0])
-            _xmlUnit = etree.SubElement(_xmlDuration, 'unit')
-            _xmlUnit.text = str(duration[1])
+            _xmlduration = cmd.add_element('duration', str(duration[0]))
+            _xmlduration.add_element('unit', str(duration[1]))
 
         period = kwargs.get('period', '')
         if len(period) > 1:
-            _xmlPeriod = etree.SubElement(xmlRoot, 'period')
-            _xmlPeriod.text = str(period[0])
-            _xmlPUnit = etree.SubElement(_xmlPeriod, 'unit')
-            _xmlPUnit.text = str(period[1])
+            _xmlperiod = cmd.add_element('period', str(period[0]))
+            _xmlperiod.add_element('unit', str(period[1]))
 
         timezone = kwargs.get('timezone', '')
         if timezone:
-            _xmlTimezone = etree.SubElement(xmlRoot, 'timezone')
-            _xmlTimezone.text = str(timezone)
+            cmd.add_element('timezone', str(timezone))
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_tag_command(self, name, resource_id, resource_type, kwargs):
+        """Generates xml string for create tag on gvmd."""
 
-        xmlRoot = etree.Element('create_tag')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                        id=str(resource_id))
-        _xmlRType = etree.SubElement(_xmlResource, 'type')
-        _xmlRType.text = resource_type
+        cmd = XmlCommand('create_tag')
+        cmd.add_element('name', name)
+        _xmlresource = cmd.add_element('resource',
+                                       attrs={'id': str(resource_id)})
+        _xmlresource.add_element('type', resource_type)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         value = kwargs.get('value', '')
         if value:
-            _xmlValue = etree.SubElement(xmlRoot, 'value')
-            _xmlValue.text = value
+            cmd.add_element('value', value)
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_target_command(self, name, make_unique, kwargs):
+        """Generates xml string for create target on gvmd."""
         if not name:
             raise ValueError('create_target requires a name element')
 
-        xmlRoot = etree.Element('create_target')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        cmd = XmlCommand('create_target')
+        _xmlname = cmd.add_element('name', name)
         if make_unique:
-            unique = '1'
+            _xmlname.add_element('make_unique', '1')
         else:
-            unique = '0'
-        _xmlUnique = etree.SubElement(_xmlName, 'make_unique')
-        _xmlUnique.text = unique
+            _xmlname.add_element('make_unique', '0')
 
         if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
             filter = hosts['filter']
-            _xmlHosts = etree.SubElement(xmlRoot, 'asset_hosts',
-                                         filter=str(filter))
+            cmd.add_element('asset_hosts', attrs={'filter': str(filter)})
         elif 'hosts' in kwargs:
             hosts = kwargs.get('hosts')
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts)
         else:
             raise ValueError('create_target requires either a hosts or '
                              'an asset_hosts element')
 
         if 'comment' in kwargs:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = kwargs.get('comment')
+            cmd.add_element('comment', kwargs.get('comment'))
 
         if 'copy' in kwargs:
             # NOTE: It seems that hosts/asset_hosts is silently ignored by the
             # server when copy is supplied. But for specification conformance
             # we raise the ValueError above and consider copy optional.
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = kwargs.get('copy')
+            cmd.add_element('copy', kwargs.get('copy'))
 
         if 'exclude_hosts' in kwargs:
-            _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
-            _xmlExHosts.text = kwargs.get('exclude_hosts')
+            cmd.add_element('exclude_hosts', kwargs.get('exclude_hosts'))
 
         if 'ssh_credential' in kwargs:
             ssh_credential = kwargs.get('ssh_credential')
             if 'id' in ssh_credential:
-                _xmlSSH = etree.SubElement(xmlRoot, 'ssh_credential',
-                                           id=ssh_credential['id'])
-                _xmlSSH.text = ''
+                _xmlssh = cmd.add_element('ssh_credential', '',
+                                          attrs={'id': ssh_credential['id']})
                 if 'port' in ssh_credential:
-                    _xmlSSHport = etree.SubElement(_xmlSSH, 'port')
-                    _xmlSSHport.text = ssh_credential['port']
+                    _xmlssh.add_element('port', ssh_credential['port'])
             else:
                 raise ValueError('ssh_credential requires an id attribute')
 
         if 'smb_credential' in kwargs:
             smb_credential = kwargs.get('smb_credential')
             if 'id' in smb_credential:
-                _xmlSMB = etree.SubElement(xmlRoot, 'smb_credential',
-                                           id=smb_credential['id'])
+                cmd.add_element('smb_credential',
+                                attrs={'id': smb_credential['id']})
             else:
                 raise ValueError('smb_credential requires an id attribute')
 
         if 'esxi_credential' in kwargs:
             esxi_credential = kwargs.get('esxi_credential')
             if 'id' in esxi_credential:
-                _xmlEsxi = etree.SubElement(xmlRoot, 'esxi_credential',
-                                            id=esxi_credential['id'])
+                cmd.add_element('esxi_credential',
+                                attrs={'id': esxi_credential['id']})
             else:
                 raise ValueError('esxi_credential requires an id attribute')
 
         if 'snmp_credential' in kwargs:
             snmp_credential = kwargs.get('snmp_credential')
             if 'id' in snmp_credential:
-                _xmlSnmp = etree.SubElement(xmlRoot, 'snmp_credential',
-                                            id=snmp_credential['id'])
+                cmd.add_element('snmp_credential',
+                                attrs={'id': snmp_credential['id']})
             else:
                 raise ValueError('snmp_credential requires an id attribute')
 
@@ -807,51 +721,47 @@ class _GmpCommandFactory:
             # names contain ampersand ('&') characters it should be considered
             # replacing any characters special to XML in the variable with
             # their corresponding entities.
-            _xmlAlive = etree.SubElement(xmlRoot, 'alive_tests')
-            _xmlAlive.text = kwargs.get('alive_tests')
+            cmd.add_element('alive_tests', kwargs.get('alive_tests'))
 
         if 'reverse_lookup_only' in kwargs:
             reverse_lookup_only = kwargs.get('reverse_lookup_only')
-            _xmlLookup = etree.SubElement(xmlRoot, 'reverse_lookup_only')
             if reverse_lookup_only:
-                _xmlLookup.text = '1'
+                cmd.add_element('reverse_lookup_only', '1')
             else:
-                _xmlLookup.text = '0'
+                cmd.add_element('reverse_lookup_only', '0')
 
         if 'reverse_lookup_unify' in kwargs:
             reverse_lookup_unify = kwargs.get('reverse_lookup_unify')
-            _xmlLookupU = etree.SubElement(xmlRoot, 'reverse_lookup_unify')
             if reverse_lookup_unify:
-                _xmlLookupU.text = '1'
+                cmd.add_element('reverse_lookup_unify', '1')
             else:
-                _xmlLookupU.text = '0'
+                cmd.add_element('reverse_lookup_unify', '0')
 
         if 'port_range' in kwargs:
-            _xmlPortR = etree.SubElement(xmlRoot, 'port_range')
-            _xmlPortR.text = kwargs.get('port_range')
+            cmd.add_element('port_range', kwargs.get('port_range'))
 
         if 'port_list' in kwargs:
             port_list = kwargs.get('port_list')
             if 'id' in port_list:
-                _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
-                                             id=str(port_list['id']))
+                cmd.add_element('port_list',
+                                attrs={'id': str(port_list['id'])})
             else:
                 raise ValueError('port_list requires an id attribute')
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_task_command(self, name, config_id, target_id, scanner_id,
                             alert_ids=None, comment=''):
+        """Generates xml string for create task on gvmd."""
+
         if alert_ids is None:
             alert_ids = []
-        xmlRoot = etree.Element('create_task')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
-        _xmlComment = etree.SubElement(xmlRoot, 'comment')
-        _xmlComment.text = comment
-        _xmlConfig = etree.SubElement(xmlRoot, 'config', id=config_id)
-        _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
-        _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner_id)
+        cmd = XmlCommand('create_task')
+        cmd.add_element('name', name)
+        cmd.add_element('comment', comment)
+        cmd.add_element('config', attrs={'id': config_id})
+        cmd.add_element('target', attrs={'id': target_id})
+        cmd.add_element('scanner', attrs={'id': scanner_id})
 
         #if given the alert_id is wrapped and integrated suitably as xml
         if len(alert_ids) > 0:
@@ -861,42 +771,35 @@ class _GmpCommandFactory:
             if isinstance(alert_ids, list):
                 #parse all given alert id's
                 for alert in alert_ids:
-                    _xmlAlert = etree.SubElement(
-                        xmlRoot, 'alert', id=str(alert))
+                    cmd.add_element('alert', attrs={'id': str(alert)})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def create_user_command(self, name, password, copy='', hosts_allow='0',
                             ifaces_allow='0', role_ids=(), hosts=None,
                             ifaces=None):
-        xmlRoot = etree.Element('create_user')
-        _xmlName = etree.SubElement(xmlRoot, 'name')
-        _xmlName.text = name
+        """Generates xml string for create user on gvmd."""
+        cmd = XmlCommand('create_user')
+        cmd.add_element('name', name)
 
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
+            cmd.add_element('password', password)
 
         if hosts is not None:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(hosts_allow))
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts, attrs={'allow': str(hosts_allow)})
 
         if ifaces is not None:
-            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
-                                          allow=str(ifaces_allow))
-            _xmlIFaces.text = ifaces
+            cmd.add_element('ifaces', ifaces,
+                            attrs={'allow': str(ifaces_allow)})
 
         if len(role_ids) > 0:
             for role in role_ids:
-                _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                            allow=str(role))
+                cmd.add_element('role', attrs={'allow': str(role)})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_agent_command(self, agent_id, name='', comment=''):
         if not agent_id:
