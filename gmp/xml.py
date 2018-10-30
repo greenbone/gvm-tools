@@ -923,32 +923,29 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_credential_command(self, credential_id, kwargs):
+        """Generates xml string for modify credential on gvmd."""
         if not credential_id:
             raise ValueError('modify_credential requires '
                              'a credential_id attribute')
 
-        xmlRoot = etree.Element('modify_credential',
-                                credential_id=credential_id)
+        cmd = XmlCommand('modify_credential')
+        cmd.set_attribute('credential_id', credential_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         allow_insecure = kwargs.get('allow_insecure', '')
         if allow_insecure:
-            _xmlAllowinsecure = etree.SubElement(xmlRoot, 'allow_insecure')
-            _xmlAllowinsecure.text = allow_insecure
+            cmd.add_element('allow_insecure', allow_insecure)
 
         certificate = kwargs.get('certificate', '')
         if certificate:
-            _xmlCertificate = etree.SubElement(xmlRoot, 'certificate')
-            _xmlCertificate.text = certificate
+            cmd.add_element('certificate', certificate)
 
         key = kwargs.get('key', '')
         if key:
@@ -959,34 +956,28 @@ class _GmpCommandFactory:
             if not private:
                 raise ValueError('modify_credential requires '
                                  'a private element')
-            _xmlKey = etree.SubElement(xmlRoot, 'key')
-            _xmlKeyphrase = etree.SubElement(_xmlKey, 'phrase')
-            _xmlKeyphrase.text = phrase
-            _xmlKeyprivate = etree.SubElement(_xmlKey, 'private')
-            _xmlKeyprivate.text = private
+            _xmlkey = cmd.add_element('key')
+            _xmlkey.add_element('phrase', phrase)
+            _xmlkey.add_element('private', private)
 
         login = kwargs.get('login', '')
         if login:
-            _xmlLogin = etree.SubElement(xmlRoot, 'login')
-            _xmlLogin.text = login
+            cmd.add_element('login', login)
 
         password = kwargs.get('password', '')
         if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
+            cmd.add_element('password', password)
 
         auth_algorithm = kwargs.get('auth_algorithm', '')
         if auth_algorithm:
             if auth_algorithm not in ('md5', 'sha1'):
                 raise ValueError('modify_credential requires auth_algorithm '
                                  'to be either md5 or sha1')
-            _xmlAuthalg = etree.SubElement(xmlRoot, 'auth_algorithm')
-            _xmlAuthalg.text = auth_algorithm
+            cmd.add_element('auth_algorithm', auth_algorithm)
 
         community = kwargs.get('community', '')
         if community:
-            _xmlCommunity = etree.SubElement(xmlRoot, 'community')
-            _xmlCommunity.text = community
+            cmd.add_element('community', community)
 
         privacy = kwargs.get('privacy', '')
         if privacy:
@@ -995,21 +986,18 @@ class _GmpCommandFactory:
                 raise ValueError('modify_credential requires algorithm '
                                  'to be either aes or des')
             p_password = privacy.password
-            _xmlPrivacy = etree.SubElement(xmlRoot, 'privacy')
-            _xmlAlgorithm = etree.SubElement(_xmlPrivacy, 'algorithm')
-            _xmlAlgorithm.text = algorithm
-            _xmlPpass = etree.SubElement(_xmlPrivacy, 'password')
-            _xmlPpass.text = p_password
+            _xmlprivacy = cmd.add_element('privacy')
+            _xmlprivacy.add_element('algorithm', algorithm)
+            _xmlprivacy.add_element('password', p_password)
 
         cred_type = kwargs.get('type', '')
         if cred_type:
             if cred_type not in ('cc', 'snmp', 'up', 'usk'):
                 raise ValueError('modify_credential requires type '
                                  'to be either cc, snmp, up or usk')
-            _xmlCredtype = etree.SubElement(xmlRoot, 'type')
-            _xmlCredtype.text = cred_type
+            cmd.add_element('type', cred_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_filter_command(self, filter_id, kwargs):
         if not filter_id:
