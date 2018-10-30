@@ -1033,27 +1033,26 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_group_command(self, group_id, kwargs):
+        """Generates xml string for modify group on gvmd."""
         if not group_id:
             raise ValueError('modify_group requires a group_id attribute')
 
-        xmlRoot = etree.Element('modify_group', group_id=group_id)
+        cmd = XmlCommand('modify_group')
+        cmd.set_attribute('group_id', group_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         users = kwargs.get('users', '')
         if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
+            cmd.add_element('users', users)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_note_command(self, note_id, text, kwargs):
         if not note_id:
