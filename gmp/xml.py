@@ -1511,3 +1511,183 @@ class _GmpCommandFactory:
             cmd.add_element('sources', sources)
 
         return cmd.to_string()
+
+    def delete_agent_command(self, kwargs):
+        """Generates xml string for delete agent on gvmd"""
+        cmd = XmlCommand('delete_agent')
+        for key, value in kwargs.items():
+            cmd.set_attribute(key, value)
+
+        return cmd.to_string()
+
+    def delete_alert_command(self, kwargs):
+        """Generates xml string for delete alert on gvmd"""
+        cmd = XmlCommand('delete_alert')
+        for key, value in kwargs.items():
+            cmd.set_attribute(key, value)
+
+        return cmd.to_string()
+
+    def delete_asset_command(self, asset_id, ultimate=0):
+        """Generates xml string for delete asset on gvmd"""
+        cmd = XmlCommand('delete_asset')
+        cmd.set_attribute('asset_id', asset_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_config_command(self, config_id, ultimate=0):
+        """Generates xml string for delete config on gvmd"""
+        cmd = XmlCommand('delete_config')
+        cmd.set_attribute('config_id', config_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_credential_command(self, credential_id, ultimate=0):
+        """Generates xml string for delete credential on gvmd"""
+        cmd = XmlCommand('delete_credential')
+        cmd.set_attribute('credential_id', credential_id)
+        cmd.set_attribute('ultimate', ultimate)
+        return cmd.to_string()
+
+    def delete_filter_command(self, filter_id, ultimate=0):
+        """Generates xml string for delete filter on gvmd"""
+        cmd = XmlCommand('delete_filter')
+        cmd.set_attribute('filter_id', filter_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_group_command(self, group_id, ultimate=0):
+        """Generates xml string for delete group on gvmd"""
+        cmd = XmlCommand('delete_group')
+        cmd.set_attribute('group_id', group_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_note_command(self, note_id, ultimate=0):
+        """Generates xml string for delete note on gvmd"""
+        cmd = XmlCommand('delete_note')
+        cmd.set_attribute('note_id', note_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_override_command(self, override_id, ultimate=0):
+        """Generates xml string for delete override on gvmd"""
+        cmd = XmlCommand('delete_override')
+        cmd.set_attribute('override_id', override_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_permission_command(self, permission_id, ultimate=0):
+        """Generates xml string for delete permission on gvmd"""
+        cmd = XmlCommand('delete_permission')
+        cmd.set_attribute('permission_id', permission_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_port_list_command(self, port_list_id, ultimate=0):
+        """Generates xml string for delete port on gvmd"""
+        cmd = XmlCommand('delete_port_list')
+        cmd.set_attribute('port_list_id', port_list_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_port_range_command(self, port_range_id):
+        """Generates xml string for delete port on gvmd"""
+        cmd = XmlCommand('delete_port_range')
+        cmd.set_attribute('port_range_id', port_range_id)
+
+        return cmd.to_string()
+
+    def delete_report_command(self, report_id):
+        """Generates xml string for delete report on gvmd"""
+        cmd = XmlCommand('delete_report')
+        cmd.set_attribute('report_id', report_id)
+
+        return cmd.to_string()
+
+    def delete_report_format_command(self, report_format_id, ultimate=0):
+        """Generates xml string for delete report on gvmd"""
+        cmd = XmlCommand('delete_report_format')
+        cmd.set_attribute('report_format_id', report_format_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_role_command(self, role_id, ultimate=0):
+        """Generates xml string for delete role on gvmd"""
+        cmd = XmlCommand('delete_role')
+        cmd.set_attribute('role_id', role_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_scanner_command(self, scanner_id, ultimate=0):
+        """Generates xml string for delete scanner on gvmd"""
+        cmd = XmlCommand('delete_scanner')
+        cmd.set_attribute('scanner_id', scanner_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_schedule_command(self, schedule_id, ultimate=0):
+        """Generates xml string for delete schedule on gvmd"""
+        # if self.ask_yes_or_no('Are you sure to delete this schedule? '):
+        cmd = XmlCommand('delete_schedule')
+        cmd.set_attribute('schedule_id', schedule_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_tag_command(self, tag_id, ultimate=0):
+        """Generates xml string for delete tag on gvmd"""
+        cmd = XmlCommand('delete_tag')
+        cmd.set_attribute('tag_id', tag_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_target_command(self, target_id, ultimate=0):
+        """Generates xml string for delete target on gvmd"""
+        cmd = XmlCommand('delete_target')
+        cmd.set_attribute('target_id', target_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_task_command(self, task_id, ultimate=0):
+        """Generates xml string for delete task on gvmd"""
+        cmd = XmlCommand('delete_task')
+        cmd.set_attribute('task_id', task_id)
+        cmd.set_attribute('ultimate', ultimate)
+
+        return cmd.to_string()
+
+    def delete_user_command(self, kwargs):
+        """Generates xml string for delete user on gvmd"""
+        cmd = XmlCommand('delete_user')
+
+        user_id = kwargs.get('user_id', '')
+        if user_id:
+            cmd.set_attribute('user_id', user_id)
+
+        name = kwargs.get('name', '')
+        if name:
+            cmd.set_attribute('name', name)
+
+        inheritor_id = kwargs.get('inheritor_id', '')
+        if inheritor_id:
+            cmd.set_attribute('inheritor_id', inheritor_id)
+
+        inheritor_name = kwargs.get('inheritor_name', '')
+        if inheritor_name:
+            cmd.set_attribute('inheritor_name', inheritor_name)
+
+        return cmd.to_string()
