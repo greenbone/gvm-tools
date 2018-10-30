@@ -1326,41 +1326,38 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_tag_command(self, tag_id, kwargs):
+        """Generates xml string for modify tag on gvmd."""
         if not tag_id:
             raise ValueError('modify_tag requires a tag_id element')
 
-        xmlRoot = etree.Element('modify_tag', tag_id=str(tag_id))
+        cmd = XmlCommand('modify_tag')
+        cmd.set_attribute('tag_id', str(tag_id))
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         value = kwargs.get('value', '')
         if value:
-            _xmlValue = etree.SubElement(xmlRoot, 'value')
-            _xmlValue.text = value
+            cmd.add_element('value', value)
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = value
+            cmd.add_element('active', value)
 
         resource = kwargs.get('resource', '')
         if resource:
             resource_id = resource['id']
             resource_type = resource['type']
-            _xmlResource = etree.SubElement(xmlRoot, 'resource',
-                                            resource_id=resource_id)
-            _xmlRType = etree.SubElement(_xmlResource, 'type')
-            _xmlRType.text = resource_type
+            _xmlresource = cmd.add_element('resource',
+                                           attrs={'resource_id': resource_id})
+            _xmlresource.add_element('type', resource_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_target_command(self, target_id, kwargs):
         if not target_id:
