@@ -210,9 +210,9 @@ class _GmpCommandFactory:
                 raise ValueError('create_credential requires a '
                                  'private element')
 
-            _xmlKey = cmd.add_element('key')
-            _xmlKey.add_element('phrase', phrase)
-            _xmlKey.add_element('private', private)
+            _xmlkey = cmd.add_element('key')
+            _xmlkey.add_element('phrase', phrase)
+            _xmlkey.add_element('private', private)
 
         login = kwargs.get('login', '')
         if login:
@@ -240,9 +240,9 @@ class _GmpCommandFactory:
                 raise ValueError('create_credential requires algorithm '
                                  'to be either aes or des')
             p_password = privacy.password
-            _xmlPrivacy = cmd.add_element('privacy')
-            _xmlPrivacy.add_element('algorithm', algorithm)
-            _xmlPrivacy.add_element('password', p_password)
+            _xmlprivacy = cmd.add_element('privacy')
+            _xmlprivacy.add_element('algorithm', algorithm)
+            _xmlprivacy.add_element('password', p_password)
 
         cred_type = kwargs.get('type', '')
         if cred_type:
@@ -257,11 +257,11 @@ class _GmpCommandFactory:
         """Generates xml string for create filter on gvmd."""
 
         cmd = XmlCommand('create_filter')
-        _xmlName = cmd.add_element('name', name)
+        _xmlname = cmd.add_element('name', name)
         if make_unique:
-            _xmlName.add_element('make_unique', '1')
+            _xmlname.add_element('make_unique', '1')
         else:
-            _xmlName.add_element('make_unique', '0')
+            _xmlname.add_element('make_unique', '0')
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -300,8 +300,8 @@ class _GmpCommandFactory:
 
         special = kwargs.get('special', '')
         if special:
-            _xmlSpecial = cmd.add_element('specials')
-            _xmlSpecial.add_element('full')
+            _xmlspecial = cmd.add_element('specials')
+            _xmlspecial.add_element('full')
 
         users = kwargs.get('users', '')
         if users:
@@ -423,8 +423,8 @@ class _GmpCommandFactory:
 
         cmd = XmlCommand('create_permission')
         cmd.add_element('name', name)
-        _xmlSubject = cmd.add_element('subject', attrs={'id': subject_id})
-        _xmlSubject.add_element('type', type)
+        _xmlsubject = cmd.add_element('subject', attrs={'id': subject_id})
+        _xmlsubject.add_element('type', type)
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -438,9 +438,9 @@ class _GmpCommandFactory:
         if resource:
             resource_id = resource.id
             resource_type = resource.type
-            _xmlResource = cmd.add_element('resource',
+            _xmlresource = cmd.add_element('resource',
                                             attrs={'id': resource_id})
-            _xmlResource.add_element('type', resource_type)
+            _xmlresource.add_element('type', resource_type)
 
         return cmd.to_string()
 
@@ -624,9 +624,9 @@ class _GmpCommandFactory:
 
         cmd = XmlCommand('create_tag')
         cmd.add_element('name', name)
-        _xmlResource = cmd.add_element('resource',
+        _xmlresource = cmd.add_element('resource',
                                        attrs={'id': str(resource_id)})
-        _xmlResource.add_element('type', resource_type)
+        _xmlresource.add_element('type', resource_type)
 
         comment = kwargs.get('comment', '')
         if comment:
@@ -652,11 +652,11 @@ class _GmpCommandFactory:
             raise ValueError('create_target requires a name element')
 
         cmd = XmlCommand('create_target')
-        _xmlName = cmd.add_element('name', name)
+        _xmlname = cmd.add_element('name', name)
         if make_unique:
-            _xmlName.add_element('make_unique', '1')
+            _xmlname.add_element('make_unique', '1')
         else:
-            _xmlName.add_element('make_unique', '0')
+            _xmlname.add_element('make_unique', '0')
 
         if 'asset_hosts' in kwargs:
             hosts = kwargs.get('asset_hosts')
@@ -684,10 +684,10 @@ class _GmpCommandFactory:
         if 'ssh_credential' in kwargs:
             ssh_credential = kwargs.get('ssh_credential')
             if 'id' in ssh_credential:
-                _xmlSSH = cmd.add_element('ssh_credential', '',
+                _xmlssh = cmd.add_element('ssh_credential', '',
                                           attrs={'id': ssh_credential['id']})
                 if 'port' in ssh_credential:
-                    _xmlSSH.add_element('port', ssh_credential['port'])
+                    _xmlssh.add_element('port', ssh_credential['port'])
             else:
                 raise ValueError('ssh_credential requires an id attribute')
 
