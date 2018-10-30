@@ -860,24 +860,22 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_auth_command(self, group_name, auth_conf_settings):
+        """Generates xml string for modify auth on gvmd."""
         if not group_name:
             raise ValueError('modify_auth requires a group element '
                              'with a name attribute')
         if not auth_conf_settings:
             raise ValueError('modify_auth requires '
                              'an auth_conf_settings element')
-
-        xmlRoot = etree.Element('modify_auth')
-        _xmlGroup = etree.SubElement(xmlRoot, 'group', name=str(group_name))
+        cmd = XmlCommand('modify_auth')
+        _xmlgroup = cmd.add_element('group', attrs={'name': str(group_name)})
 
         for key, value in auth_conf_settings.items():
-            _xmlAuthConf = etree.SubElement(_xmlGroup, 'auth_conf_setting')
-            _xmlKey = etree.SubElement(_xmlAuthConf, 'key')
-            _xmlKey.text = key
-            _xmlValue = etree.SubElement(_xmlAuthConf, 'value')
-            _xmlValue.text = value
+            _xmlauthconf = _xmlgroup.add_element('auth_conf_setting')
+            _xmlauthconf.add_element('key', key)
+            _xmlauthconf.add_element('value', value)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_config_command(self, selection, kwargs):
         if selection not in ('nvt_pref', 'sca_pref',
