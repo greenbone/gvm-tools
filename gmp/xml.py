@@ -1471,6 +1471,7 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_user_command(self, kwargs):
+        """Generates xml string for modify user on gvmd."""
         user_id = kwargs.get('user_id', '')
         name = kwargs.get('name', '')
 
@@ -1478,40 +1479,35 @@ class _GmpCommandFactory:
             raise ValueError('modify_user requires '
                              'either a user_id or a name element')
 
-        xmlRoot = etree.Element('modify_user', user_id=str(user_id))
+        cmd = XmlCommand('modify_user')
+        cmd.set_attribute('user_id', str(user_id))
 
         new_name = kwargs.get('new_name', '')
         if new_name:
-            _xmlName = etree.SubElement(xmlRoot, 'new_name')
-            _xmlName.text = new_name
+            cmd.add_element('new_name', new_name)
 
         password = kwargs.get('password', '')
         if password:
-            _xmlPass = etree.SubElement(xmlRoot, 'password')
-            _xmlPass.text = password
+            cmd.add_element('password', password)
 
         role_ids = kwargs.get('role_ids', '')
         if len(role_ids) > 0:
             for role in role_ids:
-                _xmlRole = etree.SubElement(xmlRoot, 'role',
-                                            id=str(role))
+                cmd.add_element('role', attrs={'id': str(role)})
+
         hosts = kwargs.get('hosts', '')
         hosts_allow = kwargs.get('hosts_allow', '')
         if hosts or hosts_allow:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts',
-                                         allow=str(hosts_allow))
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts, attrs={'allow': str(hosts_allow)})
 
         ifaces = kwargs.get('ifaces', '')
         ifaces_allow = kwargs.get('ifaces_allow', '')
         if ifaces or ifaces_allow:
-            _xmlIFaces = etree.SubElement(xmlRoot, 'ifaces',
-                                          allow=str(ifaces_allow))
-            _xmlIFaces.text = ifaces
+            cmd.add_element('ifaces', ifaces,
+                            attrs={'allow': str(ifaces_allow)})
 
         sources = kwargs.get('sources', '')
         if sources:
-            _xmlSource = etree.SubElement(xmlRoot, 'sources')
-            _xmlSource.text = sources
+            cmd.add_element('sources', sources)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
