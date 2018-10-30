@@ -19,7 +19,6 @@
 import argparse
 import code
 import configparser
-import getpass
 import logging
 import os
 import sys
@@ -239,33 +238,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         connection = SSHConnection(hostname=args.hostname, port=args.port,
                                    timeout=args.timeout, username=args.ssh_user,
                                    password='')
-    global gmp
-    if ('tls' in args.connection_type and (
-            not args.certfile or
-            not args.keyfile or
-            not args.cafile)
-          ):
-        # Ask for login credentials if none are given.
-        if not args.gmp_username:
-            while len(args.gmp_username) == 0:
-                args.gmp_username = input('Enter username: ')
 
-        if not args.gmp_password:
-            args.gmp_password = getpass.getpass(
-                'Enter password for {0}: '.format(args.gmp_username))
-
-        # return an Etree at successful responses and raise execption on
-        # unsuccessful ones
-        gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
-
-        try:
-            gmp.authenticate(args.gmp_username, args.gmp_password)
-        except Exception as e: # pylint: disable=broad-except
-            print('Please check your credentials!')
-            print(e)
-            sys.exit(1)
-    else:
-        gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
+    gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
