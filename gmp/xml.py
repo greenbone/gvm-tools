@@ -1360,62 +1360,54 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_target_command(self, target_id, kwargs):
+        """Generates xml string for modify target on gvmd."""
         if not target_id:
             raise ValueError('modify_target requires a target_id element')
 
-        xmlRoot = etree.Element('modify_target', target_id=target_id)
+        cmd = XmlCommand('modify_target')
+        cmd.set_attribute('target_id', target_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = kwargs.get('copy')
+            cmd.add_element('copy', copy)
 
         exclude_hosts = kwargs.get('exclude_hosts', '')
         if exclude_hosts:
-            _xmlExHosts = etree.SubElement(xmlRoot, 'exclude_hosts')
-            _xmlExHosts.text = kwargs.get('exclude_hosts')
+            cmd.add_element('exclude_hosts', exclude_hosts)
 
         alive_tests = kwargs.get('alive_tests', '')
         if alive_tests:
-            _xmlAlive = etree.SubElement(xmlRoot, 'alive_tests')
-            _xmlAlive.text = kwargs.get('alive_tests')
+            cmd.add_element('alive_tests', alive_tests)
 
         reverse_lookup_only = kwargs.get('reverse_lookup_only', '')
         if reverse_lookup_only:
-            _xmlLookup = etree.SubElement(xmlRoot, 'reverse_lookup_only')
-            _xmlLookup.text = reverse_lookup_only
+            cmd.add_element('reverse_lookup_only', reverse_lookup_only)
 
         reverse_lookup_unify = kwargs.get('reverse_lookup_unify', '')
         if reverse_lookup_unify:
-            _xmlLookupU = etree.SubElement(xmlRoot, 'reverse_lookup_unify')
-            _xmlLookupU.text = reverse_lookup_unify
+            cmd.add_element('reverse_lookup_unify', reverse_lookup_unify)
 
         port_range = kwargs.get('port_range', '')
         if port_range:
-            _xmlPortR = etree.SubElement(xmlRoot, 'port_range')
-            _xmlPortR.text = kwargs.get('port_range')
+            cmd.add_element('port_range', port_range)
 
         port_list = kwargs.get('port_list', '')
         if port_list:
-            _xmlPortL = etree.SubElement(xmlRoot, 'port_list',
-                                         id=str(port_list))
+            cmd.add_element('port_list', attrs={'id': str(port_list)})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_task_command(self, task_id, kwargs):
         if not task_id:
