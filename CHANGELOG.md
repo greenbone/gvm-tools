@@ -11,9 +11,9 @@ $ cd gvm-tools && git log
 
 ## GMP Scripts
 
-- GMPError got renamed to GmpError and must be imported from gmp.error module.
+- GMPError got renamed to GmpError and must be imported from gmp.errors module.
   ```python
-  from gmp.error import GmpError as GMPError
+  from gmp.errors import GmpError as GMPError
   ```
 - Added new client helper module.
 - Scripts must run the authentification do call priviliged gmp commands.

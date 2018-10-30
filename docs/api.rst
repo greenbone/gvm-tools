@@ -62,5 +62,5 @@ GMP v7
 Errors
 ------
 
-.. automodule:: gmp.error
+.. automodule:: gmp.errors
     :members:

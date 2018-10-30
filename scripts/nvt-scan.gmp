@@ -24,7 +24,7 @@
 from datetime import datetime
 
 from gmp.clients.helper import authenticate
-from gmp.error import GmpError
+from gmp.errors import GmpError
 
 
 def check_args(args):

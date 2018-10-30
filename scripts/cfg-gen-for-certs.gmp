@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gmp.clients.helper import authenticate
-from gmp.error import GmpError
+from gmp.errors import GmpError
 
 def check_args(args):
     len_args = len(args.script) - 1
