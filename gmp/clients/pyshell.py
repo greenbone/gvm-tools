@@ -23,8 +23,6 @@ import logging
 import os
 import sys
 
-from lxml import etree
-
 from gmp import Gmp, get_version
 from gmp.connection import (SSHConnection,
                             TLSConnection,
@@ -267,7 +265,6 @@ def get_globals_dict(gmp, args):
         'gmp': gmp,
         'help': Help(),
         'args': args,
-        'pretty': pretty_print,
     }
 
 def enter_interactive_mode(global_vars):
@@ -275,26 +272,6 @@ def enter_interactive_mode(global_vars):
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
         local=dict(global_vars, **locals()))
-
-
-def pretty_print(xml):
-    """Prints beautiful XML-Code
-
-    This function gets an object of list<lxml.etree._Element>
-    or directly a lxml element.
-    Print it with good readable format.
-
-    Arguments:
-        xml {obj} -- list<lxml.etree._Element> or directly a lxml element
-    """
-    if isinstance(xml, list):
-        for item in xml:
-            if etree.iselement(item):
-                print(etree.tostring(item, pretty_print=True).decode('utf-8'))
-            else:
-                print(item)
-    elif etree.iselement(xml):
-        print(etree.tostring(xml, pretty_print=True).decode('utf-8'))
 
 
 def load(path, global_vars):
