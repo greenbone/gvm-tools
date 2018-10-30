@@ -1245,6 +1245,7 @@ class _GmpCommandFactory:
 
     def modify_scanner_command(self, scanner_id, host, port, scanner_type,
                                kwargs):
+        """Generates xml string for modify scanner on gvmd."""
         if not scanner_id:
             raise ValueError('modify_scanner requires a scanner_id element')
         if not host:
@@ -1254,35 +1255,29 @@ class _GmpCommandFactory:
         if not scanner_type:
             raise ValueError('modify_scanner requires a type element')
 
-        xmlRoot = etree.Element('modify_scanner', scanner_id=scanner_id)
-        _xmlHost = etree.SubElement(xmlRoot, 'host')
-        _xmlHost.text = host
-        _xmlPort = etree.SubElement(xmlRoot, 'port')
-        _xmlPort.text = port
-        _xmlType = etree.SubElement(xmlRoot, 'type')
-        _xmlType.text = scanner_type
+        cmd = XmlCommand('modify_scanner')
+        cmd.set_attribute('scanner_id', scanner_id)
+        cmd.add_element('host', host)
+        cmd.add_element('port', port)
+        cmd.add_element('type', scanner_type)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         ca_pub = kwargs.get('ca_pub', '')
         if ca_pub:
-            _xmlCAPub = etree.SubElement(xmlRoot, 'ca_pub')
-            _xmlCAPub.text = ca_pub
+            cmd.add_element('ca_pub', ca_pub)
 
         credential_id = kwargs.get('credential_id', '')
         if credential_id:
-            _xmlCred = etree.SubElement(xmlRoot, 'credential',
-                                        id=str(credential_id))
+            cmd.add_element('credential', attrs={'id': str(credential_id)})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_schedule_command(self, schedule_id, kwargs):
         if not schedule_id:
