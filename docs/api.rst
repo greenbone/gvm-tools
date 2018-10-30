@@ -38,7 +38,7 @@ Connections
 Transforms
 ----------
 
-.. automodule:: gmp.transform
+.. automodule:: gmp.transforms
     :members:
 
 Protocols

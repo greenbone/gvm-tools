@@ -31,7 +31,7 @@ from gmp.connections import (SSHConnection,
                              DEFAULT_UNIX_SOCKET_PATH,
                              DEFAULT_TIMEOUT,
                              DEFAULT_GVM_PORT)
-from gmp.transform import CheckCommandTransform
+from gmp.transforms import CheckCommandTransform
 
 __version__ = get_version()
 

@@ -31,7 +31,7 @@ from gmp.connections import (SSHConnection,
                              DEFAULT_TIMEOUT,
                              DEFAULT_GVM_PORT)
 from gmp.protocols.latest import Gmp
-from gmp.transform import EtreeCheckCommandTransform
+from gmp.transforms import EtreeCheckCommandTransform
 
 
 __version__ = get_version()
