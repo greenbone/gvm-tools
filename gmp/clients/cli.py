@@ -133,6 +133,9 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                             default=22, help='Port. Default: %(default)s.')
     parser_ssh.add_argument('--ssh-user', default='gmp',
                             help='SSH Username. Default: %(default)s.')
+    parser_ssh.add_argument('--ssh-password', default='gmp',
+                            help='SSH Password. Default: %(default)s.')
+
 
     parser_tls = subparsers.add_parser(
         'tls', help='Use TLS secured connection for gmp service.',
