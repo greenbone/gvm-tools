@@ -25,12 +25,12 @@ import sys
 
 from gmp import get_version
 from gmp.protocols.latest import Gmp
-from gmp.connection import (SSHConnection,
-                            TLSConnection,
-                            UnixSocketConnection,
-                            DEFAULT_UNIX_SOCKET_PATH,
-                            DEFAULT_TIMEOUT,
-                            DEFAULT_GVM_PORT)
+from gmp.connections import (SSHConnection,
+                             TLSConnection,
+                             UnixSocketConnection,
+                             DEFAULT_UNIX_SOCKET_PATH,
+                             DEFAULT_TIMEOUT,
+                             DEFAULT_GVM_PORT)
 from gmp.transform import CheckCommandTransform
 
 __version__ = get_version()

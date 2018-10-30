@@ -18,7 +18,7 @@ Main
 Connections
 -----------
 
-.. automodule:: gmp.connection
+.. automodule:: gmp.connections
 
 .. autoclass:: GmpConnection
    :members:
