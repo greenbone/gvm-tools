@@ -58,6 +58,7 @@ class XmlCommandElement:
         self._element.set(name, value)
 
     def append_xml_str(self, xml_text):
+        """Append a xml element in string format."""
         node = secET.fromstring(xml_text)
         self._element.append(node)
 
@@ -334,7 +335,7 @@ class _GmpCommandFactory:
 
         port = kwargs.get('port', '')
         if port:
-           cmd.add_element('port', port)
+            cmd.add_element('port', port)
 
         result_id = kwargs.get('result_id', '')
         if result_id:
@@ -439,7 +440,7 @@ class _GmpCommandFactory:
             resource_id = resource.id
             resource_type = resource.type
             _xmlresource = cmd.add_element('resource',
-                                            attrs={'id': resource_id})
+                                           attrs={'id': resource_id})
             _xmlresource.add_element('type', resource_type)
 
         return cmd.to_string()
@@ -475,13 +476,13 @@ class _GmpCommandFactory:
         if not type:
             raise ValueError('create_port_range requires a type element')
 
-        cmd.add_element('create_port_range')
+        cmd = XmlCommand('create_port_range')
         cmd.add_element('port_list', attrs={'id': port_list_id})
         cmd.add_element('start', start)
         cmd.add_element('end', end)
         cmd.add_element('type', type)
 
-        if len(comment):
+        if comment:
             cmd.add_element('comment', comment)
 
         return cmd.to_string()
@@ -500,10 +501,10 @@ class _GmpCommandFactory:
         if task_id:
             cmd.add_element('task', attrs={'id': task_id})
         elif task_name:
-            _xmlTask = cmd.add_element('task')
-            _xmlTask.add_element('name', task_name)
+            _xmltask = cmd.add_element('task')
+            _xmltask.add_element('name', task_name)
             if comment:
-                _xmlTask.add_element('comment', comment)
+                _xmltask.add_element('comment', comment)
         else:
             raise ValueError('create_report requires an id or name for a task')
 
@@ -596,22 +597,22 @@ class _GmpCommandFactory:
             first_time_month = first_time['month']
             first_time_year = first_time['year']
 
-            _xmlFtime = cmd.add_element('first_time')
-            _xmlFtime.add_element('minute', first_time_minute)
-            _xmlFtime.add_element('hour', str(first_time_hour))
-            _xmlFtime.add_element('day_of_month', str(first_time_day_of_month))
-            _xmlFtime.add_element('month', str(first_time_month))
-            _xmlFtime.add_element('year', str(first_time_year))
+            _xmlftime = cmd.add_element('first_time')
+            _xmlftime.add_element('minute', first_time_minute)
+            _xmlftime.add_element('hour', str(first_time_hour))
+            _xmlftime.add_element('day_of_month', str(first_time_day_of_month))
+            _xmlftime.add_element('month', str(first_time_month))
+            _xmlftime.add_element('year', str(first_time_year))
 
         duration = kwargs.get('duration', '')
         if len(duration) > 1:
-            _xmlDuration = cmd.add_element('duration', str(duration[0]))
-            _xmlDuration.add_element('unit', str(duration[1]))
+            _xmlduration = cmd.add_element('duration', str(duration[0]))
+            _xmlduration.add_element('unit', str(duration[1]))
 
         period = kwargs.get('period', '')
         if len(period) > 1:
-            _xmlPeriod = cmd.add_element('period', str(period[0]))
-            _xmlPeriod.add_element('unit', str(period[1]))
+            _xmlperiod = cmd.add_element('period', str(period[0]))
+            _xmlperiod.add_element('unit', str(period[1]))
 
         timezone = kwargs.get('timezone', '')
         if timezone:
