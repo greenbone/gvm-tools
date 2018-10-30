@@ -1410,58 +1410,54 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_task_command(self, task_id, kwargs):
+        """Generates xml string for modify task on gvmd."""
         if not task_id:
             raise ValueError('modify_task requires a task_id element')
 
-        xmlRoot = etree.Element('modify_task', task_id=task_id)
+        cmd = XmlCommand('modify_task')
+        cmd.set_attribute('task_id', task_id)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         target_id = kwargs.get('target_id', '')
         if target_id:
-            _xmlTarget = etree.SubElement(xmlRoot, 'target', id=target_id)
+            cmd.add_element('target', attrs={'id': target_id})
 
         scanner = kwargs.get('scanner', '')
         if scanner:
-            _xmlScanner = etree.SubElement(xmlRoot, 'scanner', id=scanner)
+            cmd.add_element('scanner', attrs={'id': scanner})
 
         schedule_periods = kwargs.get('schedule_periods', '')
         if schedule_periods:
-            _xmlPeriod = etree.SubElement(xmlRoot, 'schedule_periods')
-            _xmlPeriod.text = str(schedule_periods)
+            cmd.add_element('schedule_periods', str(schedule_periods))
 
         schedule = kwargs.get('schedule', '')
         if schedule:
-            _xmlSched = etree.SubElement(xmlRoot, 'schedule', id=str(schedule))
+            cmd.add_element('schedule', attrs={'id': str(schedule)})
 
         alert = kwargs.get('alert', '')
         if alert:
-            _xmlAlert = etree.SubElement(xmlRoot, 'alert', id=str(alert))
+            cmd.add_element('alert', attrs={'id': str(alert)})
 
         observers = kwargs.get('observers', '')
         if observers:
-            _xmlObserver = etree.SubElement(xmlRoot, 'observers')
-            _xmlObserver.text = str(observers)
+            cmd.add_element('observers', str(observers))
 
         preferences = kwargs.get('preferences', '')
         if preferences:
-            _xmlPrefs = etree.SubElement(xmlRoot, 'preferences')
+            _xmlprefs = cmd.add_element('preferences')
             for n in range(len(preferences["scanner_name"])):
                 preferences_scanner_name = preferences["scanner_name"][n]
                 preferences_value = preferences["value"][n]
-                _xmlPref = etree.SubElement(_xmlPrefs, 'preference')
-                _xmlScan = etree.SubElement(_xmlPref, 'scanner_name')
-                _xmlScan.text = preferences_scanner_name
-                _xmlVal = etree.SubElement(_xmlPref, 'value')
-                _xmlVal.text = preferences_value
+                _xmlpref = _xmlprefs.add_element('preference')
+                _xmlpref.add_element('scanner_name', preferences_scanner_name)
+                _xmlpref.add_element('value', preferences_value)
 
         file = kwargs.get('file', '')
         if file:
@@ -1469,10 +1465,10 @@ class _GmpCommandFactory:
             file_action = file['action']
             if file_action != "update" and file_action != "remove":
                 raise ValueError('action can only be "update" or "remove"!')
-            _xmlFile = etree.SubElement(xmlRoot, 'file', name=file_name,
-                                        action=file_action)
+            cmd.add_element('file', attrs={'name': file_name,
+                                           'action': file_action})
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_user_command(self, kwargs):
         user_id = kwargs.get('user_id', '')
