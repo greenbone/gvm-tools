@@ -1096,55 +1096,48 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_override_command(self, override_id, text, kwargs):
-        xmlRoot = etree.Element('modify_override',
-                                override_id=override_id)
-        _xmlText = etree.SubElement(xmlRoot, 'text')
-        _xmlText.text = text
+        """Generates xml string for modify override on gvmd."""
+        cmd = XmlCommand('modify_override')
+        cmd.set_attribute('override_id', override_id)
+        cmd.add_element('text', text)
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
         hosts = kwargs.get('hosts', '')
         if hosts:
-            _xmlHosts = etree.SubElement(xmlRoot, 'hosts')
-            _xmlHosts.text = hosts
+            cmd.add_element('hosts', hosts)
 
         port = kwargs.get('port', '')
         if port:
-            _xmlPort = etree.SubElement(xmlRoot, 'port')
-            _xmlPort.text = port
+            cmd.add_element('port', port)
 
         result_id = kwargs.get('result_id', '')
         if result_id:
-            _xmlResultid = etree.SubElement(xmlRoot, 'result', id=result_id)
+            cmd.add_element('result', attrs={'id': result_id})
 
         severity = kwargs.get('severity', '')
         if severity:
-            _xmlSeverity = etree.SubElement(xmlRoot, 'severity')
-            _xmlSeverity.text = severity
+            cmd.add_element('severity', severity)
 
         new_severity = kwargs.get('new_severity', '')
         if new_severity:
-            _xmlNSeverity = etree.SubElement(xmlRoot, 'new_severity')
-            _xmlNSeverity.text = new_severity
+            cmd.add_element('new_severity', new_severity)
 
         task_id = kwargs.get('task_id', '')
         if task_id:
-            _xmlTaskid = etree.SubElement(xmlRoot, 'task', id=task_id)
+            cmd.add_element('task', attrs={'id': task_id})
 
         threat = kwargs.get('threat', '')
         if threat:
-            _xmlThreat = etree.SubElement(xmlRoot, 'threat')
-            _xmlThreat.text = threat
+            cmd.add_element('threat', threat)
 
         new_threat = kwargs.get('new_threat', '')
         if new_threat:
-            _xmlNThreat = etree.SubElement(xmlRoot, 'new_threat')
-            _xmlNThreat.text = new_threat
+            cmd.add_element('new_threat', new_threat)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_permission_command(self, permission_id, kwargs):
         if not permission_id:
