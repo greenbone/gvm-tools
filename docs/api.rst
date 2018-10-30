@@ -6,13 +6,12 @@ Developer Interface
 This part of the documentation covers all public interfaces of gvm-tools.
 
 
-Main Interface
---------------
+Main
+----
 
 .. automodule:: gmp
 
-.. autoclass:: Gmp
-   :inherited-members:
+.. autodata:: VERSION
 
 .. autofunction:: get_version
 
@@ -22,15 +21,18 @@ Connections
 .. automodule:: gmp.connection
 
 .. autoclass:: GmpConnection
-   :inherited-members:
+   :members:
 
 .. autoclass:: SSHConnection
+   :members:
    :inherited-members:
 
 .. autoclass:: TLSConnection
+   :members:
    :inherited-members:
 
 .. autoclass:: UnixSocketConnection
+   :members:
    :inherited-members:
 
 Transforms
@@ -42,7 +44,20 @@ Transforms
 Protocols
 ---------
 
-.. automodule:: gmp.protocol
+.. automodule:: gmp.protocols
+
+Latest
+^^^^^^
+
+.. automodule:: gmp.protocols.latest
+
+GMP v7
+^^^^^^
+
+.. automodule:: gmp.protocols.gmpv7
+
+.. autoclass:: Gmp
+    :members:
 
 Errors
 ------

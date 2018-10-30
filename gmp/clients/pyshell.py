@@ -23,13 +23,14 @@ import logging
 import os
 import sys
 
-from gmp import Gmp, get_version
+from gmp import get_version
 from gmp.connection import (SSHConnection,
                             TLSConnection,
                             UnixSocketConnection,
                             DEFAULT_UNIX_SOCKET_PATH,
                             DEFAULT_TIMEOUT,
                             DEFAULT_GVM_PORT)
+from gmp.protocols.latest import Gmp
 from gmp.transform import EtreeCheckCommandTransform
 
 

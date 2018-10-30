@@ -168,7 +168,8 @@ class Gmp:
         may be send to gvmd.
 
         Returns:
-            bool: True if an authenticated connection to gvmd has been established.
+            bool: True if an authenticated connection to gvmd has been
+            established.
         """
         return self._authenticated
 

@@ -23,7 +23,8 @@ import logging
 import os.path
 import sys
 
-from gmp import Gmp, get_version
+from gmp import get_version
+from gmp.protocols.latest import Gmp
 from gmp.connection import (SSHConnection,
                             TLSConnection,
                             UnixSocketConnection,
