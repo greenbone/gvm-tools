@@ -1000,40 +1000,37 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_filter_command(self, filter_id, kwargs):
+        """Generates xml string for modify filter on gvmd."""
         if not filter_id:
             raise ValueError('modify_filter requires a filter_id attribute')
 
-        xmlRoot = etree.Element('modify_filter', filter_id=filter_id)
+        cmd = XmlCommand('modify_filter')
+        cmd.set_attribute('filter_id', filter_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         copy = kwargs.get('copy', '')
         if copy:
-            _xmlCopy = etree.SubElement(xmlRoot, 'copy')
-            _xmlCopy.text = copy
+            cmd.add_element('copy', copy)
 
         term = kwargs.get('term', '')
         if term:
-            _xmlTerm = etree.SubElement(xmlRoot, 'term')
-            _xmlTerm.text = term
+            cmd.add_element('term', term)
 
         filter_type = kwargs.get('type', '')
         if filter_type:
             if filter_type not in ('cc', 'snmp', 'up', 'usk'):
                 raise ValueError('modify_filter requires type '
                                  'to be either cc, snmp, up or usk')
-            _xmlFiltertype = etree.SubElement(xmlRoot, 'type')
-            _xmlFiltertype.text = filter_type
+            cmd.add_element('type', filter_type)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_group_command(self, group_id, kwargs):
         if not group_id:
