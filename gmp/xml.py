@@ -1192,38 +1192,34 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_report_format_command(self, report_format_id, kwargs):
+        """Generates xml string for modify report format on gvmd."""
         if len(kwargs) < 1:
             raise Exception('modify_report_format: Missing parameter')
 
-        xmlRoot = etree.Element('modify_report_format',
-                                report_format_id=report_format_id)
+        cmd = XmlCommand('modify_report_format')
+        cmd.set_attribute('report_format_id', report_format_id)
 
         active = kwargs.get('active', '')
         if active:
-            _xmlActive = etree.SubElement(xmlRoot, 'active')
-            _xmlActive.text = active
+            cmd.add_element('active', active)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
-            summary = kwargs.get('summary', '')
+        summary = kwargs.get('summary', '')
         if summary:
-            _xmlSummary = etree.SubElement(xmlRoot, 'summary')
-            _xmlSummary.text = summary
+            cmd.add_element('summary', summary)
 
         param = kwargs.get('param', '')
         if param:
             p_name = param[0]
             p_value = param[1]
-            _xmlParam = etree.SubElement(xmlRoot, 'param')
-            _xmlPname = etree.SubElement(_xmlParam, 'name')
-            _xmlPname.text = p_name
-            _xmlValue = etree.SubElement(_xmlParam, 'value')
-            _xmlValue.text = p_value
+            _xmlparam = cmd.add_element('param')
+            _xmlparam.add_element('name', p_name)
+            _xmlparam.add_element('value', p_value)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_role_command(self, role_id, kwargs):
         if not role_id:
