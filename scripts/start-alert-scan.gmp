@@ -19,41 +19,43 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# along with this program. if not, see <http://www.gnu.org/licenses/>.
 
-debug = True  # flag for debugging information output
+from gmp.clients.helper import authenticate
 
-# IMPORTANT: change both email addresses to make this work
-recipientEmail = "alice@example.org"
-senderEmail = "bob@example.org"
-
-if recipientEmail == "alice@example.org" or senderEmail == "bob@example.org":
-    print("WARNING: please change both email addresses first")
-    quit("exiting..")
+def check_args(args):
+    len_args = len(args.script) - 1
+    message = """
+    """
+    if len_args is not 2:
+        print(message)
+        quit()
 
 
 # returns a list containing all port_list names
-def get_port_list_names():
+def get_port_list_names(gmp):
     res = gmp.get_port_lists()
     port_names_list = [""]
-    for x in res.findall("port_list/name"):
-        s = str(x.text)
-        port_names_list.append(s)
+    for name in res.findall("port_list/name"):
+        port_names_list.append(str(name.text))
     return port_names_list
 
 
-try:  # catch exceptions and provide useful output
-
+def get_config(gmp, debug=False):
     # get all configs of the openvas instance
     res = gmp.get_configs()
-    config_ids = res.xpath('config/@id')
 
     # configurable template
     template = "fast"
 
     # match the config abbreviation to accepted config names
-    config_list = ['Full and fast', 'Full and fast ultimate', 'Full and very deep',
-                   'Full and very deep ultimate', 'System Discovery']
+    config_list = [
+        'Full and fast',
+        'Full and fast ultimate',
+        'Full and very deep',
+        'Full and very deep ultimate',
+        'System Discovery',
+    ]
     template_abbreviation_mapper = {
         "fast": config_list[0],
         "fast-ulti": config_list[1],
@@ -61,47 +63,53 @@ try:  # catch exceptions and provide useful output
         "deep-ulti": config_list[3],
         "discovery": config_list[4]
     }
+
     config_id = "-"
     for conf in res.xpath('config'):
-        id = conf.xpath('@id')[0]
+        cid = conf.xpath('@id')[0]
         name = conf.xpath('name/text()')[0]
 
         # get the config id of the desired template
         if template_abbreviation_mapper.get(template, "-") == name:
-            config_id = id
+            config_id = cid
             if debug:
                 print(name + ": " + config_id)
             break
+
     # check for existence of the desired config
     if config_id == "-":
-        print("error: could not recognize template '%s'\nvalid template names are: %s\n"
-              % (template, config_list))
+        print("error: could not recognize template '%s'"
+              "\nvalid template names are: %s\n" % (template, config_list))
         exit()
 
+    return config_id
+
+
+def get_target(gmp, debug=False):
     # find a targetName
     targets = gmp.get_targets()
-    target_ids = targets.xpath('target/@id')
     counter = 0
     exists = True
     # iterate over existing targets and find a vacant targetName
     while exists:
         exists = False
-        targetName = "targetName" + str(counter)
+        target_name = "targetName" + str(counter)
         for target in targets.xpath('target'):
             name = target.xpath('name/text()')[0]
-            if name == targetName:
+            if name == target_name:
                 exists = True
                 break
         counter += 1
+
     if debug:
-        print("target name: " + targetName)
+        print("target name: " + target_name)
 
     # iterate over existing port lists and find a vacant name
     new_port_list_name = "portlistName"
     counter = 0
     while True:
         portlist_name = str(new_port_list_name + str(counter))
-        if portlist_name not in get_port_list_names():
+        if portlist_name not in get_port_list_names(gmp):
             break
         counter += 1
 
@@ -118,21 +126,28 @@ try:  # catch exceptions and provide useful output
     hosts = "localhost"
 
     # integrate port list id into create_target
-    res = gmp.create_target(targetName, True, hosts=hosts, port_list=dict(id=portlist_id))
-    target_id = res.xpath('@id')[0]
+    res = gmp.create_target(
+        target_name, True, hosts=hosts, port_list=dict(id=portlist_id))
+    return res.xpath('@id')[0]
 
+
+def get_alert(gmp, sender_email, recipient_email, debug=False):
     # configurable alert name
-    alert_name = recipientEmail
+    alert_name = recipient_email
 
     # create alert if necessarry
     alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
     alert_id = None
     alert = alert_object.xpath('alert')
+
     if len(alert) == 0:
         print("creating alert")
-        gmp.create_alert(alert_name, ["Always"],
-                         ["Task run status changed", {"status": "Done"}],
-                         ["Email", {"""Task '$n': $e
+        gmp.create_alert(
+            alert_name,
+            ["Always"],
+            ["Task run status changed", {"status": "Done"}],
+            ["Email", {
+                """Task '$n': $e
 
 After the event $e,
 the following condition was met: $c
@@ -147,12 +162,14 @@ This email was sent to you as a configured security scan escalation.
 Please contact your local system administrator if you think you
 should not have received it.
 """: "message",
-                                    "2": "notice", senderEmail: "from_address",
-                                    "[OpenVAS-Manager] Task": "subject",
-                                    "c402cc3e-b531-11e1-9163-406186ea4fc5": "notice_attach_format",
-                                    recipientEmail: "to_address"
-                                    }])
-        alert_object = gmp.get_alerts(filter='name=%s' % recipientEmail)
+                "2": "notice",
+                sender_email: "from_address",
+                "[OpenVAS-Manager] Task": "subject",
+                "c402cc3e-b531-11e1-9163-406186ea4fc5": "notice_attach_format",
+                recipient_email: "to_address"
+            }])
+
+        alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
         alert = alert_object.xpath('alert')
         alert_id = alert[0].get('id', 'no id found')
     else:
@@ -160,24 +177,54 @@ should not have received it.
         if debug:
             print("alert_id: " + str(alert_id))
 
-    # Create the task
+    return alert_id
+
+
+def get_scanner(gmp):
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
-    scanner_id = scanner_ids[1]  # default scanner
-    task_name = "name" + str(counter)
-    task_comment = "test comment"
-    res = gmp.create_task(task_name, config_id, target_id, scanner_id, alert_id, task_comment)
+    return scanner_ids[1]  # default scanner
+
+
+def create_and_start_task(gmp, config_id, target_id, scanner_id, alert_id,
+                          debug=False):
+    # Create the task
+    tasks = gmp.get_tasks(filter="name~ScanDoneAlert")
+    task_name = "ScanDoneAlert{0}".format(len(tasks.xpath('tasks/@id')))
+    task_comment = "Scan Done Alert"
+    res = gmp.create_task(task_name, config_id, target_id,
+                          scanner_id, alert_id, task_comment)
 
     # Start the task
     task_id = res.xpath('@id')[0]
     gmp.start_task(task_id)
+
     print('Task started: ' + task_name)
 
     if debug:
         # Stop the task (for performance reasons)
         gmp.stop_task(task_id)
         print('Task stopped')
-except:
-    raise
-else:
+
+
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    sender_email = args.script[1]
+    recipient_email = args.script[2]
+
+    config_id = get_config(gmp)
+    target_id = get_target(gmp)
+    alert_id = get_alert(gmp, sender_email, recipient_email)
+    scanner_id = get_scanner(gmp)
+
+    create_and_start_task(gmp, config_id, target_id, scanner_id, alert_id)
+
     print("\nScript finished\n")
+
+
+main()

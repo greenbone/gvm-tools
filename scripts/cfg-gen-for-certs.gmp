@@ -21,71 +21,88 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gmp.gvm_connection import GMPError
+from gmp.clients.helper import authenticate
+from gmp.error import GmpError
 
-len_args = len(args.script) - 1
-if len_args is not 1:
-    message = """
-    This script creates a new scan config with nvts from a given CERT-Bund!
-    It needs one parameter after the script name.
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 1:
+        message = """
+        This script creates a new scan config with nvts from a given CERT-Bund!
+        It needs one parameter after the script name.
 
-    1. Name or ID of the CERT-Bund
+        1. Name or ID of the CERT-Bund
 
-    Example:
-        $ gvm-pyshell socket scripts/cfg-gen-for-certs.gmp CB-K16/0943
-    """
-    print(message)
-    quit()
+        Example:
+            $ gvm-pyshell socket scripts/cfg-gen-for-certs.gmp CB-K16/0943
+        """
+        print(message)
+        quit()
 
-cert_bund_name = args.script[1]
 
-cert_bund_details = gmp.get_info(type='CERT_BUND_ADV', info_id=cert_bund_name,
-                                 details=1)
+def create_config(gmp, cert_bund_name):
+    cert_bund_details = gmp.get_info(
+        type='CERT_BUND_ADV', info_id=cert_bund_name, details=1)
 
-list_cves = cert_bund_details.xpath(
-    'info/cert_bund_adv/raw_data/Advisory/CVEList/CVE/text()')
+    list_cves = cert_bund_details.xpath(
+        'info/cert_bund_adv/raw_data/Advisory/CVEList/CVE/text()')
 
-nvt_dict = dict()
-counter = 0
+    nvt_dict = dict()
+    counter = 0
 
-for cve in list_cves:
-    # Get all nvts of this cve
-    cve_info = gmp.get_info(type='CVE', info_id=cve, details=1)
-    nvts = cve_info.xpath('info/cve/nvts/nvt')
+    for cve in list_cves:
+        # Get all nvts of this cve
+        cve_info = gmp.get_info(type='CVE', info_id=cve, details=1)
+        nvts = cve_info.xpath('info/cve/nvts/nvt')
 
-    for nvt in nvts:
-        counter += 1
-        oid = nvt.xpath('@oid')[0]
-        name = nvt.xpath('name/text()')[0]
+        for nvt in nvts:
+            counter += 1
+            oid = nvt.xpath('@oid')[0]
 
-        # We need the nvt family to modify scan config
-        nvt_data = gmp.get_nvts(nvt_oid=oid, details=1)
-        family = nvt_data.xpath('nvt/family/text()')[0]
+            # We need the nvt family to modify scan config
+            nvt_data = gmp.get_nvts(nvt_oid=oid, details=1)
+            family = nvt_data.xpath('nvt/family/text()')[0]
 
-        # Create key value map
-        if family in nvt_dict and oid not in nvt_dict[family]:
-            nvt_dict[family].append(oid)
-        else:
-            nvt_dict[family] = [oid]
+            # Create key value map
+            if family in nvt_dict and oid not in nvt_dict[family]:
+                nvt_dict[family].append(oid)
+            else:
+                nvt_dict[family] = [oid]
 
-# Create new config
-copy_id = '085569ce-73ed-11df-83c3-002264764cea'
-config_name = 'scanconfig_for_%s' % cert_bund_name
-config_id = ''
-try:
-    res = gmp.create_config(copy_id, config_name)
-    config_id = res.xpath('@id')[0]
+    # Create new config
+    copy_id = '085569ce-73ed-11df-83c3-002264764cea'
+    config_name = 'scanconfig_for_%s' % cert_bund_name
+    config_id = ''
 
-    # Modify the config with the nvts oid
-    for family, nvt_oid in nvt_dict.items():
+    try:
+        res = gmp.create_config(copy_id, config_name)
+        config_id = res.xpath('@id')[0]
+
+        # Modify the config with the nvts oid
+        for family, nvt_oid in nvt_dict.items():
+            gmp.modify_config('nvt_selection', config_id=config_id,
+                              nvt_oid=nvt_oid, family=family)
+
+        # This nvts must be present to work
+        family = 'Port scanners'
+        nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
         gmp.modify_config('nvt_selection', config_id=config_id,
-                          nvt_oid=nvt_oid, family=family)
+                          nvt_oid=nvts, family=family)
 
-    # This nvts must be present to work
-    family = 'Port scanners'
-    nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
-    gmp.modify_config('nvt_selection', config_id=config_id,
-                      nvt_oid=nvts, family=family)
+    except GmpError:
+        print('Config exist')
 
-except GMPError as e:
-    print('Config exist')
+
+def main():
+    # pylint: disable=undefined-variable
+
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    cert_bund_name = args.script[1]
+
+    create_config(gmp, cert_bund_name)
+
+
+main()

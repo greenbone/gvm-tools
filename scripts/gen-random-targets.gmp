@@ -23,63 +23,78 @@
 
 import random as r
 
-len_args = len(args.script) - 1
-if len_args < 2:
-    message = """
-    This script generates random task data and feeds it to\
-a desired GSM
-    It needs two parameters after the script name.
+from gmp.clients.helper import authenticate
 
-    1. <host_number> --number of dummy hosts to select from
-    2. <number> --number of targets to be generated
 
-    In addition, if you would like for the number of targets generated
-to be randomized on a Gaussian distribution, add 'with-gauss'
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args < 2:
+        message = """
+        This script generates random task data and feeds it to\
+    a desired GSM
+        It needs two parameters after the script name.
 
-    Example:
-        $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
---gmp-password=pass scripts/gen-random-tasks.gmp 3 40 with-gauss
-    """
-    print(message)
-    quit()
+        1. <host_number> --number of dummy hosts to select from
+        2. <number> --number of targets to be generated
+
+        In addition, if you would like for the number of targets generated
+    to be randomized on a Gaussian distribution, add 'with-gauss'
+
+        Example:
+            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
+    --gmp-password=pass scripts/gen-random-tasks.gmp 3 40 with-gauss
+        """
+        print(message)
+        quit()
 
 
 def rand_number():
     return r.randrange(256)
 
 
-def n_IP(number_of_IPs):
-    list_of_IPs = []
-    for i in range(number_of_IPs):
-        list_of_IPs.append('{}.{}.{}.{}'.format(
+def n_ip(number_of_ips):
+    list_of_ips = []
+    for _ in range(number_of_ips):
+        list_of_ips.append('{}.{}.{}.{}'.format(
             rand_number(),
             rand_number(),
             rand_number(),
             rand_number()
-            ))
-    return list_of_IPs
+        ))
+    return list_of_ips
 
 
-def generate(n_targets, n_IPs):
-    IPs = n_IP(n_IPs)
+def generate(gmp, args, n_targets, n_ips):
+    ips = n_ip(n_ips)
 
     if 'with-gauss' in args.script:
         n_targets = int(r.gauss(n_targets, 2))
 
     for i in range(n_targets):
-        host_ip = r.choice(IPs)
+        host_ip = r.choice(ips)
         index = '{{0:0>{}}}'.format(len(str(n_targets)))
-        name = 'Target_{}'.format(index.format(i+1))
+        name = 'Target_{}'.format(index.format(i + 1))
 
         gmp.create_target(
             name=name,
             make_unique=True,
             hosts=host_ip
-            )
+        )
 
 
-host_number = int(args.script[1])
-number_targets = int(args.script[2])
+def main():
+    # pylint: disable=undefined-variable
 
-print('Generating random targets...')
-generate(number_targets, host_number)
+    check_args(args)
+
+    authenticate(gmp, args)
+
+    host_number = int(args.script[1])
+    number_targets = int(args.script[2])
+
+    print('Generating random targets...')
+
+    generate(gmp, args, number_targets, host_number)
+
+
+main()
