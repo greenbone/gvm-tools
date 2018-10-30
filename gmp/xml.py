@@ -802,19 +802,18 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_agent_command(self, agent_id, name='', comment=''):
+        """Generates xml string for modify agent on gvmd."""
         if not agent_id:
             raise ValueError('modify_agent requires an agent_id element')
 
-        xmlRoot = etree.Element('modify_agent', agent_id=str(agent_id))
+        cmd = XmlCommand('modify_agent')
+        cmd.set_attribute('agent_id', str(agent_id))
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
-
+            cmd.add_element('name', name)
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_alert_command(self, alert_id, kwargs):
         if not alert_id:
