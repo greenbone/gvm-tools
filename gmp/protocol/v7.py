@@ -330,121 +330,88 @@ class Gmp:
         return self.send_command(cmd)
 
     def delete_agent(self, **kwargs):
-        cmd = '<delete_agent {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.delete_agent_command(kwargs)
         return self.send_command(cmd)
 
     def delete_alert(self, **kwargs):
-        cmd = '<delete_alert {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.delete_alert_command(kwargs)
         return self.send_command(cmd)
 
     def delete_asset(self, asset_id, ultimate=0):
-        cmd = '<delete_asset asset_id="{0}" ultimate="{1}"/>'.format(
-            asset_id, ultimate)
+        cmd = self._generator.delete_asset_command(asset_id, ultimate)
         return self.send_command(cmd)
 
     def delete_config(self, config_id, ultimate=0):
-        cmd = '<delete_config config_id="{0}" ultimate="{1}"/>'.format(
-            config_id, ultimate)
+        cmd = self._generator.delete_config_command(config_id, ultimate)
         return self.send_command(cmd)
 
     def delete_credential(self, credential_id, ultimate=0):
-        cmd = '<delete_credential credential_id="{0}" ultimate="{1}"/>'.format(
-            credential_id, ultimate)
+        cmd = self._generator.delete_credential_command(credential_id, ultimate)
         return self.send_command(cmd)
 
     def delete_filter(self, filter_id, ultimate=0):
-        cmd = '<delete_filter filter_id="{0}" ultimate="{1}"/>'.format(
-            filter_id, ultimate)
+        cmd = self._generator.delete_filter_command(filter_id, ultimate)
         return self.send_command(cmd)
 
     def delete_group(self, group_id, ultimate=0):
-        cmd = '<delete_group group_id="{0}" ultimate="{1}"/>'.format(
-            group_id, ultimate)
+        cmd = self._generator.delete_group_command(group_id, ultimate)
         return self.send_command(cmd)
 
     def delete_note(self, note_id, ultimate=0):
-        cmd = '<delete_note note_id="{0}" ultimate="{1}"/>'.format(
-            note_id, ultimate)
+        cmd = self._generator.delete_note_command(note_id, ultimate)
         return self.send_command(cmd)
 
     def delete_override(self, override_id, ultimate=0):
-        cmd = '<delete_override override_id="{0}" ultimate="{1}"/>'.format(
-            override_id, ultimate)
+        cmd = self._generator.delete_override_command(override_id, ultimate)
         return self.send_command(cmd)
 
     def delete_permission(self, permission_id, ultimate=0):
-        cmd = '<delete_permission permission_id="{0}" ultimate="{1}"/>'.format(
-            permission_id, ultimate)
+        cmd = self._generator.delete_permission_command(permission_id, ultimate)
         return self.send_command(cmd)
 
     def delete_port_list(self, port_list_id, ultimate=0):
-        cmd = '<delete_port_list port_list_id="{0}" ultimate="{1}"/>'.format(
-            port_list_id, ultimate)
+        cmd = self._generator.delete_port_list_command(port_list_id, ultimate)
         return self.send_command(cmd)
 
     def delete_port_range(self, port_range_id):
-        cmd = '<delete_port_range port_range_id="{0}"/>'.format(port_range_id)
+        cmd = self._generator.delete_port_range_command(port_range_id)
         return self.send_command(cmd)
 
     def delete_report(self, report_id):
-        cmd = '<delete_report report_id="{0}"/>'.format(report_id)
+        cmd = self._generator.delete_report_command(report_id)
         return self.send_command(cmd)
 
     def delete_report_format(self, report_format_id, ultimate=0):
-        cmd = '<delete_report_format report_format_id="{0}" ' \
-            'ultimate="{1}"/>'.format(report_format_id, ultimate)
+        cmd = self._generator.delete_report_format_command(
+            report_format_id, ultimate)
         return self.send_command(cmd)
 
     def delete_role(self, role_id, ultimate=0):
-        cmd = '<delete_role role_id="{0}" ultimate="{1}"/>'.format(
-            role_id, ultimate)
+        cmd = self._generator.delete_role_command(role_id, ultimate)
         return self.send_command(cmd)
 
     def delete_scanner(self, scanner_id, ultimate=0):
-        cmd = '<delete_scanner scanner_id="{0}" ultimate="{1}"/>'.format(
-            scanner_id, ultimate)
+        cmd = self._generator.delete_scanner_command(scanner_id, ultimate)
         return self.send_command(cmd)
 
     def delete_schedule(self, schedule_id, ultimate=0):
-        # if self.ask_yes_or_no('Are you sure to delete this schedule? '):
-        cmd = '<delete_schedule schedule_id="{0}" ultimate="{1}"/>'.format(
-            schedule_id, ultimate)
+        cmd = self._generator.delete_schedule_command(schedule_id, ultimate)
         return self.send_command(cmd)
 
     def delete_tag(self, tag_id, ultimate=0):
-        cmd = '<delete_tag tag_id="{0}" ultimate="{1}"/>'.format(
-            tag_id, ultimate)
+        cmd = self._generator.delete_tag_command(tag_id, ultimate)
         return self.send_command(cmd)
 
     def delete_target(self, target_id, ultimate=0):
-        cmd = '<delete_target target_id="{0}" ultimate="{1}"/>'.format(
-            target_id, ultimate)
+        cmd = self._generator.delete_target_command(target_id, ultimate)
         return self.send_command(cmd)
 
     def delete_task(self, task_id, ultimate=0):
-        cmd = '<delete_task task_id="{0}" ultimate="{1}"/>'.format(
-            task_id, ultimate)
+        cmd = self._generator.delete_task_command(task_id, ultimate)
         return self.send_command(cmd)
 
     def delete_user(self, **kwargs):
-        user_id = kwargs.get('user_id', '')
-        if user_id:
-            user_id = ' user_id="%s"' % user_id
-
-        name = kwargs.get('name', '')
-        if name:
-            name = ' name="%s"' % name
-
-        inheritor_id = kwargs.get('inheritor_id', '')
-        if inheritor_id:
-            inheritor_id = ' inheritor_id="%s"' % inheritor_id
-
-        inheritor_name = kwargs.get('inheritor_name', '')
-        if inheritor_name:
-            inheritor_name = ' inheritor_name="%s"' % inheritor_name
-
-        cmd = '<delete_user{0}{1}{2}{3}/>'.format(
-            user_id, name, inheritor_id, inheritor_name)
+        cmd = self._generator.delete_user_command(kwargs)
         return self.send_command(cmd)
 
     def describe_auth(self):
