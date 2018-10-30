@@ -1222,28 +1222,26 @@ class _GmpCommandFactory:
         return cmd.to_string()
 
     def modify_role_command(self, role_id, kwargs):
+        """Generates xml string for modify role on gvmd."""
         if not role_id:
             raise ValueError('modify_role requires a role_id element')
 
-        xmlRoot = etree.Element('modify_role',
-                                role_id=role_id)
+        cmd = XmlCommand('modify_role')
+        cmd.set_attribute('role_id', role_id)
 
         comment = kwargs.get('comment', '')
         if comment:
-            _xmlComment = etree.SubElement(xmlRoot, 'comment')
-            _xmlComment.text = comment
+            cmd.add_element('comment', comment)
 
         name = kwargs.get('name', '')
         if name:
-            _xmlName = etree.SubElement(xmlRoot, 'name')
-            _xmlName.text = name
+            cmd.add_element('name', name)
 
         users = kwargs.get('users', '')
         if users:
-            _xmlUser = etree.SubElement(xmlRoot, 'users')
-            _xmlUser.text = users
+            cmd.add_element('users', users)
 
-        return etree.tostring(xmlRoot).decode('utf-8')
+        return cmd.to_string()
 
     def modify_scanner_command(self, scanner_id, host, port, scanner_type,
                                kwargs):
