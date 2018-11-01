@@ -74,3 +74,9 @@ Errors
 
 .. automodule:: gmp.errors
     :members:
+
+Script Helpers
+--------------
+
+.. automodule:: gmp.clients.helper
+    :members:
