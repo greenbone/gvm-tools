@@ -23,8 +23,6 @@
 
 import time
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -66,11 +64,10 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     filter_value = args.script[1]
 
     delete_overrides(gmp, filter_value)
 
 
-main()
+if __name__ == '__gmp__':
+    main()

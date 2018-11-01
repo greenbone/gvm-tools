@@ -16,12 +16,6 @@ $ cd gvm-tools && git log
   from gmp.errors import GmpError as GMPError
   ```
 - Added new client helper module.
-- Scripts must run the authentification do call priviliged gmp commands.
-  ```python
-  from gmp.clients.helper import authenticate
-
-  authenticate(gmp, args)
-  ```
 - pretty function isn't available as a global function in the scripts anymore.
   It must be imported seperately like
   ```python

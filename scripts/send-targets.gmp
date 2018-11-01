@@ -25,8 +25,6 @@ import sys
 
 from lxml import etree as e
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -151,12 +149,9 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
-    hostname = args.hostname
     xml_doc = args.script[1]
 
-    print('\nSending targets from {} to {}...'.format(xml_doc, hostname))
+    print('\nSending targets...')
 
     xml_tree = create_xml_tree(xml_doc)
     parse_send_xml_tree(gmp, xml_tree)
@@ -164,4 +159,5 @@ def main():
     print('\n  Target(s) created!\n')
 
 
-main()
+if __name__ == '__gmp__':
+    main()

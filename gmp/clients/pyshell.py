@@ -24,19 +24,24 @@ import os
 import sys
 
 from gmp import get_version
+from gmp.clients.helper import authenticate
 from gmp.connections import (SSHConnection,
                              TLSConnection,
                              UnixSocketConnection,
                              DEFAULT_UNIX_SOCKET_PATH,
                              DEFAULT_TIMEOUT,
                              DEFAULT_GVM_PORT)
-from gmp.protocols.latest import Gmp
+from gmp.protocols.latest import Gmp, Osp
 from gmp.transforms import EtreeCheckCommandTransform
 
 
 __version__ = get_version()
 
 logger = logging.getLogger(__name__)
+
+PROTOCOL_OSP = 'OSP'
+PROTOCOL_GMP = 'GMP'
+DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 HELP_TEXT = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
@@ -97,6 +102,30 @@ class Help(object):
         return HELP_TEXT
 
 
+class Arguments:
+
+    def __init__(self, **kwargs):
+        self._args = kwargs
+
+    def get(self, key):
+        return self._args[key]
+
+    def __getattr__(self, key):
+        return self.get(key)
+
+    def __setattr__(self, name, value):
+        if name.startswith('_'):
+            super().__setattr__(name, value)
+        else:
+            self._args[name] = value
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __repr__(self):
+        return repr(self._args)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog='gvm-pyshell',
@@ -149,11 +178,18 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parent_parser.add_argument(
         '-i', '--interactive', action='store_true', default=False,
         help='Start an interactive Python shell.')
+    parent_parser.add_argument(
+        '--protocol', required=False, default=DEFAULT_PROTOCOL,
+        choices=[PROTOCOL_GMP, PROTOCOL_OSP],
+        help='Protocol to use. Default: %(default)s.')
     parent_parser.add_argument('--gmp-username', help='GMP username.')
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument(
-        'script', nargs='*',
+        'scriptname', nargs='?', metavar="SCRIPT",
         help='Preload gmp script. Example: myscript.gmp.')
+    parent_parser.add_argument(
+        'scriptargs', nargs='*', metavar="ARG",
+        help='Arguments for the script.')
 
     parser_ssh = subparsers.add_parser(
         'ssh', help='Use SSH connection for gmp service.',
@@ -233,41 +269,65 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
                                    timeout=args.timeout, username=args.ssh_user,
                                    password='')
 
-    gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
+    transform = EtreeCheckCommandTransform()
 
-    with_script = args.script and len(args.script) > 0
+    global_vars = {
+        'help': Help(),
+    }
+
+    username = None
+    password = None
+
+    if args.protocol == PROTOCOL_OSP:
+        protocol = Osp(connection, transform=transform)
+        global_vars['osp'] = protocol
+        global_vars['__name__'] = '__osp__'
+    else:
+        protocol = Gmp(connection, transform=transform)
+        global_vars['gmp'] = protocol
+        global_vars['__name__'] = '__gmp__'
+
+        if args.gmp_username:
+            (username, password) = authenticate(
+                protocol, username=args.gmp_username,
+                password=args.gmp_password)
+
+    shell_args = Arguments(
+        username=username, password=password)
+
+    global_vars['args'] = shell_args
+
+    with_script = args.scriptname and len(args.scriptname) > 0
+
+    if with_script:
+        argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+        shell_args.argv = argv
+        # for backwards compatibility we add script here
+        shell_args.script = argv
+
     no_script_no_interactive = not args.interactive and not with_script
     script_and_interactive = args.interactive and with_script
     only_interactive = not with_script and args.interactive
     only_script = not args.interactive and with_script
 
-    global_vars = get_globals_dict(gmp, args)
-
     if only_interactive or no_script_no_interactive:
         enter_interactive_mode(global_vars)
 
     if script_and_interactive or only_script:
-        script_name = args.script[0]
+        script_name = args.scriptname
         load(script_name, global_vars)
 
     if not only_script:
         enter_interactive_mode(global_vars)
 
-    gmp.disconnect()
+    protocol.disconnect()
 
-
-def get_globals_dict(gmp, args):
-    return {
-        'gmp': gmp,
-        'help': Help(),
-        'args': args,
-    }
 
 def enter_interactive_mode(global_vars):
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
-        local=dict(global_vars, **locals()))
+        local=dict(global_vars))
 
 
 def load(path, global_vars):

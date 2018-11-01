@@ -29,8 +29,6 @@ from lxml import etree as e
 
 import dateutil.parser
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -44,7 +42,7 @@ def check_args(args):
 
         Example:
             $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/send-schedules.gmp example_file.xml
+    --gmp-password=pass scripts/send-schedules.gmp targethost example_file.xml
 
         Note: In order to use this script python-dateutil must first be installed:
             $ pip install python-dateutil
@@ -118,12 +116,9 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
+    xml_doc = args.script[2]
 
-    hostname = args.hostname
-    xml_doc = args.script[1]
-
-    print('\nSending schedules from {} to {}...'.format(xml_doc, hostname))
+    print('\nSending schedules...')
 
     xml_tree = create_xml_tree(xml_doc)
     parse_send_xml_tree(gmp, xml_tree)
@@ -132,4 +127,5 @@ def main():
 
 
 
-main()
+if __name__ == '__gmp__':
+    main()

@@ -21,8 +21,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gmp.clients.helper import authenticate
-
 def check_args(args):
     len_args = len(args.script) - 1
     if len_args is not 2:
@@ -155,8 +153,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     nvt_oid = args.script[1]
     hosts = args.script[2]
 
@@ -171,4 +167,5 @@ def main():
                           scanner_id)
 
 
-main()
+if __name__ == '__gmp__':
+    main()

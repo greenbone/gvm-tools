@@ -21,7 +21,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gmp.clients.helper import authenticate
 from gmp.errors import GmpError
 
 def check_args(args):
@@ -98,11 +97,10 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     cert_bund_name = args.script[1]
 
     create_config(gmp, cert_bund_name)
 
 
-main()
+if __name__ == '__gmp__':
+    main()
