@@ -27,11 +27,13 @@ For details about the possible supported protocol versions please take a look at
 
 Exports:
   - :py:class:`gmp.protocols.gmpv7.Gmp`
+  - :py:class:`gmp.protocols.ospv1.Osp`
 
 .. _Greenbone Management Protocol:
     https://docs.greenbone.net/API/GMP/gmp.html
 """
 
 from .gmpv7 import Gmp
+from .ospv1 import Osp
 
-__all__ = ['Gmp']
+__all__ = ['Gmp', 'Osp']
