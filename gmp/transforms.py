@@ -20,7 +20,7 @@ Module for transforming responses
 """
 from lxml import etree
 
-from gmp.error import GmpError
+from gmp.errors import GmpError
 
 
 class EtreeTransform:

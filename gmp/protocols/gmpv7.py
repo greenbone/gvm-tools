@@ -23,7 +23,7 @@ import logging
 
 from lxml import etree
 
-from gmp.error import GmpError
+from gmp.errors import GmpError
 from gmp.xml import _GmpCommandFactory as GmpCommandFactory
 
 logger = logging.getLogger(__name__)
@@ -168,7 +168,8 @@ class Gmp:
         may be send to gvmd.
 
         Returns:
-            bool: True if an authenticated connection to gvmd has been established.
+            bool: True if an authenticated connection to gvmd has been
+            established.
         """
         return self._authenticated
 

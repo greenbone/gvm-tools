@@ -23,14 +23,15 @@ import logging
 import os.path
 import sys
 
-from gmp import Gmp, get_version
-from gmp.connection import (SSHConnection,
-                            TLSConnection,
-                            UnixSocketConnection,
-                            DEFAULT_UNIX_SOCKET_PATH,
-                            DEFAULT_TIMEOUT,
-                            DEFAULT_GVM_PORT)
-from gmp.transform import CheckCommandTransform
+from gmp import get_version
+from gmp.protocols.latest import Gmp
+from gmp.connections import (SSHConnection,
+                             TLSConnection,
+                             UnixSocketConnection,
+                             DEFAULT_UNIX_SOCKET_PATH,
+                             DEFAULT_TIMEOUT,
+                             DEFAULT_GVM_PORT)
+from gmp.transforms import CheckCommandTransform
 
 __version__ = get_version()
 
@@ -68,7 +69,6 @@ HELP_TEXT = """
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         prog='gvm-cli',
         description=HELP_TEXT,
@@ -124,6 +124,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                                action='store_true', default=False)
     parent_parser.add_argument('infile', nargs='?', type=open,
                                default=sys.stdin)
+
     parser_ssh = subparsers.add_parser(
         'ssh', help='Use SSH connection for gmp service.',
         parents=[parent_parser])
@@ -135,7 +136,6 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                             help='SSH Username. Default: %(default)s.')
     parser_ssh.add_argument('--ssh-password', default='gmp',
                             help='SSH Password. Default: %(default)s.')
-
 
     parser_tls = subparsers.add_parser(
         'tls', help='Use TLS secured connection for gmp service.',

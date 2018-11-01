@@ -23,14 +23,15 @@ import logging
 import os
 import sys
 
-from gmp import Gmp, get_version
-from gmp.connection import (SSHConnection,
-                            TLSConnection,
-                            UnixSocketConnection,
-                            DEFAULT_UNIX_SOCKET_PATH,
-                            DEFAULT_TIMEOUT,
-                            DEFAULT_GVM_PORT)
-from gmp.transform import EtreeCheckCommandTransform
+from gmp import get_version
+from gmp.connections import (SSHConnection,
+                             TLSConnection,
+                             UnixSocketConnection,
+                             DEFAULT_UNIX_SOCKET_PATH,
+                             DEFAULT_TIMEOUT,
+                             DEFAULT_GVM_PORT)
+from gmp.protocols.latest import Gmp
+from gmp.transforms import EtreeCheckCommandTransform
 
 
 __version__ = get_version()
@@ -41,30 +42,22 @@ HELP_TEXT = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
 
     This program is a command line tool to access services
-    via GMP(Greenbone Management Protocol) and
-    OSP(Open Scanner Protocol).
+    via Greenbone Management Protocol (GMP) and
+    Open Scanner Protocol (OSP).
+
     It is possible to start a shell like the python interactive
     mode where you could type things like "tasks = gmp.get_task".
 
     At the moment only these commands are support in the interactive shell:
 
-    gmp.get_version()
-    gmp.authenticate([username], [password])
-    gmp.get_tasks()
-    gmp.get_reports()
-    gmp.get_results()
-    gmp.get_assets()
-    gmp.get_port_lists()
-
     Example:
         gmp.authenticate('admin', 'admin')
+
         tasks = gmp.get_tasks()
 
         list = tasks.xpath('task')
 
         taskid = list[0].attrib
-
-        load('my_commands.gmp')
 
     Good introduction in working with XPath is well described here:
     https://www.w3schools.com/xml/xpath_syntax.asp
@@ -95,6 +88,9 @@ HELP_TEXT = """
 class Help(object):
     """Help class to overwrite the help function from python itself.
     """
+
+    def __call__(self):
+        return print(HELP_TEXT)
 
     def __repr__(self):
         # do pwd command

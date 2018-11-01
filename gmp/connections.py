@@ -27,7 +27,7 @@ import paramiko
 
 from lxml import etree
 
-from gmp.error import GmpError
+from gmp.errors import GmpError
 
 logger = logging.getLogger(__name__)
 

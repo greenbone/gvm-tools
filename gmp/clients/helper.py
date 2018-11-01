@@ -20,7 +20,7 @@ import getpass
 
 from lxml import etree
 
-from gmp.error import GmpError
+from gmp.errors import GmpError
 
 
 def authenticate(gmp, args):
