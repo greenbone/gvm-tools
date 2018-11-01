@@ -27,8 +27,6 @@ import time
 
 from lxml import etree as e
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -110,9 +108,8 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     gen_combined_report(gmp, args)
 
 
-main()
+if __name__ == '__gmp__':
+    main()

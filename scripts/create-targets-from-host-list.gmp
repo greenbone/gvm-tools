@@ -24,8 +24,6 @@
 import sys
 import time
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -87,8 +85,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     hostname = args.hostname
     hostfile = args.script[1]
 
@@ -98,4 +94,5 @@ def main():
     print('\n  Target(s) created!\n')
 
 
-main()
+if __name__ == '__gmp__':
+    main()

@@ -23,8 +23,6 @@
 
 import random as r
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -87,8 +85,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     host_number = int(args.script[1])
     number_targets = int(args.script[2])
 
@@ -97,4 +93,5 @@ def main():
     generate(gmp, args, number_targets, host_number)
 
 
-main()
+if __name__ == '__gmp__':
+    main()

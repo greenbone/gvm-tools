@@ -25,8 +25,6 @@ from datetime import date, timedelta
 
 from terminaltables import AsciiTable
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -106,8 +104,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     month = int(args.script[1])
     year = int(args.script[2])
     from_date = date(year, month, 1)
@@ -118,4 +114,5 @@ def main():
     print_reports(gmp, args, from_date, to_date)
 
 
-main()
+if __name__ == '__gmp__':
+    main()

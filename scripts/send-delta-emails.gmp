@@ -33,8 +33,6 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -158,8 +156,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     interval = 60  # in minutes
     task_tag = 'send_delta_alert'
     report_tag_name = 'delta_alert_sent'
@@ -207,4 +203,5 @@ def main():
     schedule.run()
 
 
-main()
+if __name__ == '__gmp__':
+    main()

@@ -21,8 +21,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. if not, see <http://www.gnu.org/licenses/>.
 
-from gmp.clients.helper import authenticate
-
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
@@ -212,8 +210,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     sender_email = args.script[1]
     recipient_email = args.script[2]
 
@@ -227,4 +223,5 @@ def main():
     print("\nScript finished\n")
 
 
-main()
+if __name__ == '__gmp__':
+    main()

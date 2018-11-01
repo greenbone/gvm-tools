@@ -29,8 +29,6 @@ from random import randrange as r, choice as c
 
 from lxml import etree as e
 
-from gmp.clients.helper import authenticate
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -645,8 +643,6 @@ def main():
 
     check_args(args)
 
-    authenticate(gmp, args)
-
     keywords = {
         'n_tasks': int(args.script[1]),
         'n_reports': int(args.script[2]),
@@ -663,4 +659,5 @@ def main():
     generate_data(gmp, **keywords)
 
 
-main()
+if __name__ == '__gmp__':
+    main()

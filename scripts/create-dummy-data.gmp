@@ -24,8 +24,6 @@
 import random
 import string
 
-from gmp.clients.helper import authenticate
-
 
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -65,11 +63,10 @@ def create_data(gmp, count):
 def main():
     # pylint: disable=undefined-variable
 
-    authenticate(gmp, args)
-
     count = 50
 
     create_data(gmp, count)
 
 
-main()
+if __name__ == '__gmp__':
+    main()
