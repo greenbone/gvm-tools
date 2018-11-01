@@ -868,6 +868,13 @@ class _GmpCommandFactory:
 
         return cmd.to_string()
 
+    def modify_asset_command(self, asset_id, comment):
+        """Generates xml string for modify asset on gvmd."""
+        cmd = XmlCommand('modify_asset')
+        cmd.set_attribute('asset_id', asset_id)
+        cmd.add_element('comment', comment)
+        return cmd.to_string()
+
     def modify_auth_command(self, group_name, auth_conf_settings):
         """Generates xml string for modify auth on gvmd."""
         if not group_name:
@@ -1200,6 +1207,13 @@ class _GmpCommandFactory:
 
         return cmd.to_string()
 
+    def modify_report_command(self, report_id, comment):
+        """Generates xml string for modify report on gvmd."""
+        cmd = XmlCommand('modify_report')
+        cmd.set_attribute('report_id', report_id)
+        cmd.add_element('comment', comment)
+        return cmd.to_string()
+
     def modify_report_format_command(self, report_format_id, kwargs):
         """Generates xml string for modify report format on gvmd."""
         if len(kwargs) < 1:
@@ -1331,6 +1345,15 @@ class _GmpCommandFactory:
         timezone = kwargs.get('timezone', '')
         if timezone:
             cmd.add_element('timezone', str(timezone))
+
+        return cmd.to_string()
+
+    def modify_setting_command(self, setting_id, name, value):
+        """Generates xml string for modify setting format on gvmd."""
+        cmd = XmlCommand('modify_setting')
+        cmd.set_attribute('setting_id', setting_id)
+        cmd.add_element('name', name)
+        cmd.add_element('value', value)
 
         return cmd.to_string()
 
@@ -1894,4 +1917,79 @@ class _GmpCommandFactory:
         """Generates xml string for help on gvmd."""
         cmd = XmlCommand('help')
         cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def move_task_command(self, task_id, slave_id):
+        """Generates xml string for move task on gvmd."""
+        cmd = XmlCommand('move_task')
+        cmd.set_attribute('task_id', task_id)
+        cmd.set_attribute('slave_id', slave_id)
+        return cmd.to_string()
+
+    def restore_command(self, entity_id):
+        """Generates xml string for restore on gvmd."""
+        cmd = XmlCommand('restore')
+        cmd.set_attribute('id', entity_id)
+        return cmd.to_string()
+
+    def resume_task_command(self, task_id):
+        """Generates xml string for resume task on gvmd."""
+        cmd = XmlCommand('resume_task')
+        cmd.set_attribute('task_id', task_id)
+        return cmd.to_string()
+
+    def start_task_command(self, task_id):
+        """Generates xml string for start task on gvmd."""
+        cmd = XmlCommand('start_task')
+        cmd.set_attribute('task_id', task_id)
+        return cmd.to_string()
+
+    def stop_task_command(self, task_id):
+        """Generates xml string for stop task on gvmd."""
+        cmd = XmlCommand('stop_task')
+        cmd.set_attribute('task_id', task_id)
+        return cmd.to_string()
+
+    def sync_cert_command(self):
+        """Generates xml string for sync cert on gvmd."""
+        cmd = XmlCommand('sync_cert')
+        return cmd.to_string()
+
+    def sync_config_command(self):
+        """Generates xml string for sync config on gvmd."""
+        cmd = XmlCommand('sync_config')
+        return cmd.to_string()
+
+    def sync_feed_command(self):
+        """Generates xml string for sync feed on gvmd."""
+        cmd = XmlCommand('sync_feed')
+        return cmd.to_string()
+
+    def sync_scap_command(self):
+        """Generates xml string for sync scap on gvmd."""
+        cmd = XmlCommand('sync_scap')
+        return cmd.to_string()
+
+    def test_alert_command(self, alert_id):
+        """Generates xml string for test alert on gvmd."""
+        cmd = XmlCommand('test_alert')
+        cmd.set_attribute('alert_id', alert_id)
+        return cmd.to_string()
+
+    def verify_agent_command(self, agent_id):
+        """Generates xml string for verify agent on gvmd."""
+        cmd = XmlCommand('verify_agent')
+        cmd.set_attribute('agent_id', agent_id)
+        return cmd.to_string()
+
+    def verify_report_format_command(self, report_format_id):
+        """Generates xml string for verify report format on gvmd."""
+        cmd = XmlCommand('verify_report_format')
+        cmd.set_attribute('report_format_id', report_format_id)
+        return cmd.to_string()
+
+    def verify_scanner_command(self, scanner_id):
+        """Generates xml string for verify scanner on gvmd."""
+        cmd = XmlCommand('verify_scanner')
+        cmd.set_attribute('scanner_id', scanner_id)
         return cmd.to_string()

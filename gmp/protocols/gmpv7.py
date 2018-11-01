@@ -29,22 +29,6 @@ logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = (7,)
 
-def arguments_to_string(kwargs):
-    """Convert arguments
-
-    Converts dictionaries into gmp arguments string
-
-    Arguments:
-        kwargs {dict} -- Arguments
-
-    Returns:
-        string -- Arguments as string
-    """
-    msg = ''
-    for key, value in kwargs.items():
-        msg += str(key) + '=\'' + str(value) + '\' '
-
-    return msg
 
 def _check_command_status(xml):
     """Check gmp response
@@ -340,7 +324,7 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def describe_auth(self):
-        cmd = self._generator.describe_command()
+        cmd = self._generator.describe_auth_command()
         return self.send_command(cmd)
 
     def empty_trashcan(self):
@@ -444,7 +428,7 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def get_system_reports(self, **kwargs):
-        cmd = self._generator.get_system_command(kwargs)
+        cmd = self._generator.get_system_reports_command(kwargs)
         return self.send_command(cmd)
 
     def get_tags(self, **kwargs):
@@ -480,8 +464,7 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def modify_asset(self, asset_id, comment):
-        cmd = '<modify_asset asset_id="%s"><comment>%s</comment>' \
-              '</modify_asset>' % (asset_id, comment)
+        cmd = self._generator.modify_asset_command(asset_id, comment)
         return self.send_command(cmd)
 
     def modify_auth(self, group_name, auth_conf_settings):
@@ -525,8 +508,7 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def modify_report(self, report_id, comment):
-        cmd = '<modify_report report_id="{0}"><comment>{1}</comment>' \
-              '</modify_report>'.format(report_id, comment)
+        cmd = self._generator.modify_report_format_command(report_id, comment)
         return self.send_command(cmd)
 
     def modify_report_format(self, report_format_id, **kwargs):
@@ -548,9 +530,7 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def modify_setting(self, setting_id, name, value):
-        cmd = '<modify_setting setting_id="{0}"><name>{1}</name>' \
-              '<value>{2}</value></modify_setting>' \
-              ''.format(setting_id, name, value)
+        cmd = self._generator.modify_setting_command(setting_id, name, value)
         return self.send_command(cmd)
 
     def modify_tag(self, tag_id, **kwargs):
@@ -570,55 +550,53 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def move_task(self, task_id, slave_id):
-        cmd = '<move_task task_id="{0}" slave_id="{1}"/>'.format(
-            task_id, slave_id)
+        cmd = self._generator.move_task_command(task_id, slave_id)
         return self.send_command(cmd)
 
     def restore(self, entity_id):
-        cmd = '<restore id="{0}"/>'.format(entity_id)
+        cmd = self._generator.restore_command(entity_id)
         return self.send_command(cmd)
 
     def resume_task(self, task_id):
-        cmd = '<resume_task task_id="{0}"/>'.format(task_id)
+        cmd = self._generator.resume_task_command(task_id)
         return self.send_command(cmd)
 
     def start_task(self, task_id):
-        cmd = '<start_task task_id="{0}"/>'.format(task_id)
+        cmd = self._generator.start_task_command(task_id)
         return self.send_command(cmd)
 
     def stop_task(self, task_id):
-        cmd = '<stop_task task_id="{0}"/>'.format(task_id)
+        cmd = self._generator.stop_task_command(task_id)
         return self.send_command(cmd)
 
     def sync_cert(self):
-        cmd = '<sync_cert/>'
+        cmd = self._generator.sync_cert_command()
         return self.send_command(cmd)
 
     def sync_config(self):
-        cmd = '<sync_config/>'
+        cmd = self._generator.sync_config_command()
         return self.send_command(cmd)
 
     def sync_feed(self):
-        cmd = '<sync_feed/>'
+        cmd = self._generator.sync_feed_command()
         return self.send_command(cmd)
 
     def sync_scap(self):
-        cmd = '<sync_scap/>'
+        cmd = self._generator.sync_scap_command()
         return self.send_command(cmd)
 
     def test_alert(self, alert_id):
-        cmd = '<test_alert alert_id="{0}"/>'.format(alert_id)
+        cmd = self._generator.test_alert_command(alert_id)
         return self.send_command(cmd)
 
     def verify_agent(self, agent_id):
-        cmd = '<verify_agent agent_id="{0}"/>'.format(agent_id)
+        cmd = self._generator.verify_agent_command(agent_id)
         return self.send_command(cmd)
 
     def verify_report_format(self, report_format_id):
-        cmd = '<verify_report_format report_format_id="{0}"/>'.format(
-            report_format_id)
+        cmd = self._generator.verify_report_format_command(report_format_id)
         return self.send_command(cmd)
 
     def verify_scanner(self, scanner_id):
-        cmd = '<verify_scanner scanner_id="{0}"/>'.format(scanner_id)
+        cmd = self._generator.verify_scanner_command(scanner_id)
         return self.send_command(cmd)
