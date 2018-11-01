@@ -24,6 +24,7 @@ import os
 import sys
 
 from gmp import get_version
+from gmp.clients.helper import authenticate
 from gmp.connections import (SSHConnection,
                              TLSConnection,
                              UnixSocketConnection,
@@ -256,6 +257,10 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         protocol = Gmp(connection, transform=transform)
         global_vars['gmp'] = protocol
         global_vars['__name__'] = '__gmp__'
+
+        if args.gmp_username:
+            authenticate(protocol, username=args.gmp_username,
+                         password=args.gmp_password)
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
