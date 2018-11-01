@@ -23,24 +23,27 @@ from lxml import etree
 from gmp.errors import GmpError
 
 
-def authenticate(gmp, args):
+def authenticate(gmp, username=None, password=None):
     """Authentication helper
 
-    Tries to get authentication username and password from args and if not
+    Tries to get authentication username and password from arguments and if not
     present asks the username and/or password from the terminal.
 
-    Attributes:
+    Arguments:
         gmp: A protocol instance
-        args: The parsed arguments
+        username (:obj:`str`, optional): Username to authenticate with. If None,
+            username will be read from terminal.
+        password (:obj:`str`, optional): Password to authenticate with. If None,
+            password will be read from the terminal.
+
+    Returns:
+        tuple: (username, password) tuple
 
     Raises:
         GmpError: Raises GmpError if authentication fails.
     """
     if gmp.is_authenticated():
         return
-
-    username = args.gmp_username
-    password = args.gmp_password
 
     # Ask for login credentials if none are given.
     if not username:
@@ -53,6 +56,7 @@ def authenticate(gmp, args):
 
     try:
         gmp.authenticate(username, password)
+        return (username, password,)
     except GmpError as e:
         print('Could not authenticate. Please check your credentials.')
         raise e
