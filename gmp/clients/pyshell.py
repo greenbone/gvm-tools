@@ -102,6 +102,30 @@ class Help(object):
         return HELP_TEXT
 
 
+class Arguments:
+
+    def __init__(self, **kwargs):
+        self._args = kwargs
+
+    def get(self, key):
+        return self._args[key]
+
+    def __getattr__(self, key):
+        return self.get(key)
+
+    def __setattr__(self, name, value):
+        if name.startswith('_'):
+            super().__setattr__(name, value)
+        else:
+            self._args[name] = value
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __repr__(self):
+        return repr(self._args)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog='gvm-pyshell',
@@ -161,8 +185,11 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parent_parser.add_argument('--gmp-username', help='GMP username.')
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument(
-        'script', nargs='*',
+        'scriptname', nargs='?', metavar="SCRIPT",
         help='Preload gmp script. Example: myscript.gmp.')
+    parent_parser.add_argument(
+        'scriptargs', nargs='*', metavar="ARG",
+        help='Arguments for the script.')
 
     parser_ssh = subparsers.add_parser(
         'ssh', help='Use SSH connection for gmp service.',
@@ -246,8 +273,10 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     global_vars = {
         'help': Help(),
-        'args': args,
     }
+
+    username = None
+    password = None
 
     if args.protocol == PROTOCOL_OSP:
         protocol = Osp(connection, transform=transform)
@@ -259,10 +288,23 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         global_vars['__name__'] = '__gmp__'
 
         if args.gmp_username:
-            authenticate(protocol, username=args.gmp_username,
-                         password=args.gmp_password)
+            (username, password) = authenticate(
+                protocol, username=args.gmp_username,
+                password=args.gmp_password)
 
-    with_script = args.script and len(args.script) > 0
+    shell_args = Arguments(
+        username=username, password=password)
+
+    global_vars['args'] = shell_args
+
+    with_script = args.scriptname and len(args.scriptname) > 0
+
+    if with_script:
+        argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+        shell_args.argv = argv
+        # for backwards compatibility we add script here
+        shell_args.script = argv
+
     no_script_no_interactive = not args.interactive and not with_script
     script_and_interactive = args.interactive and with_script
     only_interactive = not with_script and args.interactive
@@ -272,7 +314,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         enter_interactive_mode(global_vars)
 
     if script_and_interactive or only_script:
-        script_name = args.script[0]
+        script_name = args.scriptname
         load(script_name, global_vars)
 
     if not only_script:
