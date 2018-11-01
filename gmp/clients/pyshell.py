@@ -251,9 +251,11 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     if args.protocol == PROTOCOL_OSP:
         protocol = Osp(connection, transform=transform)
         global_vars['osp'] = protocol
+        global_vars['__name__'] = '__osp__'
     else:
         protocol = Gmp(connection, transform=transform)
         global_vars['gmp'] = protocol
+        global_vars['__name__'] = '__gmp__'
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
