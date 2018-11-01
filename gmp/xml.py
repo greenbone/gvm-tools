@@ -57,6 +57,15 @@ class XmlCommandElement:
     def set_attribute(self, name, value):
         self._element.set(name, value)
 
+    def set_attributes(self, attrs):
+        """Set several attributes at once.
+
+        Arguments:
+            attrs (dict): Attributes to be set on the element
+        """
+        for key, value in attrs.items():
+            self._element.set(key, value)
+
     def append_xml_str(self, xml_text):
         """Append a xml element in string format."""
         node = secET.fromstring(xml_text)
@@ -1690,4 +1699,199 @@ class _GmpCommandFactory:
         if inheritor_name:
             cmd.set_attribute('inheritor_name', inheritor_name)
 
+        return cmd.to_string()
+
+    def describe_auth_command(self):
+        """Generates xml string for describe auth on gvmd"""
+        cmd = XmlCommand('describe_auth')
+        return cmd.to_string()
+
+    def empty_trashcan_command(self):
+        """Generates xml string for empty trashcan on gvmd"""
+        cmd = XmlCommand('empty_trashcan')
+        return cmd.to_string()
+
+    def get_agents_command(self, kwargs):
+        """Generates xml string for get agents on gvmd."""
+        cmd = XmlCommand('get_agents')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_aggregates_command(self, kwargs):
+        """Generates xml string for get aggregates on gvmd."""
+        cmd = XmlCommand('get_aggregates')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_alerts_command(self, kwargs):
+        """Generates xml string for get alerts on gvmd."""
+        cmd = XmlCommand('get_alerts')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_assets_command(self, kwargs):
+        """Generates xml string for get assets on gvmd."""
+        cmd = XmlCommand('get_assets')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_credentials_command(self, kwargs):
+        """Generates xml string for get credentials on gvmd."""
+        cmd = XmlCommand('get_credentials')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_configs_command(self, kwargs):
+        """Generates xml string for get configs on gvmd."""
+        cmd = XmlCommand('get_configs')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_feeds_command(self, kwargs):
+        """Generates xml string for get feeds on gvmd."""
+        cmd = XmlCommand('get_feeds')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_filters_command(self, kwargs):
+        """Generates xml string for get filters on gvmd."""
+        cmd = XmlCommand('get_filters')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_groups_command(self, kwargs):
+        """Generates xml string for get groups on gvmd."""
+        cmd = XmlCommand('get_groups')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_info_command(self, kwargs):
+        """Generates xml string for get info on gvmd."""
+        cmd = XmlCommand('get_info')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_notes_command(self, kwargs):
+        """Generates xml string for get notes on gvmd."""
+        cmd = XmlCommand('get_notes')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_nvts_command(self, kwargs):
+        """Generates xml string for get nvts on gvmd."""
+        cmd = XmlCommand('get_nvts')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_nvt_families_command(self, kwargs):
+        """Generates xml string for get nvt on gvmd."""
+        cmd = XmlCommand('get_nvt_families')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_overrides_command(self, kwargs):
+        """Generates xml string for get overrides on gvmd."""
+        cmd = XmlCommand('get_overrides')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_permissions_command(self, kwargs):
+        """Generates xml string for get permissions on gvmd."""
+        cmd = XmlCommand('get_permissions')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_port_lists_command(self, kwargs):
+        """Generates xml string for get port on gvmd."""
+        cmd = XmlCommand('get_port_lists')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_preferences_command(self, kwargs):
+        """Generates xml string for get preferences on gvmd."""
+        cmd = XmlCommand('get_preferences')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_reports_command(self, kwargs):
+        """Generates xml string for get reports on gvmd."""
+        cmd = XmlCommand('get_reports')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_report_formats_command(self, kwargs):
+        """Generates xml string for get report on gvmd."""
+        cmd = XmlCommand('get_report_formats')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_results_command(self, kwargs):
+        """Generates xml string for get results on gvmd."""
+        cmd = XmlCommand('get_results')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_roles_command(self, kwargs):
+        """Generates xml string for get roles on gvmd."""
+        cmd = XmlCommand('get_roles')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_scanners_command(self, kwargs):
+        """Generates xml string for get scanners on gvmd."""
+        cmd = XmlCommand('get_scanners')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_schedules_command(self, kwargs):
+        """Generates xml string for get schedules on gvmd."""
+        cmd = XmlCommand('get_schedules')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_settings_command(self, kwargs):
+        """Generates xml string for get settings on gvmd."""
+        cmd = XmlCommand('get_settings')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_system_reports_command(self, kwargs):
+        """Generates xml string for get system on gvmd."""
+        cmd = XmlCommand('get_system')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_tags_command(self, kwargs):
+        """Generates xml string for get tags on gvmd."""
+        cmd = XmlCommand('get_tags')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_targets_command(self, kwargs):
+        """Generates xml string for get targets on gvmd."""
+        cmd = XmlCommand('get_targets')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_tasks_command(self, kwargs):
+        """Generates xml string for get tasks on gvmd."""
+        cmd = XmlCommand('get_tasks')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_users_command(self, kwargs):
+        """Generates xml string for get users on gvmd."""
+        cmd = XmlCommand('get_users')
+        cmd.set_attributes(kwargs)
+        return cmd.to_string()
+
+    def get_version_command(self):
+        """Generates xml string for get version on gvmd."""
+        cmd = XmlCommand('get_version')
+        return cmd.to_string()
+
+    def help_command(self, kwargs):
+        """Generates xml string for help on gvmd."""
+        cmd = XmlCommand('help')
+        cmd.set_attributes(kwargs)
         return cmd.to_string()
