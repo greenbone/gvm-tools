@@ -340,132 +340,135 @@ class Gmp(Protocol):
         return self.send_command(cmd)
 
     def describe_auth(self):
-        return self.send_command('<describe_auth/>')
+        cmd = self._generator.describe_command()
+        return self.send_command(cmd)
 
     def empty_trashcan(self):
-        return self.send_command('<empty_trashcan/>')
+        cmd = self._generator.empty_trashcan_command()
+        return self.send_command(cmd)
 
     def get_agents(self, **kwargs):
-        cmd = '<get_agents {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_agents_command(kwargs)
         return self.send_command(cmd)
 
     def get_aggregates(self, **kwargs):
-        cmd = '<get_aggregates {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_aggregates_command(kwargs)
         return self.send_command(cmd)
 
     def get_alerts(self, **kwargs):
-        cmd = '<get_alerts {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_alerts_command(kwargs)
         return self.send_command(cmd)
 
     def get_assets(self, **kwargs):
-        cmd = '<get_assets {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_assets_command(kwargs)
         return self.send_command(cmd)
 
     def get_credentials(self, **kwargs):
-        cmd = '<get_credentials {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_credentials_command(kwargs)
         return self.send_command(cmd)
 
     def get_configs(self, **kwargs):
-        cmd = '<get_configs {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_configs_command(kwargs)
         return self.send_command(cmd)
 
     def get_feeds(self, **kwargs):
-        cmd = '<get_feeds {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_feeds_command(kwargs)
         return self.send_command(cmd)
 
     def get_filters(self, **kwargs):
-        cmd = '<get_filters {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_filters_command(kwargs)
         return self.send_command(cmd)
 
     def get_groups(self, **kwargs):
-        cmd = '<get_groups {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_groups_command(kwargs)
         return self.send_command(cmd)
 
     def get_info(self, **kwargs):
-        cmd = '<get_info {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_info_command(kwargs)
         return self.send_command(cmd)
 
     def get_notes(self, **kwargs):
-        cmd = '<get_notes {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_notes_command(kwargs)
         return self.send_command(cmd)
 
     def get_nvts(self, **kwargs):
-        cmd = '<get_nvts {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_nvts_command(kwargs)
         return self.send_command(cmd)
 
     def get_nvt_families(self, **kwargs):
-        cmd = '<get_nvt_families {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_nvt_families_command(kwargs)
         return self.send_command(cmd)
 
     def get_overrides(self, **kwargs):
-        cmd = '<get_overrides {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_overrides_command(kwargs)
         return self.send_command(cmd)
 
     def get_permissions(self, **kwargs):
-        cmd = '<get_permissions {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_permissions_command(kwargs)
         return self.send_command(cmd)
 
     def get_port_lists(self, **kwargs):
-        cmd = '<get_port_lists {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_port_lists_command(kwargs)
         return self.send_command(cmd)
 
     def get_preferences(self, **kwargs):
-        cmd = '<get_preferences {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_preferences_command(kwargs)
         return self.send_command(cmd)
 
     def get_reports(self, **kwargs):
-        cmd = '<get_reports {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_reports_command(kwargs)
         return self.send_command(cmd)
 
     def get_report_formats(self, **kwargs):
-        cmd = '<get_report_formats {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_report_formats_command(kwargs)
         return self.send_command(cmd)
 
     def get_results(self, **kwargs):
-        cmd = '<get_results {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_results_command(kwargs)
         return self.send_command(cmd)
 
     def get_roles(self, **kwargs):
-        cmd = '<get_roles {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_roles_command(kwargs)
         return self.send_command(cmd)
 
     def get_scanners(self, **kwargs):
-        cmd = '<get_scanners {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_scanners_command(kwargs)
         return self.send_command(cmd)
 
     def get_schedules(self, **kwargs):
-        cmd = '<get_schedules {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_schedules_command(kwargs)
         return self.send_command(cmd)
 
     def get_settings(self, **kwargs):
-        cmd = '<get_settings {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_settings_command(kwargs)
         return self.send_command(cmd)
 
     def get_system_reports(self, **kwargs):
-        cmd = '<get_system_reports {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_system_command(kwargs)
         return self.send_command(cmd)
 
     def get_tags(self, **kwargs):
-        cmd = '<get_tags {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_tags_command(kwargs)
         return self.send_command(cmd)
 
     def get_targets(self, **kwargs):
-        cmd = '<get_targets {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_targets_command(kwargs)
         return self.send_command(cmd)
 
     def get_tasks(self, **kwargs):
-        cmd = '<get_tasks {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_tasks_command(kwargs)
         return self.send_command(cmd)
 
     def get_users(self, **kwargs):
-        cmd = '<get_users {0}/>'.format(arguments_to_string(kwargs))
+        cmd = self._generator.get_users_command(kwargs)
         return self.send_command(cmd)
 
     def get_version(self):
-        return self.send_command('<get_version/>')
+        cmd = self._generator.get_version_command()
+        return self.send_command(cmd)
 
     def help(self, **kwargs):
-        cmd = '<help {0} />'.format(arguments_to_string(kwargs))
+        cmd = self._generator.help_command(kwargs)
         return self.send_command(cmd)
 
     def modify_agent(self, agent_id, name='', comment=''):
