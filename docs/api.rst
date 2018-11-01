@@ -60,6 +60,15 @@ GMP v7
     :members:
     :inherited-members:
 
+OSP v1
+^^^^^^
+
+.. automodule:: gmp.protocols.ospv1
+
+.. autoclass:: Osp
+    :members:
+    :inherited-members:
+
 Errors
 ------
 
