@@ -58,6 +58,7 @@ GMP v7
 
 .. autoclass:: Gmp
     :members:
+    :inherited-members:
 
 Errors
 ------
