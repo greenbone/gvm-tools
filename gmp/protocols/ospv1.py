@@ -15,25 +15,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Lastest supported protocols.
-
-This module exposes the lastest supported protocols of gvm-tools.
-
-The provided Gmp class implements the lastest `Greenbone Management
-Protocol`_.
-
-For details about the possible supported protocol versions please take a look at
-:py:mod:`gmp.protocols`.
-
-Exports:
-  - :py:class:`gmp.protocols.gmpv7.Gmp`
-  - :py:class:`gmp.protocols.ospv1.Osp`
-
-.. _Greenbone Management Protocol:
-    https://docs.greenbone.net/API/GMP/gmp.html
 """
+Module for communication to a daemon speaking Open Scanner Protocol version 1
+"""
+from gmp.protocols.base import Protocol
 
-from .gmpv7 import Gmp
-from .ospv1 import Osp
+PROTOCOL_VERSION = (1, 2,)
 
-__all__ = ['Gmp', 'Osp']
+class Osp(Protocol):
+
+    @staticmethod
+    def get_protocol_version():
+        """Allow to determine the Open Scanner Protocol version.
+
+            Returns:
+                str: Implemented version of the Open Scanner Protocol
+        """
+        return '.'.join(str(x) for x in PROTOCOL_VERSION)

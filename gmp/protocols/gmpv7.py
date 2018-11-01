@@ -18,12 +18,11 @@
 """
 Module for communication with gvmd in Greenbone Management Protocol version 7
 """
-
 import logging
 
 from lxml import etree
 
-from gmp.errors import GmpError
+from gmp.protocols.base import Protocol
 from gmp.xml import _GmpCommandFactory as GmpCommandFactory
 
 logger = logging.getLogger(__name__)
@@ -75,21 +74,21 @@ def _check_command_status(xml):
         return False
 
 
-class Gmp:
+class Gmp(Protocol):
     """Python interface for Greenbone Management Protocol
 
     This class implements the `Greenbone Management Protocol version 7`_
 
     Attributes:
-        connection (:class:`gmp.connection.GmpConnection`): Connection to use to
-            talk with the gvmd daemon. See :mod:`gmp.connection` for possible
-            connection types.
+        connection (:class:`gmp.connections.GmpConnection`): Connection to use
+            to talk with the gvmd daemon. See :mod:`gmp.connections` for
+            possible connection types.
         transform (`callable`_, optional): Optional transform callable to
             convert response data. After each request the callable gets passed
             the plain response data which can be used to check the data and/or
             conversion into different representaitions like a xml dom.
 
-            See :mod:`gmp.transform` for existing transforms.
+            See :mod:`gmp.transforms` for existing transforms.
 
     .. _Greenbone Management Protocol version 7:
         https://docs.greenbone.net/API/GMP/gmp-7.0.html
@@ -98,16 +97,13 @@ class Gmp:
     """
 
     def __init__(self, connection, transform=None):
-        # GMP Message Creator
-        self._generator = GmpCommandFactory()
-        self._connection = connection
+        super().__init__(connection, transform)
 
-        self._connected = False
-
-        # Is authenticated on gvm
+        # Is authenticated on gvmd
         self._authenticated = False
 
-        self._transform_callable = transform
+        # GMP Message Creator
+        self._generator = GmpCommandFactory()
 
     @staticmethod
     def get_protocol_version():
@@ -117,49 +113,6 @@ class Gmp:
                 str: Implemented version of the Greenbone Management Protocol
         """
         return '.'.join(str(x) for x in PROTOCOL_VERSION)
-
-    def _read(self):
-        """Read a command response from gvmd
-
-        Returns:
-            str: Response from server.
-        """
-        response = self._connection.read()
-
-        logger.debug('read() %i Bytes response: %s', len(response), response)
-
-        if response is None or len(str(response)) == 0:
-            raise GmpError('Connection was closed by remote server')
-
-        return response
-
-    def _send(self, data):
-        """Send a command to gvmd
-
-        Args:
-            data (str): Data to be send over the connection to gvmd
-        """
-        self._connect()
-        self._connection.send(data)
-
-    def _connect(self):
-        if not self.is_connected():
-            self._connection.connect()
-            self._connected = True
-
-    def _transform(self, data):
-        transform = self._transform_callable
-        if transform is None:
-            return data
-        return transform(data)
-
-    def is_connected(self):
-        """Status of the current connection to gvmd
-
-        Returns:
-            bool: True if a connection to gvmd has been established.
-        """
-        return self._connected
 
     def is_authenticated(self):
         """Checks if the user is authenticated
@@ -172,35 +125,6 @@ class Gmp:
             established.
         """
         return self._authenticated
-
-    def disconnect(self):
-        """Disconnect the connection to gvmd.
-
-        Ends and closes the connection to gvmd.
-        """
-        if self.is_connected():
-            self._connection.disconnect()
-            self._connected = False
-
-    def send_command(self, cmd):
-        """Send a GMP command to gsad
-
-        If the class isn't connected to gvmd yet the connection will be
-        established automatically.
-
-        Arguments:
-            cmd (str): GMP command as string to be send over the connection to
-                gvmd.
-
-        Returns:
-            any: The actual returned type depends on the set transform.
-
-            Per default - if no transform is set explicitly - the response is
-            returned as string.
-        """
-        self._send(cmd)
-        response = self._read()
-        return self._transform(response)
 
     def authenticate(self, username, password):
         """Authenticate to gvmd.
