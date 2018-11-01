@@ -271,21 +271,14 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     if not only_script:
         enter_interactive_mode(global_vars)
 
-    gmp.disconnect()
+    protocol.disconnect()
 
-
-def get_globals_dict(gmp, args):
-    return {
-        'gmp': gmp,
-        'help': Help(),
-        'args': args,
-    }
 
 def enter_interactive_mode(global_vars):
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
-        local=dict(global_vars, **locals()))
+        local=dict(global_vars))
 
 
 def load(path, global_vars):
