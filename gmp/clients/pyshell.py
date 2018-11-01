@@ -30,13 +30,17 @@ from gmp.connections import (SSHConnection,
                              DEFAULT_UNIX_SOCKET_PATH,
                              DEFAULT_TIMEOUT,
                              DEFAULT_GVM_PORT)
-from gmp.protocols.latest import Gmp
+from gmp.protocols.latest import Gmp, Osp
 from gmp.transforms import EtreeCheckCommandTransform
 
 
 __version__ = get_version()
 
 logger = logging.getLogger(__name__)
+
+PROTOCOL_OSP = 'OSP'
+PROTOCOL_GMP = 'GMP'
+DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 HELP_TEXT = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
@@ -149,6 +153,10 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
     parent_parser.add_argument(
         '-i', '--interactive', action='store_true', default=False,
         help='Start an interactive Python shell.')
+    parent_parser.add_argument(
+        '--protocol', required=False, default=DEFAULT_PROTOCOL,
+        choices=[PROTOCOL_GMP, PROTOCOL_OSP],
+        help='Protocol to use. Default: %(default)s.')
     parent_parser.add_argument('--gmp-username', help='GMP username.')
     parent_parser.add_argument('--gmp-password', help='GMP password.')
     parent_parser.add_argument(
@@ -233,15 +241,25 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
                                    timeout=args.timeout, username=args.ssh_user,
                                    password='')
 
-    gmp = Gmp(connection, transform=EtreeCheckCommandTransform())
+    transform = EtreeCheckCommandTransform()
+
+    global_vars = {
+        'help': Help(),
+        'args': args,
+    }
+
+    if args.protocol == PROTOCOL_OSP:
+        protocol = Osp(connection, transform=transform)
+        global_vars['osp'] = protocol
+    else:
+        protocol = Gmp(connection, transform=transform)
+        global_vars['gmp'] = protocol
 
     with_script = args.script and len(args.script) > 0
     no_script_no_interactive = not args.interactive and not with_script
     script_and_interactive = args.interactive and with_script
     only_interactive = not with_script and args.interactive
     only_script = not args.interactive and with_script
-
-    global_vars = get_globals_dict(gmp, args)
 
     if only_interactive or no_script_no_interactive:
         enter_interactive_mode(global_vars)
