@@ -4,9 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-lxml = "*"
-paramiko = "*"
-defusedxml = "*"
+gvm = {editable = true, git = "https://github.com/greenbone/python-gvm"}
 
 [dev-packages]
 coverage = "*"

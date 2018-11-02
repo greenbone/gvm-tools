@@ -16,7 +16,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import gmp
+import gvmtools
 
 # -- Project information -----------------------------------------------------
 
@@ -26,9 +26,9 @@ author = 'Greenbone Networks GmbH'
 
 # The short X.Y version
 
-version = '{0}.{1}'.format(gmp.VERSION[0], gmp.VERSION[1])
+version = '{0}.{1}'.format(gvmtools.VERSION[0], gvmtools.VERSION[1])
 # The full version, including alpha/beta/rc tags
-release = gmp.get_version()
+release = gvmtools.get_version()
 
 
 # -- General configuration ---------------------------------------------------
