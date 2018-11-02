@@ -23,6 +23,7 @@ import logging
 import os
 import sys
 
+from gvm import get_version as get_gvm_version
 from gvm.connections import (SSHConnection,
                              TLSConnection,
                              UnixSocketConnection,
@@ -36,6 +37,7 @@ from gvmtools import get_version
 from gvmtools.helper import authenticate
 
 __version__ = get_version()
+__api_version__ = get_gvm_version()
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,8 @@ DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 HELP_TEXT = """
     gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
+
+    API version {apiversion}
 
     This program is a command line tool to access services
     via Greenbone Management Protocol (GMP) and
@@ -87,7 +91,7 @@ HELP_TEXT = """
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    """.format(version=__version__)
+    """.format(version=__version__, apiversion=__api_version__)
 
 
 class Help(object):
@@ -223,14 +227,15 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         parents=[parent_parser])
     parser_socket.add_argument(
         '--sockpath', nargs='?',
-        help='Depreacted. Use --socketpath instead')
+        help='Deprecated. Use --socketpath instead')
     parser_socket.add_argument(
         '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
         help='UNIX-Socket path. Default: %(default)s.')
 
     parser.add_argument(
         '-V', '--version', action='version',
-        version='%(prog)s {version}'.format(version=__version__),
+        version='%(prog)s {version}. API version {apiversion}'.format(
+            version=__version__, apiversion=__api_version__),
         help='Show program\'s version number and exit')
 
     args = parser.parse_args(remaining_args)
