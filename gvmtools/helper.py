@@ -22,6 +22,9 @@ from gvm.errors import GvmError
 from gvm.xml import pretty_print
 
 
+__all__ = ['authenticate', 'pretty_print']
+
+
 def authenticate(gmp, username=None, password=None):
     """Authentication helper
 
