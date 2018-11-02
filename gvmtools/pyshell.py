@@ -278,6 +278,8 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     global_vars = {
         'help': Help(),
+        '__version__': __version__,
+        '__api_version__': __api_version__,
     }
 
     username = None

@@ -43,6 +43,8 @@ has also been refactored and stabilized. For details please take a look at
   ```
 - The included [gmp scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
   have been cleaned up and adjusted for the new API.
+- It's possible to get the current versions of gvm-tools via `__version__` and
+  python-gvm via `__api_version__`.
 
 ## Other
 
