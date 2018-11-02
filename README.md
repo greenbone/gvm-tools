@@ -15,10 +15,9 @@ Vulnerability Manager (GVM). The tools essentially aid accessing the
 communication protocols GMP (Greenbone Management Protocol) and OSP
 (Open Scanner Protocol).
 
-This module is comprised of interactive and non-interactive clients as
-well as supporting libraries. The programming language Python is
-supported directly for interactive scripting and library use. But it is
-also possible to issue remote GMP/OSP commands without programming in
+This module is comprised of interactive and non-interactive clients.
+The programming language Python is supported directly for interactive scripting.
+But it is also possible to issue remote GMP/OSP commands without programming in
 Python.
 
 ## Table of Contents
@@ -46,11 +45,13 @@ Python 3.5 and later is supported.
 
 ### Install using pip
 
-You can install the latest stable release of gvm-tools from the Python Package Index using [pip](https://pip.pypa.io/):
+You can install the latest stable release of gvm-tools from the Python Package
+Index using [pip](https://pip.pypa.io/):
 
     pip install gvm-tools
 
-alternatively download or clone this repository and install the latest development version:
+alternatively download or clone this repository and install the latest
+development version:
 
     pip install .
 
@@ -109,8 +110,9 @@ gvm-cli socket --raw --xml "<authenticate/>"
 
 This tool has a lot more features than the simple gvm-cli client. You
 have the possibility to create your own custom scripts with commands
-from the gvm-lib and from python3 itself. The scripts can be pre-loaded
-in the program through an additional argument.
+from the [python-gvm library](https://github.com/greenbone/python-gvm) and from
+python3 itself. The scripts can be pre-loaded in the program through an
+additional argument.
 
 #### Example program use
 
@@ -120,7 +122,7 @@ Open script.gmp over TLS connection.
 gvm-pyshell tls --hostname=127.0.0.1 script.gmp
 ```
 
-Connect with given credentials and as unixsocket. Opens an interactive
+Connect with given credentials and as unix socket. Opens an interactive
 shell.
 
 ```
@@ -140,25 +142,30 @@ gvm-pyshell ssh --hostname=127.0.0.1 -i
 version = gmp.get_version()
 
 # Prints the XML in beautiful form
-pretty(version)
+from gvmtools.helper import pretty_print
+pretty_print(version)
 
 # Retrieve all tasks
 tasks = gmp.get_tasks()
 
 # Get names of tasks
 task_names = tasks.xpath('task/name/text()')
-pretty(task_names)
+pretty_print(task_names)
 ```
 
 #### More example scripts
 
-There is a growing collection of gmp-scripts in the folder "scripts/".
+There is a growing collection of gmp-scripts in the
+["scripts/"](https://github.com/greenbone/python-gvm/master/scripts) folder.
 Some of them might be exactly what you need and all of them help writing
 your own gmp scripts.
 
 ## Support
 
-For any question on the usage of gvm-tools or gmp scripts please use the [Greenbone Community Portal](https://community.greenbone.net/c/gmp). If you found a problem with the software, please [create an issue](https://github.com/greenbone/gvm-tools/issues) on GitHub.
+For any question on the usage of gvm-tools or gmp scripts please use the
+[Greenbone Community Portal](https://community.greenbone.net/c/gmp). If you
+found a problem with the software, please
+[create an issue](https://github.com/greenbone/gvm-tools/issues) on GitHub.
 
 ## Maintainer
 
@@ -166,7 +173,10 @@ This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.ne
 
 ## Contributing
 
-Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/gvm-tools/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/gvm-tools/issues).
+Your contributions are highly appreciated. Please
+[create a pull request](https://github.com/greenbone/gvm-tools/pulls) on GitHub.
+For bigger changes, please discuss it first in the
+[issues](https://github.com/greenbone/gvm-tools/issues).
 
 For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
 to keep you python packages separated in different environments. First install
