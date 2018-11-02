@@ -15,25 +15,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Lastest supported protocols.
-
-This module exposes the lastest supported protocols of gvm-tools.
-
-The provided Gmp class implements the lastest `Greenbone Management
-Protocol`_.
-
-For details about the possible supported protocol versions please take a look at
-:py:mod:`gmp.protocols`.
-
-Exports:
-  - :py:class:`gmp.protocols.gmpv7.Gmp`
-  - :py:class:`gmp.protocols.ospv1.Osp`
-
-.. _Greenbone Management Protocol:
-    https://docs.greenbone.net/API/GMP/gmp.html
+"""
+Main module of gvm-tools.
 """
 
-from .gmpv7 import Gmp
-from .ospv1 import Osp
+from gvm.utils import get_version_string
 
-__all__ = ['Gmp', 'Osp']
+
+VERSION = (2, 0, 0, 'dev', 1)
+"""
+Current Version of gvm-tools as a tuple
+"""
+
+def get_version():
+    """Returns the version of gvm-tools as a string in `PEP440`_ compliant
+    format.
+
+    Returns:
+        str: Current version of gvm-tools
+
+    .. _PEP440:
+       https://www.python.org/dev/peps/pep-0440
+    """
+    return get_version_string(VERSION)

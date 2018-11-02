@@ -24,7 +24,7 @@
 
 from setuptools import setup, find_packages
 
-version = __import__('gmp').get_version()
+version = __import__('gvmtools').get_version()
 
 with open('README.md', 'r') as f:
     long_description = f.read()
@@ -34,18 +34,23 @@ setup(
     version=version,
     author='Greenbone Networks GmbH',
     author_email='info@greenbone.net',
-    description='Library and clients to speak with GVM over GMP or OSP',
+    description='Tools to speak with GVM over GMP or OSP',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/greenbone/gvm-tools',
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'gvm-pyshell=gmp.clients.pyshell:main',
-            'gvm-cli=gmp.clients.cli:main',
+            'gvm-pyshell=gvmtools.pyshell:main',
+            'gvm-cli=gvmtools.cli:main',
         ],
     },
-    install_requires=['paramiko', 'lxml', 'defusedxml'],
+    install_requires=[
+        'gvm',
+    ],
+    dependency_links=[
+        'git+https://github.com/greenbone/python-gvm#egg=gvm',
+    ],
     python_requires='>=3',
     classifiers=[
         # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers

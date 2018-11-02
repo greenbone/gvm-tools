@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "da09bad461ecb4f3ce0c17acebe37aa93769edff9385b8c7a73068759d2fedad"
+            "sha256": "60a65ca4bcaa55574c3c39fae7b4b6bb96a8925085f7316eead7add2721eaca7"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -126,8 +126,12 @@
                 "sha256:24d7f2f94f7f3cb6061acb215685e5125fbcdc40a857eff9de22518820b0a4f4",
                 "sha256:702a91ade2968a82beb0db1e0766a6a273f33d4616a6ce8cde475d8e09853b20"
             ],
-            "index": "pypi",
             "version": "==0.5.0"
+        },
+        "gvm": {
+            "editable": true,
+            "git": "https://github.com/greenbone/python-gvm",
+            "ref": "d3f7a5fc565d1ac83f451ddb9f2154572c0e0a8f"
         },
         "idna": {
             "hashes": [
@@ -169,7 +173,6 @@
                 "sha256:edd9c13a97f6550f9da2236126bb51c092b3b1ce6187f2bd966533ad794bbb5e",
                 "sha256:fa39ea60d527fbdd94215b5e5552f1c6a912624521093f1384a491a8ad89ad8b"
             ],
-            "index": "pypi",
             "version": "==4.2.5"
         },
         "paramiko": {
@@ -177,7 +180,6 @@
                 "sha256:3c16b2bfb4c0d810b24c40155dbfd113c0521e7e6ee593d704e84b4c658a1f3b",
                 "sha256:a8975a7df3560c9f1e2b43dc54ebd40fd00a7017392ca5445ce7df409f900fcb"
             ],
-            "index": "pypi",
             "version": "==2.4.2"
         },
         "pyasn1": {
@@ -415,17 +417,17 @@
         },
         "pyparsing": {
             "hashes": [
-                "sha256:bc6c7146b91af3f567cf6daeaec360bc07d45ffec4cf5353f4d7a208ce7ca30a",
-                "sha256:d29593d8ebe7b57d6967b62494f8c72b03ac0262b1eed63826c6f788b3606401"
+                "sha256:40856e74d4987de5d01761a22d1621ae1c7f8774585acae358aa5c5936c6c90b",
+                "sha256:f353aab21fd474459d97b709e527b5571314ee5f067441dc9f88e33eecd96592"
             ],
-            "version": "==2.2.2"
+            "version": "==2.3.0"
         },
         "pytz": {
             "hashes": [
-                "sha256:642253af8eae734d1509fc6ac9c1aee5e5b69d76392660889979b9870610a46b",
-                "sha256:91e3ccf2c344ffaa6defba1ce7f38f97026943f675b7703f44789768e4cb0ece"
+                "sha256:31cb35c89bd7d333cd32c5f278fca91b523b0834369e757f4c5641ea252236ca",
+                "sha256:8e0f8568c118d3077b46be7d654cc8167fa916092e28320cde048e54bfc9f1e6"
             ],
-            "version": "==2018.6"
+            "version": "==2018.7"
         },
         "requests": {
             "hashes": [
