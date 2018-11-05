@@ -133,7 +133,7 @@ def get_alert(gmp, sender_email, recipient_email, debug=False):
     # configurable alert name
     alert_name = recipient_email
 
-    # create alert if necessarry
+    # create alert if necessary
     alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
     alert_id = None
     alert = alert_object.xpath('alert')
