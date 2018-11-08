@@ -46,10 +46,10 @@ setup(
         ],
     },
     install_requires=[
-        'gvm',
+        'python-gvm',
     ],
     dependency_links=[
-        'git+https://github.com/greenbone/python-gvm#egg=gvm',
+        'git+https://github.com/greenbone/python-gvm#egg=python_gvm',
     ],
     python_requires='>=3',
     classifiers=[
