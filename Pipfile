@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-gvm = {editable = true, git = "https://github.com/greenbone/python-gvm"}
+python-gvm = {editable = true, git = "https://github.com/greenbone/python-gvm"}
 
 [dev-packages]
 coverage = "*"
