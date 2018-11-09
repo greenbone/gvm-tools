@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 def print_assets(gmp, appname):
-    res = gmp.get_reports(type='assets', filter=appname, result_hosts_only=1)
+    res = gmp.get_reports(type='assets', filter=appname)
 
     hosts = res.xpath('//host')
 
