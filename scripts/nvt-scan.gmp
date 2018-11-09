@@ -54,17 +54,17 @@ def create_config(gmp, nvt_oid):
         config_id = res.xpath('@id')[0]
 
         # Modify the config with an nvt oid
-        nvt = gmp.get_nvts(nvt_oid=nvt_oid, details=1)
+        nvt = gmp.get_nvt(nvt_oid)
         family = nvt.xpath('nvt/family/text()')[0]
 
-        gmp.modify_config('nvt_selection', config_id=config_id,
-                          nvt_oid=nvt_oid, family=family)
+        gmp.modify_config(config_id, 'nvt_selection',
+                          nvt_oids=[nvt_oid], family=family)
 
         # This nvts must be present to work
         family = 'Port scanners'
         nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
-        gmp.modify_config('nvt_selection', config_id=config_id,
-                          nvt_oid=nvts, family=family)
+        gmp.modify_config(config_id, 'nvt_selection',
+                          nvt_oids=nvts, family=family)
 
     except GvmError:
         res = gmp.get_configs(filter='name=%s' % config_name)
@@ -75,7 +75,7 @@ def create_config(gmp, nvt_oid):
 
 def create_target(gmp, name):
     try:
-        res = gmp.create_target(name, True, hosts=name)
+        res = gmp.create_target(name, make_unique=True, hosts=[name])
         target_id = res.xpath('@id')[0]
     except GvmError:
         res = gmp.get_targets(filter='name=%s hosts=%s' % (name, name))

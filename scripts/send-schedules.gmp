@@ -89,23 +89,23 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         duration = schedule.find('simple_duration').text
         duration_unit = schedule.find('simple_duration').find('unit').text
-        duration = [duration, duration_unit]
-        if None in duration:
-            duration = ''
 
         period = schedule.find('simple_period').text
         period_unit = schedule.find('simple_period').find('unit').text
-        period = [period, period_unit]
-        if None in period:
-            period = ''
 
         timezone_abbrev = schedule.find('timezone_abbrev').text
 
         gmp.create_schedule(
             name=name,
-            first_time=first_time,
+            first_time_minute=f_time.minute,
+            first_time_hour=f_time.hour,
+            first_time_day_of_month=f_time.day,
+            first_time_month=f_time.month,
+            first_time_year=f_time.year,
             duration=duration,
+            duration_unit=duration_unit,
             period=period,
+            period_unit=period_unit,
             comment=comment,
             timezone=timezone_abbrev
         )

@@ -121,11 +121,13 @@ def get_target(gmp, debug=False):
         print("Portlist-id:\t" + str(portlist_id))
 
     # configurable hosts
-    hosts = "localhost"
+    hosts = ["localhost"]
 
     # integrate port list id into create_target
     res = gmp.create_target(
-        target_name, True, hosts=hosts, port_list=dict(id=portlist_id))
+        target_name, make_unique=True, hosts=hosts,
+        port_list_id=portlist_id,
+    )
     return res.xpath('@id')[0]
 
 
@@ -142,9 +144,11 @@ def get_alert(gmp, sender_email, recipient_email, debug=False):
         print("creating alert")
         gmp.create_alert(
             alert_name,
-            ["Always"],
-            ["Task run status changed", {"status": "Done"}],
-            ["Email", {
+            event="Always",
+            condition="Task run status changed",
+            condition_data={"status": "Done"},
+            method="Email",
+            method_data={
                 """Task '$n': $e
 
 After the event $e,
@@ -165,7 +169,8 @@ should not have received it.
                 "[OpenVAS-Manager] Task": "subject",
                 "c402cc3e-b531-11e1-9163-406186ea4fc5": "notice_attach_format",
                 recipient_email: "to_address"
-            }])
+            },
+        )
 
         alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
         alert = alert_object.xpath('alert')
@@ -191,7 +196,8 @@ def create_and_start_task(gmp, config_id, target_id, scanner_id, alert_id,
     task_name = "ScanDoneAlert{0}".format(len(tasks.xpath('tasks/@id')))
     task_comment = "Scan Done Alert"
     res = gmp.create_task(task_name, config_id, target_id,
-                          scanner_id, alert_id, task_comment)
+                          scanner_id, alert_ids=[alert_id],
+                          comment=task_comment)
 
     # Start the task
     task_id = res.xpath('@id')[0]

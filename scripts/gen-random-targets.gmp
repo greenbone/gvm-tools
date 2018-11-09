@@ -76,7 +76,7 @@ def generate(gmp, args, n_targets, n_ips):
         gmp.create_target(
             name=name,
             make_unique=True,
-            hosts=host_ip
+            hosts=[host_ip],
         )
 
 
