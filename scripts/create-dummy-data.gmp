@@ -48,7 +48,7 @@ def create_data(gmp, count):
 
     for _ in range(0, count):
         name = id_generator()
-        res = gmp.create_target(name, 42, hosts='127.0.0.1')
+        res = gmp.create_target(name, hosts=['127.0.0.1'])
 
         target_ids.append(res.xpath('@id')[0])
 

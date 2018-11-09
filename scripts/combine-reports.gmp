@@ -77,7 +77,7 @@ def gen_combined_report(gmp, args):
     else:
         arg_len = args.script[1:]
     for argument in arg_len:
-        current_report = gmp.get_reports(report_id="{}".format(argument))[0]
+        current_report = gmp.get_report(argument)[0]
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
 
@@ -86,7 +86,7 @@ def gen_combined_report(gmp, args):
 
 def send_report(gmp, args, report):
     if 'first_task' in args.script:
-        main_report = gmp.get_reports(report_id=args.script[1])[0]
+        main_report = gmp.get_report(args.script[1])[0]
         task_id = main_report.xpath('//task/@id')[0]
         task_name = ''
     else:

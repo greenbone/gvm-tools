@@ -64,7 +64,7 @@ def execute_send_delta_emails(sc, **kwargs):
     gmp = kwargs.get('gmp')
     task_tag = kwargs.get('task_tag')
     interval = kwargs.get('interval')
-    email_subject = kwargs.get('emai_subject')
+    email_subject = kwargs.get('email_subject')
     to_addresses = kwargs.get('to_addresses')
     from_address = kwargs.get('from_address')
     mta_address = kwargs.get('mta_address')
@@ -85,7 +85,7 @@ def execute_send_delta_emails(sc, **kwargs):
               (task.xpath('name/text()')[0], task_id))
 
         reports = gmp.get_reports(
-            report_filter='task_id={0} and status=Done '
+            filter='task_id={0} and status=Done '
                           'sort-reverse=date'.format(task_id)).xpath('report')
         print('  Found %d report(s).' % len(reports))
         if len(reports) < 2:
@@ -100,7 +100,7 @@ def execute_send_delta_emails(sc, **kwargs):
         print('  Latest finished report not send yet. Preparing delta '
               'report...')
 
-        delta_report = gmp.get_reports(
+        delta_report = gmp.get_report(
             report_id=reports[0].xpath('@id')[0],
             delta_report_id=reports[1].xpath('@id')[0],
             filter='delta_states=n',

@@ -28,31 +28,31 @@ def clean_slave(gmp):
 
     for tid in tasks.xpath('task/@id'):
         print('Removing task %s... ' % tid)
-        status_text = gmp.delete_task(tid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_task(tid, True).xpath('@status_text')[0]
         print(status_text)
 
     targets = gmp.get_targets(filter="rows=-1 not _owner=&quot;&quot;")
     for tid in targets.xpath('target/@id'):
         print('Removing target %s... ' % tid)
-        status_text = gmp.delete_target(tid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_target(tid, True).xpath('@status_text')[0]
         print(status_text)
 
     configs = gmp.get_configs(filter="rows=-1 not _owner=&quot;&quot;")
     for cid in configs.xpath('config/@id'):
         print('Removing config %s... ' % cid)
-        status_text = gmp.delete_config(cid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_config(cid, True).xpath('@status_text')[0]
         print(status_text)
 
     port_lists = gmp.get_port_lists(filter="rows=-1 not _owner=&quot;&quot;")
     for pid in port_lists.xpath('port_list/@id'):
         print('Removing port_list %s... ' % pid)
-        status_text = gmp.delete_port_list(pid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_port_list(pid, True).xpath('@status_text')[0]
         print(status_text)
 
     credentials = gmp.get_credentials(filter="rows=-1 not _owner=&quot;&quot;")
     for cid in credentials.xpath('credential/@id'):
         print('Removing credential %s... ' % cid)
-        status_text = gmp.delete_credential(cid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_credential(cid, True).xpath('@status_text')[0]
         print(status_text)
 
     print('Emptying trash... ')

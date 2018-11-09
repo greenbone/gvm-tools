@@ -133,7 +133,7 @@ def generate_data(gmp, **kwargs):
 
         reports = generate_reports(**kwargs)
 
-        gmp.create_report(
+        gmp.import_report(
             reports[0],
             task_name=task_name
         )
@@ -144,7 +144,7 @@ def generate_data(gmp, **kwargs):
         task_ids.append(task_id)
 
         for report in reports[1:]:
-            gmp.create_report(report, task_id=task_id)
+            gmp.import_report(report, task_id=task_id)
 
 
 TEMPLATE = {'results': [

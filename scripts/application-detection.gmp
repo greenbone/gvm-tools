@@ -22,19 +22,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 def print_assets(gmp, appname):
-    res = gmp.get_reports(type='assets', filter=appname, result_hosts_only=1)
+    res = gmp.get_reports()
 
     hosts = res.xpath('//host')
 
     for host in hosts:
-        ip = host.xpath('ip/text()')[0]
+        ip = host.xpath('ip/text()')
         hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
         if len(hostname) is 0:
             hostname = ""
         else:
             hostname = hostname[0]
 
-        print('{ip} ({hostname})'.format(ip=hostname, hostname=ip))
+        print('{ip} ({hostname})'.format(ip=ip, hostname=hostname))
         apps = host.xpath('detail/name[text() = "App"]/../value['
                           'contains(text(), "{0}")]/text()'.format(appname))
         for app in apps:
