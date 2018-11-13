@@ -48,9 +48,6 @@ setup(
     install_requires=[
         'python-gvm',
     ],
-    dependency_links=[
-        'git+https://github.com/greenbone/python-gvm#egg=python_gvm',
-    ],
     python_requires='>=3',
     classifiers=[
         # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
