@@ -7,7 +7,7 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 
-# gvm-tools 2.0.0 (unreleased)
+# gvm-tools 2.0.0.beta1 (13.11.2018)
 
 gvm-tools got split into the command line interfaces (*gvm-cli* and
 *gvm-pyshell*) including the [gmp (example) scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
