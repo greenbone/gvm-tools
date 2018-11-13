@@ -22,7 +22,7 @@ Main module of gvm-tools.
 from gvm.utils import get_version_string
 
 
-VERSION = (2, 0, 0, 'dev', 1)
+VERSION = (2, 0, 0, 'beta', 1)
 """
 Current Version of gvm-tools as a tuple
 """
