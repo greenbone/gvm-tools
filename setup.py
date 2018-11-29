@@ -34,7 +34,7 @@ setup(
     version=version,
     author='Greenbone Networks GmbH',
     author_email='info@greenbone.net',
-    description='Tools to speak with GVM over GMP or OSP',
+    description='Tools to control a GSM/GVM over GMP or OSP',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/greenbone/gvm-tools',
