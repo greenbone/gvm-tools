@@ -28,7 +28,7 @@ from gvm.errors import GvmError
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 2:
+    if len_args != 2:
         message = """
         This script creates a new task with specific host and nvt!
         It needs two parameters after the script name.

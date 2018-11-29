@@ -32,7 +32,7 @@ from lxml import etree as e
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not (4 and 5):
+    if len_args != 4 and len_args != 5:
         message = """
         This script generates randomized report data.
 

@@ -25,7 +25,7 @@ def check_args(args):
     len_args = len(args.script) - 1
     message = """
     """
-    if len_args is not 2:
+    if len_args != 2:
         print(message)
         quit()
 
