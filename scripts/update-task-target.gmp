@@ -28,7 +28,7 @@ import time
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 2:
+    if len_args != 2:
         message = """
         This script will update target hosts information for a desired task.
         Two parameters after the script name is required.
@@ -78,11 +78,11 @@ def copy_send_target(gmp, hosts, old_target_id):
         time.strftime("%Y/%m/%d-%H:%M:%S"))
 
     reverse_lookup_only = old_target.find('reverse_lookup_only').text
-    if reverse_lookup_only is '0':
+    if reverse_lookup_only == '0':
         reverse_lookup_only = ''
 
     reverse_lookup_unify = old_target.find('reverse_lookup_unify').text
-    if reverse_lookup_unify is '0':
+    if reverse_lookup_unify == '0':
         reverse_lookup_unify = ''
 
     port_list = {}

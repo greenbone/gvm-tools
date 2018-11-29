@@ -123,11 +123,11 @@ def parse_send_xml_tree(gmp, xml_tree):
             keywords['alive_tests'] = alive_tests
 
         reverse_lookup_only = target.find('reverse_lookup_only').text
-        if reverse_lookup_only is '1':
+        if reverse_lookup_only == '1':
             keywords['reverse_lookup_only'] = 1
 
         reverse_lookup_unify = target.find('reverse_lookup_unify').text
-        if reverse_lookup_unify is '1':
+        if reverse_lookup_unify == '1':
             keywords['reverse_lookup_unify'] = 1
 
         port_range = target.find('port_range').text
