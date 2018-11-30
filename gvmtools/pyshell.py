@@ -234,7 +234,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     parser.add_argument(
         '-V', '--version', action='version',
-        version='%(prog)s {version}. API version {apiversion}'.format(
+        version='%(prog)s {version} (API version {apiversion})'.format(
             version=__version__, apiversion=__api_version__),
         help='Show program\'s version number and exit')
 
