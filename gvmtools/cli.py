@@ -132,7 +132,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                                default=sys.stdin)
 
     parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH connection for gmp service.',
+        'ssh', help='Use SSH connection for GMP service.',
         parents=[parent_parser])
     parser_ssh.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
@@ -144,7 +144,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                             help='SSH Password. Default: %(default)s.')
 
     parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection for gmp service.',
+        'tls', help='Use TLS secured connection for GMP service.',
         parents=[parent_parser])
     parser_tls.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
@@ -159,7 +159,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
                             help='Path to CA certificate file.')
 
     parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX-Socket connection for gmp service.',
+        'socket', help='Use UNIX-Socket connection for GMP service.',
         parents=[parent_parser])
     parser_socket.add_argument(
         '--sockpath', nargs='?', default=None,
