@@ -170,7 +170,7 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     parser.add_argument(
         '-V', '--version', action='version',
-        version='%(prog)s {version}. API version {apiversion}'.format(
+        version='%(prog)s {version} (API version {apiversion})'.format(
             version=__version__, apiversion=__api__version__),
         help='Show program\'s version number and exit')
 
