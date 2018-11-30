@@ -196,7 +196,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
         help='Arguments for the script.')
 
     parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH connection for gmp service.',
+        'ssh', help='Use SSH connection for GMP service.',
         parents=[parent_parser])
     parser_ssh.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
@@ -206,7 +206,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
                             help='SSH Username. Default: %(default)s.')
 
     parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection for gmp service.',
+        'tls', help='Use TLS secured connection for GMP service.',
         parents=[parent_parser])
     parser_tls.add_argument('--hostname', required=True,
                             help='Hostname or IP-Address.')
@@ -223,7 +223,7 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
                             help='Use only certificates.')
 
     parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX-Socket connection for gmp service.',
+        'socket', help='Use UNIX-Socket connection for GMP service.',
         parents=[parent_parser])
     parser_socket.add_argument(
         '--sockpath', nargs='?',
