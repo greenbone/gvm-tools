@@ -42,36 +42,19 @@ __api__version__ = get_gvm_version()
 logger = logging.getLogger(__name__)
 
 HELP_TEXT = """
-    gvm-cli {version} (C) 2017 Greenbone Networks GmbH
-
-    API version {apiversion}
-
-    This program is a command line tool to access services via
-    GMP (Greenbone Management Protocol).
+    Command line tool to access services via GMP (Greenbone Management Protocol)
 
     Examples:
+      gvm-cli socket --help
+      gvm-cli tls --help
+      gvm-cli ssh --help
 
-    gvm-cli socket --xml "<get_version/>"
-    gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
-    gvm-cli socket --gmp-username foo --gmp-password foo < myfile.xml
+      gvm-cli socket --xml "<get_version/>"
+      gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
+      gvm-cli socket --gmp-username foo --gmp-password foo < myfile.xml
 
-    Further Information about GMP see here:
-    http://docs.greenbone.net/index.html#api_documentation
-    Note: "GMP" was formerly known as "OMP".
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    """.format(version=__version__, apiversion=__api__version__)
+    The protocol specification for GMP is available at:
+      https://docs.greenbone.net/index.html#api_documentation"""
 
 
 def main():
@@ -79,10 +62,7 @@ def main():
         prog='gvm-cli',
         description=HELP_TEXT,
         formatter_class=argparse.RawTextHelpFormatter,
-        add_help=False,
-        epilog="""
-usage: gvm-cli [-h] [--version] [connection_type] ...
-   or: gvm-cli connection_type --help""")
+        add_help=False)
 
     subparsers = parser.add_subparsers(metavar='[connection_type]')
     subparsers.required = True
@@ -90,12 +70,12 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     parser.add_argument(
         '-h', '--help', action='help',
-        help='Show this help message and exit.')
+        help='Show this help message and exit')
 
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
         '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
+        help='Configuration file path, default: ~/.config/gvm-tools.conf')
     args, remaining_args = parent_parser.parse_known_args()
 
     defaults = {
@@ -117,62 +97,62 @@ usage: gvm-cli [-h] [--version] [connection_type] ...
 
     parent_parser.add_argument(
         '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
-        help='Wait <seconds> for response or if value is -1, then wait '
-             'indefinitely. Default: %(default)s.')
+        help='Response timeout in seconds, or -1 to wait '
+             'indefinitely (default: %(default)s)')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Activates logging. Default level: %(default)s.')
-    parent_parser.add_argument('--gmp-username', help='GMP username.')
-    parent_parser.add_argument('--gmp-password', help='GMP password.')
-    parent_parser.add_argument('-X', '--xml', help='The XML request to send.')
-    parent_parser.add_argument('-r', '--raw', help='Return raw XML.',
+        help='Activate logging (default level: %(default)s)')
+    parent_parser.add_argument('--gmp-username', help='GMP username')
+    parent_parser.add_argument('--gmp-password', help='GMP password')
+    parent_parser.add_argument('-X', '--xml', help='XML request to send')
+    parent_parser.add_argument('-r', '--raw', help='Return raw XML',
                                action='store_true', default=False)
     parent_parser.add_argument('infile', nargs='?', type=open,
                                default=sys.stdin)
 
     parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH connection for GMP service.',
+        'ssh', help='Use SSH to connect to GMP service',
         parents=[parent_parser])
     parser_ssh.add_argument('--hostname', required=True,
-                            help='Hostname or IP-Address.')
+                            help='Hostname or IP address')
     parser_ssh.add_argument('--port', required=False,
-                            default=22, help='Port. Default: %(default)s.')
+                            default=22, help='SSH port (default: %(default)s)')
     parser_ssh.add_argument('--ssh-user', default='gmp',
-                            help='SSH Username. Default: %(default)s.')
+                            help='SSH username (default: %(default)s)')
     parser_ssh.add_argument('--ssh-password', default='gmp',
-                            help='SSH Password. Default: %(default)s.')
+                            help='SSH password (default: %(default)s)')
 
     parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection for GMP service.',
+        'tls', help='Use TLS secured connection to connect to GMP service',
         parents=[parent_parser])
     parser_tls.add_argument('--hostname', required=True,
-                            help='Hostname or IP-Address.')
+                            help='Hostname or IP address')
     parser_tls.add_argument('--port', required=False,
                             default=DEFAULT_GVM_PORT,
-                            help='Port. Default: %(default)s.')
+                            help='GMP port (default: %(default)s)')
     parser_tls.add_argument('--certfile', required=False, default=None,
-                            help='Path to the certificate file.')
+                            help='Path to the certificate file for client authentication')
     parser_tls.add_argument('--keyfile', required=False, default=None,
-                            help='Path to key certificate file.')
+                            help='Path to key file for client authentication')
     parser_tls.add_argument('--cafile', required=False, default=None,
-                            help='Path to CA certificate file.')
+                            help='Path to CA certificate for server authentication')
 
     parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX-Socket connection for GMP service.',
+        'socket', help='Use UNIX Domain socket to connect to for GMP service',
         parents=[parent_parser])
     parser_socket.add_argument(
         '--sockpath', nargs='?', default=None,
-        help='Deprecated. Use --socketpath instead')
+        help='Deprecated, use --socketpath instead')
     parser_socket.add_argument(
         '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
-        help='UNIX-Socket path. Default: %(default)s.')
+        help='Path to UNIX Domain socket (default: %(default)s)')
 
     parser.add_argument(
         '-V', '--version', action='version',
         version='%(prog)s {version} (API version {apiversion})'.format(
             version=__version__, apiversion=__api__version__),
-        help='Show program\'s version number and exit')
+        help='Show version information and exit')
 
     args = parser.parse_args(remaining_args)
 
