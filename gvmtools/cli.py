@@ -75,7 +75,7 @@ def main():
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument(
         '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path, default: ~/.config/gvm-tools.conf')
+        help='Configuration file path (default: ~/.config/gvm-tools.conf)')
     args, remaining_args = parent_parser.parse_known_args()
 
     defaults = {
