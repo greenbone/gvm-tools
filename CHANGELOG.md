@@ -13,6 +13,8 @@ $ cd gvm-tools && git log
 
 - The commandline help for `gvm-cli` and `gvm-pyshell` has been updated and
   made more consistent.
+- Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
+  upon exiting it for the first time.
 
 # gvm-tools 2.0.0.beta1 (13.11.2018)
 

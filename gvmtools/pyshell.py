@@ -300,8 +300,8 @@ def main():
         script_name = args.scriptname
         load(script_name, global_vars)
 
-    if not only_script:
-        enter_interactive_mode(global_vars)
+        if not only_script:
+            enter_interactive_mode(global_vars)
 
     protocol.disconnect()
 
