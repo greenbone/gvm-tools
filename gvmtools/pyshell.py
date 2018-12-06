@@ -58,7 +58,7 @@ HELP_TEXT = """
         >>> print(task_names)
         ['Scan Task']
 
-    The interactive shell can be exit with:
+    The interactive shell can be exited with:
         Ctrl + D on Linux  or
         Ctrl + Z on Windows
 
