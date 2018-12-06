@@ -46,52 +46,24 @@ PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 HELP_TEXT = """
-    gvm-pyshell {version} (C) 2017 Greenbone Networks GmbH
+    Command line tool to access services via GMP (Greenbone Management
+    Protocol) and OSP (Open Scanner Protocol)
 
-    API version {apiversion}
-
-    This program is a command line tool to access services
-    via Greenbone Management Protocol (GMP) and
-    Open Scanner Protocol (OSP).
-
-    It is possible to start a shell like the python interactive
-    mode where you could type things like "tasks = gmp.get_task".
-
-    At the moment only these commands are support in the interactive shell:
+    gvm-pyshell provides an interactive shell for GMP and OSP services
+    and can be used to execute custom OSP/GMP scripts.
 
     Example:
-        gvm.authenticate('admin', 'admin')
+        >>> tasks = gmp.get_tasks()
+        >>> task_names = tasks.xpath('task/name/text()')
+        >>> print(task_names)
+        ['Scan Task']
 
-        tasks = gvm.get_tasks()
-
-        list = tasks.xpath('task')
-
-        taskid = list[0].attrib
-
-    Good introduction in working with XPath is well described here:
-    https://www.w3schools.com/xml/xpath_syntax.asp
-
-    To get out of the shell enter:
+    The interactive shell can be exited with:
         Ctrl + D on Linux  or
         Ctrl + Z on Windows
 
-    Further Information about the GMP Protocol can be found at:
-    http://docs.greenbone.net/index.html#api_documentation
-    Note: "GMP" was formerly known as "OMP".
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    """.format(version=__version__, apiversion=__api_version__)
+    The protocol specifications for GMP and OSP are available at:
+      https://docs.greenbone.net/index.html#api_documentation"""
 
 
 class Help(object):
@@ -135,23 +107,21 @@ def main():
         prog='gvm-pyshell',
         description=HELP_TEXT,
         formatter_class=argparse.RawTextHelpFormatter,
-        add_help=False,
-        epilog="""
-usage: gvm-pyshell [-h] [--version] [connection_type] ...
-   or: gvm-pyshell connection_type --help""")
+        add_help=False)
+
     subparsers = parser.add_subparsers(metavar='[connection_type]')
     subparsers.required = True
     subparsers.dest = 'connection_type'
 
     parser.add_argument(
         '-h', '--help', action='help',
-        help='Show this help message and exit.')
+        help='Show this help message and exit')
 
     parent_parser = argparse.ArgumentParser(add_help=False)
 
     parent_parser.add_argument(
         '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path. Default: ~/.config/gvm-tools.conf')
+        help='Configuration file path (default: ~/.config/gvm-tools.conf)')
     args_before, remaining_args = parent_parser.parse_known_args()
 
     defaults = {
@@ -173,70 +143,70 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
 
     parent_parser.add_argument(
         '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
-        help='Wait <seconds> for response or if value -1, then wait '
-             'continuously. Default: %(default)s')
+        help='Response timeout in seconds, or -1 to wait '
+             'indefinitely (default: %(default)s)')
     parent_parser.add_argument(
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Activates logging. Default level: INFO.')
+        help='Activate logging (default level: %(default)s)')
     parent_parser.add_argument(
         '-i', '--interactive', action='store_true', default=False,
-        help='Start an interactive Python shell.')
+        help='Start an interactive Python shell')
     parent_parser.add_argument(
         '--protocol', required=False, default=DEFAULT_PROTOCOL,
         choices=[PROTOCOL_GMP, PROTOCOL_OSP],
-        help='Protocol to use. Default: %(default)s.')
-    parent_parser.add_argument('--gmp-username', help='GMP username.')
-    parent_parser.add_argument('--gmp-password', help='GMP password.')
+        help='Service protocol to use (default: %(default)s)')
+    parent_parser.add_argument('--gmp-username', help='Username for GMP service')
+    parent_parser.add_argument('--gmp-password', help='Password for GMP service')
     parent_parser.add_argument(
         'scriptname', nargs='?', metavar="SCRIPT",
-        help='Preload gmp script. Example: myscript.gmp.')
+        help='Path to script to be preloaded (example: myscript.gmp)')
     parent_parser.add_argument(
         'scriptargs', nargs='*', metavar="ARG",
-        help='Arguments for the script.')
+        help='Arguments for preloaded script')
 
     parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH connection for GMP service.',
+        'ssh', help='Use SSH to connect to service',
         parents=[parent_parser])
     parser_ssh.add_argument('--hostname', required=True,
-                            help='Hostname or IP-Address.')
+                            help='Hostname or IP address')
     parser_ssh.add_argument('--port', required=False,
-                            default=22, help='Port. Default: %(default)s.')
+                            default=22, help='SSH port (default: %(default)s)')
     parser_ssh.add_argument('--ssh-user', default='gmp',
-                            help='SSH Username. Default: %(default)s.')
+                            help='SSH username (default: %(default)s)')
 
     parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection for GMP service.',
+        'tls', help='Use TLS secured connection to connect to service',
         parents=[parent_parser])
     parser_tls.add_argument('--hostname', required=True,
-                            help='Hostname or IP-Address.')
+                            help='Hostname or IP address')
     parser_tls.add_argument('--port', required=False,
                             default=DEFAULT_GVM_PORT,
-                            help='Port. Default: %(default)s.')
+                            help='GMP/OSP port (default: %(default)s)')
     parser_tls.add_argument('--certfile', required=False, default=None,
-                            help='Path to the client certificate file.')
+                            help='Path to the certificate file for client authentication')
     parser_tls.add_argument('--keyfile', required=False, default=None,
-                            help='Path to key certificate file.')
+                            help='Path to key file for client authentication')
     parser_tls.add_argument('--cafile', required=False, default=None,
-                            help='Path to CA certificate file.')
+                            help='Path to CA certificate for server authentication')
     parser_tls.add_argument('--no-credentials', required=False, default=False,
-                            help='Use only certificates.')
+                            help='Use only certificates for authentication')
 
     parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX-Socket connection for GMP service.',
+        'socket', help='Use UNIX Domain socket to connect to service',
         parents=[parent_parser])
     parser_socket.add_argument(
-        '--sockpath', nargs='?',
-        help='Deprecated. Use --socketpath instead')
+        '--sockpath', nargs='?', default=None,
+        help='Deprecated, use --socketpath instead')
     parser_socket.add_argument(
         '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
-        help='UNIX-Socket path. Default: %(default)s.')
+        help='Path to UNIX Domain socket (default: %(default)s)')
 
     parser.add_argument(
         '-V', '--version', action='version',
         version='%(prog)s {version} (API version {apiversion})'.format(
             version=__version__, apiversion=__api_version__),
-        help='Show program\'s version number and exit')
+        help='Show version information and exit')
 
     args = parser.parse_args(remaining_args)
 
@@ -258,8 +228,10 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
             print('The --sockpath parameter has been deprecated. Please use '
                   '--socketpath instead', file=sys.stderr)
 
-        connection = UnixSocketConnection(path=socketpath,
-                                          timeout=args.timeout)
+        connection = UnixSocketConnection(
+            timeout=args.timeout,
+            path=socketpath
+        )
     elif 'tls' in args.connection_type:
         connection = TLSConnection(
             timeout=args.timeout,
@@ -270,9 +242,13 @@ usage: gvm-pyshell [-h] [--version] [connection_type] ...
             cafile=args.cafile,
         )
     else:
-        connection = SSHConnection(hostname=args.hostname, port=args.port,
-                                   timeout=args.timeout, username=args.ssh_user,
-                                   password='')
+        connection = SSHConnection(
+            timeout=args.timeout,
+            hostname=args.hostname,
+            port=args.port,
+            username=args.ssh_user,
+            password=''
+        )
 
     transform = EtreeCheckCommandTransform()
 
