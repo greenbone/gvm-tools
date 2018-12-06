@@ -42,7 +42,7 @@ __api__version__ = get_gvm_version()
 logger = logging.getLogger(__name__)
 
 HELP_TEXT = """
-    Command line tool to access services via GMP (Greenbone Management Protocol)
+    Command line tool to access services via GMP (Greenbone Management Protocol) and OSP (Open Scanner Protocol)
 
     Examples:
       gvm-cli socket --help
@@ -53,7 +53,7 @@ HELP_TEXT = """
       gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
       gvm-cli socket --gmp-username foo --gmp-password foo < myfile.xml
 
-    The protocol specification for GMP is available at:
+    The protocol specifications for GMP and OSP are available at:
       https://docs.greenbone.net/index.html#api_documentation"""
 
 
@@ -103,8 +103,8 @@ def main():
         '--log', nargs='?', dest='loglevel', const='INFO',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
         help='Activate logging (default level: %(default)s)')
-    parent_parser.add_argument('--gmp-username', help='GMP username')
-    parent_parser.add_argument('--gmp-password', help='GMP password')
+    parent_parser.add_argument('--gmp-username', help='Username for GMP service')
+    parent_parser.add_argument('--gmp-password', help='Password for GMP service')
     parent_parser.add_argument('-X', '--xml', help='XML request to send')
     parent_parser.add_argument('-r', '--raw', help='Return raw XML',
                                action='store_true', default=False)
@@ -112,7 +112,7 @@ def main():
                                default=sys.stdin)
 
     parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH to connect to GMP service',
+        'ssh', help='Use SSH to connect to service',
         parents=[parent_parser])
     parser_ssh.add_argument('--hostname', required=True,
                             help='Hostname or IP address')
@@ -124,13 +124,13 @@ def main():
                             help='SSH password (default: %(default)s)')
 
     parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection to connect to GMP service',
+        'tls', help='Use TLS secured connection to connect to service',
         parents=[parent_parser])
     parser_tls.add_argument('--hostname', required=True,
                             help='Hostname or IP address')
     parser_tls.add_argument('--port', required=False,
                             default=DEFAULT_GVM_PORT,
-                            help='GMP port (default: %(default)s)')
+                            help='GMP/OSP port (default: %(default)s)')
     parser_tls.add_argument('--certfile', required=False, default=None,
                             help='Path to the certificate file for client authentication')
     parser_tls.add_argument('--keyfile', required=False, default=None,
@@ -139,7 +139,7 @@ def main():
                             help='Path to CA certificate for server authentication')
 
     parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX Domain socket to connect to for GMP service',
+        'socket', help='Use UNIX Domain socket to connect to service',
         parents=[parent_parser])
     parser_socket.add_argument(
         '--sockpath', nargs='?', default=None,
