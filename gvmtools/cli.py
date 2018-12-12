@@ -16,28 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import configparser
 import getpass
 import logging
-import os.path
 import sys
 
-from gvm import get_version as get_gvm_version
 from gvm.protocols.latest import Gmp
 from gvm.connections import (SSHConnection,
                              TLSConnection,
-                             UnixSocketConnection,
-                             DEFAULT_UNIX_SOCKET_PATH,
-                             DEFAULT_TIMEOUT,
-                             DEFAULT_GVM_PORT)
+                             UnixSocketConnection)
 from gvm.transforms import CheckCommandTransform
 
-from gvmtools import get_version
+from gvmtools.parser import create_parser
 
-
-__version__ = get_version()
-__api__version__ = get_gvm_version()
 
 logger = logging.getLogger(__name__)
 
@@ -58,103 +48,14 @@ HELP_TEXT = """
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        prog='gvm-cli',
-        description=HELP_TEXT,
-        formatter_class=argparse.RawTextHelpFormatter,
-        add_help=False)
+    parser = create_parser(HELP_TEXT)
 
-    subparsers = parser.add_subparsers(metavar='[connection_type]')
-    subparsers.required = True
-    subparsers.dest = 'connection_type'
+    parser.add_argument('-X', '--xml', help='XML request to send')
+    parser.add_argument('-r', '--raw', help='Return raw XML',
+                        action='store_true', default=False)
+    parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
 
-    parser.add_argument(
-        '-h', '--help', action='help',
-        help='Show this help message and exit')
-
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument(
-        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path (default: ~/.config/gvm-tools.conf)')
-    args, remaining_args = parent_parser.parse_known_args()
-
-    defaults = {
-        'gmp_username': '',
-        'gmp_password': ''
-    }
-
-    # Retrieve data from config file
-    if args.config:
-        try:
-            config = configparser.SafeConfigParser()
-            path = os.path.expanduser(args.config)
-            config.read(path)
-            defaults = dict(config.items('Auth'))
-        except Exception as e: # pylint: disable=broad-except
-            print(str(e))
-
-    parent_parser.set_defaults(**defaults)
-
-    parent_parser.add_argument(
-        '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
-        help='Response timeout in seconds, or -1 to wait '
-             'indefinitely (default: %(default)s)')
-    parent_parser.add_argument(
-        '--log', nargs='?', dest='loglevel', const='INFO',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Activate logging (default level: %(default)s)')
-    parent_parser.add_argument('--gmp-username', help='Username for GMP service')
-    parent_parser.add_argument('--gmp-password', help='Password for GMP service')
-    parent_parser.add_argument('-X', '--xml', help='XML request to send')
-    parent_parser.add_argument('-r', '--raw', help='Return raw XML',
-                               action='store_true', default=False)
-    parent_parser.add_argument('infile', nargs='?', type=open,
-                               default=sys.stdin)
-
-    parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH to connect to service',
-        parents=[parent_parser])
-    parser_ssh.add_argument('--hostname', required=True,
-                            help='Hostname or IP address')
-    parser_ssh.add_argument('--port', required=False,
-                            default=22, help='SSH port (default: %(default)s)')
-    parser_ssh.add_argument('--ssh-user', default='gmp',
-                            help='SSH username (default: %(default)s)')
-    parser_ssh.add_argument('--ssh-password', default='gmp',
-                            help='SSH password (default: %(default)s)')
-
-    parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection to connect to service',
-        parents=[parent_parser])
-    parser_tls.add_argument('--hostname', required=True,
-                            help='Hostname or IP address')
-    parser_tls.add_argument('--port', required=False,
-                            default=DEFAULT_GVM_PORT,
-                            help='GMP/OSP port (default: %(default)s)')
-    parser_tls.add_argument('--certfile', required=False, default=None,
-                            help='Path to the certificate file for client authentication')
-    parser_tls.add_argument('--keyfile', required=False, default=None,
-                            help='Path to key file for client authentication')
-    parser_tls.add_argument('--cafile', required=False, default=None,
-                            help='Path to CA certificate for server authentication')
-
-    parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX Domain socket to connect to service',
-        parents=[parent_parser])
-    parser_socket.add_argument(
-        '--sockpath', nargs='?', default=None,
-        help='Deprecated, use --socketpath instead')
-    parser_socket.add_argument(
-        '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
-        help='Path to UNIX Domain socket (default: %(default)s)')
-
-    parser.add_argument(
-        '-V', '--version', action='version',
-        version='%(prog)s {version} (API version {apiversion})'.format(
-            version=__version__, apiversion=__api__version__),
-        help='Show version information and exit')
-
-    args = parser.parse_args(remaining_args)
+    args = parser.parse_args()
 
     # Sets the logging
     if args.loglevel is not None:

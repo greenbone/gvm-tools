@@ -16,9 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import code
-import configparser
 import logging
 import os
 import sys
@@ -26,15 +24,13 @@ import sys
 from gvm import get_version as get_gvm_version
 from gvm.connections import (SSHConnection,
                              TLSConnection,
-                             UnixSocketConnection,
-                             DEFAULT_UNIX_SOCKET_PATH,
-                             DEFAULT_TIMEOUT,
-                             DEFAULT_GVM_PORT)
+                             UnixSocketConnection)
 from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
 from gvmtools.helper import authenticate
+from gvmtools.parser import create_parser
 
 __version__ = get_version()
 __api_version__ = get_gvm_version()
@@ -103,112 +99,24 @@ class Arguments:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        prog='gvm-pyshell',
-        description=HELP_TEXT,
-        formatter_class=argparse.RawTextHelpFormatter,
-        add_help=False)
-
-    subparsers = parser.add_subparsers(metavar='[connection_type]')
-    subparsers.required = True
-    subparsers.dest = 'connection_type'
+    parser = create_parser(HELP_TEXT)
 
     parser.add_argument(
-        '-h', '--help', action='help',
-        help='Show this help message and exit')
-
-    parent_parser = argparse.ArgumentParser(add_help=False)
-
-    parent_parser.add_argument(
-        '-c', '--config', nargs='?', const='~/.config/gvm-tools.conf',
-        help='Configuration file path (default: ~/.config/gvm-tools.conf)')
-    args_before, remaining_args = parent_parser.parse_known_args()
-
-    defaults = {
-        'gmp_username': '',
-        'gmp_password': ''
-    }
-
-    # Retrieve data from config file
-    if args_before.config:
-        try:
-            config = configparser.SafeConfigParser()
-            path = os.path.expanduser(args_before.config)
-            config.read(path)
-            defaults = dict(config.items('Auth'))
-        except Exception as e: # pylint: disable=broad-except
-            print(str(e), file=sys.stderr)
-
-    parent_parser.set_defaults(**defaults)
-
-    parent_parser.add_argument(
-        '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
-        help='Response timeout in seconds, or -1 to wait '
-             'indefinitely (default: %(default)s)')
-    parent_parser.add_argument(
-        '--log', nargs='?', dest='loglevel', const='INFO',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Activate logging (default level: %(default)s)')
-    parent_parser.add_argument(
-        '-i', '--interactive', action='store_true', default=False,
-        help='Start an interactive Python shell')
-    parent_parser.add_argument(
         '--protocol', required=False, default=DEFAULT_PROTOCOL,
         choices=[PROTOCOL_GMP, PROTOCOL_OSP],
         help='Service protocol to use (default: %(default)s)')
-    parent_parser.add_argument('--gmp-username', help='Username for GMP service')
-    parent_parser.add_argument('--gmp-password', help='Password for GMP service')
-    parent_parser.add_argument(
+    parser.add_argument(
+        '-i', '--interactive', action='store_true', default=False,
+        help='Start an interactive Python shell')
+
+    parser.add_argument(
         'scriptname', nargs='?', metavar="SCRIPT",
         help='Path to script to be preloaded (example: myscript.gmp)')
-    parent_parser.add_argument(
+    parser.add_argument(
         'scriptargs', nargs='*', metavar="ARG",
         help='Arguments for preloaded script')
 
-    parser_ssh = subparsers.add_parser(
-        'ssh', help='Use SSH to connect to service',
-        parents=[parent_parser])
-    parser_ssh.add_argument('--hostname', required=True,
-                            help='Hostname or IP address')
-    parser_ssh.add_argument('--port', required=False,
-                            default=22, help='SSH port (default: %(default)s)')
-    parser_ssh.add_argument('--ssh-user', default='gmp',
-                            help='SSH username (default: %(default)s)')
-
-    parser_tls = subparsers.add_parser(
-        'tls', help='Use TLS secured connection to connect to service',
-        parents=[parent_parser])
-    parser_tls.add_argument('--hostname', required=True,
-                            help='Hostname or IP address')
-    parser_tls.add_argument('--port', required=False,
-                            default=DEFAULT_GVM_PORT,
-                            help='GMP/OSP port (default: %(default)s)')
-    parser_tls.add_argument('--certfile', required=False, default=None,
-                            help='Path to the certificate file for client authentication')
-    parser_tls.add_argument('--keyfile', required=False, default=None,
-                            help='Path to key file for client authentication')
-    parser_tls.add_argument('--cafile', required=False, default=None,
-                            help='Path to CA certificate for server authentication')
-    parser_tls.add_argument('--no-credentials', required=False, default=False,
-                            help='Use only certificates for authentication')
-
-    parser_socket = subparsers.add_parser(
-        'socket', help='Use UNIX Domain socket to connect to service',
-        parents=[parent_parser])
-    parser_socket.add_argument(
-        '--sockpath', nargs='?', default=None,
-        help='Deprecated, use --socketpath instead')
-    parser_socket.add_argument(
-        '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
-        help='Path to UNIX Domain socket (default: %(default)s)')
-
-    parser.add_argument(
-        '-V', '--version', action='version',
-        version='%(prog)s {version} (API version {apiversion})'.format(
-            version=__version__, apiversion=__api_version__),
-        help='Show version information and exit')
-
-    args = parser.parse_args(remaining_args)
+    args = parser.parse_args()
 
     # Sets the logging
     if args.loglevel is not None:
