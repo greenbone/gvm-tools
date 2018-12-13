@@ -22,24 +22,17 @@ import os
 import sys
 
 from gvm import get_version as get_gvm_version
-from gvm.connections import (SSHConnection,
-                             TLSConnection,
-                             UnixSocketConnection)
 from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
 from gvmtools.helper import authenticate
-from gvmtools.parser import create_parser
+from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
 
 __version__ = get_version()
 __api_version__ = get_gvm_version()
 
 logger = logging.getLogger(__name__)
-
-PROTOCOL_OSP = 'OSP'
-PROTOCOL_GMP = 'GMP'
-DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 HELP_TEXT = """
     Command line tool to access services via GMP (Greenbone Management
@@ -99,12 +92,11 @@ class Arguments:
 
 
 def main():
-    parser = create_parser(HELP_TEXT)
+    parser = create_parser(
+        description=HELP_TEXT, logfilename='gvm-pyshell.log')
 
-    parser.add_argument(
-        '--protocol', required=False, default=DEFAULT_PROTOCOL,
-        choices=[PROTOCOL_GMP, PROTOCOL_OSP],
-        help='Service protocol to use (default: %(default)s)')
+    parser.add_protocol_argument()
+
     parser.add_argument(
         '-i', '--interactive', action='store_true', default=False,
         help='Start an interactive Python shell')
@@ -118,45 +110,11 @@ def main():
 
     args = parser.parse_args()
 
-    # Sets the logging
-    if args.loglevel is not None:
-        level = logging.getLevelName(args.loglevel)
-        logging.basicConfig(filename='gvm-pyshell.log', level=level)
+    if 'socket' in args.connection_type and args.sockpath:
+        print('The --sockpath parameter has been deprecated. Please use '
+              '--socketpath instead', file=sys.stderr)
 
-    # If timeout value is -1, then the socket has no timeout for this session
-    if args.timeout == -1:
-        args.timeout = None
-
-    # Open the right connection. SSH at last for default
-    if 'socket' in args.connection_type:
-        socketpath = args.sockpath
-        if socketpath is None:
-            socketpath = args.socketpath
-        else:
-            print('The --sockpath parameter has been deprecated. Please use '
-                  '--socketpath instead', file=sys.stderr)
-
-        connection = UnixSocketConnection(
-            timeout=args.timeout,
-            path=socketpath
-        )
-    elif 'tls' in args.connection_type:
-        connection = TLSConnection(
-            timeout=args.timeout,
-            hostname=args.hostname,
-            port=args.port,
-            certfile=args.certfile,
-            keyfile=args.keyfile,
-            cafile=args.cafile,
-        )
-    else:
-        connection = SSHConnection(
-            timeout=args.timeout,
-            hostname=args.hostname,
-            port=args.port,
-            username=args.ssh_user,
-            password=''
-        )
+    connection = create_connection(**vars(args))
 
     transform = EtreeCheckCommandTransform()
 

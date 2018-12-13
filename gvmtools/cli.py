@@ -21,12 +21,9 @@ import logging
 import sys
 
 from gvm.protocols.latest import Gmp
-from gvm.connections import (SSHConnection,
-                             TLSConnection,
-                             UnixSocketConnection)
 from gvm.transforms import CheckCommandTransform
 
-from gvmtools.parser import create_parser
+from gvmtools.parser import create_parser, create_connection
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +45,7 @@ HELP_TEXT = """
 
 
 def main():
-    parser = create_parser(HELP_TEXT)
+    parser = create_parser(description=HELP_TEXT, logfilename='gvm-cli.log')
 
     parser.add_argument('-X', '--xml', help='XML request to send')
     parser.add_argument('-r', '--raw', help='Return raw XML',
@@ -56,11 +53,6 @@ def main():
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
 
     args = parser.parse_args()
-
-    # Sets the logging
-    if args.loglevel is not None:
-        level = logging.getLevelName(args.loglevel)
-        logging.basicConfig(filename='gvm-cli.log', level=level)
 
     # If timeout value is -1, then the socket has no timeout for this session
     if args.timeout == -1:
@@ -90,36 +82,7 @@ def main():
         args.gmp_password = getpass.getpass('Enter password for ' +
                                             args.gmp_username + ': ')
 
-    # Open the right connection. SSH at last for default
-    if 'socket' in args.connection_type:
-        socketpath = args.sockpath
-        if socketpath is None:
-            socketpath = args.socketpath
-        else:
-            print('The --sockpath parameter has been deprecated. Please use '
-                  '--socketpath instead', file=sys.stderr)
-
-        connection = UnixSocketConnection(
-            timeout=args.timeout,
-            path=socketpath
-        )
-    elif 'tls' in args.connection_type:
-        connection = TLSConnection(
-            timeout=args.timeout,
-            hostname=args.hostname,
-            port=args.port,
-            certfile=args.certfile,
-            keyfile=args.keyfile,
-            cafile=args.cafile,
-        )
-    else:
-        connection = SSHConnection(
-            timeout=args.timeout,
-            hostname=args.hostname,
-            port=args.port,
-            username=args.ssh_user,
-            password=args.ssh_password
-        )
+    connection = create_connection(**vars(args))
 
     if args.raw:
         transform = None
