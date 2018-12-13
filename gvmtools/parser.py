@@ -38,6 +38,10 @@ __api_version__ = get_gvm_version()
 
 DEFAULT_CONFIG_PATH = '~/.config/gvm-tools.conf'
 
+PROTOCOL_OSP = 'OSP'
+PROTOCOL_GMP = 'GMP'
+DEFAULT_PROTOCOL = PROTOCOL_GMP
+
 
 class CliParser:
 
@@ -179,6 +183,12 @@ class CliParser:
             help='Path to UNIX Domain socket (default: %(default)s)')
 
         parser_socket.set_defaults(**self._defaults)
+
+    def add_protocol_argument(self):
+        self.add_argument(
+            '--protocol', required=False, default=DEFAULT_PROTOCOL,
+            choices=[PROTOCOL_GMP, PROTOCOL_OSP],
+            help='Service protocol to use (default: %(default)s)')
 
 
 def create_parser(description, logfilename):
