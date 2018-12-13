@@ -63,6 +63,8 @@ class CliParser:
 
         defaults = self._get_defaults(args_before.config)
 
+        logger.debug('Loaded defaults %r', defaults)
+
         root_parser.add_argument(
             '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
             help='Response timeout in seconds, or -1 to wait '
