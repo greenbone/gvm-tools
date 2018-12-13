@@ -15,6 +15,8 @@ $ cd gvm-tools && git log
   made more consistent.
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
   upon exiting it for the first time.
+- Renamed --ssh-user switch to --ssh-username
+- Added --ssh-password switch for ssh connection
 
 # gvm-tools 2.0.0.beta1 (13.11.2018)
 
