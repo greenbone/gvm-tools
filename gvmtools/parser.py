@@ -21,6 +21,7 @@
 
 import argparse
 import configparser
+import logging
 import os
 
 from gvm import get_version as get_gvm_version
@@ -30,6 +31,7 @@ from gvm.connections import (DEFAULT_UNIX_SOCKET_PATH,
 
 from gvmtools import get_version
 
+logger = logging.getLogger(__name__)
 
 __version__ = get_version()
 __api_version__ = get_gvm_version()
@@ -39,7 +41,7 @@ DEFAULT_CONFIG_PATH = '~/.config/gvm-tools.conf'
 
 class CliParser:
 
-    def __init__(self, description):
+    def __init__(self, description, logfilename):
         root_parser = argparse.ArgumentParser(
             description=description,
             formatter_class=argparse.RawTextHelpFormatter,
@@ -48,8 +50,16 @@ class CliParser:
         root_parser.add_argument(
             '-c', '--config', nargs='?', default=DEFAULT_CONFIG_PATH,
             help='Configuration file path (default: %(default)s)')
+        root_parser.add_argument(
+            '--log', nargs='?', dest='loglevel', const='INFO',
+            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+            help='Activate logging (default level: %(default)s)')
 
         args_before, remaining_args = root_parser.parse_known_args()
+
+        if args_before.loglevel is not None:
+            level = logging.getLevelName(args_before.loglevel)
+            logging.basicConfig(filename=logfilename, level=level)
 
         defaults = self._get_defaults(args_before.config)
 
@@ -57,10 +67,6 @@ class CliParser:
             '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
             help='Response timeout in seconds, or -1 to wait '
                  'indefinitely (default: %(default)s)')
-        root_parser.add_argument(
-            '--log', nargs='?', dest='loglevel', const='INFO',
-            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-            help='Activate logging (default level: %(default)s)')
         root_parser.add_argument(
             '-i', '--interactive', action='store_true', default=False,
             help='Start an interactive Python shell')
@@ -169,5 +175,5 @@ class CliParser:
 
 
 
-def create_parser(description):
-    return CliParser(description)
+def create_parser(description, logfilename):
+    return CliParser(description, logfilename)
