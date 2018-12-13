@@ -168,10 +168,12 @@ class CliParser:
         parser_socket = self._subparsers.add_parser(
             'socket', help='Use UNIX Domain socket to connect to service',
             parents=[self._root_parser])
-        parser_socket.add_argument(
+
+        socketpath_group = parser_socket.add_mutually_exclusive_group()
+        socketpath_group.add_argument(
             '--sockpath', nargs='?', default=None,
             help='Deprecated, use --socketpath instead')
-        parser_socket.add_argument(
+        socketpath_group.add_argument(
             '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
             help='Path to UNIX Domain socket (default: %(default)s)')
 
