@@ -95,7 +95,8 @@ class CliParser:
         subparsers.required = True
         subparsers.dest = 'connection_type'
 
-        self._defaults = self._get_defaults(args_before.config)
+        self._config = self._load_config(args_before.config)
+
         self._parser = parser
         self._root_parser = root_parser
         self._subparsers = subparsers
@@ -103,7 +104,11 @@ class CliParser:
     def parse_args(self):
         self._add_subparsers()
 
-        self._parser.set_defaults(**self._defaults)
+        self._parser.set_defaults(
+            gmp_username=self._config.get('gmp', 'username', fallback=''),
+            gmp_password=self._config.get('gmp', 'password', fallback=''),
+            **self._config.defaults()
+        )
 
         args = self._parser.parse_args()
 
@@ -120,28 +125,19 @@ class CliParser:
         self._parser.add_argument(*args, **kwargs)
         self._root_parser.add_argument(*args, **kwargs)
 
-    def _get_defaults(self, configfile):
-        defaults = {
-            'gmp_username': '',
-            'gmp_password': '',
-        }
+    def _load_config(self, configfile):
+        config = configparser.ConfigParser(default_section='main')
 
-        if configfile:
-            try:
-                config = configparser.ConfigParser()
-                path = os.path.expanduser(configfile)
-                config.read(path)
-                defaults = dict(config.items('Auth'))
-            except configparser.NoSectionError:
-                pass
-            except Exception as e: # pylint: disable=broad-except
-                raise RuntimeError(
-                    'Error while parsing config file {config}. Error was '
-                    '{message}'.format(config=configfile, message=e))
+        try:
+            path = os.path.expanduser(configfile)
+            config.read(path)
+        except Exception as e: # pylint: disable=broad-except
+            raise RuntimeError(
+                'Error while parsing config file {config}. Error was '
+                '{message}'.format(config=configfile, message=e))
 
-        logger.debug('Loaded defaults %r', defaults)
-
-        return defaults
+        logger.debug('Loaded config %s', configfile)
+        return config
 
     def _add_subparsers(self):
         parser_ssh = self._subparsers.add_parser(
@@ -150,13 +146,18 @@ class CliParser:
 
         parser_ssh.add_argument('--hostname', required=True,
                                 help='Hostname or IP address')
-        parser_ssh.add_argument('--port', required=False, default=22,
+        parser_ssh.add_argument('--port', required=False,
                                 help='SSH port (default: %(default)s)')
         parser_ssh.add_argument('--ssh-username',
                                 help='SSH username (default: %(default)r)')
         parser_ssh.add_argument('--ssh-password',
                                 help='SSH password (default: %(default)r)')
-        parser_ssh.set_defaults(**self._defaults)
+
+        parser_ssh.set_defaults(
+            port=int(self._config.get('ssh', 'port', fallback=22)),
+            ssh_username=self._config.get('ssh', 'username', fallback='gmp'),
+            ssh_password=self._config.get('ssh', 'password', fallback='gmp'),
+        )
 
         parser_tls = self._subparsers.add_parser(
             'tls', help='Use TLS secured connection to connect to service',
@@ -164,21 +165,29 @@ class CliParser:
         parser_tls.add_argument('--hostname', required=True,
                                 help='Hostname or IP address')
         parser_tls.add_argument('--port', required=False,
-                                default=DEFAULT_GVM_PORT,
                                 help='GMP/OSP port (default: %(default)s)')
         parser_tls.add_argument(
-            '--certfile', required=False, default=None,
-            help='Path to the certificate file for client authentication')
+            '--certfile', required=False,
+            help='Path to the certificate file for client authentication. '
+                 '(default: %(default)s)')
         parser_tls.add_argument(
-            '--keyfile', required=False, default=None,
-            help='Path to key file for client authentication')
+            '--keyfile', required=False,
+            help='Path to key file for client authentication. '
+                 '(default: %(default)s)')
         parser_tls.add_argument(
-            '--cafile', required=False, default=None,
-            help='Path to CA certificate for server authentication')
+            '--cafile', required=False,
+            help='Path to CA certificate for server authentication. '
+                 '(default: %(default)s)')
         parser_tls.add_argument(
             '--no-credentials', required=False, default=False,
             help='Use only certificates for authentication')
-        parser_tls.set_defaults(**self._defaults)
+        parser_tls.set_defaults(
+            port=int(self._config.get(
+                'tls', 'port', fallback=DEFAULT_GVM_PORT)),
+            certfile=self._config.get('tls', 'certfile', fallback=None),
+            keyfile=self._config.get('tls', 'keyfile', fallback=None),
+            cafile=self._config.get('tls', 'cafile', fallback=None),
+        )
 
         parser_socket = self._subparsers.add_parser(
             'socket', help='Use UNIX Domain socket to connect to service',
@@ -189,10 +198,13 @@ class CliParser:
             '--sockpath', nargs='?', default=None,
             help='Deprecated, use --socketpath instead')
         socketpath_group.add_argument(
-            '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
+            '--socketpath', nargs='?',
             help='Path to UNIX Domain socket (default: %(default)s)')
 
-        parser_socket.set_defaults(**self._defaults)
+        parser_socket.set_defaults(
+            socketpath=self._config.get(
+                'unixsocket', 'socketpath', fallback=DEFAULT_UNIX_SOCKET_PATH),
+        )
 
     def add_protocol_argument(self):
         self.add_argument(
