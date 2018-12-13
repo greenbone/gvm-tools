@@ -70,9 +70,6 @@ class CliParser:
             help='Response timeout in seconds, or -1 to wait '
                  'indefinitely (default: %(default)s)')
         root_parser.add_argument(
-            '-i', '--interactive', action='store_true', default=False,
-            help='Start an interactive Python shell')
-        root_parser.add_argument(
             '--gmp-username',
             help='Username for GMP service (default: %(default)r)')
         root_parser.add_argument(
