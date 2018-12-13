@@ -44,15 +44,12 @@ class CliParser:
             description=description,
             formatter_class=argparse.RawTextHelpFormatter,
             add_help=False)
-        self._add_config_argument(root_parser)
 
-        read_config_parser = argparse.ArgumentParser(
-            description=description,
-            formatter_class=argparse.RawTextHelpFormatter,
-            add_help=False)
-        self._add_config_argument(read_config_parser)
+        root_parser.add_argument(
+            '-c', '--config', nargs='?', default=DEFAULT_CONFIG_PATH,
+            help='Configuration file path (default: %(default)s)')
 
-        args_before, remaining_args = read_config_parser.parse_known_args()
+        args_before, remaining_args = root_parser.parse_known_args()
 
         defaults = self._get_defaults(args_before.config)
 
@@ -169,11 +166,6 @@ class CliParser:
         parser_socket.add_argument(
             '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
             help='Path to UNIX Domain socket (default: %(default)s)')
-
-    def _add_config_argument(self, parser):
-        parser.add_argument(
-            '-c', '--config', nargs='?', default=DEFAULT_CONFIG_PATH,
-            help='Configuration file path (default: %(default)s)')
 
 
 
