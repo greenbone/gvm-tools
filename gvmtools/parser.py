@@ -100,7 +100,11 @@ class CliParser:
 
     def parse_args(self):
         self._add_subparsers()
-        return self._parser.parse_args(self._remaining_args)
+        args = self._parser.parse_args(self._remaining_args)
+
+        logging.debug('Parsed arguments %r', args)
+
+        return args
 
     def add_argument(self, *args, **kwargs):
         self._parser.add_argument(*args, **kwargs)
