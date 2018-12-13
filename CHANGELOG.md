@@ -9,6 +9,11 @@ $ cd gvm-tools && git log
 
 # gvm-tools 2.0.0.beta2 (unreleased)
 
+# Configfile
+
+- The structure for the config file (default is ~/.config/gvm-tools.conf) has
+  changed. It's possible to set defaults for nearly all command line arguments.
+
 ## Other
 
 - The commandline help for `gvm-cli` and `gvm-pyshell` has been updated and
