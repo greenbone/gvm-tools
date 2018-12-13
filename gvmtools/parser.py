@@ -154,6 +154,8 @@ class CliParser:
                                 help='SSH port (default: %(default)s)')
         parser_ssh.add_argument('--ssh-username',
                                 help='SSH username (default: %(default)r)')
+        parser_ssh.add_argument('--ssh-password',
+                                help='SSH password (default: %(default)r)')
         parser_ssh.set_defaults(**self._defaults)
 
         parser_tls = self._subparsers.add_parser(
