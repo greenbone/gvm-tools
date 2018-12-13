@@ -27,7 +27,10 @@ import os
 from gvm import get_version as get_gvm_version
 from gvm.connections import (DEFAULT_UNIX_SOCKET_PATH,
                              DEFAULT_TIMEOUT,
-                             DEFAULT_GVM_PORT)
+                             DEFAULT_GVM_PORT,
+                             SSHConnection,
+                             TLSConnection,
+                             UnixSocketConnection)
 
 from gvmtools import get_version
 
@@ -198,3 +201,32 @@ class CliParser:
 
 def create_parser(description, logfilename):
     return CliParser(description, logfilename)
+
+
+def create_connection(connection_type, socketpath=None, timeout=None,
+                      hostname=None, port=None, certfile=None, keyfile=None,
+                      cafile=None, ssh_username=None, ssh_password=None,
+                      **kwargs):
+    if 'socket' in connection_type:
+        return UnixSocketConnection(
+            timeout=timeout,
+            path=socketpath
+        )
+
+    if 'tls' in connection_type:
+        return TLSConnection(
+            timeout=timeout,
+            hostname=hostname,
+            port=port,
+            certfile=certfile,
+            keyfile=keyfile,
+            cafile=cafile,
+        )
+
+    return SSHConnection(
+        timeout=timeout,
+        hostname=hostname,
+        port=port,
+        username=ssh_username,
+        password=ssh_password
+    )
