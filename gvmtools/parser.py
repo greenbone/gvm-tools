@@ -128,7 +128,7 @@ class CliParser:
 
         if configfile:
             try:
-                config = configparser.SafeConfigParser()
+                config = configparser.ConfigParser()
                 path = os.path.expanduser(configfile)
                 config.read(path)
                 defaults = dict(config.items('Auth'))
