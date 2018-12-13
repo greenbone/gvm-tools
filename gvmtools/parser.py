@@ -152,8 +152,8 @@ class CliParser:
                                 help='Hostname or IP address')
         parser_ssh.add_argument('--port', required=False, default=22,
                                 help='SSH port (default: %(default)s)')
-        parser_ssh.add_argument('--ssh-user', default='gmp',
-                                help='SSH username (default: %(default)s)')
+        parser_ssh.add_argument('--ssh-username',
+                                help='SSH username (default: %(default)r)')
         parser_ssh.set_defaults(**self._defaults)
 
         parser_tls = self._subparsers.add_parser(
