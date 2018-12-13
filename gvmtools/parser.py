@@ -55,15 +55,11 @@ class CliParser:
             choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
             help='Activate logging (default level: %(default)s)')
 
-        args_before, remaining_args = root_parser.parse_known_args()
+        args_before, _ = root_parser.parse_known_args()
 
         if args_before.loglevel is not None:
             level = logging.getLevelName(args_before.loglevel)
             logging.basicConfig(filename=logfilename, level=level)
-
-        defaults = self._get_defaults(args_before.config)
-
-        logger.debug('Loaded defaults %r', defaults)
 
         root_parser.add_argument(
             '--timeout', required=False, default=DEFAULT_TIMEOUT, type=int,
@@ -82,7 +78,6 @@ class CliParser:
             help='Show version information and exit')
 
         parser = argparse.ArgumentParser(parents=[root_parser])
-        parser.set_defaults(**defaults)
 
         subparsers = parser.add_subparsers(
             metavar='CONNECTION_TYPE',
@@ -93,12 +88,16 @@ class CliParser:
         subparsers.required = True
         subparsers.dest = 'connection_type'
 
+        self._defaults = self._get_defaults(args_before.config)
         self._parser = parser
         self._root_parser = root_parser
         self._subparsers = subparsers
 
     def parse_args(self):
         self._add_subparsers()
+
+        self._parser.set_defaults(**self._defaults)
+
         args = self._parser.parse_args()
 
         logging.debug('Parsed arguments %r', args)
@@ -115,20 +114,20 @@ class CliParser:
             'gmp_password': '',
         }
 
-        if not configfile:
-            return defaults
+        if configfile:
+            try:
+                config = configparser.SafeConfigParser()
+                path = os.path.expanduser(configfile)
+                config.read(path)
+                defaults = dict(config.items('Auth'))
+            except configparser.NoSectionError:
+                pass
+            except Exception as e: # pylint: disable=broad-except
+                raise RuntimeError(
+                    'Error while parsing config file {config}. Error was '
+                    '{message}'.format(config=configfile, message=e))
 
-        try:
-            config = configparser.SafeConfigParser()
-            path = os.path.expanduser(configfile)
-            config.read(path)
-            defaults = dict(config.items('Auth'))
-        except configparser.NoSectionError:
-            pass
-        except Exception as e: # pylint: disable=broad-except
-            raise RuntimeError(
-                'Error while parsing config file {config}. Error was '
-                '{message}'.format(config=configfile, message=e))
+        logger.debug('Loaded defaults %r', defaults)
 
         return defaults
 
@@ -143,6 +142,7 @@ class CliParser:
                                 help='SSH port (default: %(default)s)')
         parser_ssh.add_argument('--ssh-user', default='gmp',
                                 help='SSH username (default: %(default)s)')
+        parser_ssh.set_defaults(**self._defaults)
 
         parser_tls = self._subparsers.add_parser(
             'tls', help='Use TLS secured connection to connect to service',
@@ -164,6 +164,7 @@ class CliParser:
         parser_tls.add_argument(
             '--no-credentials', required=False, default=False,
             help='Use only certificates for authentication')
+        parser_tls.set_defaults(**self._defaults)
 
         parser_socket = self._subparsers.add_parser(
             'socket', help='Use UNIX Domain socket to connect to service',
@@ -177,6 +178,7 @@ class CliParser:
             '--socketpath', nargs='?', default=DEFAULT_UNIX_SOCKET_PATH,
             help='Path to UNIX Domain socket (default: %(default)s)')
 
+        parser_socket.set_defaults(**self._defaults)
 
 
 def create_parser(description, logfilename):
