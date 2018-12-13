@@ -104,6 +104,11 @@ class CliParser:
 
         args = self._parser.parse_args()
 
+        # If timeout value is -1, then the socket should have no timeout
+        if args.timeout == -1:
+            args.timeout = None
+
+
         logging.debug('Parsed arguments %r', args)
 
         return args
