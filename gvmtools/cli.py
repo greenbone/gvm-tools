@@ -74,9 +74,6 @@ def main():
     if len(xml) == 0:
         xml = input()
 
-    # Remove all newlines if the commands come from file
-    xml = xml.replace('\n', '').replace('\r', '')
-
     # Ask for password if none are given
     if args.gmp_username and not args.gmp_password:
         args.gmp_password = getpass.getpass('Enter password for ' +
