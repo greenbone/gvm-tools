@@ -45,6 +45,7 @@ def check_args(args):
         print(message)
         quit()
 
+
 def error_and_exit(msg):
     sys.stderr.write("Error: {}\n".format(msg))
     sys.exit(1)
