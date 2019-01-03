@@ -119,6 +119,5 @@ def main():
     print('\n  Schedule(s) created!\n')
 
 
-
 if __name__ == '__gmp__':
     main()

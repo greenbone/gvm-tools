@@ -82,7 +82,7 @@ def execute_send_delta_emails(sc, **kwargs):
 
         reports = gmp.get_reports(
             filter='task_id={0} and status=Done '
-                          'sort-reverse=date'.format(task_id)).xpath('report')
+                   'sort-reverse=date'.format(task_id)).xpath('report')
         print('  Found %d report(s).' % len(reports))
         if len(reports) < 2:
             print('  Delta-reporting requires at least 2 finished reports.')
@@ -137,7 +137,7 @@ def execute_send_delta_emails(sc, **kwargs):
                     resource_type='report',
                     value=datetime.datetime.now()
                 )
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             print("  Unable to send the email. Error: ", sys.exc_info()[0])
             # raise # in case an error should stop the script
             continue  # ignore the problem for the time being

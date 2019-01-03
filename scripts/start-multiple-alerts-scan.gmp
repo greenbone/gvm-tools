@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
@@ -102,7 +103,7 @@ def get_target(gmp, debug=False):
     counter = 0
 
     while True:
-        portlist_name = '%s%s'%(new_port_list_name, str(counter))
+        portlist_name = '%s%s' % (new_port_list_name, str(counter))
         if portlist_name not in get_port_list_names(gmp):
             break
         counter += 1
@@ -173,7 +174,7 @@ should not have received it.
             print("alert_id: %s" % str(alert_id))
 
     # second configurable alert name
-    alert_name2 = "%s-2"%recipient_email
+    alert_name2 = "%s-2" % recipient_email
 
     # create second alert if necessary
     alert_object2 = gmp.get_alerts(filter='name=%s' % alert_name2)
@@ -223,7 +224,7 @@ should not have received it.
 def get_scanner(gmp):
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
-    return scanner_ids[1] # default scanner
+    return scanner_ids[1]  # default scanner
 
 
 def create_and_start_task(gmp, config_id, target_id, scanner_id, alerts,
