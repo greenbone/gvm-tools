@@ -21,6 +21,8 @@ import logging
 import os
 import sys
 
+from argparse import Namespace
+
 from gvm import get_version as get_gvm_version
 from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import EtreeCheckCommandTransform
@@ -65,30 +67,6 @@ class Help(object):
     def __repr__(self):
         # do pwd command
         return HELP_TEXT
-
-
-class Arguments:
-
-    def __init__(self, **kwargs):
-        self._args = kwargs
-
-    def get(self, key):
-        return self._args[key]
-
-    def __getattr__(self, key):
-        return self.get(key)
-
-    def __setattr__(self, name, value):
-        if name.startswith('_'):
-            super().__setattr__(name, value)
-        else:
-            self._args[name] = value
-
-    def __getitem__(self, key):
-        return self.get(key)
-
-    def __repr__(self):
-        return repr(self._args)
 
 
 def main():
@@ -141,7 +119,7 @@ def main():
                 protocol, username=args.gmp_username,
                 password=args.gmp_password)
 
-    shell_args = Arguments(
+    shell_args = Namespace(
         username=username, password=password)
 
     global_vars['args'] = shell_args
