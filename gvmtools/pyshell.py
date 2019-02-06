@@ -26,7 +26,7 @@ from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
-from gvmtools.helper import authenticate
+from gvmtools.helper import authenticate, run_script
 from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
 
 __version__ = get_version()
@@ -164,7 +164,7 @@ def main():
 
     if script_and_interactive or only_script:
         script_name = args.scriptname
-        load(script_name, global_vars)
+        run_script(script_name, global_vars)
 
         if not only_script:
             enter_interactive_mode(global_vars)
@@ -177,23 +177,6 @@ def enter_interactive_mode(global_vars):
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
         local=dict(global_vars))
-
-
-def load(path, global_vars):
-    """Loads a file into the interactive console
-
-    Loads a file into the interactive console and execute it.
-    TODO: Needs some security checks.
-
-    Arguments:
-        path {str} -- Path of file
-    """
-    try:
-        file = open(path, 'r', newline='').read()
-
-        exec(file, global_vars) # pylint: disable=exec-used
-    except OSError as e:
-        print(str(e))
 
 
 if __name__ == '__main__':
