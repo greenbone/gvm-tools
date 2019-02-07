@@ -22,6 +22,8 @@ $ cd gvm-tools && git log
   upon exiting it for the first time.
 - Renamed --ssh-user switch to --ssh-username
 - Added --ssh-password switch for ssh connection
+- Update `gvmtools.get_version` to return a fully compliant PEP 440 version
+  string.
 
 # gvm-tools 2.0.0.beta1 (13.11.2018)
 

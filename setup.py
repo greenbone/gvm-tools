@@ -16,8 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=invalid-name
+import os
+import sys
 
 from setuptools import setup, find_packages
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 version = __import__('gvmtools').get_version()
 
