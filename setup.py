@@ -47,7 +47,7 @@ setup(
     install_requires=[
         'python-gvm',
     ],
-    python_requires='>=3',
+    python_requires='>=3.5',
     classifiers=[
         # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',
