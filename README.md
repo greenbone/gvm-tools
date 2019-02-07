@@ -156,7 +156,7 @@ pretty_print(task_names)
 #### More example scripts
 
 There is a growing collection of gmp-scripts in the
-["scripts/"](https://github.com/greenbone/python-gvm/master/scripts) folder.
+["scripts/"](scripts/) folder.
 Some of them might be exactly what you need and all of them help writing
 your own gmp scripts.
 

@@ -1,11 +1,6 @@
-# Description:
-# setup script for packaging
+# Copyright (C) 2017-2019 Greenbone Networks GmbH
 #
-# Authors:
-# David Kleuker <david.kleuker@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=invalid-name
+import os
+import sys
 
 from setuptools import setup, find_packages
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 version = __import__('gvmtools').get_version()
 
@@ -56,7 +55,10 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],

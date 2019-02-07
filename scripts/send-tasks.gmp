@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Joshua Schwartz <joshua.schwartz@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +19,7 @@
 import sys
 
 from lxml import etree as e
+
 
 def check_args(args):
     len_args = len(args.script) - 1

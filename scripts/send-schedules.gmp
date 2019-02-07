@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Joshua Schwartz <joshua.schwartz@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# requires python-dateutil
 
 import sys
 
@@ -124,7 +117,6 @@ def main():
     parse_send_xml_tree(gmp, xml_tree)
 
     print('\n  Schedule(s) created!\n')
-
 
 
 if __name__ == '__gmp__':
