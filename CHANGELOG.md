@@ -16,21 +16,23 @@ $ cd gvm-tools && git log
 
 ## [Unreleased]
 
-# Configfile
+### Added
+- Added --ssh-password switch for ssh connection [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
 
+### Changed
+- Improved error messages if unix socket could not be found [PR 78](https://github.com/greenbone/python-gvm/pull/78)
 - The structure for the config file (default is ~/.config/gvm-tools.conf) has
-  changed. It's possible to set defaults for nearly all command line arguments.
+  changed. It's possible to set defaults for nearly all command line arguments
+  [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
+- The command line help for `gvm-cli` and `gvm-pyshell` has been updated and
+  made more consistent [PR 138](https://github.com/greenbone/gvm-tools/pull/138)
+- Renamed --ssh-user switch to --ssh-username [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
+- Update `gvmtools.get_version` to return a fully compliant [PEP 440](https://www.python.org/dev/peps/pep-0440/)
+  version string [PR 150](https://github.com/greenbone/gvm-tools/pull/150)
 
-## Other
-
-- The commandline help for `gvm-cli` and `gvm-pyshell` has been updated and
-  made more consistent.
+### Fixed
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
-  upon exiting it for the first time.
-- Renamed --ssh-user switch to --ssh-username
-- Added --ssh-password switch for ssh connection
-- Update `gvmtools.get_version` to return a fully compliant PEP 440 version
-  string.
+  upon exiting it for the first time [PR 139](https://github.com/greenbone/gvm-tools/pull/139)
 
 ## [2.0.0.beta1] - 2018-11-13
 
@@ -40,12 +42,18 @@ and the Python API. The Python API can now be found at
 [python-gvm](https://github.com/greenbone/python-gvm). During this split the
 python package name for the API got changed from **gmp** to **gvm**. The API
 has also been refactored and stabilized. For details please take a look at
-[python-gvm](https://github.com/greenbone/python-gvm).
+[python-gvm](https://github.com/greenbone/python-gvm)
+[PR 126](https://github.com/greenbone/gvm-tools/pull/126).
 
-## Scripts
+### Added
+- It's now possible to write OSP scripts. Using the `--protocol=OSP` switch
+  `gvm-pyshell` adds a global **osp** object instead of the **gmp** one.
+- Added new client helper module.
+- It's possible to get the current versions of gvm-tools via `__version__` and
+  python-gvm via `__api_version__` [PR 127](https://github.com/greenbone/gvm-tools/pull/127)
+- Use pipenv for development.
 
-- It's now possible to write OSP scripts. Using the --protocol=OSP switch
-  gvm-pyshell adds a global **osp** object instead of the **gmp** one.
+### Changed
 - The `__name__` variable is set to `__gmp__` for GMP scripts and to `__osp__`
   for OSP scripts *(Remember: for normal Python scripts `__name__` is set to
   [`__main__`](https://docs.python.org/3/library/__main__.html))*.
@@ -54,13 +62,13 @@ has also been refactored and stabilized. For details please take a look at
   the remote *gvmd* or *ospd* daemon. **args** contains the parsed arguments for
   the script.
 - The global **args** object only contains script related parameters now. These
-  username and password from the --gmp-username and --gmp-password switches and
-  the additional scripts parameters as `args.argv`.
-- GMPError got renamed to GvmError and must be imported from gvm.errors module.
+  username and password from the `--gmp-username` and `--gmp-password` switches
+  and the additional scripts parameters as `args.argv`.
+- **GMPError** got renamed to **GvmError** and must be imported from
+  `gvm.errors` module.
   ```python
   from gvm.errors import GvmError as GMPError
   ```
-- Added new client helper module.
 - pretty function isn't available as a global function in the scripts anymore.
   It must be imported separately like
   ```python
@@ -68,13 +76,9 @@ has also been refactored and stabilized. For details please take a look at
   ```
 - The included [gmp scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
   have been cleaned up and adjusted for the new API.
-- It's possible to get the current versions of gvm-tools via `__version__` and
-  python-gvm via `__api_version__`.
 
-## Other
-
-- Removed experimental gvm-dialog application.
-- Use pipenv for development.
+### Removed
+- Removed experimental `gvm-dialog` application.
 
 ## [1.4.1] - 2018-08-10
 
