@@ -32,7 +32,7 @@ $ cd gvm-tools && git log
 - Update `gvmtools.get_version` to return a fully compliant PEP 440 version
   string.
 
-# [2.0.0.beta1] - 2018-11-13
+## [2.0.0.beta1] - 2018-11-13
 
 gvm-tools got split into the command line interfaces (*gvm-cli* and
 *gvm-pyshell*) including the [gmp (example) scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
@@ -76,7 +76,7 @@ has also been refactored and stabilized. For details please take a look at
 - Removed experimental gvm-dialog application.
 - Use pipenv for development.
 
-# [1.4.1] - 2018-08-10
+## [1.4.1] - 2018-08-10
 
 This is the first maintenance release of the gvm-tools module 1.4 for
 the Greenbone Vulnerability Management (GVM) framework.
@@ -92,7 +92,7 @@ Main changes compared to gvm-tools-1.4.0:
 - Improve unit tests.
 - Improve documentation.
 
-# [1.4.0] - 2018-08-09
+## [1.4.0] - 2018-08-09
 
 This is the first release of the gvm-tools module 1.4 for the Greenbone
 Vulnerability Management (GVM) framework.
@@ -121,11 +121,11 @@ Main changes compared to gvm-tools-1.3.1:
 - Improve documentation
 - Several code improvements
 
-# [1.3.1] - 2017-12-14
+## [1.3.1] - 2017-12-14
 
 - Improved stability with ssh connections again
 
-# [1.3.0] - 2017-12-12
+## [1.3.0] - 2017-12-12
 
 - Improved stability with ssh connections
 - Fixed bugs for create\_target command
@@ -133,7 +133,7 @@ Main changes compared to gvm-tools-1.3.1:
 - Added correct license file
 - Improved setup (Only Python3 is allowed)
 
-# [1.2.0] - 2017-08-04
+## [1.2.0] - 2017-08-04
 
 - Improved feature to read from config file for gvm-cli
 - Added feature to read from config file for gvm-pyshell
@@ -142,7 +142,7 @@ Main changes compared to gvm-tools-1.3.1:
 - Removed requirement for username in gvm-cli
 - Minor code improvement
 
-# [1.1.0] - 2017-06-28
+## [1.1.0] - 2017-06-28
 
 - Fixed hgignore file (Ignored important file)
 - Fixed choice decision for the connectiontype
@@ -157,24 +157,24 @@ Main changes compared to gvm-tools-1.3.1:
 - Added new script to sync assets from a csv list
 - Added experimental client gvm-dialog again
 
-# [1.0.3] - 2017-06-01
+## [1.0.3] - 2017-06-01
 
 - Fixed wrong library path
 
-# [1.0.2] - 2017-06-01
+## [1.0.2] - 2017-06-01
 
 - Changed directory structure and names, because of the generic names
   for python modules
 - Directory libs is named gmp
 - Directory clients is copied into gmp
 
-# [1.0.1] - 2017-06-01
+## [1.0.1] - 2017-06-01
 
 - Changed name to gvm-tools
 - Bugfixes at the scripts
 - Added new script to create dummy data for gsm
 
-# [1.0] - 2017-05-31
+## [1.0] - 2017-05-31
 
 - First stable release of gvm-tools
 
