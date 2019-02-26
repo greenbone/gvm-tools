@@ -1,13 +1,20 @@
-SUMMARY OF RELEASE CHANGES FOR GVM-TOOLS
-=======================================
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 For detailed code changes, please visit
 https://github.com/greenbone/gvm-tools/commits/master
 or get the entire source code repository and view log history:
+
+```sh
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
+```
 
-# gvm-tools 2.0.0.beta2 (unreleased)
+## [Unreleased]
 
 # Configfile
 
@@ -25,7 +32,7 @@ $ cd gvm-tools && git log
 - Update `gvmtools.get_version` to return a fully compliant PEP 440 version
   string.
 
-# gvm-tools 2.0.0.beta1 (13.11.2018)
+# [2.0.0.beta1] - 2018-11-13
 
 gvm-tools got split into the command line interfaces (*gvm-cli* and
 *gvm-pyshell*) including the [gmp (example) scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
@@ -69,7 +76,7 @@ has also been refactored and stabilized. For details please take a look at
 - Removed experimental gvm-dialog application.
 - Use pipenv for development.
 
-# gvm-tools 1.4.1 (2018-08-10)
+# [1.4.1] - 2018-08-10
 
 This is the first maintenance release of the gvm-tools module 1.4 for
 the Greenbone Vulnerability Management (GVM) framework.
@@ -85,7 +92,7 @@ Main changes compared to gvm-tools-1.4.0:
 - Improve unit tests.
 - Improve documentation.
 
-# gvm-tools 1.4.0 (2018-08-09)
+# [1.4.0] - 2018-08-09
 
 This is the first release of the gvm-tools module 1.4 for the Greenbone
 Vulnerability Management (GVM) framework.
@@ -114,11 +121,11 @@ Main changes compared to gvm-tools-1.3.1:
 - Improve documentation
 - Several code improvements
 
-# 1.3.1 - 2017-12-14
+# [1.3.1] - 2017-12-14
 
 - Improved stability with ssh connections again
 
-# 1.3.0 - 2017-12-12
+# [1.3.0] - 2017-12-12
 
 - Improved stability with ssh connections
 - Fixed bugs for create\_target command
@@ -126,7 +133,7 @@ Main changes compared to gvm-tools-1.3.1:
 - Added correct license file
 - Improved setup (Only Python3 is allowed)
 
-# 1.2.0 - 2017-08-04
+# [1.2.0] - 2017-08-04
 
 - Improved feature to read from config file for gvm-cli
 - Added feature to read from config file for gvm-pyshell
@@ -135,7 +142,7 @@ Main changes compared to gvm-tools-1.3.1:
 - Removed requirement for username in gvm-cli
 - Minor code improvement
 
-# 1.1.0 - 2017-06-28
+# [1.1.0] - 2017-06-28
 
 - Fixed hgignore file (Ignored important file)
 - Fixed choice decision for the connectiontype
@@ -150,23 +157,36 @@ Main changes compared to gvm-tools-1.3.1:
 - Added new script to sync assets from a csv list
 - Added experimental client gvm-dialog again
 
-# 1.0.3 - 2017-06-01
+# [1.0.3] - 2017-06-01
 
 - Fixed wrong library path
 
-# 1.0.2 - 2017-06-01
+# [1.0.2] - 2017-06-01
 
 - Changed directory structure and names, because of the generic names
   for python modules
 - Directory libs is named gmp
 - Directory clients is copied into gmp
 
-# 1.0.1 - 2017-06-01
+# [1.0.1] - 2017-06-01
 
 - Changed name to gvm-tools
 - Bugfixes at the scripts
 - Added new script to create dummy data for gsm
 
-# 1.0 - 2017-05-31
+# [1.0] - 2017-05-31
 
 - First stable release of gvm-tools
+
+[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.0.0.beta1...master
+[2.0.0.beta1]: https://github.com/greenbone/gvm-tools/compare/v1.4.1...v2.0.0.beta1
+[1.4.1]: https://github.com/greenbone/gvm-tools/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/greenbone/gvm-tools/compare/1.3.1...v1.4.0
+[1.3.1]: https://github.com/greenbone/gvm-tools/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/greenbone/gvm-tools/compare/1.2.0...1.3.0
+[1.2.0]: https://github.com/greenbone/gvm-tools/compare/1.1.0...1.2.0
+[1.1.0]: https://github.com/greenbone/gvm-tools/compare/1.0.3...1.1.0
+[1.0.3]: https://github.com/greenbone/gvm-tools/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/greenbone/gvm-tools/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/greenbone/gvm-tools/compare/1.0...1.0.1
+[1.0]: https://github.com/greenbone/gvm-tools/releases/tag/1.0
