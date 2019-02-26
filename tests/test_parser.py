@@ -203,3 +203,21 @@ class TlsParserTestCase(ParserTestCase):
             ['tls', '--hostname', 'foo', '--no-credentials']
         )
         self.assertTrue(args.no_credentials)
+
+
+class CustomizeParserTestCase(ParserTestCase):
+    def test_add_argument(self):
+        self.parser.add_argument('--foo', type=int)
+        args = self.parser.parse_args(['--foo', '123', 'socket'])
+
+        self.assertEqual(args.foo, 123)
+
+    def test_add_protocol_argument(self):
+        self.parser.add_protocol_argument()
+
+        args = self.parser.parse_args(['socket'])
+        self.assertEqual(args.protocol, 'GMP')
+
+        args = self.parser.parse_args(['--protocol', 'OSP', 'socket'])
+
+        self.assertEqual(args.protocol, 'OSP')

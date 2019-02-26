@@ -72,23 +72,7 @@ class CliParser:
             help='Activate logging (default level: %(default)s)',
         )
 
-        self._root_parser = root_parser
-
-        self._logfilename = logfilename
-        self._ignore_config = ignore_config
-
-    def parse_args(self, args=None):
-        args_before, _ = self._root_parser.parse_known_args(args)
-
-        if args_before.loglevel is not None:
-            level = logging.getLevelName(args_before.loglevel)
-            logging.basicConfig(filename=self._logfilename, level=level)
-
-        self._config = self._load_config(
-            None if self._ignore_config else args_before.config
-        )
-
-        parser = argparse.ArgumentParser(parents=[self._root_parser])
+        parser = argparse.ArgumentParser(parents=[root_parser])
 
         parser.add_argument(
             '--timeout',
@@ -125,8 +109,24 @@ class CliParser:
         subparsers.required = True
         subparsers.dest = 'connection_type'
 
-        self._parser = parser
         self._subparsers = subparsers
+
+        self._parser = parser
+        self._root_parser = root_parser
+
+        self._logfilename = logfilename
+        self._ignore_config = ignore_config
+
+    def parse_args(self, args=None):
+        args_before, _ = self._root_parser.parse_known_args(args)
+
+        if args_before.loglevel is not None:
+            level = logging.getLevelName(args_before.loglevel)
+            logging.basicConfig(filename=self._logfilename, level=level)
+
+        self._config = self._load_config(
+            None if self._ignore_config else args_before.config
+        )
 
         self._add_subparsers()
 
