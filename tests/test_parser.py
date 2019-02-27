@@ -22,10 +22,12 @@ from pathlib import Path
 
 from gvmtools.parser import CliParser
 
+__here__ = Path(__file__).parent.resolve()
+
 
 class ConfigParserTestCase(unittest.TestCase):
     def setUp(self):
-        self.test_config_path = Path(__file__).parent.resolve() / 'test.cfg'
+        self.test_config_path = __here__ / 'test.cfg'
 
         self.assertTrue(self.test_config_path.is_file())
 
@@ -72,7 +74,9 @@ class ConfigParserTestCase(unittest.TestCase):
 
 class ParserTestCase(unittest.TestCase):
     def setUp(self):
-        self.parser = CliParser('TestParser', 'test.log', ignore_config=True)
+        self.parser = CliParser(
+            'TestParser', 'test.log', ignore_config=True, prog='gvm-test-cli'
+        )
 
 
 class RootArgumentsParserTest(ParserTestCase):
@@ -221,3 +225,42 @@ class CustomizeParserTestCase(ParserTestCase):
         args = self.parser.parse_args(['--protocol', 'OSP', 'socket'])
 
         self.assertEqual(args.protocol, 'OSP')
+
+
+class HelpFormattingParserTestCase(ParserTestCase):
+    # pylint: disable=protected-access
+    maxDiff = None
+
+    def _snapshot_path(self, name):
+        return __here__ / '{}.snap'.format(name)
+
+    def _load_snapshot(self, path):
+        return path.read_text()
+
+    def _write_snapshot(self, path, output):
+        path.write_text(output)
+
+    def assert_snapshot(self, name, output):
+        path = self._snapshot_path(name)
+
+        if not path.exists():
+            path.write_text(output)
+
+        content = path.read_text()
+        self.assertEqual(output, content, 'Snapshot differs from output')
+
+    def test_root_help(self):
+        help_output = self.parser._parser.format_help()
+        self.assert_snapshot('root_help', help_output)
+
+    def test_socket_help(self):
+        help_output = self.parser._parser_socket.format_help()
+        self.assert_snapshot('socket_help', help_output)
+
+    def test_ssh_help(self):
+        help_output = self.parser._parser_ssh.format_help()
+        self.assert_snapshot('ssh_help', help_output)
+
+    def test_tls_help(self):
+        help_output = self.parser._parser_tls.format_help()
+        self.assert_snapshot('tls_help', help_output)

@@ -1,0 +1,32 @@
+usage: gvm-test-cli tls [-h] [-c [CONFIG]]
+                        [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
+                        [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
+                        [--gmp-password GMP_PASSWORD] [-V] [-h] --hostname
+                        HOSTNAME [--port PORT] [--certfile CERTFILE]
+                        [--keyfile KEYFILE] [--cafile CAFILE]
+                        [--no-credentials]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c [CONFIG], --config [CONFIG]
+                        Configuration file path (default: ~/.config/gvm-
+                        tools.conf)
+  --log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                        Activate logging (default level: None)
+  --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
+                        indefinitely (default: 60)
+  --gmp-username GMP_USERNAME
+                        Username for GMP service (default: None)
+  --gmp-password GMP_PASSWORD
+                        Password for GMP service (default: None)
+  -V, --version         Show version information and exit
+  -h, --help            show this help message and exit
+  --hostname HOSTNAME   Hostname or IP address
+  --port PORT           GMP/OSP port (default: None)
+  --certfile CERTFILE   Path to the certificate file for client
+                        authentication. (default: None)
+  --keyfile KEYFILE     Path to key file for client authentication. (default:
+                        None)
+  --cafile CAFILE       Path to CA certificate for server authentication.
+                        (default: None)
+  --no-credentials      Use only certificates for authentication
