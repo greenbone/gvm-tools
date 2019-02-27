@@ -56,6 +56,7 @@ class CliParser:
             prog=prog,
             description=description,
             formatter_class=argparse.RawTextHelpFormatter,
+            # don't parse help initially. the args from parser wouldn't be shown
             add_help=False,
         )
 
