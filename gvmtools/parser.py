@@ -172,6 +172,15 @@ class CliParser:
     def add_argument(self, *args, **kwargs):
         self._parser.add_argument(*args, **kwargs)
 
+    def add_protocol_argument(self):
+        self.add_argument(
+            '--protocol',
+            required=False,
+            default=DEFAULT_PROTOCOL,
+            choices=[PROTOCOL_GMP, PROTOCOL_OSP],
+            help='Service protocol to use (default: %(default)s)',
+        )
+
     def _load_config(self, configfile):
         config = configparser.ConfigParser(default_section='main')
 
@@ -275,15 +284,6 @@ class CliParser:
         self._parser_ssh = parser_ssh
         self._parser_socket = parser_socket
         self._parser_tls = parser_tls
-
-    def add_protocol_argument(self):
-        self.add_argument(
-            '--protocol',
-            required=False,
-            default=DEFAULT_PROTOCOL,
-            choices=[PROTOCOL_GMP, PROTOCOL_OSP],
-            help='Service protocol to use (default: %(default)s)',
-        )
 
 
 def create_parser(description, logfilename):
