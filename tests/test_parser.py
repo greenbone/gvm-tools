@@ -247,7 +247,7 @@ class HelpFormattingParserTestCase(ParserTestCase):
             path.write_text(output)
 
         content = path.read_text()
-        self.assertEqual(output, content, 'Snapshot differs from output')
+        self.assertEqual(content, output, 'Snapshot differs from output')
 
     def test_root_help(self):
         help_output = self.parser._parser.format_help()
