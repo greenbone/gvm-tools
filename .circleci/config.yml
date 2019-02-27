@@ -32,18 +32,18 @@ commands:
       - run:
           name: Install GVM-Tools
           command: |
-            pipenv install .
+            pipenv run pip install .
   test:
     description: "Download and run tests"
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install --dev
+          command: pipenv install
       - run:
           name: Install codecov
           command: |
-            pipenv install codecov
+            pipenv run pip install codecov
       - run:
           name: Run unit tests
           command: |
