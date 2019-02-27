@@ -1,8 +1,8 @@
 usage: gvm-test-cli ssh [-h] [-c [CONFIG]]
                         [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
                         [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-                        [--gmp-password GMP_PASSWORD] [-V] [-h] --hostname
-                        HOSTNAME [--port PORT] [--ssh-username SSH_USERNAME]
+                        [--gmp-password GMP_PASSWORD] [-V] --hostname HOSTNAME
+                        [--port PORT] [--ssh-username SSH_USERNAME]
                         [--ssh-password SSH_PASSWORD]
 
 optional arguments:
@@ -19,7 +19,6 @@ optional arguments:
   --gmp-password GMP_PASSWORD
                         Password for GMP service (default: None)
   -V, --version         Show version information and exit
-  -h, --help            show this help message and exit
   --hostname HOSTNAME   Hostname or IP address
   --port PORT           SSH port (default: None)
   --ssh-username SSH_USERNAME

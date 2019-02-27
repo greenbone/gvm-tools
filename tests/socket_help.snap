@@ -1,7 +1,7 @@
 usage: gvm-test-cli socket [-h] [-c [CONFIG]]
                            [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
                            [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-                           [--gmp-password GMP_PASSWORD] [-V] [-h]
+                           [--gmp-password GMP_PASSWORD] [-V]
                            [--sockpath [SOCKPATH] | --socketpath [SOCKETPATH]]
 
 optional arguments:
@@ -18,7 +18,6 @@ optional arguments:
   --gmp-password GMP_PASSWORD
                         Password for GMP service (default: None)
   -V, --version         Show version information and exit
-  -h, --help            show this help message and exit
   --sockpath [SOCKPATH]
                         Deprecated, use --socketpath instead
   --socketpath [SOCKETPATH]

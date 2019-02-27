@@ -48,6 +48,10 @@ PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 
+def _filter_actions(actions, actiontypes):
+    return [action for action in actions if not isinstance(action, actiontypes)]
+
+
 class Subparser(argparse.ArgumentParser):
     """An ArgumentParser child class to allow better Subparser help formatting
 
@@ -70,12 +74,10 @@ class Subparser(argparse.ArgumentParser):
         formatter = self._get_formatter()
 
         if self._parent:
-            actions = [
-                action
-                for action in self._parent._actions
-                if not isinstance(action, argparse._SubParsersAction)
-            ]
-            actions.extend(self._actions)
+            actions = _filter_actions(
+                self._parent._actions, argparse._SubParsersAction
+            )
+            actions.extend(_filter_actions(self._actions, argparse._HelpAction))
         else:
             actions = self._actions
 
@@ -91,7 +93,11 @@ class Subparser(argparse.ArgumentParser):
                 parent_action_group = self._parent._action_groups[i]
                 formatter.add_arguments(parent_action_group._group_actions)
 
-            formatter.add_arguments(action_group._group_actions)
+            formatter.add_arguments(
+                _filter_actions(
+                    action_group._group_actions, argparse._HelpAction
+                )
+            )
             formatter.end_section()
 
         # description
