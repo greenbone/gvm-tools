@@ -49,8 +49,11 @@ DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 
 class CliParser:
-    def __init__(self, description, logfilename, ignore_config=False):
+    def __init__(
+        self, description, logfilename, *, prog=None, ignore_config=False
+    ):
         root_parser = argparse.ArgumentParser(
+            prog=prog,
             description=description,
             formatter_class=argparse.RawTextHelpFormatter,
             add_help=False,
@@ -72,7 +75,7 @@ class CliParser:
             help='Activate logging (default level: %(default)s)',
         )
 
-        parser = argparse.ArgumentParser(parents=[root_parser])
+        parser = argparse.ArgumentParser(prog=prog, parents=[root_parser])
 
         parser.add_argument(
             '--timeout',
