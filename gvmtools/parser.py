@@ -48,6 +48,61 @@ PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 
+class Subparser(argparse.ArgumentParser):
+    """An ArgumentParser child class to allow better Subparser help formatting
+
+    This class overrides the format_help method of ArgumentParser.
+
+    It adds the actions of a parent parser to the usage output by skipping the
+    _SubParserActions.
+    """
+
+    def __init__(self, parent=None, **kwargs):
+        super().__init__(**kwargs)
+
+        self._parent = parent
+
+    def format_help(self):
+        # pylint: disable=protected-access
+
+        # this code may break with changes in argparse
+
+        formatter = self._get_formatter()
+
+        if self._parent:
+            actions = [
+                action
+                for action in self._parent._actions
+                if not isinstance(action, argparse._SubParsersAction)
+            ]
+            actions.extend(self._actions)
+        else:
+            actions = self._actions
+
+        formatter.add_usage(
+            self.usage, actions, self._mutually_exclusive_groups
+        )
+
+        for i, action_group in enumerate(self._action_groups):
+            formatter.start_section(action_group.title)
+            formatter.add_text(action_group.description)
+
+            if self._parent and len(self._parent._action_groups) > i:
+                parent_action_group = self._parent._action_groups[i]
+                formatter.add_arguments(parent_action_group._group_actions)
+
+            formatter.add_arguments(action_group._group_actions)
+            formatter.end_section()
+
+        # description
+        formatter.add_text(self.description)
+
+        # epilog
+        formatter.add_text(self.epilog)
+
+        return formatter.format_help()
+
+
 class CliParser:
     def __init__(
         self, description, logfilename, *, prog=None, ignore_config=False
@@ -109,6 +164,7 @@ class CliParser:
             title='connections',
             description='valid connection types',
             help="Connection type to use",
+            parser_class=Subparser,
         )
         subparsers.required = True
         subparsers.dest = 'connection_type'
@@ -174,9 +230,7 @@ class CliParser:
 
     def _add_subparsers(self):
         parser_ssh = self._subparsers.add_parser(
-            'ssh',
-            help='Use SSH to connect to service',
-            # parents=[self._root_parser],
+            'ssh', help='Use SSH to connect to service', parent=self._parser
         )
 
         parser_ssh.add_argument(
@@ -198,7 +252,7 @@ class CliParser:
         parser_tls = self._subparsers.add_parser(
             'tls',
             help='Use TLS secured connection to connect to service',
-            # parents=[self._root_parser],
+            parent=self._parser,
         )
         parser_tls.add_argument(
             '--hostname', required=True, help='Hostname or IP address'
@@ -238,7 +292,7 @@ class CliParser:
         parser_socket = self._subparsers.add_parser(
             'socket',
             help='Use UNIX Domain socket to connect to service',
-            # parents=[self._root_parser],
+            parent=self._parser,
         )
 
         socketpath_group = parser_socket.add_mutually_exclusive_group()
