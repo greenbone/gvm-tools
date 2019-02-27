@@ -1,11 +1,28 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  python-35:
+    docker:
+      - image: circleci/python:3.5
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+  python-36:
     docker:
       - image: circleci/python:3.6
         environment:
             PIPENV_VENV_IN_PROJECT: true
     working_directory: ~/repo
+  python-37:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+
+commands:
+  build:
+    description: "Download, cache dependencies and build"
     steps:
       - checkout
       # Download and cache dependencies
@@ -27,11 +44,7 @@ jobs:
           command: |
             pipenv install .
   test:
-    docker:
-      - image: circleci/python:3.6
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
-    working_directory: ~/repo
+    description: "Download, cache dependencies and run tests"
     steps:
       - checkout
       # Download and cache dependencies
@@ -58,9 +71,20 @@ jobs:
       - run:
           name: Upload coverage to Codecov
           command: pipenv run codecov
+
+jobs:
+  build-36:
+    executor: python-36
+    steps:
+      - build
+  test-36:
+    executor: python-36
+    steps:
+      - test
+
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - test
+      - build-36
+      - test-36
