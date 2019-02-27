@@ -73,6 +73,14 @@ commands:
           command: pipenv run codecov
 
 jobs:
+  build-35:
+    executor: python-35
+    steps:
+      - build
+  test-35:
+    executor: python-35
+    steps:
+      - test
   build-36:
     executor: python-36
     steps:
@@ -81,10 +89,22 @@ jobs:
     executor: python-36
     steps:
       - test
+  build-37:
+    executor: python-37
+    steps:
+      - build
+  test-37:
+    executor: python-37
+    steps:
+      - test
 
 workflows:
   version: 2
   build_and_test:
     jobs:
+      - build-35
+      - test-35
       - build-36
       - test-36
+      - build-37
+      - test-37
