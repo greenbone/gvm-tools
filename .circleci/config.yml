@@ -22,44 +22,24 @@ executors:
 
 commands:
   build:
-    description: "Download, cache dependencies and build"
+    description: "Download and build"
     steps:
       - checkout
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "Pipfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-{{ .Environment.PYTHON_VERSION }}
       - run:
           name: Install dependencies
           command: |
             pipenv install
-      - save_cache:
-          paths:
-            - ./.venv
-          key: v1-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Install GVM-Tools
           command: |
             pipenv install .
   test:
-    description: "Download, cache dependencies and run tests"
+    description: "Download and run tests"
     steps:
       - checkout
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "Pipfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-{{ .Environment.PYTHON_VERSION }}
       - run:
           name: Install dependencies
           command: pipenv install --dev
-      - save_cache:
-          paths:
-            - ./.venv
-          key: v1-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Install codecov
           command: |
