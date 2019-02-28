@@ -32,6 +32,9 @@ $ cd gvm-tools && git log
 - Update `gvmtools.get_version` to return a fully compliant [PEP 440](https://www.python.org/dev/peps/pep-0440/)
   version string [PR 150](https://github.com/greenbone/gvm-tools/pull/150)
 
+### Deprecated
+- Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
+
 ### Fixed
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
   upon exiting it for the first time [PR 139](https://github.com/greenbone/gvm-tools/pull/139)
