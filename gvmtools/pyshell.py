@@ -169,8 +169,8 @@ def main():
 
 def enter_interactive_mode(global_vars):
     code.interact(
-        banner='GVM Interactive Console. Type "help" to get information \
-about functionality.',
+        banner='GVM Interactive Console {} API {}. Type "help" to get '
+        'information about functionality.'.format(__version__, __api_version__),
         local=dict(global_vars),
     )
 
