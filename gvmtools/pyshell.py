@@ -40,8 +40,7 @@ HELP_TEXT = """
     Command line tool to access services via GMP (Greenbone Management
     Protocol) and OSP (Open Scanner Protocol)
 
-    gvm-pyshell provides an interactive shell for GMP and OSP services
-    and can be used to execute custom OSP/GMP scripts.
+    gvm-pyshell provides an interactive shell for GMP and OSP services.
 
     Example:
         >>> tasks = gmp.get_tasks()
@@ -141,6 +140,13 @@ def main():
         enter_interactive_mode(global_vars)
 
     if script_and_interactive or only_script:
+        if only_script:
+            print(
+                'Using gvm-pyshell for running scripts only is deprecated. '
+                'Please use gvm-script instead',
+                file=sys.stderr,
+            )
+
         script_name = args.scriptname
         run_script(script_name, global_vars)
 
