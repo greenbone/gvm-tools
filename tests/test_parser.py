@@ -210,9 +210,25 @@ class TlsParserTestCase(ParserTestCase):
 
 
 class CustomizeParserTestCase(ParserTestCase):
-    def test_add_argument(self):
+    def test_add_optional_argument(self):
         self.parser.add_argument('--foo', type=int)
-        args = self.parser.parse_args(['--foo', '123', 'socket'])
+
+        args = self.parser.parse_args(['socket', '--foo', '123'])
+        self.assertEqual(args.foo, 123)
+
+        args = self.parser.parse_args(
+            ['ssh', '--hostname', 'bar', '--foo', '123']
+        )
+        self.assertEqual(args.foo, 123)
+
+        args = self.parser.parse_args(
+            ['tls', '--hostname', 'bar', '--foo', '123']
+        )
+        self.assertEqual(args.foo, 123)
+
+    def test_add_positional_argument(self):
+        self.parser.add_argument('foo', type=int)
+        args = self.parser.parse_args(['socket', '123'])
 
         self.assertEqual(args.foo, 123)
 
