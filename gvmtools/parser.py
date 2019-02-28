@@ -205,10 +205,12 @@ class CliParser:
         return args
 
     def add_argument(self, *args, **kwargs):
-        self._parser.add_argument(*args, **kwargs)
+        self._parser_socket.add_argument(*args, **kwargs)
+        self._parser_ssh.add_argument(*args, **kwargs)
+        self._parser_tls.add_argument(*args, **kwargs)
 
     def add_protocol_argument(self):
-        self.add_argument(
+        self._parser.add_argument(
             '--protocol',
             required=False,
             default=DEFAULT_PROTOCOL,
