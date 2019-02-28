@@ -48,8 +48,9 @@ def main():
     parser = create_parser(description=HELP_TEXT, logfilename='gvm-cli.log')
 
     parser.add_argument('-X', '--xml', help='XML request to send')
-    parser.add_argument('-r', '--raw', help='Return raw XML',
-                        action='store_true', default=False)
+    parser.add_argument(
+        '-r', '--raw', help='Return raw XML', action='store_true', default=False
+    )
     parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
 
     args = parser.parse_args()
@@ -76,8 +77,9 @@ def main():
 
     # Ask for password if none are given
     if args.gmp_username and not args.gmp_password:
-        args.gmp_password = getpass.getpass('Enter password for ' +
-                                            args.gmp_username + ': ')
+        args.gmp_password = getpass.getpass(
+            'Enter password for ' + args.gmp_username + ': '
+        )
 
     connection = create_connection(**vars(args))
 
@@ -95,7 +97,7 @@ def main():
         result = gvm.send_command(xml)
 
         print(result)
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
         sys.exit(1)
 

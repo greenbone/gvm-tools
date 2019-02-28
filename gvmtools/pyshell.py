@@ -69,27 +69,39 @@ class Help(object):
 
 
 def main():
-    parser = create_parser(
-        description=HELP_TEXT, logfilename='gvm-pyshell.log')
+    parser = create_parser(description=HELP_TEXT, logfilename='gvm-pyshell.log')
 
     parser.add_protocol_argument()
 
     parser.add_argument(
-        '-i', '--interactive', action='store_true', default=False,
-        help='Start an interactive Python shell')
+        '-i',
+        '--interactive',
+        action='store_true',
+        default=False,
+        help='Start an interactive Python shell',
+    )
 
     parser.add_argument(
-        'scriptname', nargs='?', metavar="SCRIPT",
-        help='Path to script to be preloaded (example: myscript.gmp)')
+        'scriptname',
+        nargs='?',
+        metavar="SCRIPT",
+        help='Path to script to be preloaded (example: myscript.gmp)',
+    )
     parser.add_argument(
-        'scriptargs', nargs='*', metavar="ARG",
-        help='Arguments for preloaded script')
+        'scriptargs',
+        nargs='*',
+        metavar="ARG",
+        help='Arguments for preloaded script',
+    )
 
     args = parser.parse_args()
 
     if 'socket' in args.connection_type and args.sockpath:
-        print('The --sockpath parameter has been deprecated. Please use '
-              '--socketpath instead', file=sys.stderr)
+        print(
+            'The --sockpath parameter has been deprecated. Please use '
+            '--socketpath instead',
+            file=sys.stderr,
+        )
 
     connection = create_connection(**vars(args))
 
@@ -115,11 +127,10 @@ def main():
 
         if args.gmp_username:
             (username, password) = authenticate(
-                protocol, username=args.gmp_username,
-                password=args.gmp_password)
+                protocol, username=args.gmp_username, password=args.gmp_password
+            )
 
-    shell_args = Namespace(
-        username=username, password=password)
+    shell_args = Namespace(username=username, password=password)
 
     global_vars['args'] = shell_args
 
@@ -160,7 +171,8 @@ def enter_interactive_mode(global_vars):
     code.interact(
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
-        local=dict(global_vars))
+        local=dict(global_vars),
+    )
 
 
 if __name__ == '__main__':
