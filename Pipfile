@@ -4,10 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-gvm = {editable = true, git = "https://github.com/greenbone/python-gvm"}
+python-gvm = {editable = true, git = "https://github.com/greenbone/python-gvm"}
 
 [dev-packages]
 coverage = "*"
 pylint = "*"
 sphinx = "*"
 sphinxcontrib-napoleon = "*"
+autohooks-plugin-black = "*"
+black = "==18.9b0"

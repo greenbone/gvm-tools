@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Joshua Schwartz <joshua.schwartz@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +65,7 @@ def send_targets(gmp, host_name, host_file, host_list):
     for host in host_list:
         name = "Target for {}".format(host)
         comment = "Created: {}".format(time.strftime("%Y/%m/%d-%H:%M:%S"))
-        hosts = host
+        hosts = [host]
 
         gmp.create_target(
             name=name,

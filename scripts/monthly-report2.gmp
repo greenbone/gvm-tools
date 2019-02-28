@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2017-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,7 +43,7 @@ def print_reports(gmp, from_date, to_date):
     asset_filter = "rows=-1 and modified>{0} and modified<{1}".format(
         from_date.isoformat(), to_date.isoformat())
 
-    assets_xml = gmp.get_assets(type='host', filter=asset_filter)
+    assets_xml = gmp.get_assets(asset_type='host', filter=asset_filter)
 
     sum_high = 0
     sum_medium = 0
@@ -57,11 +52,17 @@ def print_reports(gmp, from_date, to_date):
 
     for asset in assets_xml.xpath('asset'):
         ip = asset.xpath('name/text()')[0]
-        hostname = asset.xpath(
-            'identifiers/identifier/name[text()="hostname"]/../value/text()')[0]
+
+        hostnames = asset.xpath(
+            'identifiers/identifier/name[text()="hostname"]/../value/text()')
+
+        if len(hostnames) == 0:
+            continue
+
+        hostname = hostnames[0]
 
         results = gmp.get_results(
-            details=0, filter='host={0} and severity>0.0'.format(ip))
+            details=False, filter='host={0} and severity>0.0'.format(ip))
 
         low = int(results.xpath('count(//result/threat[text()="Low"])'))
         sum_low += low

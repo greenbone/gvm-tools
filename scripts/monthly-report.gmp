@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2017-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +44,7 @@ def print_reports(gmp, args, from_date, to_date):
     report_filter = "rows=-1 and created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat())
 
-    reports_xml = gmp.get_reports(report_filter=report_filter)
+    reports_xml = gmp.get_reports(filter=report_filter)
     report_list = reports_xml.xpath('report')
 
     sum_high = reports_xml.xpath('sum(report/report/result_count/hole/full/'
@@ -66,7 +61,7 @@ def print_reports(gmp, args, from_date, to_date):
             report_id = report.xpath('report/@id')[0]
             name = report.xpath('name/text()')[0]
 
-            res = gmp.get_reports(report_id=report_id)
+            res = gmp.get_report(report_id)
 
             print('\nReport: {0}'.format(report_id))
 
@@ -89,6 +84,7 @@ def print_reports(gmp, args, from_date, to_date):
                 table_data.append([hostname, ip, name, high, medium, low])
                 host.clear()
                 del host
+
             table = AsciiTable(table_data)
             print(table.table + '\n')
             res.clear()

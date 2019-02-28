@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
-#
-# Author:
-# Henning Häcker
-#
-# Copyright:
 # Copyright (C) 2018 inovex GmbH
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,17 +10,18 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
     """
-    if len_args is not 2:
+    if len_args != 2:
         print(message)
         quit()
 
@@ -107,7 +103,7 @@ def get_target(gmp, debug=False):
     counter = 0
 
     while True:
-        portlist_name = '%s%s'%(new_port_list_name, str(counter))
+        portlist_name = '%s%s' % (new_port_list_name, str(counter))
         if portlist_name not in get_port_list_names(gmp):
             break
         counter += 1
@@ -122,11 +118,12 @@ def get_target(gmp, debug=False):
         print("Portlist-id:\t%s" % str(portlist_id))
 
     # configurable hosts
-    hosts = "localhost"
+    hosts = ["localhost"]
 
     # integrate port list id into create_target
     res = gmp.create_target(
-        target_name, True, hosts=hosts, port_list=dict(id=portlist_id))
+        target_name, make_unique=True, hosts=hosts, port_list_id=portlist_id
+    )
     return res.xpath('@id')[0]
 
 
@@ -142,9 +139,11 @@ def get_alerts(gmp, sender_email, recipient_email, debug=False):
         print("creating alert")
         gmp.create_alert(
             alert_name,
-            ["Always"],
-            ["Task run status changed", {"status": "Done"}],
-            ["Email", {
+            event="Always",
+            condition="Task run status changed",
+            condition_data={"status": "Done"},
+            method="Email",
+            method_data={
                 """Task '$n': $e
 
 After the event $e,
@@ -164,7 +163,8 @@ should not have received it.
                 "[OpenVAS-Manager] Task": "subject",
                 "c402cc3e-b531-11e1-9163-406186ea4fc5": "notice_attach_format",
                 recipient_email: "to_address"
-            }])
+            },
+        )
         alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
         alert = alert_object.xpath('alert')
         alert_id = alert[0].get('id', 'no id found')
@@ -174,7 +174,7 @@ should not have received it.
             print("alert_id: %s" % str(alert_id))
 
     # second configurable alert name
-    alert_name2 = "%s-2"%recipient_email
+    alert_name2 = "%s-2" % recipient_email
 
     # create second alert if necessary
     alert_object2 = gmp.get_alerts(filter='name=%s' % alert_name2)
@@ -184,9 +184,11 @@ should not have received it.
         print("creating alert")
         gmp.create_alert(
             alert_name2,
-            ["Always"],
-            ["Task run status changed", {"status": "Done"}],
-            ["Email", {
+            event="Always",
+            condition="Task run status changed",
+            condition_data={"status": "Done"},
+            method="Email",
+            method_data={
                 """Task '$n': $e
 
 After the event $e,
@@ -206,7 +208,8 @@ should not have received it.
                 sender_email: "from_address",
                 "[OpenVAS-Manager] Task": "subject",
                 recipient_email: "to_address"
-            }])
+            },
+        )
         alert_object2 = gmp.get_alerts(filter='name=%s' % recipient_email)
         alert2 = alert_object2.xpath('alert')
         alert_id2 = alert2[0].get('id', 'no id found')
@@ -221,7 +224,7 @@ should not have received it.
 def get_scanner(gmp):
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
-    return scanner_ids[1] # default scanner
+    return scanner_ids[1]  # default scanner
 
 
 def create_and_start_task(gmp, config_id, target_id, scanner_id, alerts,
@@ -231,7 +234,7 @@ def create_and_start_task(gmp, config_id, target_id, scanner_id, alerts,
     task_name = "ScanDoneMultipleAlert{0}".format(len(tasks.xpath('tasks/@id')))
     task_comment = "test comment"
     res = gmp.create_task(task_name, config_id, target_id,
-                          scanner_id, alerts, task_comment)
+                          scanner_id, alert_ids=alerts, comment=task_comment)
     # Start the task
     task_id = res.xpath('@id')[0]
     gmp.start_task(task_id)

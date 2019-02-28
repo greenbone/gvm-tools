@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Joshua Schwartz <joshua.schwartz@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# requires python-dateutil
 
 import sys
 
@@ -89,23 +82,23 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         duration = schedule.find('simple_duration').text
         duration_unit = schedule.find('simple_duration').find('unit').text
-        duration = [duration, duration_unit]
-        if None in duration:
-            duration = ''
 
         period = schedule.find('simple_period').text
         period_unit = schedule.find('simple_period').find('unit').text
-        period = [period, period_unit]
-        if None in period:
-            period = ''
 
         timezone_abbrev = schedule.find('timezone_abbrev').text
 
         gmp.create_schedule(
             name=name,
-            first_time=first_time,
+            first_time_minute=f_time.minute,
+            first_time_hour=f_time.hour,
+            first_time_day_of_month=f_time.day,
+            first_time_month=f_time.month,
+            first_time_year=f_time.year,
             duration=duration,
+            duration_unit=duration_unit,
             period=period,
+            period_unit=period_unit,
             comment=comment,
             timezone=timezone_abbrev
         )
@@ -124,7 +117,6 @@ def main():
     parse_send_xml_tree(gmp, xml_tree)
 
     print('\n  Schedule(s) created!\n')
-
 
 
 if __name__ == '__gmp__':

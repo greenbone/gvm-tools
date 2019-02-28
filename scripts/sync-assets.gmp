@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2017-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,7 +46,7 @@ def sync_assets(gmp, filename):
                 # print('%s %s %s %s' % (host, ip, contact, location))
 
                 # check if asset is already there
-                ret = gmp.get_assets(type='host', filter='ip=%s' % ip)
+                ret = gmp.get_assets(asset_type='host', filter='ip=%s' % ip)
                 if ret.xpath('asset'):
                     print('\nAsset with IP %s exist' % ip)
                     asset_id = ret.xpath('asset/@id')[0]

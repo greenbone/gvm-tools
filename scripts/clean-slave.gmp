@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2017-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Raphael Grewe <raphael.grewe@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2017 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def clean_slave(gmp):
     tasks = gmp.get_tasks(filter="rows=-1 not status=Running and "
                           "not status=Requested and not "
@@ -28,31 +24,31 @@ def clean_slave(gmp):
 
     for tid in tasks.xpath('task/@id'):
         print('Removing task %s... ' % tid)
-        status_text = gmp.delete_task(tid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_task(tid, True).xpath('@status_text')[0]
         print(status_text)
 
     targets = gmp.get_targets(filter="rows=-1 not _owner=&quot;&quot;")
     for tid in targets.xpath('target/@id'):
         print('Removing target %s... ' % tid)
-        status_text = gmp.delete_target(tid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_target(tid, True).xpath('@status_text')[0]
         print(status_text)
 
     configs = gmp.get_configs(filter="rows=-1 not _owner=&quot;&quot;")
     for cid in configs.xpath('config/@id'):
         print('Removing config %s... ' % cid)
-        status_text = gmp.delete_config(cid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_config(cid, True).xpath('@status_text')[0]
         print(status_text)
 
     port_lists = gmp.get_port_lists(filter="rows=-1 not _owner=&quot;&quot;")
     for pid in port_lists.xpath('port_list/@id'):
         print('Removing port_list %s... ' % pid)
-        status_text = gmp.delete_port_list(pid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_port_list(pid, True).xpath('@status_text')[0]
         print(status_text)
 
     credentials = gmp.get_credentials(filter="rows=-1 not _owner=&quot;&quot;")
     for cid in credentials.xpath('credential/@id'):
         print('Removing credential %s... ' % cid)
-        status_text = gmp.delete_credential(cid, 1).xpath('@status_text')[0]
+        status_text = gmp.delete_credential(cid, True).xpath('@status_text')[0]
         print(status_text)
 
     print('Emptying trash... ')

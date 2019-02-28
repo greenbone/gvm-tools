@@ -1,0 +1,28 @@
+usage: gvm-test-cli [-h] [-c [CONFIG]]
+                    [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
+                    [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
+                    [--gmp-password GMP_PASSWORD] [-V]
+                    CONNECTION_TYPE ...
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c [CONFIG], --config [CONFIG]
+                        Configuration file path (default: ~/.config/gvm-
+                        tools.conf)
+  --log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                        Activate logging (default level: None)
+  --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
+                        indefinitely (default: 60)
+  --gmp-username GMP_USERNAME
+                        Username for GMP service (default: None)
+  --gmp-password GMP_PASSWORD
+                        Password for GMP service (default: None)
+  -V, --version         Show version information and exit
+
+connections:
+  valid connection types
+
+  CONNECTION_TYPE       Connection type to use
+    ssh                 Use SSH to connect to service
+    tls                 Use TLS secured connection to connect to service
+    socket              Use UNIX Domain socket to connect to service

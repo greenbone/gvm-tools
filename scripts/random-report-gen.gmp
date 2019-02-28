@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Script for gvm-pyshell
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Joshua Schwartz <joshua.schwartz@greenbone.net>
-# Timo Pollmeier <timo.pollmeier@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,7 +26,7 @@ from lxml import etree as e
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not (4 and 5):
+    if len_args != 4 and len_args != 5:
         message = """
         This script generates randomized report data.
 
@@ -133,7 +127,7 @@ def generate_data(gmp, **kwargs):
 
         reports = generate_reports(**kwargs)
 
-        gmp.create_report(
+        gmp.import_report(
             reports[0],
             task_name=task_name
         )
@@ -144,7 +138,7 @@ def generate_data(gmp, **kwargs):
         task_ids.append(task_id)
 
         for report in reports[1:]:
-            gmp.create_report(report, task_id=task_id)
+            gmp.import_report(report, task_id=task_id)
 
 
 TEMPLATE = {'results': [

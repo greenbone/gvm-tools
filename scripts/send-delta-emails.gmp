@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# GMP script for gvm-pyshell to send emails with delta reports.
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
-# Authors:
-# Joshua Schwartz <joshua.schwartz@greenbone.net>
-# Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# GMP script for gvm-pyshell to send emails with delta reports.
 
 import base64
 import datetime
@@ -64,7 +60,7 @@ def execute_send_delta_emails(sc, **kwargs):
     gmp = kwargs.get('gmp')
     task_tag = kwargs.get('task_tag')
     interval = kwargs.get('interval')
-    email_subject = kwargs.get('emai_subject')
+    email_subject = kwargs.get('email_subject')
     to_addresses = kwargs.get('to_addresses')
     from_address = kwargs.get('from_address')
     mta_address = kwargs.get('mta_address')
@@ -85,8 +81,8 @@ def execute_send_delta_emails(sc, **kwargs):
               (task.xpath('name/text()')[0], task_id))
 
         reports = gmp.get_reports(
-            report_filter='task_id={0} and status=Done '
-                          'sort-reverse=date'.format(task_id)).xpath('report')
+            filter='task_id={0} and status=Done '
+                   'sort-reverse=date'.format(task_id)).xpath('report')
         print('  Found %d report(s).' % len(reports))
         if len(reports) < 2:
             print('  Delta-reporting requires at least 2 finished reports.')
@@ -100,7 +96,7 @@ def execute_send_delta_emails(sc, **kwargs):
         print('  Latest finished report not send yet. Preparing delta '
               'report...')
 
-        delta_report = gmp.get_reports(
+        delta_report = gmp.get_report(
             report_id=reports[0].xpath('@id')[0],
             delta_report_id=reports[1].xpath('@id')[0],
             filter='delta_states=n',
@@ -141,7 +137,7 @@ def execute_send_delta_emails(sc, **kwargs):
                     resource_type='report',
                     value=datetime.datetime.now()
                 )
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             print("  Unable to send the email. Error: ", sys.exc_info()[0])
             # raise # in case an error should stop the script
             continue  # ignore the problem for the time being
