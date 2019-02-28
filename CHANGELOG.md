@@ -18,6 +18,8 @@ $ cd gvm-tools && git log
 
 ### Added
 - Added --ssh-password switch for ssh connection [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
+- Added a new console line interface `gvm-script` for only running GMP and OSP
+  scripts without opening a python shell [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
 
 ### Changed
 - Improved error messages if unix socket could not be found [PR 78](https://github.com/greenbone/python-gvm/pull/78)
@@ -29,6 +31,9 @@ $ cd gvm-tools && git log
 - Renamed --ssh-user switch to --ssh-username [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
 - Update `gvmtools.get_version` to return a fully compliant [PEP 440](https://www.python.org/dev/peps/pep-0440/)
   version string [PR 150](https://github.com/greenbone/gvm-tools/pull/150)
+
+### Deprecated
+- Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
 
 ### Fixed
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode

@@ -21,12 +21,14 @@ import logging
 import os
 import sys
 
+from argparse import Namespace
+
 from gvm import get_version as get_gvm_version
 from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
-from gvmtools.helper import authenticate
+from gvmtools.helper import authenticate, run_script
 from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
 
 __version__ = get_version()
@@ -38,8 +40,7 @@ HELP_TEXT = """
     Command line tool to access services via GMP (Greenbone Management
     Protocol) and OSP (Open Scanner Protocol)
 
-    gvm-pyshell provides an interactive shell for GMP and OSP services
-    and can be used to execute custom OSP/GMP scripts.
+    gvm-pyshell provides an interactive shell for GMP and OSP services.
 
     Example:
         >>> tasks = gmp.get_tasks()
@@ -65,30 +66,6 @@ class Help(object):
     def __repr__(self):
         # do pwd command
         return HELP_TEXT
-
-
-class Arguments:
-
-    def __init__(self, **kwargs):
-        self._args = kwargs
-
-    def get(self, key):
-        return self._args[key]
-
-    def __getattr__(self, key):
-        return self.get(key)
-
-    def __setattr__(self, name, value):
-        if name.startswith('_'):
-            super().__setattr__(name, value)
-        else:
-            self._args[name] = value
-
-    def __getitem__(self, key):
-        return self.get(key)
-
-    def __repr__(self):
-        return repr(self._args)
 
 
 def main():
@@ -141,7 +118,7 @@ def main():
                 protocol, username=args.gmp_username,
                 password=args.gmp_password)
 
-    shell_args = Arguments(
+    shell_args = Namespace(
         username=username, password=password)
 
     global_vars['args'] = shell_args
@@ -163,8 +140,15 @@ def main():
         enter_interactive_mode(global_vars)
 
     if script_and_interactive or only_script:
+        if only_script:
+            print(
+                'Using gvm-pyshell for running scripts only is deprecated. '
+                'Please use gvm-script instead',
+                file=sys.stderr,
+            )
+
         script_name = args.scriptname
-        load(script_name, global_vars)
+        run_script(script_name, global_vars)
 
         if not only_script:
             enter_interactive_mode(global_vars)
@@ -177,23 +161,6 @@ def enter_interactive_mode(global_vars):
         banner='GVM Interactive Console. Type "help" to get information \
 about functionality.',
         local=dict(global_vars))
-
-
-def load(path, global_vars):
-    """Loads a file into the interactive console
-
-    Loads a file into the interactive console and execute it.
-    TODO: Needs some security checks.
-
-    Arguments:
-        path {str} -- Path of file
-    """
-    try:
-        file = open(path, 'r', newline='').read()
-
-        exec(file, global_vars) # pylint: disable=exec-used
-    except OSError as e:
-        print(str(e))
 
 
 if __name__ == '__main__':

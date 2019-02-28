@@ -42,6 +42,7 @@ setup(
         'console_scripts': [
             'gvm-pyshell=gvmtools.pyshell:main',
             'gvm-cli=gvmtools.cli:main',
+            'gvm-script=gvmtools.script:main',
         ],
     },
     install_requires=[
