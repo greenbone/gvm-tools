@@ -54,12 +54,11 @@ def authenticate(gmp, username=None, password=None):
             username = input('Enter username: ')
 
     if not password:
-        password = getpass.getpass(
-            'Enter password for {0}: '.format(username))
+        password = getpass.getpass('Enter password for {0}: '.format(username))
 
     try:
         gmp.authenticate(username, password)
-        return (username, password,)
+        return (username, password)
     except GvmError as e:
         print('Could not authenticate. Please check your credentials.')
         raise e
@@ -78,4 +77,4 @@ def run_script(path, global_vars):
         print('Script {path} does not exist'.format(path=path), file=sys.stderr)
         sys.exit(2)
 
-    exec(file, global_vars) # pylint: disable=exec-used
+    exec(file, global_vars)  # pylint: disable=exec-used

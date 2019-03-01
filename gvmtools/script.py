@@ -40,26 +40,31 @@ HELP_TEXT = """
 __version__ = get_version()
 __api_version__ = get_gvm_version()
 
+
 def main():
-    parser = create_parser(
-        description=HELP_TEXT, logfilename='gvm-script.log')
+    parser = create_parser(description=HELP_TEXT, logfilename='gvm-script.log')
 
     parser.add_protocol_argument()
 
     parser.add_argument(
-        'scriptname', metavar="SCRIPT",
-        help='Path to script to be executed (example: myscript.gmp)')
+        'scriptname',
+        metavar="SCRIPT",
+        help='Path to script to be executed (example: myscript.gmp)',
+    )
     parser.add_argument(
-        'scriptargs', nargs='*', metavar="ARG",
-        help='Arguments for the script')
+        'scriptargs', nargs='*', metavar="ARG", help='Arguments for the script'
+    )
 
     args = parser.parse_args()
 
     print(args)
 
     if 'socket' in args.connection_type and args.sockpath:
-        print('The --sockpath parameter has been deprecated. Please use '
-              '--socketpath instead', file=sys.stderr)
+        print(
+            'The --sockpath parameter has been deprecated. Please use '
+            '--socketpath instead',
+            file=sys.stderr,
+        )
 
     connection = create_connection(**vars(args))
 
@@ -84,8 +89,8 @@ def main():
 
         if args.gmp_username:
             (username, password) = authenticate(
-                protocol, username=args.gmp_username,
-                password=args.gmp_password)
+                protocol, username=args.gmp_username, password=args.gmp_password
+            )
 
     argv = [os.path.abspath(args.scriptname), *args.scriptargs]
 
@@ -100,7 +105,6 @@ def main():
     global_vars['args'] = shell_args
 
     run_script(args.scriptname, global_vars)
-
 
 
 if __name__ == '__main__':

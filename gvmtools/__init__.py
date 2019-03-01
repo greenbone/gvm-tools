@@ -26,6 +26,7 @@ VERSION = (2, 0, 0, 'beta', 1)
 Current Version of gvm-tools as a tuple
 """
 
+
 def get_version():
     """Returns the version of gvm-tools as a string in `PEP440`_ compliant
     format.
