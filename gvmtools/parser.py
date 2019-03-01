@@ -20,21 +20,18 @@
 """
 
 import argparse
-import configparser
 import logging
-import os
 
 from gvm import get_version as get_gvm_version
 from gvm.connections import (
-    DEFAULT_UNIX_SOCKET_PATH,
     DEFAULT_TIMEOUT,
-    DEFAULT_GVM_PORT,
     SSHConnection,
     TLSConnection,
     UnixSocketConnection,
 )
 
 from gvmtools import get_version
+from gvmtools.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -219,14 +216,13 @@ class CliParser:
         )
 
     def _load_config(self, configfile):
-        config = configparser.ConfigParser(default_section='main')
+        config = Config()
 
         if not configfile:
             return config
 
         try:
-            path = os.path.expanduser(configfile)
-            config.read(path)
+            config.load(configfile)
             logger.debug('Loaded config %s', configfile)
         except Exception as e:  # pylint: disable=broad-except
             raise RuntimeError(
@@ -324,28 +320,24 @@ class CliParser:
         self._config = self._load_config(configfilename)
 
         self._parser.set_defaults(
-            gmp_username=self._config.get('gmp', 'username', fallback=''),
-            gmp_password=self._config.get('gmp', 'password', fallback=''),
+            gmp_username=self._config.get('gmp', 'username'),
+            gmp_password=self._config.get('gmp', 'password'),
             **self._config.defaults()
         )
 
         self._parser_ssh.set_defaults(
-            port=int(self._config.get('ssh', 'port', fallback=22)),
-            ssh_username=self._config.get('ssh', 'username', fallback='gmp'),
-            ssh_password=self._config.get('ssh', 'password', fallback='gmp'),
+            port=int(self._config.get('ssh', 'port')),
+            ssh_username=self._config.get('ssh', 'username'),
+            ssh_password=self._config.get('ssh', 'password'),
         )
         self._parser_tls.set_defaults(
-            port=int(
-                self._config.get('tls', 'port', fallback=DEFAULT_GVM_PORT)
-            ),
-            certfile=self._config.get('tls', 'certfile', fallback=None),
-            keyfile=self._config.get('tls', 'keyfile', fallback=None),
-            cafile=self._config.get('tls', 'cafile', fallback=None),
+            port=int(self._config.get('tls', 'port')),
+            certfile=self._config.get('tls', 'certfile'),
+            keyfile=self._config.get('tls', 'keyfile'),
+            cafile=self._config.get('tls', 'cafile'),
         )
         self._parser_socket.set_defaults(
-            socketpath=self._config.get(
-                'unixsocket', 'socketpath', fallback=DEFAULT_UNIX_SOCKET_PATH
-            )
+            socketpath=self._config.get('unixsocket', 'socketpath')
         )
 
 
