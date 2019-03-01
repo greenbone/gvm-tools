@@ -34,10 +34,13 @@ $ cd gvm-tools && git log
 
 ### Deprecated
 - Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
+- \[Auth\] section in config file is deprecated and will be ignored in future
+  releases [PR 160](https://github.com/greenbone/gvm-tools/pull/160)
 
 ### Fixed
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
   upon exiting it for the first time [PR 139](https://github.com/greenbone/gvm-tools/pull/139)
+- Support \[Auth\] section in config file for backwards compatibility [PR 160](https://github.com/greenbone/gvm-tools/pull/160)
 
 ## [2.0.0.beta1] - 2018-11-13
 
