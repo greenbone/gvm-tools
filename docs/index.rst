@@ -1,7 +1,7 @@
 gvm-tools: Remote control your Greenbone Vulnerability Manager (GVM)
 ====================================================================
 
-The Greenbone Vulnerability Management Tools or :program:`gvm-tools` in short
+The Greenbone Vulnerability Management Tools, or :program:`gvm-tools` in short,
 are a collection of tools that help with remote controlling a `Greenbone
 Security Manager (GSM) appliance <https://www.greenbone.net/en/product-comparison/>`_
 and its underlying :term:`Greenbone Vulnerability Manager (GVM) <GVM>`.

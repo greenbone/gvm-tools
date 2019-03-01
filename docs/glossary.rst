@@ -17,10 +17,10 @@ Glossary
     the results to the manager daemon.
 
   GOS
-    Greenbone Operating System is the operating system of the `GSM appliances
+    Greenbone Operating System, the operating system of the `GSM appliances
     <https://www.greenbone.net/en/product-comparison/>`_.
 
-  GSM:
+  GSM
     The commercial product line `Greenbone Security Manager
     <https://www.greenbone.net/en/product-comparison/>`_ available as appliances
     or virtual machines.
@@ -28,13 +28,13 @@ Glossary
   GMP
     The `Greenbone Management Protocol
     <https://community.greenbone.net/t/about-the-greenbone-management-protocol-gmp-category/83>`_.
-    A XML based communication protocol provided by :term:`openvasmd` and
+    An XML-based communication protocol provided by :term:`openvasmd` and
     :term:`gvmd`.
 
   OSP
     The `Open Scanner Protocol
     <https://community.greenbone.net/t/about-the-open-scanner-protocol-osp-category/98>`_.
-    A XML based communication protocol provided by
+    An XML-based communication protocol provided by
     `OSPd <https://github.com/greenbone/ospd>`_ based scanners.
 
   GVM

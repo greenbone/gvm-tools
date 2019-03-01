@@ -3,7 +3,7 @@
 Provided Tools
 ==============
 
-Currently :program:`gvm-tools` ships with three console line interface programs.
+Currently, :program:`gvm-tools` ships with three console line interface programs.
 
 * :ref:`gvm-cli <gvm_cli>`
 * :ref:`gvm-pyshell <gvm_pyshell>`

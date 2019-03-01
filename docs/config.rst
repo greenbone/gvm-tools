@@ -5,10 +5,10 @@ Configuration
 
 .. versionchanged:: 2.0
 
-By default :program:`gvm-tools` :ref:`programs <tools>` are evaluating the
+By default, :program:`gvm-tools` :ref:`programs <tools>` are evaluating the
 :file:`~/.config/gvm-tools.conf`
 `ini style <https://docs.python.org/3/library/configparser.html#supported-ini-file-structure>`_
-config file since version 2.0. The read config file can be adjusted with the
+config file since version 2.0. The name of the config file to be used can be set with the
 :command:`-c/--config` command line switch.
 
 Settings
@@ -31,7 +31,7 @@ Currently five sections are evaluated:
 
 .. rubric:: Main section
 
-The main section allows to change the default connection timeout besides
+The main section allows changing the default connection timeout besides
 defining variables for :ref:`interpolation`.
 
 .. code-block:: ini
@@ -44,7 +44,7 @@ defining variables for :ref:`interpolation`.
 
 .. rubric:: GMP section
 
-The GMP section allows for setting the default username and password for
+The GMP section allows setting the default username and password for
 `GMP (Greenbone Management Protocol)
 <https://community.greenbone.net/t/about-the-greenbone-management-protocol-gmp-category/83>`_
 based communication.
@@ -60,7 +60,7 @@ based communication.
 
 .. rubric:: Socket section
 
-The socket section allows to set the default path to the unix socket of
+The socket section allows setting the default path to the unix socket of
 :term:`gvmd` or :term:`openvasmd` respectively. Not to be confused with the
 socket path to the redis server used by :term:`openvassd`. Only relevant if
 the socket connection type is used.
@@ -75,7 +75,7 @@ the socket connection type is used.
 
 .. rubric:: TLS section
 
-The TLS section allows to set the default port, TLS certificate file, TLS key
+The TLS section allows setting the default port, TLS certificate file, TLS key
 file and TLS certificate authority file. Only relevant if the TLS connection
 type is used (Default for :term:`GOS` 3.1).
 
@@ -92,7 +92,7 @@ type is used (Default for :term:`GOS` 3.1).
 
 .. rubric:: SSH section
 
-The SSH section allows to set the default SSH port, SSH username and SSH
+The SSH section allows setting the default SSH port, SSH username and SSH
 password. Only relevant if the SSH connection type is used (Default for
 :term:`GOS` 4 and beyond).
 
@@ -120,7 +120,7 @@ setting.
 
 .. rubric:: Interpolation
 
-The configuration file even supports `interpolation of values
+The configuration file also supports `interpolation of values
 <https://docs.python.org/3/library/configparser.html#interpolation-of-values>`_.
 It is possible to define values in the :code:`[main]` section which can be
 referenced via a :code:`%(<variablename>)s` syntax. Additionally values of the
