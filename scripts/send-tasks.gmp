@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
 from lxml import etree as e
 
 
@@ -29,7 +28,7 @@ def check_args(args):
     a desired GSM
         One parameter after the script name is required.
 
-        1. <xml_doc>     .xml file containing tasks
+        1. <xml_doc> .xml file containing tasks
 
         Example:
             $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
@@ -45,15 +44,16 @@ def error_and_exit(msg):
     sys.exit(1)
 
 
-def yes_or_no(question):
-    reply = str(input(question + ' (y/n): ')).lower().strip()
-
-    if reply[0] == ('y'):
-        return True
-    elif reply[0] == ('n'):
-        return False
+def inquire_yes_no(inquiry):
+    reply = str(input(inquiry + ' [Y/n]: ')).lower().strip()
+    if reply == 'y':
+        answer = True
+    elif reply == 'n':
+        answer = False
     else:
-        return yes_or_no("Please enter 'y' or 'n'")
+        answer = inquire_yes_no("Please enter valid option dummy!")
+
+    return answer
 
 
 def numerical_option(statement, list_range):
@@ -81,21 +81,24 @@ def create_xml_tree(xml_doc):
 
 
 def interactive_options(task, keywords):
-    options_list = ['config', 'scanner', 'target']
-    for option in options_list:
-        object_id = task.xpath('{}/@id'.format(option))[0]
+    options_dict = {}
+    options_dict['config'] = gmp.get_configs()
+    options_dict['scanner'] = gmp.get_scanners()
+    options_dict['target'] = gmp.get_targets()
 
-        exec('object_xml = gmp.get_{}s()'.format(option), globals())
-
+    for option in options_dict:
         object_dict, object_list = {}, []
+        object_id = task.xpath('{}/@id'.format(option))[0]
+        object_xml = options_dict[option]
 
         for i in object_xml.xpath('{}'.format(option)):
             object_dict[i.find('name').text] = i.xpath('@id')[0]
             object_list.append(i.find('name').text)
+
         if object_id in object_dict.values():
             keywords['{}_id'.format(option)] = object_id
         elif object_id not in object_dict.values() and len(object_dict) != 0:
-            response = yes_or_no(
+            response = inquire_yes_no(
                 "\nRequired Field: failed to detect {}_id: {}... "
                 "\nWould you like to select from available options, or exit "
                 "the script?".format(
@@ -172,18 +175,15 @@ def parse_send_xml_tree(gmp, xml_tree):
 
 def main():
     # pylint: disable=undefined-variable
-
     check_args(args)
+    xml_doc = args.script[1]
 
-    xml_doc = args.script[2]
-
-    print('\nSending tasks...')
+    print('\nSending task(s)...')
 
     xml_tree = create_xml_tree(xml_doc)
     parse_send_xml_tree(gmp, xml_tree)
 
     print('\n  Task(s) sent!\n')
-
 
 if __name__ == '__gmp__':
     main()
