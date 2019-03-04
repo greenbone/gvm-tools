@@ -60,7 +60,7 @@ based communication.
 
 .. rubric:: Socket section
 
-The socket section allows setting the default path to the unix socket of
+The socket section allows setting the default path to the Unix Domain socket of
 :term:`gvmd` or :term:`openvasmd` respectively. Not to be confused with the
 socket path to the redis server used by :term:`openvassd`. Only relevant if
 the socket connection type is used.
@@ -123,7 +123,7 @@ setting.
 The configuration file also supports `interpolation of values
 <https://docs.python.org/3/library/configparser.html#interpolation-of-values>`_.
 It is possible to define values in the :code:`[main]` section which can be
-referenced via a :code:`%(<variablename>)s` syntax. Additionally values of the
+referenced via a :code:`%(<variablename>)s` syntax. Additionally, values of the
 same section can be referenced.
 
 .. code-block:: ini

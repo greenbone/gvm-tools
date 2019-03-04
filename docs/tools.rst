@@ -19,15 +19,15 @@ Currently three different connection types are supported:
 
   * TLS - *tls*
   * SSH - *ssh*
-  * Unix Socket - *socket*
+  * Unix Domain socket - *socket*
 
 The user has to decide to use one of these connection types establish a
 communication channel. Most of the time the **socket** connection should be
 chosen. The other connection types require some setup and possible adjustments
 at the server side.
 
-All tools take several arguments and parameters. :program:`gvm-tools` allows to
-set defaults for most of these in a configuration file. See :doc:`config` for
+All tools take several arguments and parameters. :program:`gvm-tools` allows
+setting defaults for most of these in a configuration file. See :doc:`config` for
 details about the possible settings and capabilities.
 
 .. _gvm_cli:

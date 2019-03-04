@@ -7,8 +7,8 @@ The current universally applicable installation process for Python is using
 the `pip`_ installer tool in conjunction with the `pypi`_ package repository.
 
 .. note:: All commands listed here use the general tool names. If some of these
-  tools are provided by your distribution, you may need to use the explicit
-  python 3 version of the tool, e.g. :program:`pip3`.
+  tools are provided by your distribution, you may need to explicitly use the
+  Python 3 version of the tool, e.g. :program:`pip3`.
 
 Using pip
 ---------
@@ -22,7 +22,7 @@ The following command installs :program:`gvm-tools` system wide:
 
   pip install gvm-tools
 
-A system wide installation usually requires admin permissions. Therefore you
+A system wide installation usually requires admin permissions. Therefore, you
 may need install :program:`gvm-tools` only for the
 `current user <https://docs.python.org/3/library/site.html#site.USER_BASE>`_
 via:
@@ -37,11 +37,11 @@ the documentation of `pip`_.
 Using pipenv
 ------------
 
-To avoid polluting the system and user namespaces with python packages and to
-allow to install different versions of the same package at the same time,
+To avoid polluting the system and user namespaces with Python packages and to
+allow installing different versions of the same package at the same time,
 `python virtual environments <https://docs.python.org/3/library/venv.html>`_
 have been introduced. `pipenv`_ is a tool to combine using virtual environments
-and `pip`_ in an elegant fashion.
+and `pip`_ elegantly.
 
 Please follow the `pipenv documentation <https://pipenv.readthedocs.io/en/latest/install/#pragmatic-installation-of-pipenv>`_
 to install the tool.
@@ -73,7 +73,7 @@ To clone the public repository run::
 
     git clone git://github.com/greenbone/gvm-tools
 
-Once you have a copy of the source, you can install it into your current python
+Once you have a copy of the source, you can install it into your current Python
 `environment <https://docs.python.org/3/library/venv.html#venv-def>`_:
 
 .. code-block:: shell

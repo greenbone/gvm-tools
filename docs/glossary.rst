@@ -42,5 +42,5 @@ Glossary
     <https://community.greenbone.net/t/about-gvm-architecture/1231>`_ is a
     framework of several services. It is developed as part of the commercial
     product line `Greenbone Security Manager
-    <https://www.greenbone.net/en/product-comparison/>`_. Formally known as
+    <https://www.greenbone.net/en/product-comparison/>`_. Formerly known as
     OpenVAS.
