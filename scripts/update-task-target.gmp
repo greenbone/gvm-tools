@@ -80,12 +80,12 @@ def copy_send_target(gmp, hosts, old_target_id):
 
     old_target = gmp.get_targets(target_id=old_target_id)[0]
 
-    objekts = ('reverse_lookup_only', 'reverse_lookup_unify', 'name')
-    for objekt in objekts:
-        var = old_target.xpath('{}/text()'.format(objekt))[0]
+    objects = ('reverse_lookup_only', 'reverse_lookup_unify', 'name')
+    for object in objects:
+        var = old_target.xpath('{}/text()'.format(object))[0]
         if var is '0':
             var = ''
-        keywords['{}'.format(objekt)] = var
+        keywords['{}'.format(object)] = var
 
     keywords['port_list'] = {'id': old_target.xpath('port_list/@id')[0]}
 
