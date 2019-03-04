@@ -46,8 +46,8 @@ class Config:
 
         self._defaults = dict()
 
-    def load(self, filename):
-        path = Path(filename).expanduser()
+    def load(self, filepath):
+        path = filepath.expanduser()
 
         config = configparser.ConfigParser(default_section='main')
 
@@ -57,7 +57,7 @@ class Config:
             logger.warning(
                 "Warning: Loaded config file %s contains deprecated 'Auth' "
                 "section. This section will be ignored in future.",
-                filename,
+                str(filepath),
             )
             gmp_username = config.get('Auth', 'gmp_username', fallback='')
             gmp_password = config.get('Auth', 'gmp_password', fallback='')

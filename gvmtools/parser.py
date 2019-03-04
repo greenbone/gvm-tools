@@ -22,6 +22,8 @@
 import argparse
 import logging
 
+from pathlib import Path
+
 from gvm import get_version as get_gvm_version
 from gvm.connections import (
     DEFAULT_TIMEOUT,
@@ -221,8 +223,13 @@ class CliParser:
         if not configfile:
             return config
 
+        configpath = Path(configfile)
+        if not configpath.expanduser().resolve().exists():
+            logger.debug('Ignoring non existing config file %s', configfile)
+            return config
+
         try:
-            config.load(configfile)
+            config.load(configpath)
             logger.debug('Loaded config %s', configfile)
         except Exception as e:  # pylint: disable=broad-except
             raise RuntimeError(
