@@ -38,7 +38,7 @@ gvm-cli
 :program:`gvm-cli` is a low level tool which offers sending and receiving of
 commands and responses for the XML-based :term:`GMP (Greenbone Management
 Protocol) <GMP>` and :term:`OSP (Open Scanner Protocol) <OSP>` directly via the
-command line. It's intended for :ref:`simple scripting <xml_scripting>` via
+command line. It is intended for :ref:`simple scripting <xml_scripting>` via
 shell.
 
 .. code-block:: shell
@@ -164,7 +164,7 @@ gvm-script
 
 .. versionadded:: 2.0
 
-The :program:`gvm-script` allows for running :ref:`gvm scripts <gvm_scripting>`
+The :program:`gvm-script` allows running :ref:`gvm scripts <gvm_scripting>`
 which are Python based scripts calling the `Python based GVM API
 <https://python-gvm.readthedocs.io/en/latest/>`_. Depending on the
 :command:`--protocol` argument a global gmp or osp object is passed to the

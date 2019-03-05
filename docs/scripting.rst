@@ -25,9 +25,9 @@ the IDS should automatically initiate a scan of the new system. This can be
 done with the help of a script.
 
 Starting point is the IP address of the new suspected system. For this IP
-address a target needs to be created in the :term:`GSM`.
+address, a target needs to be created in the :term:`GSM`.
 If the IP address is saved in the environment variable :envvar:`IPADDRESS` by
-the IDS the respective target can be created with the following command:
+the IDS, the respective target can be created with the following command:
 
 .. code-block:: shell
 
@@ -51,7 +51,7 @@ See :command:`create_task` command for all `details
 <https://docs.greenbone.net/API/OMP/omp.html#command_create_task>`__.
 
 
-Afterwards the task can be stated using the UUID return from the last response.
+Afterwards the task can be started using the UUID return from the last response.
 
 .. code-block:: shell
 
@@ -93,8 +93,8 @@ See :command:`get_reports` command for all `details
 <https://docs.greenbone.net/API/OMP/omp.html#command_get_reports>`__.
 
 
-Additionally the report could be downloaded in a specific report format instead
-of plain XML. Therefore all report formats can be listed with
+Additionally, the report could be downloaded in a specific report format instead
+of plain XML. All report formats can be listed with
 
 .. code-block:: shell
 
@@ -112,7 +112,7 @@ E.g. to download the report in a PDF format the following command can be used:
 
   > gvm-cli socket --xml "<get_reports report_id=\"0f9ea6ca-abf5-4139-a772-cb68937cdfbb\" format_id=\"c402cc3e-b531-11e1-9163-406186ea4fc5\"/>"
 
-.. note:: Please be aware the PDF is returned as `base64 encoded
+.. note:: Please be aware that the PDF is returned as `base64 encoded
   <https://en.wikipedia.org/wiki/Base64>`_ content of the
   *<get_report_response><report>* element in the XML response.
 
