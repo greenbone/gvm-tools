@@ -676,7 +676,7 @@ def status(gmp, im, version, script_args):
                     autofp = "autofp=%i" % script_args.autofp
 
                 full_report = gmp.get_reports(
-                    report_id=report_id,
+                    filter_id=report_id,
                     filter="sort-reverse=id result_hosts_only=1 "
                     "min_cvss_base= min_qod= notes=0 apply_overrides=%s overrides=%s "
                     "first=1 rows=-1 delta_states=cgns %s %s =%s"
