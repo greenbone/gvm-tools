@@ -1337,10 +1337,6 @@ def parse_date(datestring, default_timezone=UTC):
         raise ParseError(e)
 
 
-def check_args(args):
-    print(script_args)
-
-
 def main():
 
     parser = argparse.ArgumentParser(
