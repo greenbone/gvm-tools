@@ -13,8 +13,8 @@ programs.
 All of these programs are clients to communicate either via
 :term:`GMP (Greenbone Management Protocol) <GMP>`
 or :term:`OSP (Open Scanner Protocol) <OSP>`. The
-:ref:`connection <connection_types>` is establishing over a
-:ref:`TLS <tls_connection_type>`, :ref:`SSH <ssh_connection_type>`  or
+:ref:`connection <connection_types>` is established over a
+:ref:`TLS <tls_connection_type>`, :ref:`SSH <ssh_connection_type>` or
 :ref:`Unix Domain Socket <socket_connection_type>` communication channel.
 
 All tools take several arguments and parameters. :program:`gvm-tools` allows
