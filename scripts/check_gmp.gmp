@@ -555,7 +555,7 @@ def ping(gmp, im):
         end_session(im, "GMP CRITICAL: Machine dead?", NAGIOS_CRITICAL)
 
 
-def status(gmp, version, script_args):
+def status(gmp, im, version, script_args):
     """Returns the current status of a host
 
     This functions return the current state of a host.
@@ -705,7 +705,7 @@ def status(gmp, version, script_args):
             else:
                 full_report = im.load_local_report()
 
-            filter_report(full_report, script_args)
+            filter_report(im, full_report, script_args)
 
     if script_args.task:
         task = gmp.get_tasks(
@@ -804,10 +804,10 @@ def status(gmp, version, script_args):
             else:
                 full_report = im.load_local_report()
 
-            filter_report(full_report.xpath("report/report")[0], script_args)
+            filter_report(im, full_report.xpath("report/report")[0], script_args)
 
 
-def filter_report(report, script_args):
+def filter_report(im, report, script_args):
     """Filter out the information in a report
 
     This function filters the results of a given report.
@@ -1527,7 +1527,6 @@ def main():
         MAX_RUNNING_INSTANCES = script_args.max_running_instances
 
     # Set the report manager
-    global im
     im = InstanceManager(tmp_path_db)
 
     # Check if command holds clean command
@@ -1564,7 +1563,7 @@ def main():
 
     print(version)
     if "status" in script_args:
-        status(gmp, version, script_args)
+        status(gmp, im, version, script_args)
 
 
 if __name__ == "__gmp__":
