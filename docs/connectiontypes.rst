@@ -4,7 +4,7 @@ Connection Types
 ================
 
 Before being able to talk to a remote :term:`GMP` or :term:`OSP` server using
-one of the :ref:`provided command line clients <tools>` the the user
+one of the :ref:`provided command line clients <tools>`, the user
 has to choose a connection type for establishing a communication channel.
 Currently three different connection types are supported for being used as
 transport protocol:
@@ -46,9 +46,9 @@ OSPd scanner implementation.
 .. warning::
 
   Accessing a Unix Domain Socket requires sufficient unix file permissions for
-  the user running the :ref:`command line interface tool <tools>`. Please don't
+  the user running the :ref:`command line interface tool <tools>`. Please do not
   start a tool as **root** user via :command:`sudo` or :command:`su` only to
-  avoid not being able to access the socket path. Instead please adjust the
+  be able to access the socket path. Instead, please adjust the
   socket file permissions for example by setting the :command:`--listen-owner`,
   :command:`--listen-group` or :command:`--listen-mode` arguments of
   :term:`gvmd`.

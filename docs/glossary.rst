@@ -60,6 +60,6 @@ Glossary
     <https://community.greenbone.net/t/about-the-source-edition-gse-category/176>`_
     covers the actual source codes of the Greenbone application stack
     for vulnerability scanning and vulnerability management :term:`GVM`.
-    The source edition is adopted by external third parties. E.g. if your
-    :term:`GVM` stack is provided by a Linux Distribution then it is build from
+    The source edition is adopted by external third parties. E.g., if your
+    :term:`GVM` stack is provided by a Linux Distribution, it is build from
     the Greenbone Source Edition.
