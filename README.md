@@ -21,7 +21,7 @@ But it is also possible to issue remote GMP/OSP commands without programming in
 Python.
 
 ## Table of Contents
-
+* [Documentation](#documentation)
 * [Installation](#installation)
   * [Requirements](#requirements)
   * [Install using pip](#install-using-pip)
