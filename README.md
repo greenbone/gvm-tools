@@ -28,10 +28,11 @@ Python.
 * [Usage](#usage)
   * [gvm-cli](#gvm-cli)
      * [Example program use](#example-program-use)
-  * [gvm-pyshell](#gvm-pyshell)
-     * [Example program use](#example-program-use-1)
+  * [gvm-script](#gvm-script)
      * [Example script](#example-script)
      * [More example scripts](#more-example-scripts)
+  * [gvm-pyshell](#gvm-pyshell)
+     * [Example program use](#example-program-use-1)
 * [Support](#support)
 * [Maintainer](#maintainer)
 * [Contributing](#contributing)
@@ -109,36 +110,15 @@ unparsed XML response can be requested using the `--raw` parameter:
 
 ```
 gvm-cli socket --raw --xml "<authenticate/>"
+
 ```
 
-### gvm-pyshell
+### gvm-script
 
 This tool has a lot more features than the simple gvm-cli client. You
-have the possibility to create your own custom scripts with commands
+have the possibility to create your own custom gmp or osp scripts with commands
 from the [python-gvm library](https://github.com/greenbone/python-gvm) and from
-python3 itself. The scripts can be pre-loaded in the program through an
-additional argument.
-
-#### Example program use
-
-Open script.gmp over TLS connection.
-
-```
-gvm-pyshell tls --hostname=127.0.0.1 script.gmp
-```
-
-Connect with given credentials and as unix socket. Opens an interactive
-shell.
-
-```
-gvm-pyshell socket --gmp-username=user --gmp-password=pass -i
-```
-
-Connect through SSH connection. Opens an interactive shell.
-
-```
-gvm-pyshell ssh --hostname=127.0.0.1 -i
-```
+Python 3 itself.
 
 #### Example script
 
@@ -164,6 +144,27 @@ There is a growing collection of gmp-scripts in the
 ["scripts/"](scripts/) folder.
 Some of them might be exactly what you need and all of them help writing
 your own gmp scripts.
+
+### gvm-pyshell
+
+This tool is for running gmp or osp scripts interactively. It provides the same
+API as [gvm-script](#gvm-script) using the
+[python-gvm library](https://github.com/greenbone/python-gvm).
+
+#### Example program use
+
+Connect with given credentials via a unix domain socket and open an interactive
+shell.
+
+```
+gvm-pyshell socket --gmp-username=user --gmp-password=pass -i
+```
+
+Connect through SSH connection and open the interactive shell.
+
+```
+gvm-pyshell ssh --hostname=127.0.0.1 -i
+```
 
 ## Support
 
