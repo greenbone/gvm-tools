@@ -122,6 +122,8 @@ E.g. to download the report in a PDF format the following command can be used:
 GVM Scripts
 -----------
 
+.. versionchanged:: 2.0
+
 Scripting of :term:`GMP (Greenbone Management Protocol) <GMP>` and :term:`OSP
 (Open Scanner Protocol) <OSP>` via :program:`gvm-script` is based on the
 `python-gvm <https://python-gvm.readthedocs.io/en/latest/>`_ library.
