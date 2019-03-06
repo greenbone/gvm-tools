@@ -57,8 +57,6 @@ def main():
 
     args = parser.parse_args()
 
-    print(args)
-
     if 'socket' in args.connection_type and args.sockpath:
         print(
             'The --sockpath parameter has been deprecated. Please use '
