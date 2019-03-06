@@ -125,8 +125,166 @@ GVM Scripts
 .. versionchanged:: 2.0
 
 Scripting of :term:`GMP (Greenbone Management Protocol) <GMP>` and :term:`OSP
-(Open Scanner Protocol) <OSP>` via :program:`gvm-script` is based on the
-`python-gvm <https://python-gvm.readthedocs.io/en/latest/>`_ library.
+(Open Scanner Protocol) <OSP>` via :program:`gvm-script` or interactively via
+:program:`gvm-pyshell` is based on the `python-gvm`_ library. Please take a look
+at `python-gvm`_ for further details about the API.
+
+.. note:: By convention scripts using :term:`GMP` are called *GMP scripts* and
+  are files with a :file:`.gmp` ending. Accordingly *OSP scripts* with the
+  ending :file:`.osp` are using :term:`OSP`. Technically both protocols could be
+  used in one single script file.
+
+The following sections are using the same example as in
+:ref:`XML scripting <xml_scripting>` where we assume that an Intrusion Detection
+System is in use that monitors the systems in the DMZ and immediately discovers
+new systems and unusual TCP ports not used up to now. The IDS will provide the
+IP address of a new system to the GMP script.
+
+First of all we start with defining the function to be called when the script is
+started. Therefore we add the following code to a file named
+:file:`scan-new-system.gmp`.
+
+.. code-block:: python3
+
+  if __name__ == '__gmp__':
+    main(gmp, args)
+
+This ensures the script is only called when being run as a GMP script. The
+:dfn:`gmp` and :dfn:`args` variables are provided by :program:`gvm-cli` or
+:program:`gvm-pyshell`. :dfn:`args` contains arguments for the script e.g. the
+username and password for the GMP connection. Most important for our example
+script, it contains the argv property with the list of additional script
+specific arguments. The :dfn:`gmp` variable contains a connected and
+authenticated instance of a `Greenbone Management Protocol class
+<https://python-gvm.readthedocs.io/en/latest/api/protocols.html#gvm.protocols.gmpv7.Gmp>`_.
+
+.. code-block:: python3
+
+  def main(gmp, args):
+    # check if IP address is provided to the script
+    # argv[0] contains the script name
+    if len(args.argv) <= 1:
+      print('Missing IP address argument')
+      return 1
+
+    ipaddress = args.argv[1]
+
+Defines the main function and stores the passed first script argument as
+:envvar:`ipaddress` variable. Going further we add the logic to create a target,
+create a new scan task for the target, start the task and print the
+corresponding report id.
+
+.. code-block:: python3
+
+    ipaddress = args.argv[1]
+
+    target_id = create_target(gmp, ipaddress)
+
+    full_and_fast_scan_config_id = 'daba56c8-73ec-11df-a475-002264764cea'
+    openvas_scanner_id = '08b69003-5fc2-4037-a479-93b440211c73'
+    task_id = create_task(
+        gmp,
+        ipaddress,
+        target_id,
+        full_and_fast_scan_config_id,
+        openvas_scanner_id,
+    )
+
+    report_id = start_task(gmp, task_id)
+
+    print(
+        "Started scan of host {}. Corresponding report ID is {}".format(
+            ipaddress, report_id
+        )
+    )
+
+For creating the target from an IP address (DNS name is also possible) the
+following is used. Because target names must be unique the current datetime in
+ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm) is added.
+
+.. code-block:: python3
+
+  def create_target(gmp, ipaddress):
+      import datetime
+
+      # create a unique name by adding the current datetime
+      name = "Suspect Host {} {}".format(ipaddress, str(datetime.datetime.now()))
+      response = gmp.create_target(name=name, hosts=[ipaddress])
+      return response.get('id')
+
+
+The function for creating the task is defined as
+
+.. code-block:: python3
+
+  def create_task(gmp, ipaddress, target_id, scan_config_id, scanner_id):
+      name = "Scan Suspect Host {}".format(ipaddress)
+      response = gmp.create_task(
+          name=name,
+          config_id=scan_config_id,
+          target_id=target_id,
+          scanner_id=scanner_id,
+      )
+      return response.get('id')
+
+
+And finally the function to start the task and get the report ID.
+
+.. code-block:: python3
+
+  def start_task(gmp, task_id):
+      response = gmp.start_task(task_id)
+      # the response is
+      # <start_task_response><report_id>id</report_id></start_task_response>
+      return response[0].text
+
+
+For getting a PDF document of the report a second script :file:`pdf-report.gmp`
+can be used.
+
+.. code-block:: python3
+
+  from base64 import b64decode
+  from pathlib import Path
+
+
+  def main(gmp, args):
+      # check if report id and PDF filename are provided to the script
+      # argv[0] contains the script name
+      if len(args.argv) <= 2:
+          print('Please provide report ID and PDF file name as script arguments')
+          return 1
+
+      report_id = args.argv[1]
+      pdf_filename = args.argv[2]
+
+      pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
+      response = gmp.get_report(
+          report_id=report_id, report_format_id=pdf_report_format_id
+      )
+
+      report_element = response[0]
+      # get the full content of the report element
+      content = "".join(report_element.itertext())
+
+      # convert content to 8-bit ASCII bytes
+      binary_base64_encoded_pdf = content.encode('ascii')
+      # decode base64
+      binary_pdf = b64decode(binary_base64_encoded_pdf)
+
+      # write to file and support ~ in filename path
+      pdf_path = Path(pdf_filename).expanduser()
+      pdf_path.write_bytes(binary_pdf)
+
+      print('Done.')
+
+
+  if __name__ == '__gmp__':
+      main(gmp, args)
+
+
+
+.. _python-gvm: https://python-gvm.readthedocs.io/
 
 Example Scripts
 ---------------
