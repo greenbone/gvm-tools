@@ -44,7 +44,7 @@ target.
 
 .. code-block:: shell
 
-  > gvm-cli socket --xml "<create_task><name>Scan Suspect Host</name><target id=\"e5adc10c-71d0-49fe-aacf-a442ee31d387\"/><config id=\"daba56c8-73ec-11df-a475-002264764cea\"/></create_task>" 
+  > gvm-cli socket --xml "<create_task><name>Scan Suspect Host</name><target id=\"e5adc10c-71d0-49fe-aacf-a442ee31d387\"/><config id=\"daba56c8-73ec-11df-a475-002264764cea\"/><scanner id=\"08b69003-5fc2-4037-a479-93b440211c73\"/></create_task>"
   <create_task_response status="201" status_text="OK, resource created" id="7249a07c-03e1-4197-99e4-a3a9ab5b7c3b"/>
 
 See :command:`create_task` command for all `details
