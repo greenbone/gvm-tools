@@ -3,7 +3,8 @@
 Provided Tools
 ==============
 
-Currently, :program:`gvm-tools` ships with three console line interface programs.
+Currently, :program:`gvm-tools` ships with three command line interface
+programs.
 
 * :ref:`gvm-cli <gvm_cli>`
 * :ref:`gvm-pyshell <gvm_pyshell>`
@@ -11,20 +12,10 @@ Currently, :program:`gvm-tools` ships with three console line interface programs
 
 All of these programs are clients to communicate either via
 :term:`GMP (Greenbone Management Protocol) <GMP>`
-or :term:`OSP (Open Scanner Protocol) <OSP>`.
-
-.. _connection_types:
-
-Currently three different connection types are supported:
-
-  * TLS - *tls*
-  * SSH - *ssh*
-  * Unix Domain socket - *socket*
-
-The user has to decide to use one of these connection types establish a
-communication channel. Most of the time the **socket** connection should be
-chosen. The other connection types require some setup and possible adjustments
-at the server side.
+or :term:`OSP (Open Scanner Protocol) <OSP>`. The
+:ref:`connection <connection_types>` is establishing over a
+:ref:`TLS <tls_connection_type>`, :ref:`SSH <ssh_connection_type>`  or
+:ref:`Unix Domain Socket <socket_connection_type>` communication channel.
 
 All tools take several arguments and parameters. :program:`gvm-tools` allows
 setting defaults for most of these in a configuration file. See :doc:`config`
