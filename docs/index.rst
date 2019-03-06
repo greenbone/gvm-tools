@@ -14,6 +14,7 @@ and :term:`OSP (Open Scanner Protocol) <OSP>`.
 
 .. toctree::
   install
+  connectiontypes
   tools
   config
   scripting

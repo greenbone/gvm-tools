@@ -23,9 +23,9 @@ Currently five sections are evaluated:
 
 * :ref:`Main section <main_section>`
 * :ref:`GMP section <gmp_section>`
-* :ref:`Socket section <socket_section>`
-* :ref:`TLS section <tls_section>`
-* :ref:`SSH section <ssh_section>`
+* :ref:`Socket section <socket_config_section>`
+* :ref:`TLS section <tls_config_section>`
+* :ref:`SSH section <ssh_config_section>`
 
 .. _main_section:
 
@@ -56,14 +56,14 @@ based communication.
   password=gmppassword
 
 
-.. _socket_section:
+.. _socket_config_section:
 
 .. rubric:: Socket section
 
 The socket section allows setting the default path to the Unix Domain socket of
 :term:`gvmd` or :term:`openvasmd` respectively. Not to be confused with the
 socket path to the redis server used by :term:`openvassd`. Only relevant if
-the socket connection type is used.
+the :ref:`socket connection type <socket_connection_type>` is used.
 
 .. code-block:: ini
 
@@ -71,13 +71,14 @@ the socket connection type is used.
   socketpath=/var/run/gvmd.sock
 
 
-.. _tls_section:
+.. _tls_config_section:
 
 .. rubric:: TLS section
 
 The TLS section allows setting the default port, TLS certificate file, TLS key
-file and TLS certificate authority file. Only relevant if the TLS connection
-type is used (Default for :term:`GOS` 3.1).
+file and TLS certificate authority file. Only relevant if the
+:ref:`TLS connection type <tls_connection_type>` is used (Default for accessing
+:term:`openvasmd` on :term:`GOS` 3.1).
 
 .. code-block:: ini
 
@@ -88,13 +89,13 @@ type is used (Default for :term:`GOS` 3.1).
   cafile=/path/to/tls.ca
 
 
-.. _ssh_section:
+.. _ssh_config_section:
 
 .. rubric:: SSH section
 
 The SSH section allows setting the default SSH port, SSH username and SSH
-password. Only relevant if the SSH connection type is used (Default for
-:term:`GOS` 4 and beyond).
+password. Only relevant if the :ref:`SSH connection type <ssh_connection_type>`
+is used (Default for accessing :term:`openvasmd` on :term:`GOS` 4 and beyond).
 
 .. code-block:: ini
 
