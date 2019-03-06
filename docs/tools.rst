@@ -7,8 +7,8 @@ Currently, :program:`gvm-tools` ships with three command line interface
 programs.
 
 * :ref:`gvm-cli <gvm_cli>`
-* :ref:`gvm-pyshell <gvm_pyshell>`
 * :ref:`gvm-script <gvm_script>`
+* :ref:`gvm-pyshell <gvm_pyshell>`
 
 All of these programs are clients to communicate either via
 :term:`GMP (Greenbone Management Protocol) <GMP>`
@@ -80,6 +80,55 @@ Examples:
   > gvm-cli socket < commands.xml
 
 
+.. _gvm_script:
+
+gvm-script
+----------
+
+.. versionadded:: 2.0
+
+The :program:`gvm-script` allows running :ref:`gvm scripts <gvm_scripting>`
+which are Python based scripts calling the `Python based GVM API
+<https://python-gvm.readthedocs.io/en/latest/>`_. Depending on the
+:command:`--protocol` argument a global gmp or osp object is passed to the
+script.
+
+.. note:: :program:`gvm-script` is only available with gvm-tools version 2.0 and
+  later
+
+.. code-block:: shell
+
+  usage: gvm-script [-h] [-c [CONFIG]]
+                    [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
+                    [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
+                    [--gmp-password GMP_PASSWORD] [-V] [--protocol {GMP,OSP}]
+                    CONNECTION_TYPE ...
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -c [CONFIG], --config [CONFIG]
+                          Configuration file path (default: ~/.config/gvm-
+                          tools.conf)
+    --log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                          Activate logging (default level: None)
+    --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
+                          indefinitely (default: 60)
+    --gmp-username GMP_USERNAME
+                          Username for GMP service (default: '')
+    --gmp-password GMP_PASSWORD
+                          Password for GMP service (default: '')
+    -V, --version         Show version information and exit
+    --protocol {GMP,OSP}  Service protocol to use (default: GMP)
+
+  connections:
+    valid connection types
+
+    CONNECTION_TYPE       Connection type to use
+      ssh                 Use SSH to connect to service
+      tls                 Use TLS secured connection to connect to service
+      socket              Use UNIX Domain socket to connect to service
+
+
 .. _gvm_pyshell:
 
 gvm-pyshell
@@ -145,53 +194,3 @@ Example:
   '7.0'
   >>> [t.find('name').text for t in tasks.xpath('task')]
   ['Scan Task', 'Simple Scan', 'Host Discovery']
-
-
-
-.. _gvm_script:
-
-gvm-script
-----------
-
-.. versionadded:: 2.0
-
-The :program:`gvm-script` allows running :ref:`gvm scripts <gvm_scripting>`
-which are Python based scripts calling the `Python based GVM API
-<https://python-gvm.readthedocs.io/en/latest/>`_. Depending on the
-:command:`--protocol` argument a global gmp or osp object is passed to the
-script.
-
-.. note:: :program:`gvm-script` is only available with gvm-tools version 2.0 and
-  later
-
-.. code-block:: shell
-
-  usage: gvm-script [-h] [-c [CONFIG]]
-                    [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
-                    [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-                    [--gmp-password GMP_PASSWORD] [-V] [--protocol {GMP,OSP}]
-                    CONNECTION_TYPE ...
-
-  optional arguments:
-    -h, --help            show this help message and exit
-    -c [CONFIG], --config [CONFIG]
-                          Configuration file path (default: ~/.config/gvm-
-                          tools.conf)
-    --log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]
-                          Activate logging (default level: None)
-    --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
-                          indefinitely (default: 60)
-    --gmp-username GMP_USERNAME
-                          Username for GMP service (default: '')
-    --gmp-password GMP_PASSWORD
-                          Password for GMP service (default: '')
-    -V, --version         Show version information and exit
-    --protocol {GMP,OSP}  Service protocol to use (default: GMP)
-
-  connections:
-    valid connection types
-
-    CONNECTION_TYPE       Connection type to use
-      ssh                 Use SSH to connect to service
-      tls                 Use TLS secured connection to connect to service
-      socket              Use UNIX Domain socket to connect to service
