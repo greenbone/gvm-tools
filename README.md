@@ -21,7 +21,7 @@ But it is also possible to issue remote GMP/OSP commands without programming in
 Python.
 
 ## Table of Contents
-
+* [Documentation](#documentation)
 * [Installation](#installation)
   * [Requirements](#requirements)
   * [Install using pip](#install-using-pip)
@@ -101,7 +101,7 @@ gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</use
 Reads a file with GMP commands and return the result.
 
 ```
-gvm-cli socket --gmp-username foo --gmp-password bar < myfile.gmp
+gvm-cli socket --gmp-username foo --gmp-password bar < myfile.xml
 ```
 
 Note that `gvm-cli` will by default raise an exception when a command is
