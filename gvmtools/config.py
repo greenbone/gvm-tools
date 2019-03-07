@@ -22,8 +22,6 @@ Module to store gvm-tools configuration settings
 import configparser
 import logging
 
-from pathlib import Path
-
 from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_GVM_PORT
 
 logger = logging.getLogger(__name__)
@@ -51,7 +49,8 @@ class Config:
 
         config = configparser.ConfigParser(default_section='main')
 
-        config.read_file(path.open())
+        with path.open() as f:
+            config.read_file(f)
 
         if 'Auth' in config:
             logger.warning(
