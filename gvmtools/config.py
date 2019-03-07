@@ -49,7 +49,8 @@ class Config:
 
         config = configparser.ConfigParser(default_section='main')
 
-        config.read_file(path.open())
+        with path.open() as f:
+            config.read_file(f)
 
         if 'Auth' in config:
             logger.warning(
