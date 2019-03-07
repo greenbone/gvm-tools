@@ -20,6 +20,8 @@ import unittest
 
 from pathlib import Path
 
+from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_TIMEOUT
+
 from gvmtools.parser import CliParser
 
 __here__ = Path(__file__).parent.resolve()
@@ -70,6 +72,24 @@ class ConfigParserTestCase(unittest.TestCase):
         self.assertEqual(args.keyfile, 'foo.key')
         self.assertEqual(args.cafile, 'foo.ca')
         self.assertEqual(args.port, 123)
+
+
+class IgnoreConfigParserTestCase(unittest.TestCase):
+    def test_unkown_config_file(self):
+        test_config_path = __here__ / 'foo.cfg'
+
+        self.assertFalse(test_config_path.is_file())
+
+        self.parser = CliParser('TestParser', 'test.log')
+
+        args = self.parser.parse_args(
+            ['--config', str(test_config_path), 'socket']
+        )
+
+        self.assertEqual(args.timeout, DEFAULT_TIMEOUT)
+        self.assertEqual(args.gmp_password, '')
+        self.assertEqual(args.gmp_username, '')
+        self.assertEqual(args.socketpath, DEFAULT_UNIX_SOCKET_PATH)
 
 
 class ParserTestCase(unittest.TestCase):
