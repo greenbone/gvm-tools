@@ -30,7 +30,7 @@ client tool at the same host as the daemon.
 
 The location and name of the Unix Domain Socket provided by
 :term:`gvmd`/:term:`openvasmd` highly depends on your environment and
-:term:`GVM` installation. Its name changed from :file:`openvasmd.sock` in
+:term:`GVM` installation. Also its name changed from :file:`openvasmd.sock` in
 :term:`GVM 9 <GVM9>` to :file:`gvmd.sock` in :term:`GVM 10 <GVM10>`.
 
 For example in :term:`GOS 4 <GOS>` the path is either
