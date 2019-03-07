@@ -129,19 +129,19 @@ Scripting of :term:`GMP (Greenbone Management Protocol) <GMP>` and :term:`OSP
 :program:`gvm-pyshell` is based on the `python-gvm`_ library. Please take a look
 at `python-gvm`_ for further details about the API.
 
-.. note:: By convention scripts using :term:`GMP` are called *GMP scripts* and
-  are files with a :file:`.gmp` ending. Accordingly *OSP scripts* with the
+.. note:: By convention, scripts using :term:`GMP` are called *GMP scripts* and
+  are files with a :file:`.gmp` ending. Accordingly, *OSP scripts* with the
   ending :file:`.osp` are using :term:`OSP`. Technically both protocols could be
   used in one single script file.
 
 The following sections are using the same example as in
 :ref:`XML scripting <xml_scripting>` where we assume that an Intrusion Detection
 System is in use that monitors the systems in the DMZ and immediately discovers
-new systems and unusual TCP ports not used up to now. The IDS will provide the
+new systems and unusual TCP ports not used up until now. The IDS will provide the
 IP address of a new system to the GMP script.
 
-First of all we start with defining the function to be called when the script is
-started. Therefore we add the following code to a file named
+We start with defining the function to be called when the script is
+started. For this, we add the following code to a file named
 :file:`scan-new-system.gmp`.
 
 .. code-block:: python3
@@ -151,7 +151,7 @@ started. Therefore we add the following code to a file named
 
 This ensures the script is only called when being run as a GMP script. The
 :dfn:`gmp` and :dfn:`args` variables are provided by :program:`gvm-cli` or
-:program:`gvm-pyshell`. :dfn:`args` contains arguments for the script e.g. the
+:program:`gvm-pyshell`. :dfn:`args` contains arguments for the script, e.g. the
 username and password for the GMP connection. Most important for our example
 script, it contains the argv property with the list of additional script
 specific arguments. The :dfn:`gmp` variable contains a connected and
@@ -170,9 +170,9 @@ authenticated instance of a `Greenbone Management Protocol class
     ipaddress = args.argv[1]
 
 Defines the main function and stores the passed first script argument as
-:envvar:`ipaddress` variable. Going further we add the logic to create a target,
+:envvar:`ipaddress` variable. Going further, we add the logic to create a target,
 create a new scan task for the target, start the task and print the
-corresponding report id.
+corresponding report ID.
 
 .. code-block:: python3
 
@@ -199,7 +199,7 @@ corresponding report id.
     )
 
 For creating the target from an IP address (DNS name is also possible) the
-following is used. Because target names must be unique the current datetime in
+following is used. Since target names must be unique, the current datetime in
 ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm) is added.
 
 .. code-block:: python3
@@ -213,7 +213,7 @@ ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm) is added.
       return response.get('id')
 
 
-The function for creating the task is defined as
+The function for creating the task is defined as:
 
 .. code-block:: python3
 
@@ -228,7 +228,7 @@ The function for creating the task is defined as
       return response.get('id')
 
 
-And finally the function to start the task and get the report ID.
+And finally, the function to start the task and get the report ID:
 
 .. code-block:: python3
 
@@ -239,7 +239,7 @@ And finally the function to start the task and get the report ID.
       return response[0].text
 
 
-For getting a PDF document of the report a second script :file:`pdf-report.gmp`
+For getting a PDF document of the report, a second script :file:`pdf-report.gmp`
 can be used.
 
 .. code-block:: python3
