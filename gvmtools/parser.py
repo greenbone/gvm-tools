@@ -224,7 +224,13 @@ class CliParser:
             return config
 
         configpath = Path(configfile)
-        if not configpath.expanduser().resolve().exists():
+
+        try:
+            if not configpath.expanduser().resolve().exists():
+                logger.debug('Ignoring non existing config file %s', configfile)
+                return config
+        except FileNotFoundError:
+            # we are on python 3.5 and Path.resolve raised a FileNotFoundError
             logger.debug('Ignoring non existing config file %s', configfile)
             return config
 

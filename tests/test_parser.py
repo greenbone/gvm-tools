@@ -91,6 +91,22 @@ class IgnoreConfigParserTestCase(unittest.TestCase):
         self.assertEqual(args.gmp_username, '')
         self.assertEqual(args.socketpath, DEFAULT_UNIX_SOCKET_PATH)
 
+    def test_unkown_config_file_in_unkown_dir(self):
+        test_config_path = __here__ / 'foo' / 'foo.cfg'
+
+        self.assertFalse(test_config_path.is_file())
+
+        self.parser = CliParser('TestParser', 'test.log')
+
+        args = self.parser.parse_args(
+            ['--config', str(test_config_path), 'socket']
+        )
+
+        self.assertEqual(args.timeout, DEFAULT_TIMEOUT)
+        self.assertEqual(args.gmp_password, '')
+        self.assertEqual(args.gmp_username, '')
+        self.assertEqual(args.socketpath, DEFAULT_UNIX_SOCKET_PATH)
+
 
 class ParserTestCase(unittest.TestCase):
     def setUp(self):
