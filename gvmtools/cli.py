@@ -20,11 +20,10 @@ import getpass
 import logging
 import sys
 
-from gvm.protocols.latest import Gmp
+from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import CheckCommandTransform
 
-from gvmtools.parser import create_parser, create_connection
-
+from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +45,8 @@ HELP_TEXT = """
 
 def main():
     parser = create_parser(description=HELP_TEXT, logfilename='gvm-cli.log')
+
+    parser.add_protocol_argument()
 
     parser.add_argument('-X', '--xml', help='XML request to send')
     parser.add_argument(
@@ -75,12 +76,6 @@ def main():
     if len(xml) == 0:
         xml = input()
 
-    # Ask for password if none are given
-    if args.gmp_username and not args.gmp_password:
-        args.gmp_password = getpass.getpass(
-            'Enter password for ' + args.gmp_username + ': '
-        )
-
     connection = create_connection(**vars(args))
 
     if args.raw:
@@ -88,20 +83,29 @@ def main():
     else:
         transform = CheckCommandTransform()
 
-    gvm = Gmp(connection, transform=transform)
+    if args.protocol == PROTOCOL_OSP:
+        protocol = Osp(connection, transform=transform)
+    else:
+        protocol = Gmp(connection, transform=transform)
 
-    if args.gmp_username:
-        gvm.authenticate(args.gmp_username, args.gmp_password)
+        # Ask for password if none are given
+        if args.gmp_username and not args.gmp_password:
+            args.gmp_password = getpass.getpass(
+                'Enter password for ' + args.gmp_username + ': '
+            )
+
+        if args.gmp_username:
+            protocol.authenticate(args.gmp_username, args.gmp_password)
 
     try:
-        result = gvm.send_command(xml)
+        result = protocol.send_command(xml)
 
         print(result)
     except Exception as e:  # pylint: disable=broad-except
         print(e)
         sys.exit(1)
 
-    gvm.disconnect()
+    protocol.disconnect()
 
     sys.exit(0)
 
