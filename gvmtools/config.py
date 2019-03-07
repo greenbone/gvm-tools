@@ -22,8 +22,6 @@ Module to store gvm-tools configuration settings
 import configparser
 import logging
 
-from pathlib import Path
-
 from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_GVM_PORT
 
 logger = logging.getLogger(__name__)
