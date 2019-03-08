@@ -62,7 +62,18 @@ OSPd scanner implementation.
 TLS
 ---
 
+The TLS connection type was the default connection type for remote and local
+communication in :term:`GOS 3.1 <GOS>` and before. It is used to secure the
+transport protocol connection of :term:`GMP` or :term:`OSP`. It requires to
+provide a TLS certificate file, TLS key file and TLS certificate authority file.
+
+
 .. _ssh_connection_type:
 
 SSH
 ---
+
+Since :term:`GOS 4 <GOS>` SSH is the default connection type for secure remote
+communication with the manager daemon via :term:`GMP`. The :term:`Greenbone
+Management Protocol <GMP>` is tunneled through SSH and forwarded to
+:term:`gvmd`/:term:`openvasmd`.
