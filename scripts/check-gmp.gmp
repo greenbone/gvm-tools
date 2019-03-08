@@ -156,7 +156,7 @@ class InstanceManager:
         """
         self.host = host
 
-    def old_report(self, last_scan_end, params_used):
+    def is_old_report(self, last_scan_end, params_used):
         """Decide whether the current report is old or not
 
         At first the last scanend and the params that were used are fetched
@@ -673,7 +673,7 @@ def status(gmp, im, version, script_args):
         else:
             full_report = None
             # if last_scan_end is newer then add the report to db
-            if im.old_report(last_scan_end, params_used):
+            if im.is_old_report(last_scan_end, params_used):
                 levels = ""
                 autofp = ""
 
@@ -761,7 +761,7 @@ def status(gmp, im, version, script_args):
             else:
                 last_scan_end = ""
 
-            if im.old_report(last_scan_end, params_used):
+            if im.is_old_report(last_scan_end, params_used):
                 autofp = ""
 
                 if script_args.autofp:
