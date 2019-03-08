@@ -16,7 +16,8 @@ transport protocol:
 For the most common use case (querying :term:`openvasmd`/:term:`gvmd` via
 :term:`GMP` at the same host) the :ref:`socket connection
 <socket_connection_type>` should be chosen. The other connection types require
-some setup and possible adjustments at the server side.
+some setup and possible adjustments at the server side, if you are not using a
+:term:`Greenbone OS <GOS>` based system.
 
 
 .. _socket_connection_type:
