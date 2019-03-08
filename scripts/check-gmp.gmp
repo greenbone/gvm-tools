@@ -944,8 +944,6 @@ def filter_report(im, report, script_args):
                 "Report did contain %i errors" % int(error_count)
             )
 
-    # TODO Add multiple response data here from check_omp.c (errors)
-
     if script_args.report_link:
         print(
             "https://%s/omp?cmd=get_report&report_id=%s"
