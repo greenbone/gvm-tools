@@ -65,7 +65,7 @@ commands:
       - run:
           name: Run pylint
           command: |
-            pipenv run pylint -sn --disable=R gvmtools
+            pipenv run pylint --score=n --disable=R gvmtools
 
 jobs:
   lint-python-files:
