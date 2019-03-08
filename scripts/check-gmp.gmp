@@ -235,7 +235,6 @@ class InstanceManager:
 
         logger.debug(
             "add_report: %s, %s, %s", self.host, scan_end, params_used)
-        )
 
         # Insert values
         self.cursor.execute(
