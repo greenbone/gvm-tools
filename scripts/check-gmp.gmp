@@ -124,6 +124,12 @@ class InstanceManager:
         else:
             self.connect_db()
 
+    @staticmethod
+    def _to_sql_bool(pending):
+        """ Replace True/False with 1/0.
+        """
+        return '1' if pending else '0'
+
     def connect_db(self):
         """Connect to the databse
 
