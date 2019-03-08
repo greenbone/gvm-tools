@@ -294,7 +294,7 @@ class InstanceManager:
             The number of pending or non pending instances entries.
         """
         self.cursor.execute(
-            "SELECT count(*) FROM Instance WHERE pending=?", (pending,)
+            "SELECT count(*) FROM Instance WHERE pending=?", (self._to_sql_bool(pending),)
         )
 
         res = self.cursor.fetchone()
@@ -313,10 +313,10 @@ class InstanceManager:
         self.clean_orphaned_instances()
 
         # How many processes are currently running?
-        number_instances = self.has_entries(pending=0)
+        number_instances = self.has_entries(pending=False)
 
         # How many pending entries are waiting?
-        number_pending_instances = self.has_entries(pending=1)
+        number_pending_instances = self.has_entries(pending=True)
 
         logger.debug(
             "check_instances: %i %i"
@@ -329,7 +329,7 @@ class InstanceManager:
         ):
             # Add entry for running process and go on
             logger.debug("Fall 1")
-            self.add_instance(pending=0)
+            self.add_instance(pending=False)
 
         elif (
             number_instances < MAX_RUNNING_INSTANCES
@@ -358,11 +358,11 @@ class InstanceManager:
                     self.start_process(pid)
 
                 # Refresh number of instances for next while loop
-                number_instances = self.has_entries(pending=0)
-                number_pending_instances = self.has_entries(pending=1)
+                number_instances = self.has_entries(pending=False)
+                number_pending_instances = self.has_entries(pending=True)
 
             # TODO: Check if this is really necessary
-            # self.add_instance(pending=0)
+            # self.add_instance(pending=False)
             # if number_instances >= MAX_RUNNING_INSTANCES:
             # self.stop_process(self.pid)
 
@@ -373,7 +373,7 @@ class InstanceManager:
             # There are running enough instances and no pending instances
             # Add new entry with pending status true and stop this instance
             logger.debug("Fall 3")
-            self.add_instance(pending=1)
+            self.add_instance(pending=True)
             self.stop_process(self.pid)
 
         elif (
@@ -384,7 +384,7 @@ class InstanceManager:
             # pending instance
             # Add new entry with pending true and stop this instance
             logger.debug("Fall 4")
-            self.add_instance(pending=1)
+            self.add_instance(pending=True)
             self.stop_process(self.pid)
 
         # If an entry is pending and the same params at another process is
@@ -403,14 +403,14 @@ class InstanceManager:
         pending status and the dedicated pid
 
         Arguments:
-            pending {int} -- State of instance
+            pending (bool): State of instance
         """
         current_time = datetime.now().isoformat()
 
         # Insert values
         self.cursor.execute(
             "INSERT INTO Instance VALUES (?, ?, ?)",
-            (current_time, self.pid, pending),
+            (current_time, self.pid, self._to_sql_bool(pending)),
         )
 
         # Save the changes
@@ -430,7 +430,7 @@ class InstanceManager:
         )
         return self.cursor.fetchall()
 
-    def update_pending_status(self, date, status):
+    def update_pending_status(self, date, pending):
         """Update pending status of instance
 
         The date variable works as a primary key for the instance table.
@@ -441,7 +441,7 @@ class InstanceManager:
             pending (bool): Status of instance
         """
         self.cursor.execute(
-            "UPDATE Instance SET pending=? WHERE created_at=?", (status, date)
+            "UPDATE Instance SET pending=? WHERE created_at=?", (self._to_sql_bool(pending), date)
         )
 
         # Save the changes
@@ -487,10 +487,10 @@ class InstanceManager:
         Get the oldest pending entries and wake them up.
         """
         # How many processes are currently running?
-        number_instances = self.has_entries(pending=0)
+        number_instances = self.has_entries(pending=False)
 
         # How many pending entries are waiting?
-        number_pending_instances = self.has_entries(pending=1)
+        number_pending_instances = self.has_entries(pending=True)
 
         if (
             number_instances < MAX_RUNNING_INSTANCES
