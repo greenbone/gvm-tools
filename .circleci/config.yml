@@ -51,8 +51,27 @@ commands:
       - run:
           name: Upload coverage to Codecov
           command: pipenv run codecov
+  lint:
+    description: "Lint python files"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
+      - run:
+          name: Install pylint
+          command: |
+            pipenv run pip install pylint
+      - run:
+          name: Run pylint
+          command: |
+            pipenv run pylint -sn --disable=R gvmtools
 
 jobs:
+  lint-python-files:
+    executor: python-36
+    steps:
+      - lint
   build-35:
     executor: python-35
     steps:
@@ -82,6 +101,7 @@ workflows:
   version: 2
   build_and_test:
     jobs:
+      - lint-python-files
       - build-35
       - test-35
       - build-36
