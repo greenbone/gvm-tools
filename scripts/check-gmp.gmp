@@ -274,7 +274,7 @@ class InstanceManager:
         Arguments:
             days (int): Number of days in past
         """
-        logger.debug("Delete entries older than: %s days" % days)
+        logger.debug("Delete entries older than: %s days", days)
         self.cursor.execute(
             "DELETE FROM Report WHERE scan_end <= "
             'date("now", "-%s day")' % days
