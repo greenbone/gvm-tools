@@ -447,7 +447,7 @@ class InstanceManager:
         # Save the changes
         self.con_db.commit()
 
-    def delete_instance(self, pid=0):
+    def delete_instance(self, pid=None):
         """Delete instance from database
 
         If a pid different from zero is given, then delete the entry with
