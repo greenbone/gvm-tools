@@ -65,15 +65,15 @@ tmp_path_db = tmp_path + "reports.db"
 
 
 class InstanceManager:
-    """Class that manage instances of this plugin
+    """Class for managing instances of this plugin
 
     All new reports will be cached in a sqlite database.
     The first call with a unknown host takes longer,
-    because the gvm has to generate the report.
-    Second call will retrieve the data from the database if the scanend
-    time not differs.
+    because the remote gvmd/openvasmd has to generate the report.
+    The second call will retrieve the data from the database if the scan
+    duration does not differ.
 
-    Addtionally this class handles all instances of check_gmp. No more than
+    Additionally this class handles all instances of check-gmp. No more than
     MAX_RUNNING_INSTANCES can run simultaneously. Other instances are stopped
     and wait for continuation.
     """
