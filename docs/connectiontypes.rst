@@ -16,7 +16,8 @@ transport protocol:
 For the most common use case (querying :term:`openvasmd`/:term:`gvmd` via
 :term:`GMP` at the same host) the :ref:`socket connection
 <socket_connection_type>` should be chosen. The other connection types require
-some setup and possible adjustments at the server side.
+some setup and possible adjustments at the server side, if you are not using a
+:term:`Greenbone OS <GOS>` based system.
 
 
 .. _socket_connection_type:
@@ -30,7 +31,7 @@ client tool at the same host as the daemon.
 
 The location and name of the Unix Domain Socket provided by
 :term:`gvmd`/:term:`openvasmd` highly depends on your environment and
-:term:`GVM` installation. Its name changed from :file:`openvasmd.sock` in
+:term:`GVM` installation. Also its name changed from :file:`openvasmd.sock` in
 :term:`GVM 9 <GVM9>` to :file:`gvmd.sock` in :term:`GVM 10 <GVM10>`.
 
 For example in :term:`GOS 4 <GOS>` the path is either
@@ -42,6 +43,8 @@ For example in :term:`GOS 4 <GOS>` the path is either
 :term:`OSPd based scanners <OSPd>` may be accessed via Unix Domain Sockets too.
 The location and name of these sockets is configurable and depends on the used
 OSPd scanner implementation.
+
+.. _don_t_use_sudo:
 
 .. warning::
 
@@ -59,7 +62,18 @@ OSPd scanner implementation.
 TLS
 ---
 
+The TLS connection type was the default connection type for remote and local
+communication in :term:`GOS 3.1 <GOS>` and before. It is used to secure the
+transport protocol connection of :term:`GMP` or :term:`OSP`. It requires to
+provide a TLS certificate file, TLS key file and TLS certificate authority file.
+
+
 .. _ssh_connection_type:
 
 SSH
 ---
+
+Since :term:`GOS 4 <GOS>` SSH is the default connection type for secure remote
+communication with the manager daemon via :term:`GMP`. The :term:`Greenbone
+Management Protocol <GMP>` is tunneled through SSH and forwarded to
+:term:`gvmd`/:term:`openvasmd`.

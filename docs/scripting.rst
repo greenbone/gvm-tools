@@ -158,6 +158,8 @@ specific arguments. The :dfn:`gmp` variable contains a connected and
 authenticated instance of a `Greenbone Management Protocol class
 <https://python-gvm.readthedocs.io/en/latest/api/protocols.html#gvm.protocols.gmpv7.Gmp>`_.
 
+The main function begins with the following code lines:
+
 .. code-block:: python3
 
   def main(gmp, args):
@@ -169,10 +171,9 @@ authenticated instance of a `Greenbone Management Protocol class
 
     ipaddress = args.argv[1]
 
-Defines the main function and stores the passed first script argument as
-:envvar:`ipaddress` variable. Going further, we add the logic to create a target,
-create a new scan task for the target, start the task and print the
-corresponding report ID.
+The main function stores the first argument passed to the script as :envvar:`ipaddress`
+variable. Going further, we add the logic to create a target, create a new scan
+task for the target, start the task and print the corresponding report ID.
 
 .. code-block:: python3
 
