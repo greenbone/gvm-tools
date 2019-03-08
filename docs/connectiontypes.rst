@@ -44,6 +44,8 @@ For example in :term:`GOS 4 <GOS>` the path is either
 The location and name of these sockets is configurable and depends on the used
 OSPd scanner implementation.
 
+.. _don_t_use_sudo:
+
 .. warning::
 
   Accessing a Unix Domain Socket requires sufficient unix file permissions for
