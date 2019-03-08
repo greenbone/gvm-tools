@@ -171,7 +171,7 @@ The main function begins with the following code lines:
 
     ipaddress = args.argv[1]
 
-The main function stores the passed first script argument as :envvar:`ipaddress`
+The main function stores the first argument passed to the script as :envvar:`ipaddress`
 variable. Going further, we add the logic to create a target, create a new scan
 task for the target, start the task and print the corresponding report ID.
 
