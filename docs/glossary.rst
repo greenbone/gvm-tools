@@ -31,7 +31,7 @@ Glossary
     The `Greenbone Management Protocol
     <https://community.greenbone.net/t/about-the-greenbone-management-protocol-gmp-category/83>`_.
     An XML-based communication protocol provided by :term:`openvasmd` and
-    :term:`gvmd`.
+    :term:`gvmd`. In the past it was also known as OMP.
 
   OSP
     The `Open Scanner Protocol
