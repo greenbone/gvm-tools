@@ -642,28 +642,6 @@ def status(gmp, im, version, script_args):
                 if script_args.autofp:
                     autofp = "autofp=%i" % script_args.autofp
 
-                # When i add the ip address in the filter by a big report with
-                # a lot vulns, then the filtering is quick. But when the
-                # report did not contain the host, then it takes a lot longer.
-                # I dont know why. I add a check for the result count.
-                # If > 500 then add the host else without host
-                #
-                #   <debug>0</debug>
-                #   <hole>413</hole>
-                #   <info>380</info>
-                #   <log>9490</log>
-                #   <warning>2332</warning>
-                #   <false_positive>842</false_positive>
-
-                result_count = task.xpath(
-                    "task/last_report/report/result_count"
-                )
-                result_count = result_count[0]
-                # sum_results = result_count.xpath(
-                #     'sum(hole/text() | warning/text() | info/text())')
-                # host = ''
-                # Host must be setted, otherwise we get results of other hosts in the reports
-                # if sum_results > 200:
                 host = script_args.hostaddress
 
                 full_report = gmp.get_reports(
