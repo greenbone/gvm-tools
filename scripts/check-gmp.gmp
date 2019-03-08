@@ -1326,14 +1326,14 @@ def parse_date(datestring, default_timezone=UTC):
 def main():
 
     parser = argparse.ArgumentParser(
-        prog="check_gmp",
+        prog="check-gmp",
         prefix_chars="+",
         description=help_text,
         formatter_class=RawTextHelpFormatter,
         add_help=False,
         epilog="""
-        usage: check_gmp [+h] [++version] [connection_type] ...
-        or: check_gmp connection_type ++help""",
+        usage: check-gmp [+h] [++version] [connection_type] ...
+        or: check-gmp connection_type ++help""",
     )
 
     parser.add_argument(
@@ -1359,18 +1359,6 @@ def main():
         "++clean", action="store_true", help="Activate to clean the database."
     )
 
-    group = parser.add_mutually_exclusive_group(required=False)
-
-    group.add_argument(
-        "++days",
-        type=int,
-        help="Delete database entries that are older than" " given days.",
-    )
-
-    group.add_argument("++ip", help="Delete database entry for given ip.")
-
-    # TODO: Werror: Turn status UNKNOWN into status CRITICAL
-    parser = argparse.ArgumentParser(add_help=False, prefix_chars="+")
 
     parser.add_argument(
         "+u", "++gmp-username", help="GMP username.", required=False
@@ -1390,28 +1378,6 @@ def main():
 
     parser.add_argument(
         "+T", "++task", required=False, help="Report status of task <task>."
-    )
-
-    group = parser.add_mutually_exclusive_group(required=False)
-
-    group.add_argument(
-        "++ping", action="store_true", help="Ping the gsm appliance."
-    )
-
-    group.add_argument(
-        "++status", action="store_true", help="Report status of task."
-    )
-
-    group = parser.add_mutually_exclusive_group(required=False)
-
-    group.add_argument(
-        "++trend", action="store_true", help="Report status by trend."
-    )
-
-    group.add_argument(
-        "++last-report",
-        action="store_true",
-        help="Report status by last report.",
     )
 
     parser.add_argument(
@@ -1498,7 +1464,39 @@ def main():
         "++max-running-instances",
         default=10,
         type=int,
-        help="Set the maximum simultaneous processes of check_gmp",
+        help="Set the maximum simultaneous processes of check-gmp",
+    )
+
+    group1 = parser.add_mutually_exclusive_group(required=False)
+
+    group1.add_argument(
+        "++days",
+        type=int,
+        help="Delete database entries that are older than" " given days.",
+    )
+
+    group1.add_argument("++ip", help="Delete database entry for given ip.")
+
+    group2 = parser.add_mutually_exclusive_group(required=False)
+
+    group2.add_argument(
+        "++ping", action="store_true", help="Ping the gsm appliance."
+    )
+
+    group2.add_argument(
+        "++status", action="store_true", help="Report status of task."
+    )
+
+    group3 = parser.add_mutually_exclusive_group(required=False)
+
+    group3.add_argument(
+        "++trend", action="store_true", help="Report status by trend."
+    )
+
+    group3.add_argument(
+        "++last-report",
+        action="store_true",
+        help="Report status by last report.",
     )
 
     script_args, _ = parser.parse_known_args()
@@ -1512,7 +1510,7 @@ def main():
     im = InstanceManager(tmp_path_db)
 
     # Check if command holds clean command
-    if "clean" in script_args:
+    if script_args.clean:
         if script_args.ip:
             logger.info("Delete entry with ip %s" % script_args.ip)
             im.delete_entry_with_ip(script_args.ip)
@@ -1524,7 +1522,7 @@ def main():
     # Set the host
     im.set_host(script_args.hostaddress)
 
-    # Check if no more than 10 instances of check_gmp runs simultaneously
+    # Check if no more than 10 instances of check-gmp runs simultaneously
     im.check_instances()
 
     try:
