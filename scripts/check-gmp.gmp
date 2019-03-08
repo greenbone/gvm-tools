@@ -751,7 +751,6 @@ def status(gmp, im, version, script_args):
                 )
 
             last_report_id = last_report_id[0]
-            # pretty(task)
             last_scan_end = task.xpath(
                 "task/last_report/report/scan_end/text()"
             )
@@ -804,8 +803,6 @@ def status(gmp, im, version, script_args):
                         host,
                     ),
                 )
-
-                # pretty(report.xpath('report/report/filters'))
 
                 im.add_report(last_scan_end, params_used, full_report)
                 logger.debug("Report added to db")
@@ -1082,26 +1079,6 @@ def print_without_pipe(msg):
         msg.replace("|", "¦")
 
     print(msg)
-
-
-def pretty(xml):
-    """Prints beautiful XML-Code
-
-    This function gets an object of list<lxml.etree._Element>
-    or directly a lxml element.
-    Print it with good readable format.
-
-    Arguments:
-        xml {obj} -- list<lxml.etree._Element> or directly a lxml element
-    """
-    if type(xml) is list:
-        for item in xml:
-            if etree.iselement(item):
-                print(etree.tostring(item, pretty_print=True).decode("utf-8"))
-            else:
-                print(item)
-    elif etree.iselement(xml):
-        print(etree.tostring(xml, pretty_print=True).decode("utf-8"))
 
 
 """ISO 8601 date time string parsing
