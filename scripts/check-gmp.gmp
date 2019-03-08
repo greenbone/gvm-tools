@@ -84,7 +84,7 @@ class InstanceManager:
         Create it if it does not exist else connect to it.
 
         Arguments:
-            path {string} -- Path to the database
+            path (string): Path to the database.
         """
         self.cursor = None
         self.con_db = None
@@ -149,7 +149,7 @@ class InstanceManager:
         """Sets the host variable
 
         Arguments:
-            host {string} -- Given ip or hostname of target
+            host (string): Given ip or hostname of target.
         """
         self.host = host
 
@@ -163,11 +163,11 @@ class InstanceManager:
         report. Else the old report will be deleted.
 
         Arguments:
-            last_scan_end {string} -- Last scan end of report
-            params_used {string} -- Params used for this check
+            last_scan_end (string): Last scan end of report
+            params_used (string): Params used for this check
 
         Returns:
-            bool -- True: An old report or empty, False: It is the same report
+            True if it is an old report or empty. False if it is the same report.
         """
 
         # Before we do anything here, check existing instance
@@ -205,7 +205,7 @@ class InstanceManager:
         Select the report from the database according due the hostname or ip.
 
         Returns:
-            [obj] -- lxml object
+            An lxml ElementTree
         """
         self.cursor.execute(
             "SELECT report FROM Report WHERE host=?", (self.host,)
@@ -224,9 +224,9 @@ class InstanceManager:
         Additional data is the scanend and the params used.
 
         Arguments:
-            scan_end {string} -- Scan end of the report
-            params_used {string} -- Params used for this check
-            report {obj} -- lxml object
+            scan_end (string): Scan end of the report
+            params_used (string): Params used for this check
+            report (obj): An lxml ElementTree
         """
 
         data = etree.tostring(report)
@@ -256,7 +256,7 @@ class InstanceManager:
         """Delete report from database with given ip
 
         Arguments:
-            ip {string} -- IP-Adress
+            ip (string): IP-Adress
         """
         logger.debug("Delete entry with ip: %s" % ip)
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
@@ -269,7 +269,7 @@ class InstanceManager:
         """Delete reports from database older than given days
 
         Arguments:
-            days {int} -- Number of days in past
+            days (int): Number of days in past
         """
         logger.debug("Delete entries older than: %s days" % days)
         self.cursor.execute(
@@ -283,8 +283,12 @@ class InstanceManager:
 
     def has_entries(self, pending):
         """Return number of instance entries
+        Arguments:
+            pending (bool): True for pending instances. False for running
+                           instances.
 
-        Return the number of pending or non pending instances entries.
+        Returns:
+            The number of pending or non pending instances entries.
         """
         self.cursor.execute(
             "SELECT count(*) FROM Instance WHERE pending=?", (pending,)
@@ -295,9 +299,9 @@ class InstanceManager:
         return res[0]
 
     def check_instances(self):
-        """This method check the status of check_gmp instances
+        """This method checks the status of check-gmp instances.
 
-        Check whether instances are pending or not and start instances
+        Checks whether instances are pending or not and start instances
         according to the number saved in the MAX_RUNNING_INSTANCES variable.
         """
 
@@ -412,8 +416,9 @@ class InstanceManager:
     def get_oldest_pending_entries(self, number):
         """Return the oldest last entries of pending entries from database
 
-        Return the oldest instances with status pending limited by the variable
-        <number>
+        Return:
+            the oldest instances with status pending limited by the variable
+            <number>
         """
         self.cursor.execute(
             "SELECT * FROM Instance WHERE pending=1 ORDER BY "
@@ -429,8 +434,8 @@ class InstanceManager:
         The entry with date get his pending status updated.
 
         Arguments:
-            date {string} -- Date of creation for entry
-            status {int} -- Status of instance
+            date (string):  Date of creation for entry
+            pending (bool): Status of instance
         """
         self.cursor.execute(
             "UPDATE Instance SET pending=? WHERE created_at=?", (status, date)
@@ -447,7 +452,7 @@ class InstanceManager:
         instance.
 
         Keyword Arguments:
-            pid {number} -- Process Indentificattion Number (default: {0})
+            pid (number): Process Indentificattion Number (default: {0})
         """
         if not pid:
             pid = self.pid
@@ -511,7 +516,7 @@ class InstanceManager:
         Send a continue signal to the process with given pid
 
         Arguments:
-            pid {int} -- Process Identification Number
+            pid (int): Process Identification Number
         """
         logger.debug("Continue pid: %i" % (pid))
         os.kill(pid, signal.SIGCONT)
@@ -522,7 +527,7 @@ class InstanceManager:
         Send a stop signal to the process with given pid
 
         Arguments:
-            pid {int} -- Process Identification Number
+            pid (int): Process Identification Number
         """
         os.kill(pid, signal.SIGSTOP)
 
@@ -530,7 +535,7 @@ class InstanceManager:
         """Check for the existence of a process.
 
         Arguments:
-            pid {int} -- Process Identification Number
+            pid (int): Process Identification Number
         """
         try:
             os.kill(pid, 0)
@@ -813,7 +818,7 @@ def filter_report(im, report, script_args):
     This function filters the results of a given report.
 
     Arguments:
-        report {lxml object} -- Report in lxml object format
+        report (obj): Report as lxml ElementTree.
     """
     report_id = report.xpath("@id")
     if report_id:
@@ -975,7 +980,7 @@ def retrieve_nvt_data(result):
     This function parse the xml tree to find the important nvt data.
 
     Arguments:
-        result {lxml object} -- Result xml object
+        result (obj): Result as lxml ElementTree
 
     Returns:
         Tuple -- List with oid, name, desc, port and dfn
@@ -1020,7 +1025,7 @@ def print_nvt_data(nvts):
     Prints for each nvt found in the array the relevant data
 
     Arguments:
-        nvts {object} -- Object holding all nvts
+        nvts (obj): Object holding all nvts
     """
     for key, nvt_data in nvts.items():
         if key is "log" and not script_args.showlog:
@@ -1044,8 +1049,8 @@ def end_session(im, msg, nagios_status):
     Close the socket if open and print the last msg
 
     Arguments:
-        msg {string} -- Message to print
-        nagios_status {int} -- Exit status
+        msg string): Message to print
+        nagios_status (int): Exit status
     """
     print(msg)
 
@@ -1068,7 +1073,7 @@ def print_without_pipe(msg):
     broken pipe symbol.
 
     Arguments:
-        msg {string} -- Message to print
+        msg (string): Message to print
     """
     if "|" in msg:
         msg.replace("|", "¦")
@@ -1291,13 +1296,16 @@ def parse_date(datestring, default_timezone=UTC):
     default timezone specified in default_timezone is used. This is UTC by
     default.
 
-    :param datestring: The date to parse as a string
-    :param default_timezone: A datetime tzinfo instance to use when no timezone
-                             is specified in the datestring. If this is set to
-                             None then a naive datetime object is returned.
-    :returns: A datetime.datetime instance
-    :raises: ParseError when there is a problem parsing the date or
-             constructing the datetime instance.
+    Arguments
+        datestring: The date to parse as a string
+        default_timezone: A datetime tzinfo instance to use when no timezone
+                          is specified in the datestring. If this is set to
+                          None then a naive datetime object is returned.
+    Returns:
+        A datetime.datetime instance
+    Raises:
+        ParseError when there is a problem parsing the date or
+        constructing the datetime instance.
 
     """
     if not isinstance(datestring, _basestring):
