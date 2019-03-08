@@ -94,7 +94,7 @@ class InstanceManager:
         # Try to read file with informations about cached reports
         # First check whether the file exist or not
         exist = os.path.isfile(path)
-        logger.debug("DB file exist?: %s " % exist)
+        logger.debug("DB file exist?: %s ", exist)
 
         if not exist:
             os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -136,7 +136,7 @@ class InstanceManager:
         Simply connect to the database at location <path>
         """
         try:
-            logger.debug("connect db: %s" % self.path)
+            logger.debug("connect db: %s", self.path)
             self.con_db = sqlite3.connect(self.path)
             self.cursor = self.con_db.cursor()
             logger.debug(sqlite3.sqlite_version)
@@ -182,7 +182,7 @@ class InstanceManager:
         )
         db_entry = self.cursor.fetchone()
 
-        logger.debug("%s %s" % (db_entry, last_scan_end))
+        logger.debug("%s %s", db_entry, last_scan_end)
 
         if not db_entry:
             return True
@@ -191,14 +191,13 @@ class InstanceManager:
             new = parse_date(last_scan_end)
 
             logger.debug(
-                "Old time (from db): %s\n" "New time (from rp): %s" % (old, new)
-            )
+                "Old time (from db): %s\n" "New time (from rp): %s", old, new)
 
             if new <= old and params_used == db_entry[1]:
                 return False
             else:
                 # Report is newer. Delete old entry.
-                logger.debug("Delete old report for host %s" % self.host)
+                logger.debug("Delete old report for host %s", self.host)
                 self.delete_report()
                 return True
 
@@ -218,7 +217,7 @@ class InstanceManager:
         if db_entry:
             return etree.fromstring(db_entry[0])
         else:
-            logger.debug("Report from host %s is not in the db" % self.host)
+            logger.debug("Report from host %s is not in the db", self.host)
 
     def add_report(self, scan_end, params_used, report):
         """Create new entry with the lxml report
@@ -235,7 +234,7 @@ class InstanceManager:
         data = etree.tostring(report)
 
         logger.debug(
-            "add_report: %s, %s, %s" % (self.host, scan_end, params_used)
+            "add_report: %s, %s, %s", self.host, scan_end, params_used)
         )
 
         # Insert values
@@ -261,7 +260,7 @@ class InstanceManager:
         Arguments:
             ip (string): IP-Adress
         """
-        logger.debug("Delete entry with ip: %s" % ip)
+        logger.debug("Delete entry with ip: %s", ip)
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
         self.cursor.execute("VACUUM")
 
@@ -347,7 +346,7 @@ class InstanceManager:
                     MAX_RUNNING_INSTANCES - number_instances
                 )
 
-                logger.debug("Oldest pending pids: %s" % (pending_entries))
+                logger.debug("Oldest pending pids: %s", pending_entries)
 
                 for entry in pending_entries:
                     created_at = entry[0]
@@ -447,7 +446,7 @@ class InstanceManager:
         # Save the changes
         self.con_db.commit()
 
-    def delete_instance(self, pid=0):
+    def delete_instance(self, pid=None):
         """Delete instance from database
 
         If a pid different from zero is given, then delete the entry with
@@ -460,7 +459,7 @@ class InstanceManager:
         if not pid:
             pid = self.pid
 
-        logger.debug("Delete entry with pid: %i" % (pid))
+        logger.debug("Delete entry with pid: %i", pid)
         self.cursor.execute("DELETE FROM Instance WHERE pid=?", (pid,))
 
         # Save the changes
@@ -521,7 +520,7 @@ class InstanceManager:
         Arguments:
             pid (int): Process Identification Number
         """
-        logger.debug("Continue pid: %i" % (pid))
+        logger.debug("Continue pid: %i", pid)
         os.kill(pid, signal.SIGCONT)
 
     def stop_process(self, pid):
@@ -1359,10 +1358,10 @@ def main():
     # Check if command holds clean command
     if script_args.clean:
         if script_args.ip:
-            logger.info("Delete entry with ip %s" % script_args.ip)
+            logger.info("Delete entry with ip %s", script_args.ip)
             im.delete_entry_with_ip(script_args.ip)
         elif script_args.days:
-            logger.info("Delete entries older than %s days" % script_args.days)
+            logger.info("Delete entries older than %s days", script_args.days)
             im.delete_older_entries(script_args.days)
         sys.exit(1)
 
