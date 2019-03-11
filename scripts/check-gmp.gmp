@@ -16,23 +16,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
+# pylint: disable=too-many-lines
+
 import logging
 import os
-import sys
-import sqlite3
-import tempfile
+import re
 import signal
+import sqlite3
+import sys
+import tempfile
 
-from argparse import RawTextHelpFormatter
-from datetime import datetime
+from argparse import ArgumentParser, RawTextHelpFormatter
+from datetime import datetime, timedelta, tzinfo
+from decimal import Decimal
+
 from lxml import etree
 
 __version__ = "2.0.0"
 
 logger = logging.getLogger(__name__)
 
-help_text = """
+HELP_TEXT = """
     Check-GMP Nagios Command Plugin {version} (C) 2017-2019 Greenbone Networks GmbH
 
     This program is free software: you can redistribute it and/or modify
@@ -59,10 +63,6 @@ NAGIOS_UNKNOWN = 3
 NAGIOS_MSG = ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
 
 MAX_RUNNING_INSTANCES = 10
-
-tmp_path = "%s/check_gmp/" % tempfile.gettempdir()
-tmp_path_db = tmp_path + "reports.db"
-
 
 class InstanceManager:
     """Class for managing instances of this plugin
@@ -140,7 +140,7 @@ class InstanceManager:
             self.con_db = sqlite3.connect(self.path)
             self.cursor = self.con_db.cursor()
             logger.debug(sqlite3.sqlite_version)
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             logger.debug(e)
 
     def close_db(self):
@@ -170,7 +170,8 @@ class InstanceManager:
             params_used (string): Params used for this check
 
         Returns:
-            True if it is an old report or empty. False if it is the same report.
+            True if it is an old report or empty. False if it is the same
+            report.
         """
 
         # Before we do anything here, check existing instance
@@ -292,7 +293,8 @@ class InstanceManager:
             The number of pending or non pending instances entries.
         """
         self.cursor.execute(
-            "SELECT count(*) FROM Instance WHERE pending=?", (self._to_sql_bool(pending),)
+            "SELECT count(*) FROM Instance WHERE pending=?",
+            (self._to_sql_bool(pending),)
         )
 
         res = self.cursor.fetchone()
@@ -317,8 +319,9 @@ class InstanceManager:
         number_pending_instances = self.has_entries(pending=True)
 
         logger.debug(
-            "check_instances: %i %i"
-            % (number_instances, number_pending_instances)
+            "check_instances: %i %i",
+            number_instances,
+            number_pending_instances,
         )
 
         if (
@@ -439,7 +442,8 @@ class InstanceManager:
             pending (bool): Status of instance
         """
         self.cursor.execute(
-            "UPDATE Instance SET pending=? WHERE created_at=?", (self._to_sql_bool(pending), date)
+            "UPDATE Instance SET pending=? WHERE created_at=?",
+            (self._to_sql_bool(pending), date)
         )
 
         # Save the changes
@@ -500,8 +504,9 @@ class InstanceManager:
             )
 
             logger.debug(
-                "wake_instance: %i %i"
-                % (number_instances, number_pending_instances)
+                "wake_instance: %i %i",
+                number_instances,
+                number_pending_instances,
             )
 
             for entry in pending_entries:
@@ -553,15 +558,15 @@ def ping(gmp, im):
     is ok or not.
     """
     version = gmp.get_version()
-    status = version.xpath("@status")
+    version_status = version.xpath("@status")
 
-    if "200" in status:
+    if "200" in version_status:
         end_session(im, "GMP OK: Ping successful", NAGIOS_OK)
     else:
         end_session(im, "GMP CRITICAL: Machine dead?", NAGIOS_CRITICAL)
 
 
-def status(gmp, im, version, script_args):
+def status(gmp, im, script_args):
     """Returns the current status of a host
 
     This functions return the current state of a host.
@@ -635,11 +640,6 @@ def status(gmp, im, version, script_args):
                 last_scan_end = ""
 
             if im.is_old_report(last_scan_end, params_used):
-                autofp = ""
-
-                if script_args.autofp:
-                    autofp = "autofp=%i" % script_args.autofp
-
                 host = script_args.hostaddress
 
                 full_report = gmp.get_reports(
@@ -661,7 +661,8 @@ def status(gmp, im, version, script_args):
             else:
                 full_report = im.load_local_report()
 
-            filter_report(im, full_report.xpath("report/report")[0], script_args)
+            filter_report(im, full_report.xpath("report/report")[0],
+                          script_args)
 
 
 def filter_report(im, report, script_args):
@@ -803,7 +804,9 @@ def filter_report(im, report, script_args):
         )
 
     if script_args.oid:
-        print_nvt_data(nvts)
+        print_nvt_data(nvts, show_log=script_args.showlog,
+                       show_ports=script_args.show_ports,
+                       descr=script_args.descr, dfn=script_args.dfn)
 
     if script_args.scanend:
         end = report.xpath("//end/text()")[0]
@@ -869,7 +872,8 @@ def retrieve_nvt_data(result):
     return (oid, name, desc, port, dfn_list)
 
 
-def print_nvt_data(nvts):
+def print_nvt_data(nvts, show_log=False, show_ports=False, descr=False,
+                   dfn=False):
     """Print nvt data
 
     Prints for each nvt found in the array the relevant data
@@ -878,16 +882,16 @@ def print_nvt_data(nvts):
         nvts (obj): Object holding all nvts
     """
     for key, nvt_data in nvts.items():
-        if key is "log" and not script_args.showlog:
+        if key is "log" and not show_log:
             continue
         for nvt in nvt_data:
             print_without_pipe("NVT: %s (%s) %s" % (nvt[0], key, nvt[1]))
-            if script_args.show_ports:
+            if show_ports:
                 print_without_pipe("PORT: %s" % (nvt[3]))
-            if script_args.descr:
+            if descr:
                 print_without_pipe("DESCR: %s" % nvt[2])
 
-            if script_args.dfn and nvt[4]:
+            if dfn and nvt[4]:
                 dfn_list = ", ".join(nvt[4])
                 if dfn_list:
                     print_without_pipe("DFN-CERT: %s" % dfn_list)
@@ -931,40 +935,32 @@ def print_without_pipe(msg):
     print(msg)
 
 
-"""ISO 8601 date time string parsing
+# ISO 8601 date time string parsing
 
-Copyright (c) 2007 - 2015 Michael Twomey
+# Copyright (c) 2007 - 2015 Michael Twomey
 
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
 
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""
-
-from datetime import timedelta, tzinfo
-from decimal import Decimal
-import re
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 __all__ = ["parse_date", "ParseError", "UTC"]
 
-if sys.version_info >= (3, 0, 0):
-    _basestring = str
-else:
-    _basestring = basestring
+_basestring = str
 
 
 # Adapted from http://delete.me.uk/2005/03/iso8601.html
@@ -1056,6 +1052,7 @@ class FixedOffset(tzinfo):
 
     def __eq__(self, other):
         if isinstance(other, FixedOffset):
+            # pylint: disable=protected-access
             return (other.__offset == self.__offset) and (
                 other.__name == self.__name
             )
@@ -1079,19 +1076,21 @@ class FixedOffset(tzinfo):
         return "<FixedOffset %r %r>" % (self.__name, self.__offset)
 
 
-def to_int(d, key, default_to_zero=False, default=None, required=True):
+def to_int(source_dict, key, default_to_zero=False, default=None,
+           required=True):
     """Pull a value from the dict and convert to int
 
     :param default_to_zero: If the value is None or empty, treat it as zero
     :param default: If the value is missing in the dict use this default
 
     """
-    value = d.get(key) or default
+    value = source_dict.get(key, default)
     if (value in ["", None]) and default_to_zero:
         return 0
     if value is None:
         if required:
-            raise ParseError("Unable to read %s from %s" % (key, d))
+            raise ParseError("Unable to read %s from %s" % (key, source_dict))
+        return value
     else:
         return int(value)
 
@@ -1140,10 +1139,12 @@ def parse_date(datestring, default_timezone=UTC):
     """
     if not isinstance(datestring, _basestring):
         raise ParseError("Expecting a string %r" % datestring)
-    m = ISO8601_REGEX.match(datestring)
-    if not m:
+
+    match = ISO8601_REGEX.match(datestring)
+    if not match:
         raise ParseError("Unable to parse date string %r" % datestring)
-    groups = m.groupdict()
+
+    groups = match.groupdict()
 
     tz = parse_timezone(groups, default_timezone=default_timezone)
 
@@ -1176,11 +1177,13 @@ def parse_date(datestring, default_timezone=UTC):
 
 
 def main():
+    tmp_path = "%s/check_gmp/" % tempfile.gettempdir()
+    tmp_path_db = tmp_path + "reports.db"
 
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         prog="check-gmp",
         prefix_chars="+",
-        description=help_text,
+        description=HELP_TEXT,
         formatter_class=RawTextHelpFormatter,
         add_help=False,
         epilog="""
@@ -1348,6 +1351,8 @@ def main():
 
     # Set the max running instances variable
     if script_args.max_running_instances:
+        # TODO should be passed as local variable instead of using a global one
+        # pylint: disable=global-statement
         global MAX_RUNNING_INSTANCES
         MAX_RUNNING_INSTANCES = script_args.max_running_instances
 
@@ -1372,22 +1377,14 @@ def main():
 
     try:
         gmp.get_version()
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         end_session(im, "GMP CRITICAL: %s" % str(e), NAGIOS_CRITICAL)
 
     if script_args.ping:
         ping(gmp, im)
 
-    # Get the gmp version number, so i can choose the right functions
-    version = gmp.get_version().xpath("version/text()")
-
-    if version:
-        version = float(version[0])
-    else:
-        version = 6.0
-
     if "status" in script_args:
-        status(gmp, im, version, script_args)
+        status(gmp, im, script_args)
 
 
 if __name__ == "__gmp__":
