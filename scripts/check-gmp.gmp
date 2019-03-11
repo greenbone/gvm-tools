@@ -91,7 +91,7 @@ class InstanceManager:
         self.path = path
         self.pid = os.getpid()
 
-        # Try to read file with informations about cached reports
+        # Try to read file with information about cached reports
         # First check whether the file exist or not
         exist = os.path.isfile(path)
         logger.debug("DB file exist?: %s ", exist)
@@ -131,7 +131,7 @@ class InstanceManager:
         return '1' if pending else '0'
 
     def connect_db(self):
-        """Connect to the databse
+        """Connect to the database
 
         Simply connect to the database at location <path>
         """
