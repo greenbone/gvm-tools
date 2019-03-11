@@ -70,13 +70,11 @@ def load_host_file(filename):
 
 def copy_send_target(gmp, hosts_file, old_target_id):
     hosts_string = load_host_file(hosts_file)
-    keywords = {
-                'make_unique': True,
-                'hosts': hosts_string
-                }
+    keywords = {'make_unique': True, 'hosts': hosts_string}
 
-    keywords['comment'] = 'This target was automatically modified: {}'\
-                          .format(time.strftime("%Y/%m/%d-%H:%M:%S"))
+    keywords['comment'] = 'This target was automatically modified: {}'.format(
+        time.strftime("%Y/%m/%d-%H:%M:%S")
+    )
 
     old_target = gmp.get_targets(target_id=old_target_id)[0]
 
@@ -101,10 +99,7 @@ def copy_send_target(gmp, hosts_file, old_target_id):
 def create_target_hosts(gmp, host_file, task_id, old_target_id):
     new_target_id = copy_send_target(gmp, host_file, old_target_id)
 
-    gmp.modify_task(
-                    task_id=task_id,
-                    target_id=new_target_id
-                    )
+    gmp.modify_task(task_id=task_id, target_id=new_target_id)
 
     print('  Task successfully modified!\n')
 
@@ -128,6 +123,7 @@ def main():
 
     create_target_hosts(gmp, hosts_file, task_id, old_target_id)
     check_to_delete(gmp, old_target_id)
+
 
 if __name__ == '__gmp__':
     main()

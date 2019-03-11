@@ -53,12 +53,14 @@ def sync_assets(gmp, filename):
                     gmp.delete_asset(asset_id=asset_id)
                 else:
                     print('Asset with ip %s does not exist. Sync...' % ip)
-                    ret = gmp.create_asset(asset_type='host', name=ip,
-                                           comment='Delete me')
+                    ret = gmp.create_asset(
+                        asset_type='host', name=ip, comment='Delete me'
+                    )
                     if location:
                         asset_id = ret.xpath('@id')[0]
                         gmp.create_tag(
-                            location, asset_id, 'host', value=location)
+                            location, asset_id, 'host', value=location
+                        )
 
                         if 'OK' in ret.xpath('@status_text')[0]:
                             print('Tag created')

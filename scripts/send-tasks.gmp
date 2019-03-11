@@ -62,8 +62,10 @@ def numerical_option(statement, list_range):
     if choice in range(1, list_range + 1):
         return choice
     else:
-        return numerical_option("Please enter valid number from {} to {}..."
-                                .format(1, list_range), list_range)
+        return numerical_option(
+            "Please enter valid number from {} to {}...".format(1, list_range),
+            list_range,
+        )
 
 
 def create_xml_tree(xml_doc):
@@ -102,7 +104,8 @@ def interactive_options(task, keywords):
                 "\nRequired Field: failed to detect {}_id: {}... "
                 "\nWould you like to select from available options, or exit "
                 "the script?".format(
-                    option, task.xpath('{}/@id'.format(option))[0])
+                    option, task.xpath('{}/@id'.format(option))[0]
+                )
             )
 
             if response is True:
@@ -113,10 +116,11 @@ def interactive_options(task, keywords):
                     counter += 1
                 answer = numerical_option(
                     "\nPlease enter the number of your choice.",
-                    len(object_list)
+                    len(object_list),
                 )
-                keywords['{}_id'.format(
-                    option)] = object_dict[object_list[answer - 1]]
+                keywords['{}_id'.format(option)] = object_dict[
+                    object_list[answer - 1]
+                ]
             else:
                 print("\nTerminating...")
                 quit()
@@ -124,7 +128,8 @@ def interactive_options(task, keywords):
             error_and_exit(
                 "Failed to detect {}_id"
                 "\nThis field is required therefore the script is unable to "
-                "continue.\n".format(option))
+                "continue.\n".format(option)
+            )
 
 
 def parse_send_xml_tree(gmp, xml_tree):
@@ -142,7 +147,8 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         if task.find('schedule_periods').text != 0:
             mod_keywords['schedule_periods'] = int(
-                task.find('schedule_periods').text)
+                task.find('schedule_periods').text
+            )
 
         if task.find('observers').text:
             mod_keywords['observers'] = task.find('observers').text
@@ -164,8 +170,9 @@ def parse_send_xml_tree(gmp, xml_tree):
             mod_keywords['preferences'] = preferences
 
         if task.xpath('file/@name'):
-            file = dict(name=task.xpath('file/@name'),
-                        action=task.xpath('file/@action'))
+            file = dict(
+                name=task.xpath('file/@name'), action=task.xpath('file/@action')
+            )
 
             mod_keywords['file'] = file
 
@@ -184,6 +191,7 @@ def main():
     parse_send_xml_tree(gmp, xml_tree)
 
     print('\n  Task(s) sent!\n')
+
 
 if __name__ == '__gmp__':
     main()

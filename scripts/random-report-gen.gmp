@@ -57,10 +57,10 @@ def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
 
-    ips = ['{}.{}.{}.{}'.format(c(exclude_127),
-                                r(0, 256),
-                                r(0, 256),
-                                r(1, 255)) for i in range(n_hosts)]
+    ips = [
+        '{}.{}.{}.{}'.format(c(exclude_127), r(0, 256), r(0, 256), r(1, 255))
+        for i in range(n_hosts)
+    ]
 
     return ips
 
@@ -108,9 +108,7 @@ def generate_reports(gauss=False, **kwargs):
         if gauss is True:
             n_results = abs(int(random.gauss(n_results, 2)))
         report_elem = generate_report_elem(
-            kwargs.get('template'),
-            n_results,
-            kwargs.get('n_hosts')
+            kwargs.get('template'), n_results, kwargs.get('n_hosts')
         )
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
@@ -127,509 +125,781 @@ def generate_data(gmp, **kwargs):
 
         reports = generate_reports(**kwargs)
 
-        gmp.import_report(
-            reports[0],
-            task_name=task_name
-        )
+        gmp.import_report(reports[0], task_name=task_name)
 
-        task_id = gmp.get_tasks(
-            filter='name={}'.format(task_name)
-        ).xpath('//@id')[0]
+        task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
+            '//@id'
+        )[0]
         task_ids.append(task_id)
 
         for report in reports[1:]:
             gmp.import_report(report, task_id=task_id)
 
 
-TEMPLATE = {'results': [
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.10056',
-        'port': '80/tcp',
-        'severity': '5.0',
-        'name': '/doc directory browsable',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.902830',
-        'port': '80/tcp',
-        'severity': '4.3',
-        'name': "Apache HTTP Server 'httpOnly' Cookie Information Disclosure "
-                "Vulnerability",
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.108082',
-        'port': '8009/tcp',
-        'severity': '0.0',
-        'name': 'Apache JServ Protocol v1.3 Detection'
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.900498',
-        'port': '80/tcp',
-        'severity': '0.0',
-        'name': 'Apache Web Server Version Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103210',
-        'port': '80/tcp',
-        'severity': '5.0',
-        'name': 'awiki Multiple Local File Include Vulnerabilities',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.111038',
-        'port': '80/tcp',
-        'severity': '0.0',
-        'name': 'CGI Scanning Consolidation'
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.900600',
-        'port': '21/tcp',
-        'severity': '6.4',
-        'name': 'Check for Anonymous FTP Login'
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.100111',
-        'port': '512/tcp',
-        'severity': '10.0',
-        'name': 'Check for rexecd Service',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.901202',
-        'port': '513/tcp',
-        'severity': '7.5',
-        'name': 'Check for rlogin Service',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.100074',
-        'port': '1524/tcp',
-        'severity': '0.0',
-        'name': 'Check for Telnet Server',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.100072',
-        'port': '25/tcp',
-        'severity': '5.0',
-        'name': 'Check if Mailserver answer to VRFY and EXPN requests',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.810002',
-        'port': 'general/CPE-T',
-        'severity': '0.0',
-        'name': 'CPE Inventory',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.902799',
-        'port': '5432/tcp',
-        'severity': '0.0',
-        'name': 'Database Open Access Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.902799',
-        'port': '3306/tcp',
-        'severity': '0.0',
-        'name': 'Database Open Access Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.10028',
-        'port': '53/tcp',
-        'severity': '0.0',
-        'name': 'Determine which version of BIND name daemon is running',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.12638',
-        'port': '3632/tcp',
-        'severity': '8.5',
-        'name': 'DistCC Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103553',
-        'port': '3632/tcp',
-        'severity': '9.3',
-        'name': 'DistCC Remote Code Execution Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.108010',
-        'port': '8787/tcp',
-        'severity': '10.0',
-        'name': 'Distributed Ruby (dRuby/DRb) Multiple Remote Code Execution '
-                'Vulnerabilities',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.108018',
-        'port': '53/tcp',
-        'severity': '0.0',
-        'name': 'DNS Server Detection (TCP)',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.20108',
-        'port': '80/tcp',
-        'severity': '0.0',
-        'name': 'Fingerprint web server with favicon.ico',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.10092',
-        'port': '21/tcp',
-        'severity': '0.0',
-        'name': 'FTP Banner Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.10092',
-        'port': '2121/tcp',
-        'severity': '0.0',
-        'name': 'FTP Banner Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.11213',
-        'port': '80/tcp',
-        'severity': '5.8',
-        'name': 'HTTP Debugging Methods (TRACE/TRACK) Enabled',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.112081',
-        'port': '80/tcp',
-        'severity': '0.0',
-        'name': 'HTTP Security Headers Detection'
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.10107',
-        'port': '80/tcp',
-        'severity': '0.0',
-        'name': 'HTTP Server type and version',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103190',
-        'port': 'general/icmp',
-        'severity': '0.0',
-        'name': 'ICMP Timestamp Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.11156',
-        'port': '6667/tcp',
-        'severity': '0.0',
-        'name': 'IRC daemon identification',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.140051',
-        'port': '1099/tcp',
-        'severity': '10.0',
-        'name': 'Java RMI Server Insecure Default Configuration Remote Code '
-                'Execution Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.802726',
-        'port': '445/tcp',
-        'severity': '0.0',
-        'name': 'Microsoft SMB Signing Disabled',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.902425',
-        'port': '445/tcp',
-        'severity': '0.0',
-        'name': 'Microsoft Windows SMB Accessible Shares',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103935',
-        'port': '25/tcp',
-        'severity': '6.8',
-        'name': 'Multiple Vendors STARTTLS Implementation Plaintext Arbitrary '
-                'Command Injection Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103551',
-        'port': '3306/tcp',
-        'severity': '9.0',
-        'name': 'MySQL / MariaDB weak password',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.100152', 'port': '3306/tcp',
-        'severity': '0.0', 'name': 'MySQL/MariaDB Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.11111', 'port': '111/tcp', 'severity': '0.0',
-        'name': 'Obtain list of all port mapper registered programs via RPC'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.105937', 'port': 'general/tcp',
-        'severity': '0.0', 'name': 'OS Detection Consolidation and Reporting'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103674', 'port': 'general/tcp',
-        'severity': '10.0', 'name': 'OS End Of Life Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.800109', 'port': '80/tcp',
-        'severity': '0.0', 'name': 'PHP Version Detection (Remote)'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103482',
-        'port': '80/tcp',
-        'severity': '7.5',
-        'name': 'PHP-CGI-based setups vulnerability when parsing query '
-                'string parameters from php files.',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.11229', 'port': '80/tcp',
-        'severity': '7.5', 'name': 'phpinfo() output accessible'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.801660', 'port': '80/tcp', 'severity': '4.3',
-        'name': "phpMyAdmin 'error.php' Cross Site Scripting Vulnerability"},
-    {'oid': '1.3.6.1.4.1.25623.1.0.900129', 'port': '80/tcp',
-        'severity': '0.0', 'name': 'phpMyAdmin Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103549', 'port': '1524/tcp',
-        'severity': '10.0', 'name': 'Possible Backdoor: Ingreslock'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.111086', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'Postfix SMTP Server Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.100151', 'port': '5432/tcp',
-        'severity': '0.0', 'name': 'PostgreSQL Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.105013', 'port': '5432/tcp',
-        'severity': '0.0', 'name': 'PostgreSQL TLS Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103552', 'port': '5432/tcp',
-        'severity': '9.0', 'name': 'PostgreSQL weak password'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.900815', 'port': '2121/tcp',
-        'severity': '0.0', 'name': 'ProFTPD Server Version Detection (Remote)'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10281', 'port': '23/tcp',
-        'severity': '0.0', 'name': 'Report Telnet Banner'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10281', 'port': '1524/tcp',
-        'severity': '0.0', 'name': 'Report Telnet Banner'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.105839', 'port': '1099/tcp',
-        'severity': '0.0', 'name': 'RMI-Registry Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.108090', 'port': '111/tcp',
-        'severity': '0.0', 'name': 'RPC portmapper (TCP)'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.108011',
-        'port': '445/tcp',
-        'severity': '6.0',
-        'name': 'Samba MS-RPC Remote Shell Command Execution Vulnerability '
-                '(Active Check)',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.108204', 'port': '512/tcp',
-        'severity': '0.0', 'name': "Service Detection with 'BINARY' Request"},
-    {'oid': '1.3.6.1.4.1.25623.1.0.17975', 'port': '8787/tcp',
-        'severity': '0.0', 'name': "Service Detection with 'GET' Request"},
-    {'oid': '1.3.6.1.4.1.25623.1.0.11153', 'port': '6667/tcp',
-        'severity': '0.0', 'name': "Service Detection with 'HELP' Request'"},
-    {'oid': '1.3.6.1.4.1.25623.1.0.66286', 'port': '514/tcp',
-        'severity': '0.0', 'name': 'Service Detection with nmap'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '23/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '21/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '2121/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '5432/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '22/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '80/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10330', 'port': '3306/tcp',
-        'severity': '0.0', 'name': 'Services'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10394', 'port': '445/tcp',
-        'severity': '0.0', 'name': 'SMB log in'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.102011', 'port': '445/tcp',
-        'severity': '0.0', 'name': 'SMB NativeLanMan'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.807830', 'port': '445/tcp',
-        'severity': '0.0', 'name': 'SMB Remote Version Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.11011', 'port': '139/tcp',
-        'severity': '0.0', 'name': 'SMB/CIFS Server Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.11011', 'port': '445/tcp',
-        'severity': '0.0', 'name': 'SMB/CIFS Server Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10263', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'SMTP Server type and version'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103118', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'SMTP STARTTLS Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103239', 'port': '22/tcp', 'severity': '7.5',
-        'name': 'SSH Brute Force Logins With Default Credentials Reporting'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.105565', 'port': '22/tcp',
-        'severity': '0.0', 'name': 'SSH Protocol Algorithms Supported'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.100259', 'port': '22/tcp',
-        'severity': '0.0', 'name': 'SSH Protocol Versions Supported'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10267', 'port': '22/tcp',
-        'severity': '0.0', 'name': 'SSH Server type and version'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.105611', 'port': '22/tcp',
-        'severity': '4.3', 'name': 'SSH Weak Encryption Algorithms Supported'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.105610', 'port': '22/tcp',
-        'severity': '2.6', 'name': 'SSH Weak MAC Algorithms Supported'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.805188',
-        'port': '25/tcp',
-        'severity': '4.3',
-        'name': "SSL/TLS: 'DHE_EXPORT' Man in the Middle Security Bypass "
-                "Vulnerability (LogJam)",
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.103140', 'port': '25/tcp', 'severity': '0.0',
-        'name': 'SSL/TLS: Certificate - Self-Signed Certificate Detection'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103140',
-        'port': '5432/tcp',
-        'severity': '0.0',
-        'name': 'SSL/TLS: Certificate - Self-Signed Certificate Detection',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.103955', 'port': '25/tcp',
-        'severity': '5.0', 'name': 'SSL/TLS: Certificate Expired'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103955', 'port': '5432/tcp',
-        'severity': '5.0', 'name': 'SSL/TLS: Certificate Expired'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.105880',
-        'port': '5432/tcp',
-        'severity': '4.0',
-        'name': 'SSL/TLS: Certificate Signed Using A Weak Signature Algorithm',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.105880',
-        'port': '25/tcp',
-        'severity': '4.0',
-        'name': 'SSL/TLS: Certificate Signed Using A Weak Signature Algorithm',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103692',
-        'port': '5432/tcp',
-        'severity': '0.0',
-        'name': 'SSL/TLS: Collect and Report Certificate Details',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103692',
-        'port': '25/tcp',
-        'severity': '0.0',
-        'name': 'SSL/TLS: Collect and Report Certificate Details',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.111012',
-        'port': '5432/tcp', 'severity': '4.3',
-        'name': 'SSL/TLS: Deprecated SSLv2 and SSLv3 Protocol Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.111012',
-        'port': '25/tcp',
-        'severity': '4.3',
-        'name': 'SSL/TLS: Deprecated SSLv2 and SSLv3 Protocol Detection',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.106223',
-        'port': '25/tcp',
-        'severity': '4.0',
-        'name': 'SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group '
-                'Strength Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.106223',
-        'port': '5432/tcp',
-        'severity': '4.0',
-        'name': 'SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group '
-                'Strength Vulnerability',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.111010',
-        'port': 'general/tcp',
-        'severity': '0.0',
-        'name': 'SSL/TLS: Hostname discovery from server certificate',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.105042',
-        'port': '5432/tcp',
-        'severity': '6.8',
-        'name': 'SSL/TLS: OpenSSL CCS Man in the Middle Security Bypass '
-                'Vulnerability',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.902816', 'port': '5432/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Medium Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.902816', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Medium Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103441', 'port': '5432/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Non Weak Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103441', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Non Weak Cipher Suites'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.105018',
-        'port': '5432/tcp',
-        'severity': '0.0',
-        'name': 'SSL/TLS: Report Perfect Forward Secrecy (PFS) Cipher Suites',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.105018', 'port': '25/tcp', 'severity': '0.0',
-        'name': 'SSL/TLS: Report Perfect Forward Secrecy (PFS) Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.802067', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Supported Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.802067', 'port': '5432/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Supported Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103440', 'port': '5432/tcp',
-        'severity': '4.3', 'name': 'SSL/TLS: Report Weak Cipher Suites'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.103440', 'port': '25/tcp',
-        'severity': '0.0', 'name': 'SSL/TLS: Report Weak Cipher Suites'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.805142',
-        'port': '25/tcp',
-        'severity': '4.3',
-        'name': "SSL/TLS: RSA Temporary Key Handling 'RSA_EXPORT' Downgrade "
-                "Issue (FREAK)",
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.802087',
-        'port': '25/tcp',
-        'severity': '4.3',
-        'name': 'SSL/TLS: SSLv3 Protocol CBC Cipher Suites Information '
-                'Disclosure Vulnerability (POODLE)',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.802087',
-        'port': '5432/tcp',
-        'severity': '4.3',
-        'name': 'SSL/TLS: SSLv3 Protocol CBC Cipher Suites Information '
-                'Disclosure Vulnerability (POODLE)',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.80091', 'port': 'general/tcp',
-        'severity': '2.6', 'name': 'TCP timestamps'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10498', 'port': '80/tcp',
-        'severity': '7.5', 'name': 'Test HTTP dangerous methods'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.108064',
-        'port': '80/tcp',
-        'severity': '5.0',
-        'name': "Tiki Wiki CMS Groupware 'fixedURLData' Local File Inclusion "
-                "Vulnerability",
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.100537',
-        'port': '80/tcp',
-        'severity': '7.5',
-        'name': 'Tiki Wiki CMS Groupware < 4.2 Multiple Unspecified '
-                'Vulnerabilities',
-    },
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.800315',
-        'port': '80/tcp',
-        'severity': '5.0',
-        'name': 'Tiki Wiki CMS Groupware Input Sanitation Weakness '
-                'Vulnerability',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.901001', 'port': '80/tcp',
-        'severity': '0.0', 'name': 'Tiki Wiki CMS Groupware Version Detection'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.140797', 'port': '80/tcp',
-        'severity': '6.5', 'name': 'Tiki Wiki CMS Groupware XSS Vulnerability'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.51662', 'port': 'general/tcp',
-        'severity': '0.0', 'name': 'Traceroute'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.800400', 'port': '80/tcp', 'severity': '6.0',
-        'name': 'TWiki Cross-Site Request Forgery Vulnerability'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.801281', 'port': '80/tcp', 'severity': '6.8',
-        'name': 'TWiki Cross-Site Request Forgery Vulnerability - Sep10'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.800399', 'port': '80/tcp',
-        'severity': '0.0', 'name': 'TWiki Version Detection'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.800320',
-        'port': '80/tcp',
-        'severity': '10.0',
-        'name': 'TWiki XSS and Command Execution Vulnerabilities',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.106056', 'port': '5900/tcp',
-        'severity': '9.0', 'name': 'VNC Brute Force Login'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.19288', 'port': '5900/tcp',
-        'severity': '0.0', 'name': 'VNC security types'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.10342', 'port': '5900/tcp',
-        'severity': '0.0', 'name': 'VNC Server and Protocol Version Detection'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.103185',
-        'port': '6200/tcp',
-        'severity': '7.5',
-        'name': 'vsftpd Compromised Source Packages Backdoor Vulnerability',
-    },
-    {'oid': '1.3.6.1.4.1.25623.1.0.103185', 'port': '21/tcp', 'severity': '7.5',
-        'name': 'vsftpd Compromised Source Packages Backdoor Vulnerability'},
-    {'oid': '1.3.6.1.4.1.25623.1.0.111050', 'port': '21/tcp',
-        'severity': '0.0', 'name': 'vsFTPd FTP Server Detection'},
-    {
-        'oid': '1.3.6.1.4.1.25623.1.0.10407',
-        'port': '6000/tcp',
-        'severity': '0.0',
-        'name': 'X Server Detection',
-    }
-]}
+TEMPLATE = {
+    'results': [
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10056',
+            'port': '80/tcp',
+            'severity': '5.0',
+            'name': '/doc directory browsable',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.902830',
+            'port': '80/tcp',
+            'severity': '4.3',
+            'name': "Apache HTTP Server 'httpOnly' Cookie Information Disclosure "
+            "Vulnerability",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108082',
+            'port': '8009/tcp',
+            'severity': '0.0',
+            'name': 'Apache JServ Protocol v1.3 Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.900498',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'Apache Web Server Version Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103210',
+            'port': '80/tcp',
+            'severity': '5.0',
+            'name': 'awiki Multiple Local File Include Vulnerabilities',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.111038',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'CGI Scanning Consolidation',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.900600',
+            'port': '21/tcp',
+            'severity': '6.4',
+            'name': 'Check for Anonymous FTP Login',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100111',
+            'port': '512/tcp',
+            'severity': '10.0',
+            'name': 'Check for rexecd Service',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.901202',
+            'port': '513/tcp',
+            'severity': '7.5',
+            'name': 'Check for rlogin Service',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100074',
+            'port': '1524/tcp',
+            'severity': '0.0',
+            'name': 'Check for Telnet Server',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100072',
+            'port': '25/tcp',
+            'severity': '5.0',
+            'name': 'Check if Mailserver answer to VRFY and EXPN requests',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.810002',
+            'port': 'general/CPE-T',
+            'severity': '0.0',
+            'name': 'CPE Inventory',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.902799',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'Database Open Access Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.902799',
+            'port': '3306/tcp',
+            'severity': '0.0',
+            'name': 'Database Open Access Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10028',
+            'port': '53/tcp',
+            'severity': '0.0',
+            'name': 'Determine which version of BIND name daemon is running',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.12638',
+            'port': '3632/tcp',
+            'severity': '8.5',
+            'name': 'DistCC Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103553',
+            'port': '3632/tcp',
+            'severity': '9.3',
+            'name': 'DistCC Remote Code Execution Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108010',
+            'port': '8787/tcp',
+            'severity': '10.0',
+            'name': 'Distributed Ruby (dRuby/DRb) Multiple Remote Code Execution '
+            'Vulnerabilities',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108018',
+            'port': '53/tcp',
+            'severity': '0.0',
+            'name': 'DNS Server Detection (TCP)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.20108',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'Fingerprint web server with favicon.ico',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10092',
+            'port': '21/tcp',
+            'severity': '0.0',
+            'name': 'FTP Banner Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10092',
+            'port': '2121/tcp',
+            'severity': '0.0',
+            'name': 'FTP Banner Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11213',
+            'port': '80/tcp',
+            'severity': '5.8',
+            'name': 'HTTP Debugging Methods (TRACE/TRACK) Enabled',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.112081',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'HTTP Security Headers Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10107',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'HTTP Server type and version',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103190',
+            'port': 'general/icmp',
+            'severity': '0.0',
+            'name': 'ICMP Timestamp Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11156',
+            'port': '6667/tcp',
+            'severity': '0.0',
+            'name': 'IRC daemon identification',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.140051',
+            'port': '1099/tcp',
+            'severity': '10.0',
+            'name': 'Java RMI Server Insecure Default Configuration Remote Code '
+            'Execution Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.802726',
+            'port': '445/tcp',
+            'severity': '0.0',
+            'name': 'Microsoft SMB Signing Disabled',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.902425',
+            'port': '445/tcp',
+            'severity': '0.0',
+            'name': 'Microsoft Windows SMB Accessible Shares',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103935',
+            'port': '25/tcp',
+            'severity': '6.8',
+            'name': 'Multiple Vendors STARTTLS Implementation Plaintext Arbitrary '
+            'Command Injection Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103551',
+            'port': '3306/tcp',
+            'severity': '9.0',
+            'name': 'MySQL / MariaDB weak password',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100152',
+            'port': '3306/tcp',
+            'severity': '0.0',
+            'name': 'MySQL/MariaDB Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11111',
+            'port': '111/tcp',
+            'severity': '0.0',
+            'name': 'Obtain list of all port mapper registered programs via RPC',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105937',
+            'port': 'general/tcp',
+            'severity': '0.0',
+            'name': 'OS Detection Consolidation and Reporting',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103674',
+            'port': 'general/tcp',
+            'severity': '10.0',
+            'name': 'OS End Of Life Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.800109',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'PHP Version Detection (Remote)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103482',
+            'port': '80/tcp',
+            'severity': '7.5',
+            'name': 'PHP-CGI-based setups vulnerability when parsing query '
+            'string parameters from php files.',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11229',
+            'port': '80/tcp',
+            'severity': '7.5',
+            'name': 'phpinfo() output accessible',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.801660',
+            'port': '80/tcp',
+            'severity': '4.3',
+            'name': "phpMyAdmin 'error.php' Cross Site Scripting Vulnerability",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.900129',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'phpMyAdmin Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103549',
+            'port': '1524/tcp',
+            'severity': '10.0',
+            'name': 'Possible Backdoor: Ingreslock',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.111086',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'Postfix SMTP Server Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100151',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'PostgreSQL Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105013',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'PostgreSQL TLS Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103552',
+            'port': '5432/tcp',
+            'severity': '9.0',
+            'name': 'PostgreSQL weak password',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.900815',
+            'port': '2121/tcp',
+            'severity': '0.0',
+            'name': 'ProFTPD Server Version Detection (Remote)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10281',
+            'port': '23/tcp',
+            'severity': '0.0',
+            'name': 'Report Telnet Banner',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10281',
+            'port': '1524/tcp',
+            'severity': '0.0',
+            'name': 'Report Telnet Banner',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105839',
+            'port': '1099/tcp',
+            'severity': '0.0',
+            'name': 'RMI-Registry Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108090',
+            'port': '111/tcp',
+            'severity': '0.0',
+            'name': 'RPC portmapper (TCP)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108011',
+            'port': '445/tcp',
+            'severity': '6.0',
+            'name': 'Samba MS-RPC Remote Shell Command Execution Vulnerability '
+            '(Active Check)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108204',
+            'port': '512/tcp',
+            'severity': '0.0',
+            'name': "Service Detection with 'BINARY' Request",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.17975',
+            'port': '8787/tcp',
+            'severity': '0.0',
+            'name': "Service Detection with 'GET' Request",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11153',
+            'port': '6667/tcp',
+            'severity': '0.0',
+            'name': "Service Detection with 'HELP' Request'",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.66286',
+            'port': '514/tcp',
+            'severity': '0.0',
+            'name': 'Service Detection with nmap',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '23/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '21/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '2121/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '22/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10330',
+            'port': '3306/tcp',
+            'severity': '0.0',
+            'name': 'Services',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10394',
+            'port': '445/tcp',
+            'severity': '0.0',
+            'name': 'SMB log in',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.102011',
+            'port': '445/tcp',
+            'severity': '0.0',
+            'name': 'SMB NativeLanMan',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.807830',
+            'port': '445/tcp',
+            'severity': '0.0',
+            'name': 'SMB Remote Version Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11011',
+            'port': '139/tcp',
+            'severity': '0.0',
+            'name': 'SMB/CIFS Server Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.11011',
+            'port': '445/tcp',
+            'severity': '0.0',
+            'name': 'SMB/CIFS Server Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10263',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SMTP Server type and version',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103118',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SMTP STARTTLS Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103239',
+            'port': '22/tcp',
+            'severity': '7.5',
+            'name': 'SSH Brute Force Logins With Default Credentials Reporting',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105565',
+            'port': '22/tcp',
+            'severity': '0.0',
+            'name': 'SSH Protocol Algorithms Supported',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100259',
+            'port': '22/tcp',
+            'severity': '0.0',
+            'name': 'SSH Protocol Versions Supported',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10267',
+            'port': '22/tcp',
+            'severity': '0.0',
+            'name': 'SSH Server type and version',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105611',
+            'port': '22/tcp',
+            'severity': '4.3',
+            'name': 'SSH Weak Encryption Algorithms Supported',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105610',
+            'port': '22/tcp',
+            'severity': '2.6',
+            'name': 'SSH Weak MAC Algorithms Supported',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.805188',
+            'port': '25/tcp',
+            'severity': '4.3',
+            'name': "SSL/TLS: 'DHE_EXPORT' Man in the Middle Security Bypass "
+            "Vulnerability (LogJam)",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103140',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Certificate - Self-Signed Certificate Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103140',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Certificate - Self-Signed Certificate Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103955',
+            'port': '25/tcp',
+            'severity': '5.0',
+            'name': 'SSL/TLS: Certificate Expired',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103955',
+            'port': '5432/tcp',
+            'severity': '5.0',
+            'name': 'SSL/TLS: Certificate Expired',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105880',
+            'port': '5432/tcp',
+            'severity': '4.0',
+            'name': 'SSL/TLS: Certificate Signed Using A Weak Signature Algorithm',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105880',
+            'port': '25/tcp',
+            'severity': '4.0',
+            'name': 'SSL/TLS: Certificate Signed Using A Weak Signature Algorithm',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103692',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Collect and Report Certificate Details',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103692',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Collect and Report Certificate Details',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.111012',
+            'port': '5432/tcp',
+            'severity': '4.3',
+            'name': 'SSL/TLS: Deprecated SSLv2 and SSLv3 Protocol Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.111012',
+            'port': '25/tcp',
+            'severity': '4.3',
+            'name': 'SSL/TLS: Deprecated SSLv2 and SSLv3 Protocol Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.106223',
+            'port': '25/tcp',
+            'severity': '4.0',
+            'name': 'SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group '
+            'Strength Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.106223',
+            'port': '5432/tcp',
+            'severity': '4.0',
+            'name': 'SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group '
+            'Strength Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.111010',
+            'port': 'general/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Hostname discovery from server certificate',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105042',
+            'port': '5432/tcp',
+            'severity': '6.8',
+            'name': 'SSL/TLS: OpenSSL CCS Man in the Middle Security Bypass '
+            'Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.902816',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Medium Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.902816',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Medium Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103441',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Non Weak Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103441',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Non Weak Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105018',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Perfect Forward Secrecy (PFS) Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.105018',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Perfect Forward Secrecy (PFS) Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.802067',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Supported Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.802067',
+            'port': '5432/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Supported Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103440',
+            'port': '5432/tcp',
+            'severity': '4.3',
+            'name': 'SSL/TLS: Report Weak Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103440',
+            'port': '25/tcp',
+            'severity': '0.0',
+            'name': 'SSL/TLS: Report Weak Cipher Suites',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.805142',
+            'port': '25/tcp',
+            'severity': '4.3',
+            'name': "SSL/TLS: RSA Temporary Key Handling 'RSA_EXPORT' Downgrade "
+            "Issue (FREAK)",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.802087',
+            'port': '25/tcp',
+            'severity': '4.3',
+            'name': 'SSL/TLS: SSLv3 Protocol CBC Cipher Suites Information '
+            'Disclosure Vulnerability (POODLE)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.802087',
+            'port': '5432/tcp',
+            'severity': '4.3',
+            'name': 'SSL/TLS: SSLv3 Protocol CBC Cipher Suites Information '
+            'Disclosure Vulnerability (POODLE)',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.80091',
+            'port': 'general/tcp',
+            'severity': '2.6',
+            'name': 'TCP timestamps',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10498',
+            'port': '80/tcp',
+            'severity': '7.5',
+            'name': 'Test HTTP dangerous methods',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.108064',
+            'port': '80/tcp',
+            'severity': '5.0',
+            'name': "Tiki Wiki CMS Groupware 'fixedURLData' Local File Inclusion "
+            "Vulnerability",
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.100537',
+            'port': '80/tcp',
+            'severity': '7.5',
+            'name': 'Tiki Wiki CMS Groupware < 4.2 Multiple Unspecified '
+            'Vulnerabilities',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.800315',
+            'port': '80/tcp',
+            'severity': '5.0',
+            'name': 'Tiki Wiki CMS Groupware Input Sanitation Weakness '
+            'Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.901001',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'Tiki Wiki CMS Groupware Version Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.140797',
+            'port': '80/tcp',
+            'severity': '6.5',
+            'name': 'Tiki Wiki CMS Groupware XSS Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.51662',
+            'port': 'general/tcp',
+            'severity': '0.0',
+            'name': 'Traceroute',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.800400',
+            'port': '80/tcp',
+            'severity': '6.0',
+            'name': 'TWiki Cross-Site Request Forgery Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.801281',
+            'port': '80/tcp',
+            'severity': '6.8',
+            'name': 'TWiki Cross-Site Request Forgery Vulnerability - Sep10',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.800399',
+            'port': '80/tcp',
+            'severity': '0.0',
+            'name': 'TWiki Version Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.800320',
+            'port': '80/tcp',
+            'severity': '10.0',
+            'name': 'TWiki XSS and Command Execution Vulnerabilities',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.106056',
+            'port': '5900/tcp',
+            'severity': '9.0',
+            'name': 'VNC Brute Force Login',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.19288',
+            'port': '5900/tcp',
+            'severity': '0.0',
+            'name': 'VNC security types',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10342',
+            'port': '5900/tcp',
+            'severity': '0.0',
+            'name': 'VNC Server and Protocol Version Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103185',
+            'port': '6200/tcp',
+            'severity': '7.5',
+            'name': 'vsftpd Compromised Source Packages Backdoor Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.103185',
+            'port': '21/tcp',
+            'severity': '7.5',
+            'name': 'vsftpd Compromised Source Packages Backdoor Vulnerability',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.111050',
+            'port': '21/tcp',
+            'severity': '0.0',
+            'name': 'vsFTPd FTP Server Detection',
+        },
+        {
+            'oid': '1.3.6.1.4.1.25623.1.0.10407',
+            'port': '6000/tcp',
+            'severity': '0.0',
+            'name': 'X Server Detection',
+        },
+    ]
+}
 
 
 def main():
@@ -642,7 +912,7 @@ def main():
         'n_reports': int(args.script[2]),
         'n_results': int(args.script[3]),
         'n_hosts': int(args.script[4]),
-        'template': TEMPLATE
+        'template': TEMPLATE,
     }
 
     if 'with-gauss' in args.script:

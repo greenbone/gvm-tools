@@ -41,7 +41,8 @@ def check_args(args):
 
 def print_reports(gmp, from_date, to_date):
     asset_filter = "rows=-1 and modified>{0} and modified<{1}".format(
-        from_date.isoformat(), to_date.isoformat())
+        from_date.isoformat(), to_date.isoformat()
+    )
 
     assets_xml = gmp.get_assets(asset_type='host', filter=asset_filter)
 
@@ -54,7 +55,8 @@ def print_reports(gmp, from_date, to_date):
         ip = asset.xpath('name/text()')[0]
 
         hostnames = asset.xpath(
-            'identifiers/identifier/name[text()="hostname"]/../value/text()')
+            'identifiers/identifier/name[text()="hostname"]/../value/text()'
+        )
 
         if len(hostnames) == 0:
             continue
@@ -62,7 +64,8 @@ def print_reports(gmp, from_date, to_date):
         hostname = hostnames[0]
 
         results = gmp.get_results(
-            details=False, filter='host={0} and severity>0.0'.format(ip))
+            details=False, filter='host={0} and severity>0.0'.format(ip)
+        )
 
         low = int(results.xpath('count(//result/threat[text()="Low"])'))
         sum_low += low
@@ -74,16 +77,25 @@ def print_reports(gmp, from_date, to_date):
         sum_high += high
 
         best_os_cpe_report_id = asset.xpath(
-            'host/detail/name[text()="best_os_cpe"]/../source/@id')[0]
+            'host/detail/name[text()="best_os_cpe"]/../source/@id'
+        )[0]
 
         table_data.append(
-            [hostname, ip, best_os_cpe_report_id, high, medium, low])
+            [hostname, ip, best_os_cpe_report_id, high, medium, low]
+        )
 
     table = AsciiTable(table_data)
     print(table.table + '\n')
-    print('Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}'
-          '\nLow: {2}\n\n'.format(int(sum_high), int(sum_medium), int(sum_low),
-                                  from_date.isoformat(), to_date.isoformat()))
+    print(
+        'Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}'
+        '\nLow: {2}\n\n'.format(
+            int(sum_high),
+            int(sum_medium),
+            int(sum_low),
+            from_date.isoformat(),
+            to_date.isoformat(),
+        )
+    )
 
 
 def main():

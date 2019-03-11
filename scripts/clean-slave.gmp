@@ -18,9 +18,11 @@
 
 
 def clean_slave(gmp):
-    tasks = gmp.get_tasks(filter="rows=-1 not status=Running and "
-                          "not status=Requested and not "
-                          "status=&quot;Stop Requested&quot;")
+    tasks = gmp.get_tasks(
+        filter="rows=-1 not status=Running and "
+        "not status=Requested and not "
+        "status=&quot;Stop Requested&quot;"
+    )
 
     for tid in tasks.xpath('task/@id'):
         print('Removing task %s... ' % tid)
