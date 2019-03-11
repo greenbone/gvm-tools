@@ -64,6 +64,7 @@ NAGIOS_MSG = ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
 
 MAX_RUNNING_INSTANCES = 10
 
+
 class InstanceManager:
     """Class for managing instances of this plugin
 
@@ -140,7 +141,7 @@ class InstanceManager:
             self.con_db = sqlite3.connect(self.path)
             self.cursor = self.con_db.cursor()
             logger.debug(sqlite3.sqlite_version)
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             logger.debug(e)
 
     def close_db(self):
@@ -192,7 +193,8 @@ class InstanceManager:
             new = parse_date(last_scan_end)
 
             logger.debug(
-                "Old time (from db): %s\n" "New time (from rp): %s", old, new)
+                "Old time (from db): %s\n" "New time (from rp): %s", old, new
+            )
 
             if new <= old and params_used == db_entry[1]:
                 return False
@@ -234,8 +236,7 @@ class InstanceManager:
 
         data = etree.tostring(report)
 
-        logger.debug(
-            "add_report: %s, %s, %s", self.host, scan_end, params_used)
+        logger.debug("add_report: %s, %s, %s", self.host, scan_end, params_used)
 
         # Insert values
         self.cursor.execute(
@@ -294,7 +295,7 @@ class InstanceManager:
         """
         self.cursor.execute(
             "SELECT count(*) FROM Instance WHERE pending=?",
-            (self._to_sql_bool(pending),)
+            (self._to_sql_bool(pending),),
         )
 
         res = self.cursor.fetchone()
@@ -319,9 +320,7 @@ class InstanceManager:
         number_pending_instances = self.has_entries(pending=True)
 
         logger.debug(
-            "check_instances: %i %i",
-            number_instances,
-            number_pending_instances,
+            "check_instances: %i %i", number_instances, number_pending_instances
         )
 
         if (
@@ -443,7 +442,7 @@ class InstanceManager:
         """
         self.cursor.execute(
             "UPDATE Instance SET pending=? WHERE created_at=?",
-            (self._to_sql_bool(pending), date)
+            (self._to_sql_bool(pending), date),
         )
 
         # Save the changes
@@ -661,8 +660,9 @@ def status(gmp, im, script_args):
             else:
                 full_report = im.load_local_report()
 
-            filter_report(im, full_report.xpath("report/report")[0],
-                          script_args)
+            filter_report(
+                im, full_report.xpath("report/report")[0], script_args
+            )
 
 
 def filter_report(im, report, script_args):
@@ -804,9 +804,13 @@ def filter_report(im, report, script_args):
         )
 
     if script_args.oid:
-        print_nvt_data(nvts, show_log=script_args.showlog,
-                       show_ports=script_args.show_ports,
-                       descr=script_args.descr, dfn=script_args.dfn)
+        print_nvt_data(
+            nvts,
+            show_log=script_args.showlog,
+            show_ports=script_args.show_ports,
+            descr=script_args.descr,
+            dfn=script_args.dfn,
+        )
 
     if script_args.scanend:
         end = report.xpath("//end/text()")[0]
@@ -872,8 +876,9 @@ def retrieve_nvt_data(result):
     return (oid, name, desc, port, dfn_list)
 
 
-def print_nvt_data(nvts, show_log=False, show_ports=False, descr=False,
-                   dfn=False):
+def print_nvt_data(
+    nvts, show_log=False, show_ports=False, descr=False, dfn=False
+):
     """Print nvt data
 
     Prints for each nvt found in the array the relevant data
@@ -1076,8 +1081,9 @@ class FixedOffset(tzinfo):
         return "<FixedOffset %r %r>" % (self.__name, self.__offset)
 
 
-def to_int(source_dict, key, default_to_zero=False, default=None,
-           required=True):
+def to_int(
+    source_dict, key, default_to_zero=False, default=None, required=True
+):
     """Pull a value from the dict and convert to int
 
     :param default_to_zero: If the value is None or empty, treat it as zero
@@ -1213,7 +1219,6 @@ def main():
     parser.add_argument(
         "++clean", action="store_true", help="Activate to clean the database."
     )
-
 
     parser.add_argument(
         "+u", "++gmp-username", help="GMP username.", required=False
@@ -1377,7 +1382,7 @@ def main():
 
     try:
         gmp.get_version()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         end_session(im, "GMP CRITICAL: %s" % str(e), NAGIOS_CRITICAL)
 
     if script_args.ping:

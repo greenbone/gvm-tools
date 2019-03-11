@@ -42,17 +42,21 @@ def check_args(args):
 
 def print_reports(gmp, args, from_date, to_date):
     report_filter = "rows=-1 and created>{0} and created<{1}".format(
-        from_date.isoformat(), to_date.isoformat())
+        from_date.isoformat(), to_date.isoformat()
+    )
 
     reports_xml = gmp.get_reports(filter=report_filter)
     report_list = reports_xml.xpath('report')
 
-    sum_high = reports_xml.xpath('sum(report/report/result_count/hole/full/'
-                                 'text())')
-    sum_medium = reports_xml.xpath('sum(report/report/result_count/warning/'
-                                   'full/text())')
-    sum_low = reports_xml.xpath('sum(report/report/result_count/info/full/'
-                                'text())')
+    sum_high = reports_xml.xpath(
+        'sum(report/report/result_count/hole/full/' 'text())'
+    )
+    sum_medium = reports_xml.xpath(
+        'sum(report/report/result_count/warning/' 'full/text())'
+    )
+    sum_low = reports_xml.xpath(
+        'sum(report/report/result_count/info/full/' 'text())'
+    )
 
     print('Found {0} reports'.format(len(report_list)))
 
@@ -66,11 +70,13 @@ def print_reports(gmp, args, from_date, to_date):
             print('\nReport: {0}'.format(report_id))
 
             table_data = [
-                ['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
+                ['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']
+            ]
 
             for host in res.xpath('report/report/host'):
-                hostname = host.xpath('detail/name[text()="hostname"]/../'
-                                      'value/text()')
+                hostname = host.xpath(
+                    'detail/name[text()="hostname"]/../' 'value/text()'
+                )
                 if len(hostname) > 0:
                     hostname = str(hostname[0])
                 else:
@@ -90,9 +96,16 @@ def print_reports(gmp, args, from_date, to_date):
             res.clear()
             del res
 
-    print('Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}\nLow: '
-          '{2}\n\n'.format(int(sum_high), int(sum_medium), int(sum_low),
-                           from_date.isoformat(), to_date.isoformat()))
+    print(
+        'Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}\nLow: '
+        '{2}\n\n'.format(
+            int(sum_high),
+            int(sum_medium),
+            int(sum_low),
+            from_date.isoformat(),
+            to_date.isoformat(),
+        )
+    )
 
 
 def main():

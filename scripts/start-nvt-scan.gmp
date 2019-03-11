@@ -47,13 +47,19 @@ def get_config(gmp, nvt_oid):
 
     while True:
         chosen_config = input(
-            '\nChoose your config or create new one[0-{len} | n]: '
-            .format(len=len(config_ids) - 1))
+            '\nChoose your config or create new one[0-{len} | n]: '.format(
+                len=len(config_ids) - 1
+            )
+        )
 
         if chosen_config == 'n':
             chosen_copy_config = int(
-                input('Which config to copy? [0-{len}]: '.format(
-                    len=len(config_ids) - 1)))
+                input(
+                    'Which config to copy? [0-{len}]: '.format(
+                        len=len(config_ids) - 1
+                    )
+                )
+            )
             config_name = input('Enter new Name for config: ')
 
             copy_id = config_ids[chosen_copy_config]
@@ -69,16 +75,24 @@ def get_config(gmp, nvt_oid):
             nvt = gmp.get_nvt(nvt_oid=nvt_oid)
             family = nvt.xpath('nvt/family/text()')[0]
 
-            gmp.modify_config(config_id, 'nvt_selection', name=config_name,
-                              nvt_oids=[nvt_oid], family=family)
+            gmp.modify_config(
+                config_id,
+                'nvt_selection',
+                name=config_name,
+                nvt_oids=[nvt_oid],
+                family=family,
+            )
 
             # This nvts must be present to work
             family = 'Port scanners'
-            nvts = ['1.3.6.1.4.1.25623.1.0.14259',
-                    '1.3.6.1.4.1.25623.1.0.100315']
+            nvts = [
+                '1.3.6.1.4.1.25623.1.0.14259',
+                '1.3.6.1.4.1.25623.1.0.100315',
+            ]
 
-            gmp.modify_config(config_id, 'nvt_selection',
-                              nvt_oids=nvts, family=family)
+            gmp.modify_config(
+                config_id, 'nvt_selection', nvt_oids=nvts, family=family
+            )
             return config_id
 
         if 0 <= int(chosen_config) < len(config_ids):
@@ -97,8 +111,10 @@ def get_target(gmp, hosts):
     while True:
         if target_ids:
             chosen_target = input(
-                '\nChoose your target or create new one[0-{len} | n]: '
-                .format(len=len(target_ids) - 1))
+                '\nChoose your target or create new one[0-{len} | n]: '.format(
+                    len=len(target_ids) - 1
+                )
+            )
         else:
             chosen_target = 'n'
 
@@ -108,8 +124,9 @@ def get_target(gmp, hosts):
 
             name = input('Name of target: ')
 
-            res = gmp.create_target(name, make_unique=True,
-                                    hosts=hosts.split(','))
+            res = gmp.create_target(
+                name, make_unique=True, hosts=hosts.split(',')
+            )
             return res.xpath('@id')[0]
 
         if 0 <= int(chosen_target) < len(target_ids):
@@ -128,16 +145,22 @@ def get_scanner(gmp):
 
     while True:
         chosen_scanner = int(
-            input('\nChoose your scanner [0-{len}]: '.format(
-                len=len(scanner_ids) - 1)))
+            input(
+                '\nChoose your scanner [0-{len}]: '.format(
+                    len=len(scanner_ids) - 1
+                )
+            )
+        )
         if 0 <= chosen_scanner < len(scanner_ids):
             return scanner_ids[chosen_scanner]
 
 
-def create_and_start_task(gmp, task_name, task_comment, config_id, target_id,
-                          scanner_id):
-    res = gmp.create_task(task_name, config_id, target_id,
-                          scanner_id, comment=task_comment)
+def create_and_start_task(
+    gmp, task_name, task_comment, config_id, target_id, scanner_id
+):
+    res = gmp.create_task(
+        task_name, config_id, target_id, scanner_id, comment=task_comment
+    )
 
     # Start the task
     task_id = res.xpath('@id')[0]
@@ -160,8 +183,9 @@ def main():
     target_id = get_target(gmp, hosts)
     scanner_id = get_scanner(gmp)
 
-    create_and_start_task(gmp, task_name, task_comment, config_id, target_id,
-                          scanner_id)
+    create_and_start_task(
+        gmp, task_name, task_comment, config_id, target_id, scanner_id
+    )
 
 
 if __name__ == '__gmp__':

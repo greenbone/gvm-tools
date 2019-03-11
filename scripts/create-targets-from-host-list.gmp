@@ -68,10 +68,7 @@ def send_targets(gmp, host_name, host_file, host_list):
         hosts = [host]
 
         gmp.create_target(
-            name=name,
-            make_unique=True,
-            comment=comment,
-            hosts=hosts
+            name=name, make_unique=True, comment=comment, hosts=hosts
         )
 
 

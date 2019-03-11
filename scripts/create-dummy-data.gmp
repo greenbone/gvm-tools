@@ -51,8 +51,9 @@ def create_data(gmp, count):
         name = id_generator()
         config_id = random.choice(config_ids)
         target_id = random.choice(target_ids)
-        gmp.create_task(name, config_id, target_id,
-                        '08b69003-5fc2-4037-a479-93b440211c73')
+        gmp.create_task(
+            name, config_id, target_id, '08b69003-5fc2-4037-a479-93b440211c73'
+        )
 
 
 def main():

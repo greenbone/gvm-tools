@@ -77,30 +77,36 @@ def execute_send_delta_emails(sc, **kwargs):
 
     for task in tasks:
         task_id = task.xpath('@id')[0]
-        print('Processing task "%s" (%s)...' %
-              (task.xpath('name/text()')[0], task_id))
+        print(
+            'Processing task "%s" (%s)...'
+            % (task.xpath('name/text()')[0], task_id)
+        )
 
         reports = gmp.get_reports(
             filter='task_id={0} and status=Done '
-                   'sort-reverse=date'.format(task_id)).xpath('report')
+            'sort-reverse=date'.format(task_id)
+        ).xpath('report')
         print('  Found %d report(s).' % len(reports))
         if len(reports) < 2:
             print('  Delta-reporting requires at least 2 finished reports.')
             continue
 
-        if reports[0].xpath('report/user_tags/tag/'
-                            'name[text()="delta_alert_sent"]'):
+        if reports[0].xpath(
+            'report/user_tags/tag/' 'name[text()="delta_alert_sent"]'
+        ):
             print('  Delta report for latest finished report already sent')
             continue
 
-        print('  Latest finished report not send yet. Preparing delta '
-              'report...')
+        print(
+            '  Latest finished report not send yet. Preparing delta '
+            'report...'
+        )
 
         delta_report = gmp.get_report(
             report_id=reports[0].xpath('@id')[0],
             delta_report_id=reports[1].xpath('@id')[0],
             filter='delta_states=n',
-            format_id='c1645568-627a-11e3-a660-406186ea4fc5'
+            format_id='c1645568-627a-11e3-a660-406186ea4fc5',
         )
 
         csv_in_b64 = delta_report.xpath('report/text()')[0]
@@ -115,7 +121,8 @@ def execute_send_delta_emails(sc, **kwargs):
 
         report_attachment = MIMEBase('application', "octet-stream")
         report_attachment.add_header(
-            'Content-Disposition', 'attachment', filename='delta.csv')
+            'Content-Disposition', 'attachment', filename='delta.csv'
+        )
         report_attachment.set_payload(csv)
         alert_email.attach(report_attachment)
 
@@ -126,8 +133,9 @@ def execute_send_delta_emails(sc, **kwargs):
                 smtp.starttls()
                 smtp.ehlo()
                 smtp.login(mta_user, mta_password)  # if required
-                smtp.sendmail(from_address, to_addresses,
-                              alert_email.as_string())
+                smtp.sendmail(
+                    from_address, to_addresses, alert_email.as_string()
+                )
                 smtp.close()
                 print("  Email has been sent!")
 
@@ -135,7 +143,7 @@ def execute_send_delta_emails(sc, **kwargs):
                     name=report_tag_name,
                     resource_id=reports[0].xpath('@id')[0],
                     resource_type='report',
-                    value=datetime.datetime.now()
+                    value=datetime.datetime.now(),
                 )
         except Exception:  # pylint: disable=broad-except
             print("  Unable to send the email. Error: ", sys.exc_info()[0])
@@ -143,8 +151,13 @@ def execute_send_delta_emails(sc, **kwargs):
             continue  # ignore the problem for the time being
 
     print("\nCheck will be repeated in {} minutes...\n".format(interval))
-    sc.enter(interval * 60, 1, execute_send_delta_emails, argument=(sc,),
-             kwargs=kwargs)
+    sc.enter(
+        interval * 60,
+        1,
+        execute_send_delta_emails,
+        argument=(sc,),
+        kwargs=kwargs,
+    )
 
 
 def main():
@@ -183,7 +196,11 @@ def main():
 
     # Enter the scheduled execution with the given interval
     schedule.enter(
-        0, 1, execute_send_delta_emails, argument=(schedule,), kwargs={
+        0,
+        1,
+        execute_send_delta_emails,
+        argument=(schedule,),
+        kwargs={
             'gmp': gmp,
             'task_tag': task_tag,
             'interval': interval,
@@ -195,7 +212,8 @@ def main():
             'mta_port': mta_port,
             'mta_user': mta_user,
             'report_tag_name': report_tag_name,
-        })
+        },
+    )
     schedule.run()
 
 

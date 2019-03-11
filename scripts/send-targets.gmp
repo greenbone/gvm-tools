@@ -69,8 +69,12 @@ def create_xml_tree(xml_doc):
 
 
 def parse_send_xml_tree(gmp, xml_tree):
-    credential_options = ['ssh_credential', 'smb_credential',
-                          'esxi_credential', 'snmp_credential']
+    credential_options = [
+        'ssh_credential',
+        'smb_credential',
+        'esxi_credential',
+        'snmp_credential',
+    ]
     counter = 1
 
     for target in xml_tree.xpath('target'):
@@ -96,7 +100,8 @@ def parse_send_xml_tree(gmp, xml_tree):
                 response = yes_or_no(
                     "\nThe credential '{}' for 'target {}' could not be "
                     "located...\nWould you like to continue?".format(
-                        credential, counter)
+                        credential, counter
+                    )
                 )
 
                 if response is False:
