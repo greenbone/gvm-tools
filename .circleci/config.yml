@@ -66,12 +66,34 @@ commands:
           name: Run pylint
           command: |
             pipenv run pylint --score=n --disable=R gvmtools
+  lint-scripts:
+    description: "Lint GVM scripts"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
+      - run:
+          name: Install additional script dependencies
+          command: pipenv run pip install -r scripts/requirements.txt
+      - run:
+          name: Install pylint
+          command: |
+            pipenv run pip install pylint
+      - run:
+          name: Run pylint
+          command: |
+            pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
 
 jobs:
   lint-python-files:
     executor: python-36
     steps:
       - lint
+  lint-gvm-scripts:
+    executor: python-36
+    steps:
+      - lint-scripts
   build-35:
     executor: python-35
     steps:

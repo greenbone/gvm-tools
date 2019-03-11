@@ -68,7 +68,7 @@ def load_host_file(filename):
     return hosts_string
 
 
-def copy_send_target(gmp, hosts, old_target_id):
+def copy_send_target(gmp, hosts_file, old_target_id):
     hosts_string = load_host_file(hosts_file)
     keywords = {
                 'make_unique': True,
@@ -81,11 +81,11 @@ def copy_send_target(gmp, hosts, old_target_id):
     old_target = gmp.get_targets(target_id=old_target_id)[0]
 
     objects = ('reverse_lookup_only', 'reverse_lookup_unify', 'name')
-    for object in objects:
-        var = old_target.xpath('{}/text()'.format(object))[0]
+    for obj in objects:
+        var = old_target.xpath('{}/text()'.format(obj))[0]
         if var is '0':
             var = ''
-        keywords['{}'.format(object)] = var
+        keywords['{}'.format(obj)] = var
 
     keywords['port_list'] = {'id': old_target.xpath('port_list/@id')[0]}
 
@@ -98,8 +98,8 @@ def copy_send_target(gmp, hosts, old_target_id):
     return new_target_id
 
 
-def create_target_hosts(gmp, host_list, task_id, old_target_id):
-    new_target = copy_send_target(gmp, host_list, old_target_id)
+def create_target_hosts(gmp, host_file, task_id, old_target_id):
+    new_target_id = copy_send_target(gmp, host_file, old_target_id)
 
     gmp.modify_task(
                     task_id=task_id,

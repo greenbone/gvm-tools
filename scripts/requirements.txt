@@ -1,0 +1,4 @@
+# required for send-schedule.gmp
+python-dateutil
+# required for monthly-report and monthly-report2
+terminaltables
