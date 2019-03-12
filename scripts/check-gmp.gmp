@@ -641,8 +641,8 @@ def status(gmp, im, script_args):
             if im.is_old_report(last_scan_end, params_used):
                 host = script_args.hostaddress
 
-                full_report = gmp.get_reports(
-                    filter_id=last_report_id,
+                full_report = gmp.get_report(
+                    report_id=last_report_id,
                     filter="sort-reverse=id result_hosts_only=1 "
                     "min_cvss_base= min_qod= levels=hmlgd autofp=%s "
                     "notes=0 apply_overrides=%s overrides=%s first=1 rows=-1 "
