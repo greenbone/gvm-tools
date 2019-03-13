@@ -1365,6 +1365,8 @@ def main():
         MAX_RUNNING_INSTANCES = script_args.max_running_instances
 
     # Set the report manager
+    if script_args.cache:
+        tmp_path_db = script_args.cache
     im = InstanceManager(tmp_path_db)
 
     # Check if command holds clean command
