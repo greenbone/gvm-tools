@@ -23,6 +23,7 @@ import sys
 from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import CheckCommandTransform
 
+from gvmtools.helper import do_not_run_as_root
 from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,8 @@ HELP_TEXT = """
 
 
 def main():
+    do_not_run_as_root()
+
     parser = create_parser(description=HELP_TEXT, logfilename='gvm-cli.log')
 
     parser.add_protocol_argument()

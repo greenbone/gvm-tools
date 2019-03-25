@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import getpass
+import os
 import sys
 
 from gvm.errors import GvmError
@@ -24,6 +25,11 @@ from gvm.xml import pretty_print
 
 
 __all__ = ['authenticate', 'pretty_print', 'run_script']
+
+
+def do_not_run_as_root():
+    if os.getuid() == 0:
+        raise RuntimeError('This tool MUST NOT be run as root user.')
 
 
 def authenticate(gmp, username=None, password=None):
