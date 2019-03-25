@@ -28,7 +28,7 @@ __all__ = ['authenticate', 'pretty_print', 'run_script']
 
 
 def do_not_run_as_root():
-    if os.getuid() == 0:
+    if os.geteuid() == 0:
         raise RuntimeError('This tool MUST NOT be run as root user.')
 
 
