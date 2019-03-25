@@ -26,7 +26,7 @@ from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
-from gvmtools.helper import authenticate, run_script
+from gvmtools.helper import authenticate, run_script, do_not_run_as_root
 from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
 
 HELP_TEXT = """
@@ -42,6 +42,8 @@ __api_version__ = get_gvm_version()
 
 
 def main():
+    do_not_run_as_root()
+
     parser = create_parser(description=HELP_TEXT, logfilename='gvm-script.log')
 
     parser.add_protocol_argument()
