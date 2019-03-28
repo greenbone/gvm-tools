@@ -812,7 +812,8 @@ def filter_report(im, report, script_args):
         )
 
     if script_args.scanend:
-        end = report.xpath("//end/text()")[0]
+        end = report.xpath("//end/text()")
+        end = end[0] if end else "Timestamp of scan end not given"
         print("SCAN_END: %s" % end)
 
     if script_args.details:
