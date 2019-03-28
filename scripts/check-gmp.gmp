@@ -752,7 +752,6 @@ def filter_report(im, report, script_args):
                     error_count += 1
         else:
             error_count = errors.xpath("count/text()")[0]
-            print_without_pipe(error_count)
 
     ret = 0
     if high_count > 0:
