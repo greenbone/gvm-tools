@@ -1355,7 +1355,13 @@ def main():
         help="Report status by last report.",
     )
 
-    script_args, _ = parser.parse_known_args()
+    script_args, unknown_args = parser.parse_known_args()
+    aux_parser = ArgumentParser(prefix_chars="-",
+                                formatter_class=RawTextHelpFormatter)
+    aux_parser.add_argument("--hostname", nargs="?", required=False)
+    gvm_tool_args, _ = aux_parser.parse_known_args(unknown_args)
+    if "hostname" in gvm_tool_args:
+        script_args.hostname = gvm_tool_args.hostname
 
     # Set the max running instances variable
     if script_args.max_running_instances:
