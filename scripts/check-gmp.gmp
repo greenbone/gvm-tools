@@ -935,7 +935,7 @@ def print_without_pipe(msg):
         msg (string): Message to print
     """
     if "|" in msg:
-        msg.replace("|", "¦")
+        msg = msg.replace("|", "¦")
 
     print(msg)
 
