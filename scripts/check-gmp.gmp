@@ -752,7 +752,6 @@ def filter_report(im, report, script_args):
                     error_count += 1
         else:
             error_count = errors.xpath("count/text()")[0]
-            print_without_pipe(error_count)
 
     ret = 0
     if high_count > 0:
@@ -813,7 +812,8 @@ def filter_report(im, report, script_args):
         )
 
     if script_args.scanend:
-        end = report.xpath("//end/text()")[0]
+        end = report.xpath("//end/text()")
+        end = end[0] if end else "Timestamp of scan end not given"
         print("SCAN_END: %s" % end)
 
     if script_args.details:
@@ -935,7 +935,7 @@ def print_without_pipe(msg):
         msg (string): Message to print
     """
     if "|" in msg:
-        msg.replace("|", "¦")
+        msg = msg.replace("|", "¦")
 
     print(msg)
 
@@ -1355,7 +1355,13 @@ def main():
         help="Report status by last report.",
     )
 
-    script_args, _ = parser.parse_known_args()
+    script_args, unknown_args = parser.parse_known_args()
+    aux_parser = ArgumentParser(prefix_chars="-",
+                                formatter_class=RawTextHelpFormatter)
+    aux_parser.add_argument("--hostname", nargs="?", required=False)
+    gvm_tool_args, _ = aux_parser.parse_known_args(unknown_args)
+    if "hostname" in gvm_tool_args:
+        script_args.hostname = gvm_tool_args.hostname
 
     # Set the max running instances variable
     if script_args.max_running_instances:
