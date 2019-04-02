@@ -144,6 +144,11 @@ class RootArgumentsParserTest(ParserTestCase):
         args = self.parser.parse_args(['--gmp-password', 'foo', 'socket'])
         self.assertEqual(args.gmp_password, 'foo')
 
+    def test_with_unknown_args(self):
+        args, script_args = self.parser.parse_known_args(
+            ['--gmp-password', 'foo', 'socket', '--bar', '--bar2'])
+        self.assertEqual(args.gmp_password, 'foo')
+        self.assertEqual(script_args, ['--bar', '--bar2'])
 
 class SocketParserTestCase(ParserTestCase):
     def test_defaults(self):
