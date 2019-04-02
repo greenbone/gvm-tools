@@ -203,6 +203,25 @@ class CliParser:
 
         return args
 
+    def parse_known_args(self, args=None):
+        args_before, _ = self._root_parser.parse_known_args(args)
+
+        if args_before.loglevel is not None:
+            level = logging.getLevelName(args_before.loglevel)
+            logging.basicConfig(filename=self._logfilename, level=level)
+
+        self._set_defaults(None if self._ignore_config else args_before.config)
+
+        args, script_args = self._parser.parse_known_args(args)
+
+        # If timeout value is -1, then the socket should have no timeout
+        if args.timeout == -1:
+            args.timeout = None
+
+        logging.debug('Parsed arguments %r', args)
+
+        return args, script_args
+
     def add_argument(self, *args, **kwargs):
         self._parser_socket.add_argument(*args, **kwargs)
         self._parser_ssh.add_argument(*args, **kwargs)

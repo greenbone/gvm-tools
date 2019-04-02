@@ -56,8 +56,7 @@ def main():
     parser.add_argument(
         'scriptargs', nargs='*', metavar="ARG", help='Arguments for the script'
     )
-
-    args = parser.parse_args()
+    args, script_args = parser.parse_known_args()
 
     if 'socket' in args.connection_type and args.sockpath:
         print(
@@ -100,6 +99,8 @@ def main():
         argv=argv,
         # for backwards compatibility we add script here
         script=argv,
+        # the unknown args, which are owned by the script.
+        script_args=script_args,
     )
 
     global_vars['args'] = shell_args
