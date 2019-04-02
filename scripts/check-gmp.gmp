@@ -1191,116 +1191,117 @@ def main():
 
     parser = ArgumentParser(
         prog="check-gmp",
-        prefix_chars="+",
+        prefix_chars="-",
         description=HELP_TEXT,
         formatter_class=RawTextHelpFormatter,
         add_help=False,
         epilog="""
-        usage: check-gmp [+h] [++version] [connection_type] ...
-        or: check-gmp connection_type ++help""",
+        usage: gvm-script [connection_type] check-gmp.gmp ...
+        or: gvm-script [connection_type] check-gmp.gmp -H
+        or: gvm-script connection_type --help""",
     )
 
     parser.add_argument(
-        "+h", "++help", action="help", help="Show this help message and exit."
+        "-H", action="help", help="Show this help message and exit."
     )
 
     parser.add_argument(
-        "+V",
-        "++version",
+        "-V",
+        "--version",
         action="version",
         version="%(prog)s {version}".format(version=__version__),
         help="Show program's version number and exit",
     )
 
     parser.add_argument(
-        "++cache",
+        "--cache",
         nargs="?",
         default=tmp_path_db,
         help="Path to cache file. Default: %s." % tmp_path_db,
     )
 
     parser.add_argument(
-        "++clean", action="store_true", help="Activate to clean the database."
+        "--clean", action="store_true", help="Activate to clean the database."
     )
 
     parser.add_argument(
-        "+u", "++gmp-username", help="GMP username.", required=False
+        "-u", "--gmp-username", help="GMP username.", required=False
     )
 
     parser.add_argument(
-        "+w", "++gmp-password", help="GMP password.", required=False
+        "-w", "--gmp-password", help="GMP password.", required=False
     )
 
     parser.add_argument(
-        "+F",
-        "++hostaddress",
+        "-F",
+        "--hostaddress",
         required=False,
         default="",
         help="Report last report status of host <ip>.",
     )
 
     parser.add_argument(
-        "+T", "++task", required=False, help="Report status of task <task>."
+        "-T", "--task", required=False, help="Report status of task <task>."
     )
 
     parser.add_argument(
-        "++apply-overrides", action="store_true", help="Apply overrides."
+        "--apply-overrides", action="store_true", help="Apply overrides."
     )
 
     parser.add_argument(
-        "++overrides", action="store_true", help="Include overrides."
+        "--overrides", action="store_true", help="Include overrides."
     )
 
     parser.add_argument(
-        "+d",
-        "++details",
+        "-d",
+        "--details",
         action="store_true",
         help="Include connection details in output.",
     )
 
     parser.add_argument(
-        "+l",
-        "++report-link",
+        "-l",
+        "--report-link",
         action="store_true",
         help="Include URL of report in output.",
     )
 
     parser.add_argument(
-        "++dfn",
+        "--dfn",
         action="store_true",
         help="Include DFN-CERT IDs on vulnerabilities in output.",
     )
 
     parser.add_argument(
-        "++oid",
+        "--oid",
         action="store_true",
         help="Include OIDs of NVTs finding vulnerabilities in output.",
     )
 
     parser.add_argument(
-        "++descr",
+        "--descr",
         action="store_true",
         help="Include descriptions of NVTs finding vulnerabilities in output.",
     )
 
     parser.add_argument(
-        "++showlog", action="store_true", help="Include log messages in output."
+        "--showlog", action="store_true", help="Include log messages in output."
     )
 
     parser.add_argument(
-        "++show-ports",
+        "--show-ports",
         action="store_true",
         help="Include port of given vulnerable nvt in output.",
     )
 
     parser.add_argument(
-        "++scanend",
+        "--scanend",
         action="store_true",
         help="Include timestamp of scan end in output.",
     )
 
     parser.add_argument(
-        "++autofp",
+        "--autofp",
         type=int,
         choices=[0, 1, 2],
         default=0,
@@ -1309,57 +1310,55 @@ def main():
     )
 
     parser.add_argument(
-        "+e",
-        "++empty-as-unknown",
+        "-e",
+        "--empty-as-unknown",
         action="store_true",
         help="Respond with UNKNOWN on empty results.",
     )
 
     parser.add_argument(
-        "+I",
-        "++max-running-instances",
+        "-I",
+        "--max-running-instances",
         default=10,
         type=int,
         help="Set the maximum simultaneous processes of check-gmp",
     )
 
-    group1 = parser.add_mutually_exclusive_group(required=False)
+    parser.add_argument("--hostname", nargs="?", required=False)
 
-    group1.add_argument(
-        "++days",
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        "--ping", action="store_true", help="Ping the gsm appliance."
+    )
+
+    group.add_argument(
+        "--status", action="store_true", help="Report status of task."
+    )
+
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        "--days",
         type=int,
         help="Delete database entries that are older than" " given days.",
     )
+    group.add_argument("--ip", help="Delete database entry for given ip.")
 
-    group1.add_argument("++ip", help="Delete database entry for given ip.")
-
-    group2 = parser.add_mutually_exclusive_group(required=False)
-
-    group2.add_argument(
-        "++ping", action="store_true", help="Ping the gsm appliance."
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        "--trend", action="store_true", help="Report status by trend."
     )
-
-    group2.add_argument(
-        "++status", action="store_true", help="Report status of task."
-    )
-
-    group3 = parser.add_mutually_exclusive_group(required=False)
-
-    group3.add_argument(
-        "++trend", action="store_true", help="Report status by trend."
-    )
-
-    group3.add_argument(
-        "++last-report",
+    group.add_argument(
+        "--last-report",
         action="store_true",
         help="Report status by last report.",
     )
 
-    script_args, unknown_args = parser.parse_known_args()
+    script_args = parser.parse_args(args.script_args)
+
     aux_parser = ArgumentParser(prefix_chars="-",
                                 formatter_class=RawTextHelpFormatter)
     aux_parser.add_argument("--hostname", nargs="?", required=False)
-    gvm_tool_args, _ = aux_parser.parse_known_args(unknown_args)
+    gvm_tool_args, _ = aux_parser.parse_known_args(sys.argv)
     if "hostname" in gvm_tool_args:
         script_args.hostname = gvm_tool_args.hostname
 
