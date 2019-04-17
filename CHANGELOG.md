@@ -44,6 +44,8 @@ $ cd gvm-tools && git log
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
   upon exiting it for the first time [PR 139](https://github.com/greenbone/gvm-tools/pull/139)
 - Support \[Auth\] section in config file for backwards compatibility [PR 160](https://github.com/greenbone/gvm-tools/pull/160)
+- Fix using correct API to get single task and targets in update-task-target.gmp
+  script [PR 188](https://github.com/greenbone/gvm-tools/pull/188)
 
 ## [2.0.0.beta1] - 2018-11-13
 
