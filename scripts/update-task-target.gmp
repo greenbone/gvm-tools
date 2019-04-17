@@ -76,7 +76,7 @@ def copy_send_target(gmp, hosts_file, old_target_id):
         time.strftime("%Y/%m/%d-%H:%M:%S")
     )
 
-    old_target = gmp.get_targets(target_id=old_target_id)[0]
+    old_target = gmp.get_target(target_id=old_target_id)[0]
 
     objects = ('reverse_lookup_only', 'reverse_lookup_unify', 'name')
     for obj in objects:
@@ -105,7 +105,7 @@ def create_target_hosts(gmp, host_file, task_id, old_target_id):
 
 
 def check_to_delete(gmp, target_id):
-    target = gmp.get_targets(target_id=target_id)[0]
+    target = gmp.get_target(target_id=target_id)[0]
     if '0' in target.xpath("in_use/text()"):
         gmp.delete_target(target_id=target_id)
 
@@ -118,7 +118,7 @@ def main():
     hosts_file = args.script[1]
     task_id = args.script[2]
 
-    task = gmp.get_tasks(task_id=task_id)[1]
+    task = gmp.get_task(task_id=task_id)[1]
     old_target_id = task.xpath('target/@id')[0]
 
     create_target_hosts(gmp, hosts_file, task_id, old_target_id)
