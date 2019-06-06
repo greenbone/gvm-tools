@@ -112,7 +112,7 @@ class CliParser:
     def __init__(
         self, description, logfilename, *, prog=None, ignore_config=False
     ):
-        root_parser = argparse.ArgumentParser(
+        bootstrap_parser = argparse.ArgumentParser(
             prog=prog,
             description=description,
             formatter_class=argparse.RawTextHelpFormatter,
@@ -120,14 +120,14 @@ class CliParser:
             add_help=False,
         )
 
-        root_parser.add_argument(
+        bootstrap_parser.add_argument(
             '-c',
             '--config',
             nargs='?',
             default=DEFAULT_CONFIG_PATH,
             help='Configuration file path (default: %(default)s)',
         )
-        root_parser.add_argument(
+        bootstrap_parser.add_argument(
             '--log',
             nargs='?',
             dest='loglevel',
@@ -136,7 +136,7 @@ class CliParser:
             help='Activate logging (default level: %(default)s)',
         )
 
-        parser = argparse.ArgumentParser(prog=prog, parents=[root_parser])
+        parser = argparse.ArgumentParser(prog=prog, parents=[bootstrap_parser])
 
         parser.add_argument(
             '--timeout',
@@ -177,7 +177,7 @@ class CliParser:
         self._subparsers = subparsers
 
         self._parser = parser
-        self._root_parser = root_parser
+        self._bootstrap_parser = bootstrap_parser
 
         self._logfilename = logfilename
         self._ignore_config = ignore_config
@@ -193,7 +193,7 @@ class CliParser:
         return args
 
     def parse_known_args(self, args=None):
-        args_before, _ = self._root_parser.parse_known_args(args)
+        args_before, _ = self._bootstrap_parser.parse_known_args(args)
 
         if args_before.loglevel is not None:
             level = logging.getLevelName(args_before.loglevel)
