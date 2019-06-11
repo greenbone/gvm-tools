@@ -33,7 +33,8 @@ $ cd gvm-tools && git log
 - Update `gvmtools.get_version` to return a fully compliant [PEP 440](https://www.python.org/dev/peps/pep-0440/)
   version string [PR 150](https://github.com/greenbone/gvm-tools/pull/150)
 - Refresh the dependencies specified via the `Pipfile.lock` file to their latest
-  versions [PR 186](https://github.com/greenbone/gvm-tools/pull/186)
+  versions [PR 186](https://github.com/greenbone/gvm-tools/pull/186),
+  [PR 193](https://github.com/greenbone/gvm-tools/pull/193)
 
 ### Deprecated
 - Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
