@@ -35,6 +35,9 @@ $ cd gvm-tools && git log
 - Refresh the dependencies specified via the `Pipfile.lock` file to their latest
   versions [PR 186](https://github.com/greenbone/gvm-tools/pull/186),
   [PR 193](https://github.com/greenbone/gvm-tools/pull/193)
+- Dropped global command line arguments from sub commands e.g. it must be `gvm-cli --config foo.conf socket ...`
+  instead of `gvm-cli socket --config foo.conf` now. The latter didn't work actually but
+  was listed in the `--help` output [#194](https://github.com/greenbone/gvm-tools/pull/194)
 
 ### Deprecated
 - Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
