@@ -132,23 +132,41 @@ class RootArgumentsParserTest(ParserTestCase):
         args = self.parser.parse_args(['--log', 'ERROR', 'socket'])
         self.assertEqual(args.loglevel, 'ERROR')
 
+    def test_loglevel_after_subparser(self):
+        with self.assertRaises(SystemExit):
+            self.parser.parse_args(['socket', '--log', 'ERROR'])
+
     def test_timeout(self):
         args = self.parser.parse_args(['--timeout', '1000', 'socket'])
         self.assertEqual(args.timeout, 1000)
+
+    def test_timeout_after_subparser(self):
+        with self.assertRaises(SystemExit):
+            self.parser.parse_args(['socket', '--timeout', '1000'])
 
     def test_gmp_username(self):
         args = self.parser.parse_args(['--gmp-username', 'foo', 'socket'])
         self.assertEqual(args.gmp_username, 'foo')
 
+    def test_gmp_username_after_subparser(self):
+        with self.assertRaises(SystemExit):
+            self.parser.parse_args(['socket', '--gmp-username', 'foo'])
+
     def test_gmp_password(self):
         args = self.parser.parse_args(['--gmp-password', 'foo', 'socket'])
         self.assertEqual(args.gmp_password, 'foo')
 
+    def test_gmp_password_after_subparser(self):
+        with self.assertRaises(SystemExit):
+            self.parser.parse_args(['socket', '--gmp-password', 'foo'])
+
     def test_with_unknown_args(self):
         args, script_args = self.parser.parse_known_args(
-            ['--gmp-password', 'foo', 'socket', '--bar', '--bar2'])
+            ['--gmp-password', 'foo', 'socket', '--bar', '--bar2']
+        )
         self.assertEqual(args.gmp_password, 'foo')
         self.assertEqual(script_args, ['--bar', '--bar2'])
+
 
 class SocketParserTestCase(ParserTestCase):
     def test_defaults(self):

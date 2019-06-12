@@ -1,23 +1,8 @@
-usage: gvm-test-cli socket [-h] [-c [CONFIG]]
-                           [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
-                           [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-                           [--gmp-password GMP_PASSWORD] [-V]
-                           [--sockpath [SOCKPATH] | --socketpath [SOCKETPATH]]
+usage: gvm-test-cli socket [-h] [--sockpath [SOCKPATH] | --socketpath
+                           [SOCKETPATH]]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c [CONFIG], --config [CONFIG]
-                        Configuration file path (default: ~/.config/gvm-
-                        tools.conf)
-  --log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]
-                        Activate logging (default level: None)
-  --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
-                        indefinitely (default: 60)
-  --gmp-username GMP_USERNAME
-                        Username for GMP service (default: None)
-  --gmp-password GMP_PASSWORD
-                        Password for GMP service (default: None)
-  -V, --version         Show version information and exit
   --sockpath [SOCKPATH]
                         Deprecated, use --socketpath instead
   --socketpath [SOCKETPATH]
