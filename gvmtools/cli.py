@@ -79,7 +79,7 @@ def main():
         try:
             xml = _load_infile(args.infile)
         except IOError as e:
-            print(e)
+            print(e, file=sys.stderr)
             sys.exit(1)
 
     # If no command was given, program asks for one
@@ -112,7 +112,7 @@ def main():
 
         print(result)
     except Exception as e:  # pylint: disable=broad-except
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
 
     protocol.disconnect()
