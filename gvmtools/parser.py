@@ -47,72 +47,11 @@ PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 
-def _filter_actions(actions, actiontypes):
-    return [action for action in actions if not isinstance(action, actiontypes)]
-
-
-class Subparser(argparse.ArgumentParser):
-    """An ArgumentParser child class to allow better Subparser help formatting
-
-    This class overrides the format_help method of ArgumentParser.
-
-    It adds the actions of a parent parser to the usage output by skipping the
-    _SubParserActions.
-    """
-
-    def __init__(self, parent=None, **kwargs):
-        super().__init__(**kwargs)
-
-        self._parent = parent
-
-    def format_help(self):
-        # pylint: disable=protected-access
-
-        # this code may break with changes in argparse
-
-        formatter = self._get_formatter()
-
-        if self._parent:
-            actions = _filter_actions(
-                self._parent._actions, argparse._SubParsersAction
-            )
-            actions.extend(_filter_actions(self._actions, argparse._HelpAction))
-        else:
-            actions = self._actions
-
-        formatter.add_usage(
-            self.usage, actions, self._mutually_exclusive_groups
-        )
-
-        for i, action_group in enumerate(self._action_groups):
-            formatter.start_section(action_group.title)
-            formatter.add_text(action_group.description)
-
-            if self._parent and len(self._parent._action_groups) > i:
-                parent_action_group = self._parent._action_groups[i]
-                formatter.add_arguments(parent_action_group._group_actions)
-
-            formatter.add_arguments(
-                _filter_actions(
-                    action_group._group_actions, argparse._HelpAction
-                )
-            )
-            formatter.end_section()
-
-        # description
-        formatter.add_text(self.description)
-
-        # epilog
-        formatter.add_text(self.epilog)
-
-        return formatter.format_help()
-
-
 class CliParser:
     def __init__(
         self, description, logfilename, *, prog=None, ignore_config=False
     ):
-        root_parser = argparse.ArgumentParser(
+        bootstrap_parser = argparse.ArgumentParser(
             prog=prog,
             description=description,
             formatter_class=argparse.RawTextHelpFormatter,
@@ -120,14 +59,14 @@ class CliParser:
             add_help=False,
         )
 
-        root_parser.add_argument(
+        bootstrap_parser.add_argument(
             '-c',
             '--config',
             nargs='?',
             default=DEFAULT_CONFIG_PATH,
             help='Configuration file path (default: %(default)s)',
         )
-        root_parser.add_argument(
+        bootstrap_parser.add_argument(
             '--log',
             nargs='?',
             dest='loglevel',
@@ -136,7 +75,7 @@ class CliParser:
             help='Activate logging (default level: %(default)s)',
         )
 
-        parser = argparse.ArgumentParser(prog=prog, parents=[root_parser])
+        parser = argparse.ArgumentParser(prog=prog, parents=[bootstrap_parser])
 
         parser.add_argument(
             '--timeout',
@@ -169,7 +108,6 @@ class CliParser:
             title='connections',
             description='valid connection types',
             help="Connection type to use",
-            parser_class=Subparser,
         )
         subparsers.required = True
         subparsers.dest = 'connection_type'
@@ -177,7 +115,7 @@ class CliParser:
         self._subparsers = subparsers
 
         self._parser = parser
-        self._root_parser = root_parser
+        self._bootstrap_parser = bootstrap_parser
 
         self._logfilename = logfilename
         self._ignore_config = ignore_config
@@ -185,26 +123,15 @@ class CliParser:
         self._add_subparsers()
 
     def parse_args(self, args=None):
-        args_before, _ = self._root_parser.parse_known_args(args)
-
-        if args_before.loglevel is not None:
-            level = logging.getLevelName(args_before.loglevel)
-            logging.basicConfig(filename=self._logfilename, level=level)
-
-        self._set_defaults(None if self._ignore_config else args_before.config)
-
-        args = self._parser.parse_args(args)
-
-        # If timeout value is -1, then the socket should have no timeout
-        if args.timeout == -1:
-            args.timeout = None
-
-        logging.debug('Parsed arguments %r', args)
-
+        args, unkown_args = self.parse_known_args(args)
+        if unkown_args:
+            self._parser.error(
+                'unrecognized arguments {}'.format(' '.join(unkown_args))
+            )
         return args
 
     def parse_known_args(self, args=None):
-        args_before, _ = self._root_parser.parse_known_args(args)
+        args_before, _ = self._bootstrap_parser.parse_known_args(args)
 
         if args_before.loglevel is not None:
             level = logging.getLevelName(args_before.loglevel)
@@ -212,7 +139,7 @@ class CliParser:
 
         self._set_defaults(None if self._ignore_config else args_before.config)
 
-        args, script_args = self._parser.parse_known_args(args)
+        args, unknown_args = self._parser.parse_known_args(args)
 
         # If timeout value is -1, then the socket should have no timeout
         if args.timeout == -1:
@@ -220,7 +147,7 @@ class CliParser:
 
         logging.debug('Parsed arguments %r', args)
 
-        return args, script_args
+        return args, unknown_args
 
     def add_argument(self, *args, **kwargs):
         self._parser_socket.add_argument(*args, **kwargs)
@@ -266,7 +193,7 @@ class CliParser:
 
     def _add_subparsers(self):
         parser_ssh = self._subparsers.add_parser(
-            'ssh', help='Use SSH to connect to service', parent=self._parser
+            'ssh', help='Use SSH to connect to service'
         )
 
         parser_ssh.add_argument(
@@ -286,9 +213,7 @@ class CliParser:
         )
 
         parser_tls = self._subparsers.add_parser(
-            'tls',
-            help='Use TLS secured connection to connect to service',
-            parent=self._parser,
+            'tls', help='Use TLS secured connection to connect to service'
         )
         parser_tls.add_argument(
             '--hostname', required=True, help='Hostname or IP address'
@@ -326,9 +251,7 @@ class CliParser:
         )
 
         parser_socket = self._subparsers.add_parser(
-            'socket',
-            help='Use UNIX Domain socket to connect to service',
-            parent=self._parser,
+            'socket', help='Use UNIX Domain socket to connect to service'
         )
 
         socketpath_group = parser_socket.add_mutually_exclusive_group()
