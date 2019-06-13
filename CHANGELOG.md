@@ -38,6 +38,8 @@ $ cd gvm-tools && git log
 - Dropped global command line arguments from sub commands e.g. it must be `gvm-cli --config foo.conf socket ...`
   instead of `gvm-cli socket --config foo.conf` now. The latter didn't work actually but
   was listed in the `--help` output [#194](https://github.com/greenbone/gvm-tools/pull/194)
+- Improved error message if a global argument is passed after the connection type to `gvm-cli`
+  [#196](https://github.com/greenbone/gvm-tools/pull/196)
 
 ### Deprecated
 - Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
