@@ -41,7 +41,9 @@ Python.
 ## Documentation
 
 The documentation for gvm-tools can be found at
-[https://gvm-tools.readthedocs.io/](https://gvm-tools.readthedocs.io/)
+[https://gvm-tools.readthedocs.io/](https://gvm-tools.readthedocs.io/). Please
+always take a look at the documentation for further details. This README just
+gives you a short overview.
 
 ## Installation
 
