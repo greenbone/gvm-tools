@@ -1,7 +1,6 @@
 ![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_logo_resilience_horizontal.png)
 
-# Greenbone Vulnerability Management Tools
-
+# Greenbone Vulnerability Management Tools <!-- omit in toc -->
 [![GitHub releases](https://img.shields.io/github/release-pre/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
 [![PyPI release](https://img.shields.io/pypi/v/gvm-tools.svg)](https://pypi.org/project/gvm-tools/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/gvm-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/gvm-tools/?branch=master)
@@ -20,30 +19,36 @@ The programming language Python is supported directly for interactive scripting.
 But it is also possible to issue remote GMP/OSP commands without programming in
 Python.
 
-## Table of Contents
-* [Documentation](#documentation)
-* [Installation](#installation)
-  * [Requirements](#requirements)
-  * [Install using pip](#install-using-pip)
-* [Usage](#usage)
-  * [gvm-cli](#gvm-cli)
-     * [Example program use](#example-program-use)
-  * [gvm-script](#gvm-script)
-     * [Example script](#example-script)
-     * [More example scripts](#more-example-scripts)
-  * [gvm-pyshell](#gvm-pyshell)
-     * [Example program use](#example-program-use-1)
-* [Support](#support)
-* [Maintainer](#maintainer)
-* [Contributing](#contributing)
-* [License](#license)
+
+## Table of Contents <!-- omit in toc -->
+- [Documentation](#documentation)
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Install using pip](#install-using-pip)
+- [Usage](#usage)
+  - [gvm-cli](#gvm-cli)
+    - [Example program use](#example-program-use)
+  - [gvm-script](#gvm-script)
+    - [Example script](#example-script)
+    - [More example scripts](#more-example-scripts)
+  - [gvm-pyshell](#gvm-pyshell)
+    - [Example program use](#example-program-use-1)
+- [Support](#support)
+- [Maintainer](#maintainer)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Documentation
 
 The documentation for gvm-tools can be found at
-[https://gvm-tools.readthedocs.io/](https://gvm-tools.readthedocs.io/)
+[https://gvm-tools.readthedocs.io/](https://gvm-tools.readthedocs.io/). Please
+always take a look at the documentation for further details. This README just
+gives you a short overview.
 
 ## Installation
+
+See the [documentation](https://gvm-tools.readthedocs.io/en/latest/install.html)
+for all supported installation options.
 
 ### Requirements
 
@@ -54,12 +59,7 @@ Python 3.5 and later is supported.
 You can install the latest stable release of gvm-tools from the Python Package
 Index using [pip](https://pip.pypa.io/):
 
-    pip install gvm-tools
-
-alternatively download or clone this repository and install the latest
-development version:
-
-    pip install .
+    pip install --user gvm-tools
 
 ## Usage
 
