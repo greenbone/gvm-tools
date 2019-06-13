@@ -44,6 +44,14 @@ HELP_TEXT = """
       https://docs.greenbone.net/index.html#api_documentation"""
 
 
+def _load_infile(filename=None):
+    if not filename:
+        return None
+
+    with open(filename) as f:
+        return f.read()
+
+
 def main():
     do_not_run_as_root()
 
@@ -55,7 +63,9 @@ def main():
     parser.add_argument(
         '-r', '--raw', help='Return raw XML', action='store_true', default=False
     )
-    parser.add_argument('infile', nargs='?', type=open, default=sys.stdin)
+    parser.add_argument(
+        'infile', nargs='?', help='File to read XML commands from.'
+    )
 
     args = parser.parse_args()
 
@@ -63,17 +73,14 @@ def main():
     if args.timeout == -1:
         args.timeout = None
 
-    xml = ''
-
     if args.xml is not None:
         xml = args.xml
     else:
-        # If this returns False, then some data are in sys.stdin
-        if not args.infile.isatty():
-            try:
-                xml = args.infile.read()
-            except (EOFError, BlockingIOError) as e:
-                print(e)
+        try:
+            xml = _load_infile(args.infile)
+        except IOError as e:
+            print(e)
+            sys.exit(1)
 
     # If no command was given, program asks for one
     if len(xml) == 0:
