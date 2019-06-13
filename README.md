@@ -47,6 +47,9 @@ gives you a short overview.
 
 ## Installation
 
+See the [documentation](https://gvm-tools.readthedocs.io/en/latest/install.html)
+for all supported installation options.
+
 ### Requirements
 
 Python 3.5 and later is supported.
@@ -56,12 +59,7 @@ Python 3.5 and later is supported.
 You can install the latest stable release of gvm-tools from the Python Package
 Index using [pip](https://pip.pypa.io/):
 
-    pip install gvm-tools
-
-alternatively download or clone this repository and install the latest
-development version:
-
-    pip install .
+    pip install --user gvm-tools
 
 ## Usage
 
