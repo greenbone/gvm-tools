@@ -101,7 +101,7 @@ gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</use
 Reads a file with GMP commands and return the result.
 
 ```
-gvm-cli socket --gmp-username foo --gmp-password bar < myfile.xml
+gvm-cli --gmp-username foo --gmp-password socket bar < myfile.xml
 ```
 
 Note that `gvm-cli` will by default raise an exception when a command is
