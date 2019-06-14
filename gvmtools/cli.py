@@ -20,8 +20,10 @@ import getpass
 import logging
 import sys
 
+from gvm.errors import GvmError
 from gvm.protocols.latest import Gmp, Osp
 from gvm.transforms import CheckCommandTransform
+from gvm.xml import validate_xml_string
 
 from gvmtools.helper import do_not_run_as_root
 from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
@@ -79,12 +81,18 @@ def main():
         try:
             xml = _load_infile(args.infile)
         except IOError as e:
-            print(e)
+            print(e, file=sys.stderr)
             sys.exit(1)
 
     # If no command was given, program asks for one
     if len(xml) == 0:
         xml = input()
+
+    try:
+        validate_xml_string(xml)
+    except GvmError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
     connection = create_connection(**vars(args))
 
@@ -112,7 +120,7 @@ def main():
 
         print(result)
     except Exception as e:  # pylint: disable=broad-except
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
 
     protocol.disconnect()
