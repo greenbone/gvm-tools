@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def clean_slave(gmp):
+def clean_sensor(gmp):
     tasks = gmp.get_tasks(
         filter="rows=-1 not status=Running and "
         "not status=Requested and not "
@@ -62,12 +62,12 @@ def main():
     # pylint: disable=undefined-variable
 
     message = """
-    This script removes all resources from a slave, except active tasks.
+    This script removes all resources from a sensor, except active tasks.
 
     """
     print(message)
 
-    clean_slave(gmp)
+    clean_sensor(gmp)
 
 
 if __name__ == '__gmp__':
