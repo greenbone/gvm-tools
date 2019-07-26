@@ -41,6 +41,7 @@ $ cd gvm-tools && git log
   was listed in the `--help` output [#194](https://github.com/greenbone/gvm-tools/pull/194)
 - Improved error message if a global argument is passed after the connection type to `gvm-cli`
   [#196](https://github.com/greenbone/gvm-tools/pull/196)
+- Renamed `clean-slave.gmp` to `clean-sensor.gmp` [PR 202](https://github.com/greenbone/gvm-tools/pull/202)
 
 ### Deprecated
 - Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
