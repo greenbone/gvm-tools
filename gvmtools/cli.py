@@ -21,12 +21,18 @@ import logging
 import sys
 
 from gvm.errors import GvmError
-from gvm.protocols.latest import Gmp, Osp
+from gvm.protocols.latest import Osp
+from gvm.protocols.gmp import Gmp
 from gvm.transforms import CheckCommandTransform
 from gvm.xml import validate_xml_string
 
 from gvmtools.helper import do_not_run_as_root
-from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
+from gvmtools.parser import (
+    create_parser,
+    create_connection,
+    PROTOCOL_OSP,
+    PROTOCOL_GMP,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -102,28 +108,29 @@ def main():
         transform = CheckCommandTransform()
 
     if args.protocol == PROTOCOL_OSP:
-        protocol = Osp(connection, transform=transform)
+        protocol_class = Osp
     else:
-        protocol = Gmp(connection, transform=transform)
+        protocol_class = Gmp
 
-        # Ask for password if none are given
-        if args.gmp_username and not args.gmp_password:
-            args.gmp_password = getpass.getpass(
-                'Enter password for ' + args.gmp_username + ': '
-            )
+    with protocol_class(connection, transform=transform) as protocol:
 
-        if args.gmp_username:
-            protocol.authenticate(args.gmp_username, args.gmp_password)
+        if args.protocol == PROTOCOL_GMP:
+            # Ask for password if none are given
+            if args.gmp_username and not args.gmp_password:
+                args.gmp_password = getpass.getpass(
+                    'Enter password for ' + args.gmp_username + ': '
+                )
 
-    try:
-        result = protocol.send_command(xml)
+            if args.gmp_username:
+                protocol.authenticate(args.gmp_username, args.gmp_password)
 
-        print(result)
-    except Exception as e:  # pylint: disable=broad-except
-        print(e, file=sys.stderr)
-        sys.exit(1)
+        try:
+            result = protocol.send_command(xml)
 
-    protocol.disconnect()
+            print(result)
+        except Exception as e:  # pylint: disable=broad-except
+            print(e, file=sys.stderr)
+            sys.exit(1)
 
     sys.exit(0)
 
