@@ -24,12 +24,18 @@ import sys
 from argparse import Namespace
 
 from gvm import get_version as get_gvm_version
-from gvm.protocols.latest import Gmp, Osp
+from gvm.protocols.gmp import Gmp
+from gvm.protocols.latest import Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
 from gvmtools.helper import authenticate, run_script, do_not_run_as_root
-from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
+from gvmtools.parser import (
+    create_parser,
+    create_connection,
+    PROTOCOL_OSP,
+    PROTOCOL_GMP,
+)
 
 __version__ = get_version()
 __api_version__ = get_gvm_version()
@@ -119,54 +125,57 @@ def main():
     password = None
 
     if args.protocol == PROTOCOL_OSP:
-        protocol = Osp(connection, transform=transform)
-        global_vars['osp'] = protocol
-        global_vars['__name__'] = '__osp__'
+        protocol_class = Osp
+        name = 'osp'
     else:
-        protocol = Gmp(connection, transform=transform)
-        global_vars['gmp'] = protocol
-        global_vars['__name__'] = '__gmp__'
+        protocol_class = Gmp
+        name = 'gmp'
 
-        if args.gmp_username:
-            (username, password) = authenticate(
-                protocol, username=args.gmp_username, password=args.gmp_password
-            )
+    with protocol_class(connection, transform=transform) as protocol:
+        global_vars[name] = protocol
+        global_vars['__name__'] = '__{}__'.format(name)
 
-    shell_args = Namespace(username=username, password=password)
+        if args.protocol == PROTOCOL_GMP:
+            if args.gmp_username:
+                (username, password) = authenticate(
+                    protocol,
+                    username=args.gmp_username,
+                    password=args.gmp_password,
+                )
 
-    global_vars['args'] = shell_args
+        shell_args = Namespace(username=username, password=password)
 
-    with_script = args.scriptname and len(args.scriptname) > 0
+        global_vars['args'] = shell_args
 
-    if with_script:
-        argv = [os.path.abspath(args.scriptname), *args.scriptargs]
-        shell_args.argv = argv
-        # for backwards compatibility we add script here
-        shell_args.script = argv
+        with_script = args.scriptname and len(args.scriptname) > 0
 
-    no_script_no_interactive = not args.interactive and not with_script
-    script_and_interactive = args.interactive and with_script
-    only_interactive = not with_script and args.interactive
-    only_script = not args.interactive and with_script
+        if with_script:
+            argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+            shell_args.argv = argv
+            # for backwards compatibility we add script here
+            shell_args.script = argv
 
-    if only_interactive or no_script_no_interactive:
-        enter_interactive_mode(global_vars)
+        no_script_no_interactive = not args.interactive and not with_script
+        script_and_interactive = args.interactive and with_script
+        only_interactive = not with_script and args.interactive
+        only_script = not args.interactive and with_script
 
-    if script_and_interactive or only_script:
-        if only_script:
-            print(
-                'Using gvm-pyshell for running scripts only is deprecated. '
-                'Please use gvm-script instead',
-                file=sys.stderr,
-            )
-
-        script_name = args.scriptname
-        run_script(script_name, global_vars)
-
-        if not only_script:
+        if only_interactive or no_script_no_interactive:
             enter_interactive_mode(global_vars)
 
-    protocol.disconnect()
+        if script_and_interactive or only_script:
+            if only_script:
+                print(
+                    'Using gvm-pyshell for running scripts only is deprecated. '
+                    'Please use gvm-script instead',
+                    file=sys.stderr,
+                )
+
+            script_name = args.scriptname
+            run_script(script_name, global_vars)
+
+            if not only_script:
+                enter_interactive_mode(global_vars)
 
 
 def enter_interactive_mode(global_vars):

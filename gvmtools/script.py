@@ -22,12 +22,18 @@ import sys
 from argparse import Namespace
 
 from gvm import get_version as get_gvm_version
-from gvm.protocols.latest import Gmp, Osp
+from gvm.protocols.gmp import Gmp
+from gvm.protocols.latest import Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
 from gvmtools.helper import authenticate, run_script, do_not_run_as_root
-from gvmtools.parser import create_parser, create_connection, PROTOCOL_OSP
+from gvmtools.parser import (
+    create_parser,
+    create_connection,
+    PROTOCOL_OSP,
+    PROTOCOL_GMP,
+)
 
 HELP_TEXT = """
     Command line tool to execute custom GMP (Greenbone Management
@@ -78,34 +84,39 @@ def main():
     password = None
 
     if args.protocol == PROTOCOL_OSP:
-        protocol = Osp(connection, transform=transform)
-        global_vars['osp'] = protocol
-        global_vars['__name__'] = '__osp__'
+        protocol_class = Osp
+        name = 'osp'
     else:
-        protocol = Gmp(connection, transform=transform)
-        global_vars['gmp'] = protocol
-        global_vars['__name__'] = '__gmp__'
+        protocol_class = Gmp
+        name = 'gmp'
 
-        if args.gmp_username:
-            (username, password) = authenticate(
-                protocol, username=args.gmp_username, password=args.gmp_password
-            )
+    with protocol_class(connection, transform=transform) as protocol:
+        global_vars[name] = protocol
+        global_vars['__name__'] = '__{}__'.format(name)
 
-    argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+        if args.protocol == PROTOCOL_GMP:
+            if args.gmp_username:
+                (username, password) = authenticate(
+                    protocol,
+                    username=args.gmp_username,
+                    password=args.gmp_password,
+                )
 
-    shell_args = Namespace(
-        username=username,
-        password=password,
-        argv=argv,
-        # for backwards compatibility we add script here
-        script=argv,
-        # the unknown args, which are owned by the script.
-        script_args=script_args,
-    )
+        argv = [os.path.abspath(args.scriptname), *args.scriptargs]
 
-    global_vars['args'] = shell_args
+        shell_args = Namespace(
+            username=username,
+            password=password,
+            argv=argv,
+            # for backwards compatibility we add script here
+            script=argv,
+            # the unknown args, which are owned by the script.
+            script_args=script_args,
+        )
 
-    run_script(args.scriptname, global_vars)
+        global_vars['args'] = shell_args
+
+        run_script(args.scriptname, global_vars)
 
 
 if __name__ == '__main__':
