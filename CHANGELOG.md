@@ -22,6 +22,8 @@ $ cd gvm-tools && git log
   scripts without opening a python shell [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
 - Forbid to run any gvm-tools cli as root user [PR 183](https://github.com/greenbone/gvm-tools/pull/183)
 - Added error message if invalid XML is passed to `gvm-cli` [PR 198](https://github.com/greenbone/gvm-tools/pull/198)
+- Added argument `--pretty` to `gvm-cli` to pretty format xml output
+  [PR 203](https://github.com/greenbone/gvm-tools/pull/203)
 
 ### Changed
 - Improved error messages if unix socket could not be found [PR 78](https://github.com/greenbone/python-gvm/pull/78)

@@ -24,7 +24,7 @@ from gvm.errors import GvmError
 from gvm.protocols.latest import Osp
 from gvm.protocols.gmp import Gmp
 from gvm.transforms import CheckCommandTransform
-from gvm.xml import validate_xml_string
+from gvm.xml import validate_xml_string, pretty_print
 
 from gvmtools.helper import do_not_run_as_root
 from gvmtools.parser import (
@@ -70,6 +70,12 @@ def main():
     parser.add_argument('-X', '--xml', help='XML request to send')
     parser.add_argument(
         '-r', '--raw', help='Return raw XML', action='store_true', default=False
+    )
+    parser.add_argument(
+        '--pretty',
+        help='Pretty format the returned xml',
+        action='store_true',
+        default=False,
     )
     parser.add_argument(
         'infile', nargs='?', help='File to read XML commands from.'
@@ -127,7 +133,10 @@ def main():
         try:
             result = protocol.send_command(xml)
 
-            print(result)
+            if not args.pretty:
+                print(result)
+            else:
+                pretty_print(result)
         except Exception as e:  # pylint: disable=broad-except
             print(e, file=sys.stderr)
             sys.exit(1)
