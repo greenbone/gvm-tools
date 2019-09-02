@@ -27,6 +27,65 @@ from gvm.xml import pretty_print
 __all__ = ['authenticate', 'pretty_print', 'run_script']
 
 
+class Table:
+    def __init__(self, heading=None, rows=None, divider=' | '):
+        self.heading = heading or []
+        self.rows = rows or []
+        self.divider = divider
+
+    def _calculate_dimensions(self):
+        column_sizes = []
+
+        for column in self.heading:
+            column_sizes.append(len(column))
+
+        for row in self.rows:
+            for i, column in enumerate(row):
+                dim = column_sizes[i]
+                column_size = len(column)
+
+                if dim < column_size:
+                    column_sizes[i] = column_size
+
+        return column_sizes
+
+    def _create_column(self, column, size):
+        return '{}{}'.format(column, ' ' * (size - len(column)))
+
+    def _create_row(self, columns):
+        return self.divider.join(columns)
+
+    def __str__(self):
+        column_sizes = self._calculate_dimensions()
+
+        row_strings = []
+
+        heading_columns = []
+        heading_divider_columns = []
+
+        for i, column in enumerate(self.heading):
+            column_size = column_sizes[i]
+
+            heading_columns.append(self._create_column(column, column_size))
+            heading_divider_columns.append(
+                self._create_column('-' * column_size, column_size)
+            )
+
+        row_strings.append(self._create_row(heading_columns))
+        row_strings.append(self._create_row(heading_divider_columns))
+
+        for row in self.rows:
+            row_columns = []
+
+            for i, column in enumerate(row):
+                column_size = column_sizes[i]
+                row_columns.append(self._create_column(column, column_size))
+
+            row_strings.append(self._create_row(row_columns))
+
+        return "\n".join(row_strings)
+
+
 def do_not_run_as_root():
     if hasattr(os, 'geteuid') and os.geteuid() == 0:
         raise RuntimeError('This tool MUST NOT be run as root user.')
