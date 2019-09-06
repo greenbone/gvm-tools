@@ -125,14 +125,14 @@ def generate_data(gmp, **kwargs):
 
         reports = generate_reports(**kwargs)
 
-        gmp.import_report(reports[0], task_name=task_name)
+        gmp.create_container_task(task_name)
 
         task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
             '//@id'
         )[0]
         task_ids.append(task_id)
 
-        for report in reports[1:]:
+        for report in reports[0:]:
             gmp.import_report(report, task_id=task_id)
 
 
