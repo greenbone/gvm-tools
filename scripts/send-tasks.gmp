@@ -145,7 +145,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         mod_keywords = {'task_id': new_task.xpath('//@id')[0]}
 
-        if task.find('schedule_periods').text != 0:
+        if task.find('schedule_periods') is not None:
             mod_keywords['schedule_periods'] = int(
                 task.find('schedule_periods').text
             )
