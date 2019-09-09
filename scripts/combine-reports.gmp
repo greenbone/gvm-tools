@@ -93,7 +93,7 @@ def send_report(gmp, args, report):
 
     report = e.tostring(report)
 
-    gmp.create_report(report, task_id=task_id, task_name=task_name)
+    gmp.import_report(report, task_id=task_id, task_name=task_name)
 
 
 def main():
