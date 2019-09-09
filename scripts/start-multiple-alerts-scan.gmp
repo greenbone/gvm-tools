@@ -16,10 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from gvm.protocols.gmpv8 import AlertCondition, AlertEvent, AlertMethod
 
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
+    TODO?
     """
     if len_args != 2:
         print(message)
@@ -124,7 +126,7 @@ def get_target(gmp, debug=False):
 
     # integrate port list id into create_target
     res = gmp.create_target(
-        target_name, make_unique=True, hosts=hosts, port_list_id=portlist_id
+        target_name, hosts=hosts, port_list_id=portlist_id
     )
     return res.xpath('@id')[0]
 
@@ -141,10 +143,10 @@ def get_alerts(gmp, sender_email, recipient_email, debug=False):
         print("creating alert")
         gmp.create_alert(
             alert_name,
-            event="Always",
-            condition="Task run status changed",
+            event=AlertEvent.TASK_RUN_STATUS_CHANGED,
+            condition=AlertCondition.ALWAYS,
             condition_data={"status": "Done"},
-            method="Email",
+            method=AlertMethod.EMAIL,
             method_data={
                 """Task '$n': $e
 
