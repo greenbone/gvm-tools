@@ -17,6 +17,7 @@ $ cd gvm-tools && git log
 ## [Unreleased]
 
 ### Added
+- Added --duration switch to gvm-cli for command execution measurement [PR 206](https://github.com/greenbone/gvm-tools/pull/206)
 - Added --ssh-password switch for ssh connection [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
 - Added a new console line interface `gvm-script` for only running GMP and OSP
   scripts without opening a python shell [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
