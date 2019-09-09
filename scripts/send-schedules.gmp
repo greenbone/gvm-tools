@@ -20,12 +20,6 @@ import sys
 
 from lxml import etree as e
 
-from icalendar import Calendar, Event
-import pytz
-from datetime import (datetime, timedelta)
-
-from gvm.protocols.gmpv7 import TimeUnit
-
 import dateutil.parser
 
 
@@ -83,16 +77,6 @@ def parse_send_xml_tree(gmp, xml_tree):
         ical = schedule.find('icalendar').text
 
         timezone_abbrev = schedule.find('timezone_abbrev').text
-
-        cal = Calendar()
-        cal.add('prodid', '-//Foo Bar//')
-        cal.add('version', '2.0')
-        event = Event()
-        event.add('dtstamp', datetime.now(tz=pytz.UTC))
-        event.add('dtstart', datetime(f_time.year, f_time.month, f_time.day, f_time.hour, f_time.minute, f_time.second, tzinfo=pytz.utc))
-
-        cal.add_component(event)
-
 
         gmp.create_schedule(
             name=name,
