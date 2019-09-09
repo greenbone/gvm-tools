@@ -19,6 +19,7 @@
 import getpass
 import logging
 import sys
+import time
 
 from gvm.errors import GvmError
 from gvm.protocols.latest import Osp
@@ -78,6 +79,11 @@ def main():
         default=False,
     )
     parser.add_argument(
+        '--duration',
+        action='store_true',
+        help='Measure commmand execution time',
+    )
+    parser.add_argument(
         'infile', nargs='?', help='File to read XML commands from.'
     )
 
@@ -131,12 +137,19 @@ def main():
                 protocol.authenticate(args.gmp_username, args.gmp_password)
 
         try:
+            if args.duration:
+                starttime = time.time()
+
             result = protocol.send_command(xml)
 
-            if not args.pretty:
-                print(result)
-            else:
+            if args.duration:
+                duration = time.time() - starttime
+                print('Elapsed time: {} seconds'.format(duration))
+            elif args.pretty:
                 pretty_print(result)
+            else:
+                print(result)
+
         except Exception as e:  # pylint: disable=broad-except
             print(e, file=sys.stderr)
             sys.exit(1)
