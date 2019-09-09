@@ -72,7 +72,7 @@ def create_config(gmp, nvt_oid):
 
 def create_target(gmp, name):
     try:
-        res = gmp.create_target(name, make_unique=True, hosts=[name])
+        res = gmp.create_target(name, hosts=[name])
         target_id = res.xpath('@id')[0]
     except GvmError:
         res = gmp.get_targets(filter='name=%s hosts=%s' % (name, name))
