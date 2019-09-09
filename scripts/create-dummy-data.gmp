@@ -19,6 +19,9 @@
 import random
 import string
 
+from gvm.protocols.gmpv8 import CredentialType
+
+
 
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -30,7 +33,7 @@ def create_data(gmp, count):
 
     for _ in range(0, count):
         name = id_generator()
-        gmp.create_credential(name, login=name, password=name)
+        gmp.create_credential(name, login=name, password=name, credential_type=CredentialType.PASSWORD_ONLY)
 
     for _ in range(0, count):
         name = id_generator()
@@ -59,7 +62,7 @@ def create_data(gmp, count):
 def main():
     # pylint: disable=undefined-variable
 
-    count = 50
+    count = 50 #TODO: Maybe make this an optional argument?!
 
     create_data(gmp, count)
 
