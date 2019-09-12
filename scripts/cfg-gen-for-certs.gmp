@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gvm.errors import GvmError
+from gvm.protocols.gmpv8 import InfoType
 
 
 def check_args(args):
@@ -29,14 +30,15 @@ def check_args(args):
         1. Name or ID of the CERT-Bund
 
         Example:
-            $ gvm-pyshell socket scripts/cfg-gen-for-certs.gmp CB-K16/0943
+            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp CB-K16/0943
         """
         print(message)
         quit()
 
 
 def create_config(gmp, cert_bund_name):
-    cert_bund_details = gmp.get_info(cert_bund_name, 'CERT_BUND_ADV')
+    cert_bund_details = gmp.get_info(info_id=cert_bund_name, info_type=InfoType.CERT_BUND_ADV)
 
     list_cves = cert_bund_details.xpath(
         'info/cert_bund_adv/raw_data/Advisory/CVEList/CVE/text()'
@@ -47,7 +49,7 @@ def create_config(gmp, cert_bund_name):
 
     for cve in list_cves:
         # Get all nvts of this cve
-        cve_info = gmp.get_info(cve, 'CVE')
+        cve_info = gmp.get_info(info_id=cve, info_type=InfoType.CVE)
         nvts = cve_info.xpath('info/cve/nvts/nvt')
 
         for nvt in nvts:
@@ -77,8 +79,6 @@ def create_config(gmp, cert_bund_name):
         for family, nvt_oid in nvt_dict.items():
             gmp.modify_config(
                 config_id,
-                'nvt_selection',
-                name=config_name,
                 nvt_oids=nvt_oid,
                 family=family,
             )
@@ -87,7 +87,7 @@ def create_config(gmp, cert_bund_name):
         family = 'Port scanners'
         nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
         gmp.modify_config(
-            config_id, 'nvt_selection', nvt_oids=nvts, family=family
+            config_id=config_id, nvt_oids=nvts, family=family
         )
 
     except GvmError:
