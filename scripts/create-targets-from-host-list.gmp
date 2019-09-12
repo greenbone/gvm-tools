@@ -22,18 +22,19 @@ import time
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args is not 2:
         message = """
         This script pulls hostnames from a text file and creates a target \
-    for each.
+for each.
         One parameter after the script name is required.
 
-        1. <hosts_textfile>  -- text file containing hostnames
+        1. <hostname>        -- IP of the GVM host 
+        2. <hosts_textfile>  -- text file containing hostnames
 
         Example:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/create_targets_from_host_list.gmp \
-    example_host_textfile
+            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+ssh --hostname <gsm> scripts/create_targets_from_host_list.gmp \
+<hostname> <hosts_textfile>
         """
         print(message)
         quit()
@@ -68,17 +69,17 @@ def send_targets(gmp, host_name, host_file, host_list):
         hosts = [host]
 
         gmp.create_target(
-            name=name, make_unique=True, comment=comment, hosts=hosts
+            name=name, comment=comment, hosts=hosts
         )
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
 
-    hostname = args.hostname
-    hostfile = args.script[1]
+    hostname = args.script[1]
+    hostfile = args.script[2]
 
     hostlist = load_host_list(hostfile)
     send_targets(gmp, hostname, hostfile, hostlist)
@@ -87,4 +88,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

@@ -1204,7 +1204,6 @@ def main(gmp, args):
 
     parser.add_argument(
         "-H",
-        "--help",
         action="help", 
         help="Show this help message and exit."
     )

@@ -39,8 +39,8 @@ def check_args(args):
         n. <report_n_uuid> --uuid of report to be combined
 
         Example for starting up the routine:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/gsm-updater.gmp \
+            $ gvm-script --gmp-username=namessh --gmp-password=pass ssh --hostname=hostname  \
+     scripts/gsm-updater.gmp \
     "d15a337c-56f3-4208-a462-afeb79eb03b7" \
     "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698" 'first_task'
 
@@ -96,7 +96,7 @@ def send_report(gmp, args, report):
     gmp.import_report(report, task_id=task_id, task_name=task_name)
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -105,4 +105,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

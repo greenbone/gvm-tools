@@ -259,7 +259,7 @@ def create_and_start_task(
         print('Task stopped')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -278,4 +278,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

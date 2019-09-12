@@ -26,11 +26,11 @@ def check_args(args):
         message = """
         This script deletes overrides with a specific filter value
 
-        It only needs one parameter for the filter.
+        <filter>  -- the parameter for the filter.
 
         Example:
-            $ gvm-pyshell ssh --hostname <from-gsm> --gmp-username name \
-    --gmp-password pass scripts/DeleteOverridesByFilter.gmp <filter>
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/delete-overrides-by-filter.gmp <filter>
         """
         print(message)
         quit()
@@ -54,7 +54,7 @@ def delete_overrides(gmp, filter_value):
         time.sleep(60)
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -65,4 +65,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

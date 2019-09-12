@@ -27,15 +27,15 @@ def check_args(args):
     a desired GSM
         It needs two parameters after the script name.
 
-        1. <host_number> --number of dummy hosts to select from
-        2. <number> --number of targets to be generated
+        1. <host_number> -- number of dummy hosts to select from
+        2. <number>      -- number of targets to be generated
 
         In addition, if you would like for the number of targets generated
     to be randomized on a Gaussian distribution, add 'with-gauss'
 
         Example:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/gen-random-tasks.gmp 3 40 with-gauss
+            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/gen-random-tasks.gmp 3 40 with-gauss
         """
         print(message)
         quit()
@@ -70,7 +70,7 @@ def generate(gmp, args, n_targets, n_ips):
         gmp.create_target(name=name, make_unique=True, hosts=[host_ip])
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -84,4 +84,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

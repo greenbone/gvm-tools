@@ -94,7 +94,7 @@ def create_config(gmp, cert_bund_name):
         print('Config exist')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -107,4 +107,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

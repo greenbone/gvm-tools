@@ -42,8 +42,8 @@ def check_args(args):
     'with-gauss'
 
         Example:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/gen-random-reports.gmp 10 50 2500 256 with-gauss
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/gen-random-reports.gmp 10 50 2500 256 with-gauss
         """
         print(message)
         quit()
@@ -902,7 +902,7 @@ TEMPLATE = {
 }
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -924,4 +924,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

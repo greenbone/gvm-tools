@@ -18,7 +18,7 @@
 
 from datetime import date, timedelta
 
-from gvm.protocols.gmpv7 import AssetType
+from gvm.protocols.gmpv8 import AssetType
 
 from terminaltables import AsciiTable
 
@@ -100,7 +100,7 @@ def print_reports(gmp, from_date, to_date):
     )
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -116,4 +116,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

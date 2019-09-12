@@ -19,36 +19,60 @@
 from base64 import b64decode
 from pathlib import Path
 
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args < 1:
+        message = """
+        This script requests the given report and saves it as a pdf file locally
+        It needs one parameters after the script name.
+
+        1. <report_id>     -- ID of the report
+        
+        Optional a file name to save the pdf in.
+
+        Example:
+            $ gvm-script --gmp-username name --gmp-password pass \
+ssh --hostname <gsm> scripts/pdf-report.gmp <report_id> <pdf_file>
+        """
+        print(message)
+        quit()
 
 def main(gmp, args):
     # check if report id and PDF filename are provided to the script
     # argv[0] contains the script name
-    if len(args.argv) <= 2:
-        print('Please provide report ID and PDF file name as script arguments')
-        return 1
+    check_args(args)
 
     report_id = args.argv[1]
-    pdf_filename = args.argv[2]
+    if len(args.argv) == 3:
+        pdf_filename = args.argv[2]
+    else:
+        pdf_filename = args.argv[1] + ".pdf"
 
     pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
-    response = gmp.get_report(
-        report_id=report_id, report_format_id=pdf_report_format_id
-    )
+    # response = gmp.get_report_formats(filter_id=pdf_report_format_id)
+    # print(response[0])
+    # response = gmp.get_report(
+    #     report_id=report_id, report_format_id=pdf_report_format_id
+    # )
 
     report_element = response[0]
     # get the full content of the report element
     content = "".join(report_element.itertext())
 
+    print(content)
+
     # convert content to 8-bit ASCII bytes
     binary_base64_encoded_pdf = content.encode('ascii')
+
     # decode base64
     binary_pdf = b64decode(binary_base64_encoded_pdf)
 
     # write to file and support ~ in filename path
     pdf_path = Path(pdf_filename).expanduser()
+
     pdf_path.write_bytes(binary_pdf)
 
-    print('Done.')
+    print('Done. PDF created: ' + str(pdf_path))
 
 
 if __name__ == '__gmp__':

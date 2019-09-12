@@ -78,7 +78,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         )
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -94,4 +94,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

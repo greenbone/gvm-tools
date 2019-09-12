@@ -58,7 +58,7 @@ def clean_sensor(gmp):
     print(status_text)
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     message = """
@@ -71,4 +71,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

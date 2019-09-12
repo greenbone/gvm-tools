@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
-
+from gvm.protocols.gmpv8 import AssetType
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -26,11 +26,11 @@ def check_args(args):
         This script reads asset data from a csv file and sync it with the gsm
         It needs one parameters after the script name.
 
-        1. <csv_file>
+        1. <csv_file> - should contain an IP-address and a comment
 
         Example:
-            $ gvm-pyshell ssh --hostname <gsm> --gmp-username name \
-    --gmp-password pass scripts/SyncAssets.gmp <csv_file>
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/sync-assets.gmp <csv_file>
         """
         print(message)
         quit()
@@ -40,36 +40,28 @@ def sync_assets(gmp, filename):
     with open(filename, newline='') as f:
         reader = csv.reader(f, delimiter=',', quotechar='|')
         for row in reader:
-            if len(row) == 4:
-                ip = row[1]
-                location = row[3]
+            if len(row) == 2:
+                ip = row[0]
+                comment = row[1]
                 # print('%s %s %s %s' % (host, ip, contact, location))
 
                 # check if asset is already there
-                ret = gmp.get_assets(asset_type='host', filter='ip=%s' % ip)
+                ret = gmp.get_assets(asset_type=AssetType.HOST, filter='ip=%s' % ip)
                 if ret.xpath('asset'):
                     print('\nAsset with IP %s exist' % ip)
                     asset_id = ret.xpath('asset/@id')[0]
                     gmp.delete_asset(asset_id=asset_id)
                 else:
                     print('Asset with ip %s does not exist. Sync...' % ip)
-                    ret = gmp.create_asset(
-                        asset_type='host', name=ip, comment='Delete me'
+                    ret = gmp.create_host(
+                        name=ip, comment=comment
                     )
-                    if location:
-                        asset_id = ret.xpath('@id')[0]
-                        gmp.create_tag(
-                            location, asset_id, 'host', value=location
-                        )
-
-                        if 'OK' in ret.xpath('@status_text')[0]:
-                            print('Tag created')
 
                     if 'OK' in ret.xpath('@status_text')[0]:
                         print('Asset synced')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -80,4 +72,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

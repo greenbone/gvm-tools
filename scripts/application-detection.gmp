@@ -55,7 +55,7 @@ def print_assets(gmp, appname):
         print('\n')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -64,4 +64,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

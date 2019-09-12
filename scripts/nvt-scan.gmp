@@ -99,7 +99,7 @@ def create_and_start_task(gmp, name, nvt_oid, config_id, target_id):
     print('\nTask %s started' % task_id)
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -114,4 +114,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

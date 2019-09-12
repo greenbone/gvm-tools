@@ -27,14 +27,16 @@ def check_args(args):
         message = """
         This script will display all vulnerabilities from the hosts of the
         reports in a given month!
-        It needs two parameters and has one optional after the script name.
-        First one is the month and second one is the year.
-        Both parameters are plain numbers, so no text.
+        
+        1. <month>  -- month of the monthly report
+        2. <year>   -- year of the monthly report
+
         The third is 'with-tables' parameter to activate a verbose output of
         hosts. Explicitly made for GOS 3.1.
 
         Example:
-            $ gvm-pyshell scripts/monthly-report.gmp 05 2017 with-tables
+            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/monthly-report.gmp 05 2017 with-tables
         """
         print(message)
         quit()
@@ -108,7 +110,7 @@ def print_reports(gmp, args, from_date, to_date):
     )
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -124,4 +126,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)
