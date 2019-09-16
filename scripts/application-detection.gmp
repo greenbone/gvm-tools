@@ -26,7 +26,7 @@ def check_args(args):
         1. <application>  -- Name of the application
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/application-detection.gmp <application>
         """
         print(message)
@@ -60,7 +60,7 @@ def main(gmp, args):
 
     check_args(args)
 
-    print_assets(gmp, appname)
+    print_assets(gmp, args.script[1])
 
 
 if __name__ == '__gmp__':
