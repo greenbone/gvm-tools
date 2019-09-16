@@ -18,6 +18,7 @@
 
 from gvm.protocols.gmpv8 import AlertCondition, AlertEvent, AlertMethod
 
+
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
@@ -132,9 +133,7 @@ def get_target(gmp, debug=False):
     hosts = ["localhost"]
 
     # integrate port list id into create_target
-    res = gmp.create_target(
-        target_name, hosts=hosts, port_list_id=portlist_id
-    )
+    res = gmp.create_target(target_name, hosts=hosts, port_list_id=portlist_id)
     return res.xpath('@id')[0]
 
 

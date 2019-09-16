@@ -68,9 +68,7 @@ def send_targets(gmp, host_name, host_file, host_list):
         comment = "Created: {}".format(time.strftime("%Y/%m/%d-%H:%M:%S"))
         hosts = [host]
 
-        gmp.create_target(
-            name=name, comment=comment, hosts=hosts
-        )
+        gmp.create_target(name=name, comment=comment, hosts=hosts)
 
 
 def main(gmp, args):

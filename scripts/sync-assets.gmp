@@ -19,6 +19,7 @@
 import csv
 from gvm.protocols.gmpv8 import AssetType
 
+
 def check_args(args):
     len_args = len(args.script) - 1
     if len_args is not 1:
@@ -46,16 +47,16 @@ def sync_assets(gmp, filename):
                 # print('%s %s %s %s' % (host, ip, contact, location))
 
                 # check if asset is already there
-                ret = gmp.get_assets(asset_type=AssetType.HOST, filter='ip=%s' % ip)
+                ret = gmp.get_assets(
+                    asset_type=AssetType.HOST, filter='ip=%s' % ip
+                )
                 if ret.xpath('asset'):
                     print('\nAsset with IP %s exist' % ip)
                     asset_id = ret.xpath('asset/@id')[0]
                     gmp.delete_asset(asset_id=asset_id)
                 else:
                     print('Asset with ip %s does not exist. Sync...' % ip)
-                    ret = gmp.create_host(
-                        name=ip, comment=comment
-                    )
+                    ret = gmp.create_host(name=ip, comment=comment)
 
                     if 'OK' in ret.xpath('@status_text')[0]:
                         print('Asset synced')

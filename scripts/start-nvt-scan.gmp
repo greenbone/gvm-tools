@@ -125,9 +125,7 @@ def get_target(gmp, hosts):
 
             name = input('Name of target: ')
 
-            res = gmp.create_target(
-                name, hosts=hosts.split(',')
-            )
+            res = gmp.create_target(name, hosts=hosts.split(','))
             return res.xpath('@id')[0]
 
         if 0 <= int(chosen_target) < len(target_ids):

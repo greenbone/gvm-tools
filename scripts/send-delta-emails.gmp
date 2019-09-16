@@ -176,7 +176,7 @@ def main(gmp, args):
     mta_password = 'mysecret'
 
     print('send_delta_alerts starting up with following settings:')
-    #print('GSM:           %s' % args.hostname) # is this even necessary?
+    # print('GSM:           %s' % args.hostname) # is this even necessary?
     print('User:          %s' % args.username)
     print('Interval:      %d minutes' % interval)
     print('Task tag:      %s' % task_tag)

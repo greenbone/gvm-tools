@@ -16,25 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gvmtools.helper import Table
+from gvm.protocols.gmpv8 import EntityType
+import datetime
 
 
 def main(gmp, args):
-    response_xml = gmp.get_tasks()
-    tasks_xml = response_xml.xpath('task')
 
-    heading = ['ID', 'Name', 'Severity']
+    # gmp.create_tag(
+    #               name="test",
+    #               resource_type=EntityType.ALERT,
+    #               )
 
-    rows = []
-
-    for task in tasks_xml:
-        name = ''.join(task.xpath('name/text()'))
-        task_id = task.get('id')
-        severity = ''.join(task.xpath('last_report/report/severity/text()'))
-
-        rows.append([task_id, name, severity])
-
-    print(Table(heading=heading, rows=rows))
+    gmp.modify_tag(
+        tag_id="242d5791-3cef-429a-b078-33e4badb6366",
+        resource_type=EntityType.HOST,
+    )
 
 
 if __name__ == '__gmp__':

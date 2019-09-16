@@ -19,6 +19,7 @@
 from base64 import b64decode
 from pathlib import Path
 
+
 def check_args(args):
     len_args = len(args.script) - 1
     if len_args < 1:
@@ -36,6 +37,7 @@ ssh --hostname <gsm> scripts/pdf-report.gmp <report_id> <pdf_file>
         """
         print(message)
         quit()
+
 
 def main(gmp, args):
     # check if report id and PDF filename are provided to the script

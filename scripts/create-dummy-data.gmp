@@ -21,6 +21,7 @@ import string
 
 from gvm.protocols.gmpv8 import CredentialType
 
+
 def check_args(args):
     len_args = len(args.script) - 1
     if len_args is not 1:
@@ -36,6 +37,7 @@ def check_args(args):
         print(message)
         quit()
 
+
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -46,7 +48,12 @@ def create_data(gmp, count):
 
     for _ in range(0, count):
         name = id_generator()
-        gmp.create_credential(name, login=name, password=name, credential_type=CredentialType.PASSWORD_ONLY)
+        gmp.create_credential(
+            name,
+            login=name,
+            password=name,
+            credential_type=CredentialType.PASSWORD_ONLY,
+        )
     print(str(count) + ' random credentials generated.')
 
     for _ in range(0, count):

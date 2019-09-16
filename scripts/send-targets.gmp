@@ -78,7 +78,7 @@ def parse_send_xml_tree(gmp, xml_tree):
     counter = 1
 
     for target in xml_tree.xpath('target'):
-        keywords = {}#{'make_unique': True}
+        keywords = {}  # {'make_unique': True}
 
         keywords['name'] = target.find('name').text
 
