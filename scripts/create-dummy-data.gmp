@@ -25,12 +25,12 @@ def check_args(args):
     len_args = len(args.script) - 1
     if len_args is not 1:
         message = """
-        This script will create random data for the given GVM database
+        This script will create random data in the given GVM database
 
         1. <count>  -- Number of datasets to create
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/create-dummy-data.gmp <count>
         """
         print(message)

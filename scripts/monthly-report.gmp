@@ -35,7 +35,7 @@ def check_args(args):
         hosts. Explicitly made for GOS 3.1.
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/monthly-report.gmp 05 2017 with-tables
         """
         print(message)

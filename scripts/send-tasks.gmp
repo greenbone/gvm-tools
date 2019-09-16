@@ -31,7 +31,7 @@ def check_args(args):
         1. <xml_doc>  -- .xml file containing tasks
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/send-tasks.gmp example_file.xml
         """
 

@@ -38,8 +38,7 @@ def check_args(args):
         reports via email for selected tasks.
 
         Example for starting up the routine:
-            $ gvm-pyshell --hostname=hostname --gmp-username=name \
-    ssh --gmp-password=pass scripts/projekt.gmp
+            $ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-delta-emails.gmp
 
         The routine follows this procedure:
 
@@ -165,9 +164,7 @@ def main(gmp, args):
 
     check_args(args)
 
-    print(args)
-
-    interval = 60  # in minutes
+    interval = 1  # in minutes
     task_tag = 'send_delta_alert'
     report_tag_name = 'delta_alert_sent'
     email_subject = 'Delta Report'

@@ -27,10 +27,10 @@ def check_args(args):
         This script creates a new scan config with nvts from a given CERT-Bund!
         It needs one parameter after the script name.
 
-        1. Name or ID of the CERT-Bund
+        1. <cert>   -- Name or ID of the CERT-Bund
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp CB-K16/0943
         """
         print(message)

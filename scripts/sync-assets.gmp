@@ -23,10 +23,10 @@ def check_args(args):
     len_args = len(args.script) - 1
     if len_args is not 1:
         message = """
-        This script reads asset data from a csv file and sync it with the gsm
+        This script reads asset data from a csv file and sync it with the gsm.
         It needs one parameters after the script name.
 
-        1. <csv_file> - should contain an IP-address and a comment
+        1. <csv_file> - should contain a table of IP-addresses with an optional a comment
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \

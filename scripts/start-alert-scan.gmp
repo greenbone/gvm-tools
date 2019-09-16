@@ -21,13 +21,13 @@ from gvm.protocols.gmpv8 import AlertCondition, AlertEvent, AlertMethod
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
-        This script makes an alert scan
+        This script makes an alert scan.
         It needs two parameters after the script name.
 
         1. <sender_email>     -- E-Mail of the sender
         2. <receiver_email>   -- E-Mail of the receiver
         
-                Example:
+        Example:
             $ gvm-script --gmp-username name --gmp-password pass \
 ssh --hostname <gsm> scripts/start-alert-scan.gmp <sender_email> <receiver_email>
     """

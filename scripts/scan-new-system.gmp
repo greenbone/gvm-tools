@@ -19,7 +19,7 @@
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
-        This script starts a new scan on the given host
+        This script starts a new scan on the given host.
         It needs one parameters after the script name.
 
         1. <host_ip>     -- IP Address of the host system

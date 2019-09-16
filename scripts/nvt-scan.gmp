@@ -27,12 +27,13 @@ def check_args(args):
         message = """
         This script creates a new task with specific host and nvt!
         It needs two parameters after the script name.
-        First one is the oid of the nvt and the second one is the
-        chosen scan target.
+
+        <oid>       -- oid of the nvt
+        <target>    -- scan target
 
         Example:
-            $ gvm-pyshell socket scripts/nvt-scan.gmp \
-    1.3.6.1.4.1.25623.1.0.106223 localhost
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> 1.3.6.1.4.1.25623.1.0.106223 localhost
         """
         print(message)
         quit()

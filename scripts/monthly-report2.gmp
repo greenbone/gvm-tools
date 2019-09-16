@@ -34,8 +34,12 @@ def check_args(args):
         Both parameters are plain numbers, so no text.
         Explicitly made for GOS 4.X.
 
+        1. <month>  -- month of the monthly report
+        2. <year>   -- year of the monthly report
+
         Example:
-            $ gvm-pyshell scripts/monthly-report2.gmp 05 2017
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/monthly-report2.gmp 05 2019
         """
         print(message)
         quit()

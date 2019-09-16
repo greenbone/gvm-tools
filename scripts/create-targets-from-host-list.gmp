@@ -32,7 +32,7 @@ for each.
         2. <hosts_textfile>  -- text file containing hostnames
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
 ssh --hostname <gsm> scripts/create_targets_from_host_list.gmp \
 <hostname> <hosts_textfile>
         """

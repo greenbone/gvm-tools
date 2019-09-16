@@ -31,7 +31,7 @@ def check_args(args):
         2. <task_uuid>   -- uuid of task to be modified
 
         Example for starting up the routine:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/update-task-target-hosts.gmp hosts_file.csv \
     "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698"
 

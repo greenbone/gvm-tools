@@ -34,7 +34,7 @@ def check_args(args):
     to be randomized on a Gaussian distribution, add 'with-gauss'
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/gen-random-tasks.gmp 3 40 with-gauss
         """
         print(message)

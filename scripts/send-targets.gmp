@@ -32,7 +32,7 @@ def check_args(args):
         1. <xml_doc>  -- .xml file containing targets
 
         Example:
-            $ gvm-script gvm-script --gmp-username name --gmp-password pass \
+            $ gvm-script --gmp-username name --gmp-password pass \
     ssh --hostname <gsm> scripts/send-targets.gmp example_file.xml
         """
         print(message)
