@@ -21,6 +21,15 @@ from gvm.protocols.gmpv8 import AlertCondition, AlertEvent, AlertMethod
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
+        This script makes an alert scan
+        It needs two parameters after the script name.
+
+        1. <sender_email>     -- E-Mail of the sender
+        2. <receiver_email>   -- E-Mail of the receiver
+        
+                Example:
+            $ gvm-script --gmp-username name --gmp-password pass \
+ssh --hostname <gsm> scripts/start-alert-scan.gmp <sender_email> <receiver_email>
     """
     if len_args != 2:
         print(message)
@@ -143,8 +152,8 @@ def get_alert(gmp, sender_email, recipient_email, debug=False):
         gmp.create_alert(
             alert_name,
             event=AlertEvent.TASK_RUN_STATUS_CHANGED,
+            event_data={"status": "Done"},
             condition=AlertCondition.ALWAYS,
-            condition_data={"status": "Done"},
             method=AlertMethod.EMAIL,
             method_data={
                 """Task '$n': $e
