@@ -192,7 +192,6 @@ should not have received it.
     alert_id2 = None
     alert2 = alert_object2.xpath('alert')
     if len(alert2) == 0:
-        print("creating alert")
         gmp.create_alert(
             alert_name2,
             event=AlertEvent.TASK_RUN_STATUS_CHANGED,
