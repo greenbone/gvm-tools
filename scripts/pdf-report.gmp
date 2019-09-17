@@ -51,17 +51,14 @@ def main(gmp, args):
         pdf_filename = args.argv[1] + ".pdf"
 
     pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
-    # response = gmp.get_report_formats(filter_id=pdf_report_format_id)
-    # print(response[0])
-    # response = gmp.get_report(
-    #     report_id=report_id, report_format_id=pdf_report_format_id
-    # )
+
+    response = gmp.get_report(
+        report_id=report_id, report_format_id=pdf_report_format_id
+    )
 
     report_element = response[0]
     # get the full content of the report element
     content = "".join(report_element.itertext())
-
-    print(content)
 
     # convert content to 8-bit ASCII bytes
     binary_base64_encoded_pdf = content.encode('ascii')
