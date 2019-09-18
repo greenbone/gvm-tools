@@ -17,6 +17,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 1:
+        message = """
+        This script will display all hosts with the searched applications!
+
+        1. <application>  -- Name of the application
+
+        Example:
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/application-detection.gmp <application>
+        """
+        print(message)
+        quit()
+
+
 def print_assets(gmp, appname):
     res = gmp.get_reports()
 
@@ -40,22 +56,13 @@ def print_assets(gmp, appname):
         print('\n')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
-    message = """
-        This script will display all hosts with the searched applications!
+    check_args(args)
 
-        Example:
-            $ gvm-pyshell socket scripts/application-detection.gmp
-    """
-    print(message)
-
-    appname = input('What application are you looking for? ')
-    print('')
-
-    print_assets(gmp, appname)
+    print_assets(gmp, args.script[1])
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

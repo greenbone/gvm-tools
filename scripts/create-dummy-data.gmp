@@ -20,6 +20,22 @@ import random
 import string
 
 
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args is not 1:
+        message = """
+        This script will create random data in the given GVM database
+
+        1. <count>  -- Number of datasets to create
+
+        Example:
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/create-dummy-data.gmp <count>
+        """
+        print(message)
+        quit()
+
+
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -30,22 +46,31 @@ def create_data(gmp, count):
 
     for _ in range(0, count):
         name = id_generator()
-        gmp.create_credential(name, login=name, password=name)
+        gmp.create_credential(
+            name,
+            login=name,
+            password=name,
+            credential_type=gmp.types.CredentialType.PASSWORD_ONLY,
+        )
+    print(str(count) + ' random credentials generated.')
 
     for _ in range(0, count):
         name = id_generator()
         gmp.create_port_list(name, port_range='T:1-42')
+    print(str(count) + ' random port lists generated.')
 
     for _ in range(0, count):
         name = id_generator()
         res = gmp.create_config('085569ce-73ed-11df-83c3-002264764cea', name)
         config_ids.append(res.xpath('@id')[0])
+    print(str(count) + ' random scan configs generated.')
 
     for _ in range(0, count):
         name = id_generator()
         res = gmp.create_target(name, hosts=['127.0.0.1'])
 
         target_ids.append(res.xpath('@id')[0])
+    print(str(count) + ' random targets generated.')
 
     for _ in range(0, count):
         name = id_generator()
@@ -54,15 +79,16 @@ def create_data(gmp, count):
         gmp.create_task(
             name, config_id, target_id, '08b69003-5fc2-4037-a479-93b440211c73'
         )
+    print(str(count) + ' random tasks generated.')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
-    count = 50
+    check_args(args)
 
-    create_data(gmp, count)
+    create_data(gmp, int(args.script[1]))
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

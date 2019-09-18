@@ -28,11 +28,11 @@ def check_args(args):
     a desired GSM
         One parameter after the script name is required.
 
-        1. <xml_doc> .xml file containing tasks
+        1. <xml_doc>  -- .xml file containing tasks
 
         Example:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/send-tasks.gmp example_file.xml
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/send-tasks.gmp example_file.xml
         """
 
         print(message)
@@ -145,7 +145,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         mod_keywords = {'task_id': new_task.xpath('//@id')[0]}
 
-        if task.find('schedule_periods').text != 0:
+        if task.find('schedule_periods') is not None:
             mod_keywords['schedule_periods'] = int(
                 task.find('schedule_periods').text
             )
@@ -180,7 +180,7 @@ def parse_send_xml_tree(gmp, xml_tree):
             gmp.modify_task(**mod_keywords)
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
     check_args(args)
     xml_doc = args.script[1]
@@ -194,4 +194,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

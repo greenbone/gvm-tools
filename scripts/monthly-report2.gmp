@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import date, timedelta
-
 from terminaltables import AsciiTable
 
 
@@ -32,8 +31,12 @@ def check_args(args):
         Both parameters are plain numbers, so no text.
         Explicitly made for GOS 4.X.
 
+        1. <month>  -- month of the monthly report
+        2. <year>   -- year of the monthly report
+
         Example:
-            $ gvm-pyshell scripts/monthly-report2.gmp 05 2017
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/monthly-report2.gmp 05 2019
         """
         print(message)
         quit()
@@ -44,7 +47,9 @@ def print_reports(gmp, from_date, to_date):
         from_date.isoformat(), to_date.isoformat()
     )
 
-    assets_xml = gmp.get_assets(asset_type='host', filter=asset_filter)
+    assets_xml = gmp.get_assets(
+        asset_type=gmp.types.AssetType.HOST, filter=asset_filter
+    )
 
     sum_high = 0
     sum_medium = 0
@@ -98,7 +103,7 @@ def print_reports(gmp, from_date, to_date):
     )
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -114,4 +119,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

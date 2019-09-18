@@ -263,8 +263,11 @@ class InstanceManager:
         """
         logger.debug("Delete entry with ip: %s", ip)
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
+        self.con_db.isolation_level = None
         self.cursor.execute("VACUUM")
-
+        self.con_db.isolation_level = (
+            ''
+        )  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe
         # Save the changes
         self.con_db.commit()
 
@@ -1185,7 +1188,7 @@ def parse_date(datestring, default_timezone=UTC):
         raise ParseError(e)
 
 
-def main():
+def main(gmp, args):
     tmp_path = "%s/check_gmp/" % tempfile.gettempdir()
     tmp_path_db = tmp_path + "reports.db"
 
@@ -1355,8 +1358,9 @@ def main():
 
     script_args = parser.parse_args(args.script_args)
 
-    aux_parser = ArgumentParser(prefix_chars="-",
-                                formatter_class=RawTextHelpFormatter)
+    aux_parser = ArgumentParser(
+        prefix_chars="-", formatter_class=RawTextHelpFormatter
+    )
     aux_parser.add_argument("--hostname", nargs="?", required=False)
     gvm_tool_args, _ = aux_parser.parse_known_args(sys.argv)
     if "hostname" in gvm_tool_args:
@@ -1403,4 +1407,4 @@ def main():
 
 
 if __name__ == "__gmp__":
-    main()
+    main(gmp, args)

@@ -32,8 +32,8 @@ def check_args(args):
         1. <xml_doc>  -- .xml file containing targets
 
         Example:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/send-targets.gmp example_file.xml
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/send-targets.gmp example_file.xml
         """
         print(message)
         quit()
@@ -78,7 +78,7 @@ def parse_send_xml_tree(gmp, xml_tree):
     counter = 1
 
     for target in xml_tree.xpath('target'):
-        keywords = {'make_unique': True}
+        keywords = {}  # {'make_unique': True}
 
         keywords['name'] = target.find('name').text
 
@@ -118,9 +118,10 @@ def parse_send_xml_tree(gmp, xml_tree):
 
             keywords[credential] = temp_dict
 
-        alive_tests = target.find('alive_tests').text
-        if alive_tests is not None:
-            keywords['alive_tests'] = alive_tests
+        alive_test = target.find('alive_test')
+
+        if alive_test is not None:
+            keywords['alive_test'] = alive_test
 
         reverse_lookup_only = target.find('reverse_lookup_only').text
         if reverse_lookup_only == '1':
@@ -136,15 +137,17 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         if target.xpath('port_list/@id') is not None:
             port_list = {}
-            port_list['id'] = target.xpath('port_list/@id')[0]
-            keywords['port_list'] = port_list
+            port_list = target.xpath('port_list/@id')[0]
+            keywords['port_list_id'] = port_list
+
+        print(keywords)
 
         gmp.create_target(**keywords)
 
         counter += 1
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -160,4 +163,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

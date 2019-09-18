@@ -20,6 +20,15 @@
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
+        This script makes an alert scan.
+        It needs two parameters after the script name.
+
+        1. <sender_email>     -- E-Mail of the sender
+        2. <receiver_email>   -- E-Mail of the receiver
+        
+        Example:
+            $ gvm-script --gmp-username name --gmp-password pass \
+ssh --hostname <gsm> scripts/start-alert-scan.gmp <sender_email> <receiver_email>
     """
     if len_args != 2:
         print(message)
@@ -122,9 +131,7 @@ def get_target(gmp, debug=False):
     hosts = ["localhost"]
 
     # integrate port list id into create_target
-    res = gmp.create_target(
-        target_name, make_unique=True, hosts=hosts, port_list_id=portlist_id
-    )
+    res = gmp.create_target(target_name, hosts=hosts, port_list_id=portlist_id)
     return res.xpath('@id')[0]
 
 
@@ -141,10 +148,10 @@ def get_alert(gmp, sender_email, recipient_email, debug=False):
         print("creating alert")
         gmp.create_alert(
             alert_name,
-            event="Always",
-            condition="Task run status changed",
-            condition_data={"status": "Done"},
-            method="Email",
+            event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
+            event_data={"status": "Done"},
+            condition=gmp.types.AlertCondition.ALWAYS,
+            method=gmp.types.AlertMethod.EMAIL,
             method_data={
                 """Task '$n': $e
 
@@ -214,7 +221,7 @@ def create_and_start_task(
         print('Task stopped')
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -233,4 +240,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

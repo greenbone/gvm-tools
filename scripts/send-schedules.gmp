@@ -20,8 +20,6 @@ import sys
 
 from lxml import etree as e
 
-import dateutil.parser
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -34,13 +32,14 @@ def check_args(args):
         1. <xml_doc>  -- .xml file containing schedules
 
         Example:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/send-schedules.gmp targethost example_file.xml
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/send-schedules.gmp targethost example_file.xml
 
-        Note: In order to use this script python-dateutil must first be installed:
-            $ pip install python-dateutil
         """
         print(message)
+        quit()
+    if int(gmp.get_protocol_version()[0]) < 8:
+        print("This script requires GMP version 8")
         quit()
 
 
@@ -71,45 +70,21 @@ def parse_send_xml_tree(gmp, xml_tree):
         if comment is None:
             comment = ''
 
-        first_time = {}
-        f_time = schedule.find('first_time').text
-        f_time = dateutil.parser.parse(f_time)
-        first_time['day_of_month'] = f_time.day
-        first_time['hour'] = f_time.hour
-        first_time['minute'] = f_time.minute
-        first_time['month'] = f_time.month
-        first_time['year'] = f_time.year
-
-        duration = schedule.find('simple_duration').text
-        duration_unit = schedule.find('simple_duration').find('unit').text
-
-        period = schedule.find('simple_period').text
-        period_unit = schedule.find('simple_period').find('unit').text
+        ical = schedule.find('icalendar').text
 
         timezone_abbrev = schedule.find('timezone_abbrev').text
 
         gmp.create_schedule(
-            name=name,
-            first_time_minute=f_time.minute,
-            first_time_hour=f_time.hour,
-            first_time_day_of_month=f_time.day,
-            first_time_month=f_time.month,
-            first_time_year=f_time.year,
-            duration=duration,
-            duration_unit=duration_unit,
-            period=period,
-            period_unit=period_unit,
-            comment=comment,
-            timezone=timezone_abbrev,
+            name=name, comment=comment, timezone=timezone_abbrev, icalendar=ical
         )
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
 
-    xml_doc = args.script[2]
+    xml_doc = args.script[1]
 
     print('\nSending schedules...')
 
@@ -120,4 +95,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)

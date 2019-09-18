@@ -17,6 +17,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+def check_args(args):
+    len_args = len(args.script) - 1
+    message = """
+        This script starts a new scan on the given host.
+        It needs one parameters after the script name.
+
+        1. <host_ip>     -- IP Address of the host system
+        
+                Example:
+            $ gvm-script --gmp-username name --gmp-password pass \
+ssh --hostname <gsm> scripts/scan -net-system.gmp <host_ip>
+    """
+    if len_args != 1:
+        print(message)
+        quit()
+
+
 def create_target(gmp, ipaddress):
     import datetime
 
@@ -45,11 +62,9 @@ def start_task(gmp, task_id):
 
 
 def main(gmp, args):
-    # check if IP address is provided to the script
-    # argv[0] contains the script name
-    if len(args.argv) <= 1:
-        print('Missing IP address argument')
-        return 1
+    # pylint: disable=undefined-variable
+
+    check_args(args)
 
     ipaddress = args.argv[1]
 

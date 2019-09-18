@@ -27,12 +27,12 @@ def check_args(args):
         This script will update target hosts information for a desired task.
         Two parameters after the script name are required.
 
-        1. <hosts_file> --.csv file containing desired target hosts
-        2. <task_uuid>  --uuid of task to be modified
+        1. <hosts_file>  -- .csv file containing desired target hosts seperated by ','
+        2. <task_uuid>   -- uuid of task to be modified
 
         Example for starting up the routine:
-            $ gvm-pyshell ssh --hostname=hostname --gmp-username=name \
-    --gmp-password=pass scripts/update-task-target-hosts.gmp hosts_file.csv \
+            $ gvm-script --gmp-username name --gmp-password pass \
+    ssh --hostname <gsm> scripts/update-task-target-hosts.gmp hosts_file.csv \
     "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698"
 
         """
@@ -70,7 +70,7 @@ def load_host_file(filename):
 
 def copy_send_target(gmp, hosts_file, old_target_id):
     hosts_string = load_host_file(hosts_file)
-    keywords = {'make_unique': True, 'hosts': hosts_string}
+    keywords = {'hosts': hosts_string}
 
     keywords['comment'] = 'This target was automatically modified: {}'.format(
         time.strftime("%Y/%m/%d-%H:%M:%S")
@@ -85,7 +85,9 @@ def copy_send_target(gmp, hosts_file, old_target_id):
             var = ''
         keywords['{}'.format(obj)] = var
 
-    keywords['port_list'] = {'id': old_target.xpath('port_list/@id')[0]}
+    port_list = {}
+    port_list = old_target.xpath('port_list/@id')[0]
+    keywords['port_list_id'] = port_list
 
     new_target_id = gmp.create_target(**keywords).xpath('@id')[0]
 
@@ -110,7 +112,7 @@ def check_to_delete(gmp, target_id):
         gmp.delete_target(target_id=target_id)
 
 
-def main():
+def main(gmp, args):
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -126,4 +128,4 @@ def main():
 
 
 if __name__ == '__gmp__':
-    main()
+    main(gmp, args)
