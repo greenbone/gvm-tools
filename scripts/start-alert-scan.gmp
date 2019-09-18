@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gvm.protocols.gmpv8 import AlertCondition, AlertEvent, AlertMethod
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -150,10 +148,10 @@ def get_alert(gmp, sender_email, recipient_email, debug=False):
         print("creating alert")
         gmp.create_alert(
             alert_name,
-            event=AlertEvent.TASK_RUN_STATUS_CHANGED,
+            event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
             event_data={"status": "Done"},
-            condition=AlertCondition.ALWAYS,
-            method=AlertMethod.EMAIL,
+            condition=gmp.types.AlertCondition.ALWAYS,
+            method=gmp.types.AlertMethod.EMAIL,
             method_data={
                 """Task '$n': $e
 

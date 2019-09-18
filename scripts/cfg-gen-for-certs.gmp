@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gvm.errors import GvmError
-from gvm.protocols.gmpv8 import InfoType
 
 
 def check_args(args):
@@ -39,7 +38,7 @@ def check_args(args):
 
 def create_config(gmp, cert_bund_name):
     cert_bund_details = gmp.get_info(
-        info_id=cert_bund_name, info_type=InfoType.CERT_BUND_ADV
+        info_id=cert_bund_name, info_type=gmp.types.InfoType.CERT_BUND_ADV
     )
 
     list_cves = cert_bund_details.xpath(
@@ -51,7 +50,7 @@ def create_config(gmp, cert_bund_name):
 
     for cve in list_cves:
         # Get all nvts of this cve
-        cve_info = gmp.get_info(info_id=cve, info_type=InfoType.CVE)
+        cve_info = gmp.get_info(info_id=cve, info_type=gmp.types.InfoType.CVE)
         nvts = cve_info.xpath('info/cve/nvts/nvt')
 
         for nvt in nvts:

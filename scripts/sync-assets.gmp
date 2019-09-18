@@ -17,8 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
-from gvm.protocols.gmpv8 import AssetType
-
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -48,7 +46,7 @@ def sync_assets(gmp, filename):
 
                 # check if asset is already there
                 ret = gmp.get_assets(
-                    asset_type=AssetType.HOST, filter='ip=%s' % ip
+                    asset_type=gmp.types.AssetType.HOST, filter='ip=%s' % ip
                 )
                 if ret.xpath('asset'):
                     print('\nAsset with IP %s exist' % ip)
