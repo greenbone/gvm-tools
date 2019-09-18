@@ -47,7 +47,9 @@ def print_reports(gmp, from_date, to_date):
         from_date.isoformat(), to_date.isoformat()
     )
 
-    assets_xml = gmp.get_assets(asset_type=gmp.types.AssetType.HOST, filter=asset_filter)
+    assets_xml = gmp.get_assets(
+        asset_type=gmp.types.AssetType.HOST, filter=asset_filter
+    )
 
     sum_high = 0
     sum_medium = 0
