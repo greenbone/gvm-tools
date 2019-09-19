@@ -21,13 +21,15 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   and increment the version number.
 
 * Update [CHANGELOG.md](https://github.com/greenbone/gvm-tools/blob/master/CHANGELOG.md)
+  * Change [unreleased] to new release version
+  * Add a release date
+  * Update reference to Github diff
 
 * Create a source and wheel distribution
 
   ```sh
-  rm -rf dist build python_gvm.egg-info
-  pipenv install
-  pipenv run python setup.py sdist bdist_wheel
+  rm -rf dist build gvm_tools.egg-info
+  python3 setup.py sdist bdist_wheel
   ```
 
 * Create a git commit
@@ -37,12 +39,33 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   git commit -m "Prepare release <version>"
   ```
 
+* Create a pypi configuration file
+
+  ```sh
+  vim ~/.pypirc
+  ```
+
+  with the following content (Note: `<username>` must be replaced)
+
+  ```ini
+  [distutils]
+  index-servers =
+      pypi
+      testpypi
+
+  [pypi]
+  username = <username>
+
+  [testpypi]
+  repository = https://test.pypi.org/legacy/
+  username = <username>
+
 * Create an account at [Test PyPI](https://packaging.python.org/guides/using-testpypi/)
 
 * Upload the archives in dist to [Test PyPI](https://test.pypi.org/)
 
   ```sh
-  twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+  twine upload -r testpypi dist/*
   ```
 
 * Check if the package is available at https://test.pypi.org/project/gvm-tools
@@ -69,15 +92,19 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   rm -rf gvm-tools-install-test
   ```
 
-* Create an account at [PyPI](https://pypi.org/) if not exist already
-
-* Upload to real [PyPI](https://pypi.org/)
+* Create a release PR
 
   ```sh
-  twine upload dist/*
+  git push origin
   ```
+  Open GitHub and create a PR against https://github.com/greenbone/gvm-tools
 
-* Check if new version is available at https://pypi.org/project/gvm-tools
+* Update after PR is merged
+
+  ```sh
+  git fetch upstream
+  git rebase upstream/master
+  ```
 
 * Create a git tag
 
@@ -90,6 +117,22 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   ```sh
   git tag -s v<version>
   ```
+* Create final distribution files
+
+  ```sh
+  rm -rf dist build python_gvm.egg-info
+  python3 setup.py sdist bdist_wheel
+
+* Create an account at [PyPI](https://pypi.org/) if not exist already
+
+* Upload to real [PyPI](https://pypi.org/)
+
+  ```sh
+  twine upload dist/*
+  ```
+
+* Check if new version is available at https://pypi.org/project/gvm-tools
+
 
 * Update version in [gvmtools/__init__.py](https://github.com/greenbone/gvm-tools/blob/master/gvmtools/__init__.py)
 
