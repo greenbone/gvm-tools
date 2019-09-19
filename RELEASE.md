@@ -103,7 +103,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 
   ```sh
   git fetch upstream
-  git rebase upstream/master
+  git rebase upstream/master master
   ```
 
 * Create a git tag
@@ -120,7 +120,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 * Create final distribution files
 
   ```sh
-  rm -rf dist build python_gvm.egg-info
+  rm -rf dist build gvm_tools.egg-info
   python3 setup.py sdist bdist_wheel
 
 * Create an account at [PyPI](https://pypi.org/) if not exist already
