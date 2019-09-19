@@ -13,6 +13,17 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
+## [unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+[unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.0.0...master
 
 ## [2.0.0] - 2019-09-19
 
