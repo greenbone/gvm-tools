@@ -79,7 +79,7 @@ class InstanceManager:
     and wait for continuation.
     """
 
-    def __init__(self, path):
+    def __init__(self, path, parser):
         """Initialise the sqlite database.
 
         Create it if it does not exist else connect to it.
@@ -98,6 +98,11 @@ class InstanceManager:
         logger.debug("DB file exist?: %s ", exist)
 
         if not exist:
+            perm = os.access(path.rsplit('/', 1)[0], os.W_OK)
+
+            if not perm:
+                parser.error("The temporary path {} for the cache has no correct permissions.".format(path.rsplit('/', 1)[0]))
+
             os.makedirs(os.path.dirname(path), exist_ok=True)
 
             # Connect to db
@@ -1376,7 +1381,7 @@ def main(gmp, args):
     # Set the report manager
     if script_args.cache:
         tmp_path_db = script_args.cache
-    im = InstanceManager(tmp_path_db)
+    im = InstanceManager(tmp_path_db, parser)
 
     # Check if command holds clean command
     if script_args.clean:
