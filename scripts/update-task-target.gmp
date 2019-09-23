@@ -89,6 +89,8 @@ def copy_send_target(gmp, hosts_file, old_target_id):
     port_list = old_target.xpath('port_list/@id')[0]
     keywords['port_list_id'] = port_list
 
+    keywords['name'] += "_copy"  # the name must differ from existing names
+
     new_target_id = gmp.create_target(**keywords).xpath('@id')[0]
 
     print('\n  New target created!\n')
