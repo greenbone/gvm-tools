@@ -21,7 +21,7 @@ Main module of gvm-tools.
 
 from pkg_resources import safe_version
 
-VERSION = (2, 0, 0, 'beta', 1)
+VERSION = (2, 1, 0, 'dev', 1)
 """
 Current Version of gvm-tools as a tuple
 """

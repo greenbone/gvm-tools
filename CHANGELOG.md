@@ -13,8 +13,19 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
+## [unreleased]
 
-## [Unreleased]
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+[unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.0.0...master
+
+## [2.0.0] - 2019-09-19
 
 ### Added
 - Added --duration switch to gvm-cli for command execution measurement [PR 206](https://github.com/greenbone/gvm-tools/pull/206)
@@ -57,6 +68,8 @@ $ cd gvm-tools && git log
 - Support \[Auth\] section in config file for backwards compatibility [PR 160](https://github.com/greenbone/gvm-tools/pull/160)
 - Fix using correct API to get single task and targets in update-task-target.gmp
   script [PR 188](https://github.com/greenbone/gvm-tools/pull/188)
+
+[2.0.0]: https://github.com/greenbone/gvm-tools/compare/v2.0.0.beta1...v2.0.0
 
 ## [2.0.0.beta1] - 2018-11-13
 
@@ -206,7 +219,6 @@ Main changes compared to gvm-tools-1.3.1:
 
 - First stable release of gvm-tools
 
-[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.0.0.beta1...master
 [2.0.0.beta1]: https://github.com/greenbone/gvm-tools/compare/v1.4.1...v2.0.0.beta1
 [1.4.1]: https://github.com/greenbone/gvm-tools/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/greenbone/gvm-tools/compare/1.3.1...v1.4.0
