@@ -202,7 +202,7 @@ This script creates a new task with specific host and nvt!
 
 ### Arguments
 * `<oid>`:   oid of the nvt
-* `<taget>`: scan target.
+* `<target>`: scan target.
 
 ### Example
 
@@ -355,7 +355,7 @@ This script creates a new task (if the target is not existing) with specific hos
 
 ### Arguments
 * `<oid>`:   oid of the nvt
-* `<taget>`: scan target.
+* `<target>`: scan target.
 
 ### Example
 
@@ -383,7 +383,7 @@ This script will update target hosts information for a desired task.
 
 ### Arguments
 
-* `<hosts_file>`:   .csv file containing desired target hosts seperated by ','
+* `<hosts_file>`:   .csv file containing desired target hosts separated by ','
 * `<task_uuid>`:    uuid of task to be modified
 
 ### Example
