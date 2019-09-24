@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         '--duration',
         action='store_true',
-        help='Measure commmand execution time',
+        help='Measure command execution time',
     )
     parser.add_argument(
         'infile', nargs='?', help='File to read XML commands from.'
