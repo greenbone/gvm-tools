@@ -21,6 +21,8 @@ $ cd gvm-tools && git log
 
 ### Fixed
 
+- Exit with an error, if the `check_gmp.gmp` script is used with an temporary path, that has not the correct permissions.
+
 ### Removed
 
 [unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.0.0...master
