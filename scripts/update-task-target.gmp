@@ -27,7 +27,7 @@ def check_args(args):
         This script will update target hosts information for a desired task.
         Two parameters after the script name are required.
 
-        1. <hosts_file>  -- .csv file containing desired target hosts seperated by ','
+        1. <hosts_file>  -- .csv file containing desired target hosts separated by ','
         2. <task_uuid>   -- uuid of task to be modified
 
         Example for starting up the routine:
