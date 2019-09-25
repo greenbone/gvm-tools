@@ -22,6 +22,7 @@ $ cd gvm-tools && git log
 ### Fixed
 
 - Exit with an error, if the `check_gmp.gmp` script is used with an temporary path, that has not the correct permissions.
+- Fixed `update-task-target.gmp` to create unique target names to support Gmpv8
 
 ### Removed
 
