@@ -259,6 +259,7 @@ class CliParser:
             '--sockpath',
             nargs='?',
             default=None,
+            dest='socketpath',
             help='Deprecated, use --socketpath instead',
         )
         socketpath_group.add_argument(
