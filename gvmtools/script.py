@@ -64,13 +64,6 @@ def main():
     )
     args, script_args = parser.parse_known_args()
 
-    if 'socket' in args.connection_type and args.sockpath:
-        print(
-            'The --sockpath parameter has been deprecated. Please use '
-            '--socketpath instead',
-            file=sys.stderr,
-        )
-
     connection = create_connection(**vars(args))
 
     transform = EtreeCheckCommandTransform()
