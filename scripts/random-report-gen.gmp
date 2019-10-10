@@ -20,7 +20,7 @@ import uuid
 import string
 import time
 
-from random import randrange as r, choice as c
+from random import randrange as r, choice as c, gauss as g
 
 from lxml import etree as e
 
@@ -287,13 +287,13 @@ def generate_reports(task, gauss=False, **kwargs):
     n_results = kwargs.get('n_results')
 
     if gauss is True:
-        n_reports = abs(int(random.gauss(n_reports, 1)))
+        n_reports = abs(int(g(n_reports, 1)))
         if n_reports == 0:
             n_reports += 1
 
     for _ in range(n_reports):
         if gauss:
-            n_results = abs(int(random.gauss(n_results, 2)))
+            n_results = abs(int(g(n_results, 2)))
         report_elem = generate_report_elem(
             kwargs.get('template'), n_results, kwargs.get('n_hosts'), task
         )
