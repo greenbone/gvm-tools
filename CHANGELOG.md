@@ -19,6 +19,8 @@ $ cd gvm-tools && git log
 
 ### Changed
 
+- The script `random-report-gen.gmp` is able to add `host`, `os` and `application` data now, so the created reports are more realistic [PR 218](https://github.com/greenbone/gvm-tools/pull/218)
+
 ### Fixed
 
 - Exit with an error, if the `check_gmp.gmp` script is used with an temporary path, that has not the correct permissions.
