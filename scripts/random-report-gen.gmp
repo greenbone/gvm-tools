@@ -28,7 +28,7 @@ from lxml import etree as e
 
 oss = {'Ubuntu 16.04':'cpe:/o:canonical:ubuntu_linux:16.04', 'Debian GNU/Linux': 'cpe:/o:debian:debian_linux:9', 'Linux/Unix': 'cpe:/o:linux:kernel', 'Greenbone OS (GOS)': 'cpe:/o:greenbone:greenbone_os:5.0.10'}
 
-apps = {'Greenbone Security Manager (GSM) / Greenbone OS (GOS) Detection (Version)': 'cpe:/a:greenbone:gsm_expo', 'OpenSSH 4.3': 'cpe:/a:openbsd:openssh:4.3', 'OpenSSH 5.3': 'cpe:/a:openbsd:openssh:5.3', 'OpenSSH 6.6.1': 'cpe:/a:openbsd:openssh:6.6.1'}
+apps = {'Greenbone Security Manager (GSM) / Greenbone OS (GOS) Detection (Version)': 'cpe:/a:greenbone:gsm_expo', 'OpenSSH 4.3': 'cpe:/a:openbsd:openssh:4.3', 'OpenSSH 5.3': 'cpe:/a:openbsd:openssh:5.3', 'OpenSSH 6.6.1': 'cpe:/a:openbsd:openssh:6.6.1', 'Plone': 'cpe:/a:plone:plone', 'Apache Server 2.2.3': 'cpe:/a:apache:http_server:2.2.3', 'Apache Tomcat': 'cpe:/a:apache:tomcat', 'PHP 5.1.6': 'cpe:/a:php:php:5.1.6', 'MySQL 5.1.73': 'cpe:/a:oracle:mysql:5.1.73', 'Webmin 1.791': 'cpe:/a:webmin:webmin:1.791', 'Samba 3.3.9': 'cpe:/a:samba:samba:3.3.9'}
 
 
 
@@ -40,10 +40,10 @@ def check_args(args):
 
         Four parameters after the script name are required.
 
-        1. <number of tasks>  --number of tasks to be generated
+        1. <number of tasks>    --number of tasks to be generated
         2. <number of reports>  --number of reports per task
         3. <number of results>  --number of results per report
-        4. <number of hosts> --number of randomized hosts to select from
+        4. <number of hosts>    --number of randomized hosts to select from
 
         In addition, if you would like for the number of reports/task and \
     results/report to be randomized along a Gaussian distribution, add \
@@ -60,21 +60,14 @@ def check_args(args):
 def generate_uuid():
     return str(uuid.uuid4())
 
-
 def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
+    return ['{}.{}.{}.{}'.format(c(exclude_127), r(0, 256), r(0, 256), r(1, 255)) for i in range(n_hosts)]
 
-    ips = [
-        '{}.{}.{}.{}'.format(c(exclude_127), r(0, 256), r(0, 256), r(1, 255))
-        for i in range(n_hosts)
-    ]
-
-    return ips
-
-def generate_ports(n):
+def generate_ports(n_ports):
     protocol = ['/tcp', '/udp', '/ssh']
-    return [str(random.randint(0, 65535)) + random.choice(protocol) for i in range(n)]
+    return [str(random.randint(0, 65535)) + random.choice(protocol) for i in range(n_ports)]
 
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -82,13 +75,7 @@ def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
 def generate_report_elem(template, n_results, n_hosts, task):
     rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
     rep_id = generate_uuid()
-    outer_report_elem = e.Element('report', 
-                                  attrib={
-                                      'extension': 'xml', 
-                                      'id': rep_id, 
-                                      'format_id': rep_format_id, 
-                                      'content_type': 'text/xml'}
-                                 )
+    outer_report_elem = e.Element('report', attrib={'extension': 'xml', 'id': rep_id, 'format_id': rep_format_id, 'content_type': 'text/xml'})
     owner_elem = e.SubElement(outer_report_elem, 'owner')
     e.SubElement(owner_elem, 'name').text = 'testowner'
     e.SubElement(outer_report_elem, 'name').text = 'testname'
@@ -99,36 +86,25 @@ def generate_report_elem(template, n_results, n_hosts, task):
     repform_elem = e.SubElement(outer_report_elem, 'report_format', attrib={'id': rep_format_id})
     e.SubElement(repform_elem, 'name').text = 'XML'
 
+    # Generating inner <report> tag
+    outer_report_elem.append(generate_inner_report(rep_id, template, n_results, n_hosts))
 
-    report_elem = e.SubElement(outer_report_elem, 'report', attrib={'id': rep_id})
+    return outer_report_elem
 
+def generate_inner_report(rep_id, template, n_results, n_hosts):
 
-    # task_elem = e.Element('task')
-    # e.SubElement(task_elem, 'comment').text = "test"
-    # target_elem = e.SubElement(task_elem, 'target')
-    # e.SubElement(target_elem, 'trash').text = str(0)
-    # e.SubElement(target_elem, 'name').text = "test_target"
-    # report_elem.append(task_elem)
+    report_elem = e.Element('report', attrib={'id': rep_id})
+    results_elem = e.SubElement(report_elem, 'results', {'max': str(n_results), 'start': '1'})
 
-    results_elem = e.Element('results', {'max': str(n_results), 'start': '1'})
-    report_elem.append(results_elem)
-
-    # Create Hosts, Ports
+    # Create Hosts, Ports, Data
     hosts = generate_ips(n_hosts)  #Host IPs
     ports = generate_ports(n_hosts)
-
-    port_elem = e.Element('ports')
-    e.SubElement(port_elem, 'count').text = str(n_hosts)
-
-    host_elems = []
-    result_elems = []  #TODO Bad naming
     oid_dict = {host: [] for host in hosts}
     asset_dict = {host: generate_uuid() for host in hosts}
     host_names = {host: id_generator() for host in hosts}
-
     max_sev = 0.0
 
-
+    # Create <result> tags with random data
     for _ in range(n_results):
         host_ip = c(hosts)
         host_port = c(ports)
@@ -136,48 +112,23 @@ def generate_report_elem(template, n_results, n_hosts, task):
         if float(severity) > max_sev:
             max_sev = float(severity)
         oid_dict[host_ip].append(oid)
-        #result_elems.append(result_elem)
-        results_elem.append(result_elem) #TODO FOR ...
+        results_elem.append(result_elem)
 
 
     e.SubElement(report_elem, "result_count").text = str(n_results)
 
-    sev_elem = e.Element("severity");
+    sev_elem = e.Element("severity")
     e.SubElement(sev_elem, "full").text = str(max_sev)
     e.SubElement(sev_elem, "filtered").text = str(max_sev)
 
     report_elem.append(sev_elem)
 
+    # Create <host> tags with random data
     for host in hosts:
-        #host_elems.append(generate_host_elem(host, oid_dict[host_ip][0]))
         if len(oid_dict[host]) > 0:
             report_elem.append(generate_host_elem(host, oid_dict[host][0], asset_dict[host], host_names[host]))
 
-    ## TODO See if we need this
-    # for host in hosts:
-    #     port = e.Element('port')
-    #     port.text = str(random.randint(0, 65535)) + random.choice(ports)
-    #     e.SubElement(port, 'host').text = host
-    #     e.SubElement(port, 'severity').text = str(random.randrange(0, 100)/10)
-    #     port_elem.append(port)
-    #     host_elems.append(host)
-
-    report_elem.append(port_elem)
-
-    hosts_elem = e.Element('hosts')
-    e.SubElement(hosts_elem, 'count').text = str(n_hosts)
-
-    #report_elem.append(hosts_elem)
-
-    os_elem = e.Element('os')
-    e.SubElement(os_elem, 'count').text = str(1)
-
-    #report_elem.append(os_elem)
-
-    print(e.tostring(outer_report_elem))
-
-    return outer_report_elem
-
+    return report_elem
 
 def generate_result_elem(template, host_ip, host_port, host_asset, host_name):
     result_elem = e.Element('result', {'id': generate_uuid()})
@@ -211,8 +162,6 @@ def generate_result_elem(template, host_ip, host_port, host_asset, host_name):
 
     result_elem.append(elem)
 
-    print(e.tostring(result_elem))
-
     return result_elem, nvt['oid'], nvt['severity']
 
 
@@ -226,54 +175,42 @@ def generate_host_elem(host_ip, oid, host_asset, host_name):
     e.SubElement(host_elem, 'start').text = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 1000))[:-2] + ':00' 
     e.SubElement(host_elem, 'end').text = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 30))[:-2] + ':00' 
 
-    pc = e.SubElement(host_elem, 'port_count')
-    e.SubElement(pc, 'page').text = str(1)
-
-    rc = e.SubElement(host_elem, 'result_count')
-    e.SubElement(rc, 'page').text = str(1)
+    #pc = e.SubElement(host_elem, 'port_count')
+    #e.SubElement(pc, 'page').text = str(1)
 
     app = random.choice(list(apps.keys()))
     os = random.choice(list(oss.keys()))
 
-    #details_elem = e.SubElement(host_elem, 'details')
-    # detail = e.SubElement(host_elem, 'detail')
-    # e.SubElement(detail, 'name').text = "OS"
-    # e.SubElement(detail, 'value').text = os.key
-    # detailsource = e.SubElement(detail, 'source')
-    # e.SubElement(detailsource, 'type').text = "nvt"
-    # e.SubElement(detailsource, 'name').text = oid
+    app_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(app_elem, 'name').text = "App"
+    e.SubElement(app_elem, 'value').text = apps.get(app)
+    app_source = e.SubElement(app_elem, 'source')
+    e.SubElement(app_source, 'type').text = "nvt"
+    e.SubElement(app_source, 'name').text = oid
 
-    detail3 = e.SubElement(host_elem, 'detail')
-    e.SubElement(detail3, 'name').text = "App"
-    e.SubElement(detail3, 'value').text = apps.get(app)
-    detail3source = e.SubElement(detail3, 'source')
-    e.SubElement(detail3source, 'type').text = "nvt"
-    e.SubElement(detail3source, 'name').text = oid
+    hostname_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(hostname_elem, 'name').text = "hostname"
+    e.SubElement(hostname_elem, 'value').text = host_name
+    hostname_source = e.SubElement(hostname_elem, 'source')
+    e.SubElement(hostname_source, 'type').text = "nvt"
+    e.SubElement(hostname_source, 'name').text = oid
+    e.SubElement(hostname_source, 'description').text = "Host Details"
 
-    detail4 = e.SubElement(host_elem, 'detail')
-    e.SubElement(detail4, 'name').text = "hostname"
-    e.SubElement(detail4, 'value').text = host_name
-    detail4source = e.SubElement(detail4, 'source')
-    e.SubElement(detail4source, 'type').text = "nvt"
-    e.SubElement(detail4source, 'name').text = oid
-    e.SubElement(detail4source, 'description').text = "Host Details"
+    os_txt_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(os_txt_elem, 'name').text = "best_os_txt"
+    e.SubElement(os_txt_elem, 'value').text = os
+    os_txt_source = e.SubElement(os_txt_elem, 'source')
+    e.SubElement(os_txt_source, 'type').text = "nvt"
+    e.SubElement(os_txt_source, 'name').text = oid
+    e.SubElement(os_txt_source, 'description').text = "Host Details"
 
-    detail5 = e.SubElement(host_elem, 'detail')
-    e.SubElement(detail5, 'name').text = "best_os_txt"
-    e.SubElement(detail5, 'value').text = os
-    detail5source = e.SubElement(detail5, 'source')
-    e.SubElement(detail5source, 'type').text = "nvt"
-    e.SubElement(detail5source, 'name').text = oid
-    e.SubElement(detail5source, 'description').text = "Host Details"
-
-    detail6 = e.SubElement(host_elem, 'detail')
-    e.SubElement(detail6, 'name').text = "best_os_cpe"
-    e.SubElement(detail6, 'value').text = oss.get(os)
-    detail6source = e.SubElement(detail6, 'source')
-    e.SubElement(detail6source, 'type').text = "nvt"
-    e.SubElement(detail6source, 'name').text = oid
-    e.SubElement(detail6source, 'description').text = "Host Details"
-    # report_elem.append(details_elem)
+    os_cpe_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(os_cpe_elem, 'name').text = "best_os_cpe"
+    e.SubElement(os_cpe_elem, 'value').text = oss.get(os)
+    os_cpe_source = e.SubElement(os_cpe_elem, 'source')
+    e.SubElement(os_cpe_source, 'type').text = "nvt"
+    e.SubElement(os_cpe_source, 'name').text = oid
+    e.SubElement(os_cpe_source, 'description').text = "Host Details"
 
     return host_elem
 
@@ -302,25 +239,21 @@ def generate_reports(task, gauss=False, **kwargs):
 
 
 def generate_data(gmp, **kwargs):
-    #task_ids = []
 
     for i in range(kwargs.get('n_tasks')):
         index = '{{0:0>{}}}'.format(len(str(kwargs.get('n_tasks'))))
         task_name = 'Task_for_GenReport:_{}'.format(index.format(i + 1))
-
 
         gmp.create_container_task(task_name)
 
         task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
             '//@id'
         )[0]
-        #task_ids.append(task_id)
 
-        reports = generate_reports(task = (task_id, task_name), **kwargs)
+        reports = generate_reports(task=(task_id, task_name), **kwargs)
 
         for report in reports[0:]:
             ret = gmp.import_report(report, task_id=task_id, in_assets=True)
-            print(e.tostring(ret))
 
 
 TEMPLATE = {
@@ -1110,6 +1043,8 @@ def main(gmp, args):
     print('\n  Generating randomized data(s)...\n')
 
     generate_data(gmp, **keywords)
+
+    print('\n  Generation done.\n')
 
 
 if __name__ == '__gmp__':
