@@ -17,11 +17,34 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import uuid
-import random
+import string
+import time
 
-from random import randrange as r, choice as c
+from random import randrange, choice, gauss, seed
 
 from lxml import etree as e
+
+
+oss = {
+    'Ubuntu 16.04': 'cpe:/o:canonical:ubuntu_linux:16.04',
+    'Debian GNU/Linux': 'cpe:/o:debian:debian_linux:9',
+    'Linux/Unix': 'cpe:/o:linux:kernel',
+    'Greenbone OS (GOS)': 'cpe:/o:greenbone:greenbone_os:5.0.10',
+}
+
+apps = {
+    'Greenbone Security Manager (GSM) / Greenbone OS (GOS) Detection (Version)': 'cpe:/a:greenbone:gsm_expo',
+    'OpenSSH 4.3': 'cpe:/a:openbsd:openssh:4.3',
+    'OpenSSH 5.3': 'cpe:/a:openbsd:openssh:5.3',
+    'OpenSSH 6.6.1': 'cpe:/a:openbsd:openssh:6.6.1',
+    'Plone': 'cpe:/a:plone:plone',
+    'Apache Server 2.2.3': 'cpe:/a:apache:http_server:2.2.3',
+    'Apache Tomcat': 'cpe:/a:apache:tomcat',
+    'PHP 5.1.6': 'cpe:/a:php:php:5.1.6',
+    'MySQL 5.1.73': 'cpe:/a:oracle:mysql:5.1.73',
+    'Webmin 1.791': 'cpe:/a:webmin:webmin:1.791',
+    'Samba 3.3.9': 'cpe:/a:samba:samba:3.3.9',
+}
 
 
 def check_args(args):
@@ -32,10 +55,10 @@ def check_args(args):
 
         Four parameters after the script name are required.
 
-        1. <number of tasks>  --number of tasks to be generated
+        1. <number of tasks>    --number of tasks to be generated
         2. <number of reports>  --number of reports per task
         3. <number of results>  --number of results per report
-        4. <number of hosts> --number of randomized hosts to select from
+        4. <number of hosts>    --number of randomized hosts to select from
 
         In addition, if you would like for the number of reports/task and \
     results/report to be randomized along a Gaussian distribution, add \
@@ -56,59 +79,224 @@ def generate_uuid():
 def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
-
-    ips = [
-        '{}.{}.{}.{}'.format(c(exclude_127), r(0, 256), r(0, 256), r(1, 255))
+    return [
+        '{}.{}.{}.{}'.format(
+            choice(exclude_127),
+            randrange(0, 256),
+            randrange(0, 256),
+            randrange(1, 255),
+        )
         for i in range(n_hosts)
     ]
 
-    return ips
+
+def generate_ports(n_ports):
+    protocol = ['/tcp', '/udp', '/ssh']
+    return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
 
 
-def generate_report_elem(template, n_results, n_hosts):
-    report_elem = e.Element('report', attrib={'id': generate_uuid()})
-    results_elem = e.Element('results', {'max': str(n_results), 'start': '1'})
-    report_elem.append(results_elem)
-    hosts = generate_ips(n_hosts)
+def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+    return ''.join(choice(chars) for _ in range(size))
 
+
+def generate_report_elem(template, n_results, n_hosts, task):
+    rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
+    rep_id = generate_uuid()
+    outer_report_elem = e.Element(
+        'report',
+        attrib={
+            'extension': 'xml',
+            'id': rep_id,
+            'format_id': rep_format_id,
+            'content_type': 'text/xml',
+        },
+    )
+    owner_elem = e.SubElement(outer_report_elem, 'owner')
+    e.SubElement(owner_elem, 'name').text = 'testowner'
+    e.SubElement(outer_report_elem, 'name').text = 'testname'
+    e.SubElement(outer_report_elem, 'writeable').text = str(0)
+    e.SubElement(outer_report_elem, 'in_use').text = str(0)
+    task_elem = e.SubElement(outer_report_elem, 'task', attrib={'id': task[0]})
+    e.SubElement(task_elem, 'name').text = task[1]
+    repform_elem = e.SubElement(
+        outer_report_elem, 'report_format', attrib={'id': rep_format_id}
+    )
+    e.SubElement(repform_elem, 'name').text = 'XML'
+
+    # Generating inner <report> tag
+    outer_report_elem.append(
+        generate_inner_report(rep_id, template, n_results, n_hosts)
+    )
+
+    return outer_report_elem
+
+
+def generate_inner_report(rep_id, template, n_results, n_hosts):
+
+    report_elem = e.Element('report', attrib={'id': rep_id})
+    results_elem = e.SubElement(
+        report_elem, 'results', {'max': str(n_results), 'start': '1'}
+    )
+
+    # Create Hosts, Ports, Data
+    hosts = generate_ips(n_hosts)  # Host IPs
+    ports = generate_ports(n_hosts)
+    oid_dict = {host: [] for host in hosts}
+    asset_dict = {host: generate_uuid() for host in hosts}
+    host_names = {host: id_generator() for host in hosts}
+    max_sev = 0.0
+
+    # Create <result> tags with random data
     for _ in range(n_results):
-        host_ip = c(hosts)
-        result_elem = generate_result_elem(template, host_ip)
+        host_ip = choice(hosts)
+        host_port = choice(ports)
+        result_elem, oid, severity = generate_result_elem(
+            template,
+            host_ip,
+            host_port,
+            asset_dict[host_ip],
+            host_names[host_ip],
+        )
+        if float(severity) > max_sev:
+            max_sev = float(severity)
+        oid_dict[host_ip].append(oid)
         results_elem.append(result_elem)
+
+    e.SubElement(report_elem, "result_count").text = str(n_results)
+
+    sev_elem = e.Element("severity")
+    e.SubElement(sev_elem, "full").text = str(max_sev)
+    e.SubElement(sev_elem, "filtered").text = str(max_sev)
+
+    report_elem.append(sev_elem)
+
+    # Create <host> tags with random data
+    for host in hosts:
+        if len(oid_dict[host]) > 0:
+            report_elem.append(
+                generate_host_elem(
+                    host, oid_dict[host][0], asset_dict[host], host_names[host]
+                )
+            )
 
     return report_elem
 
 
-def generate_result_elem(template, host_ip):
+def generate_result_elem(template, host_ip, host_port, host_asset, host_name):
     result_elem = e.Element('result', {'id': generate_uuid()})
     result_templates = template['results']
-    nvt = result_templates[r(len(result_templates))]
+
+    e.SubElement(result_elem, 'name').text = "a_result" + id_generator()
+    own = e.SubElement(result_elem, 'owner')
+    e.SubElement(own, 'name').text = id_generator()
+
+    elem = e.Element('modification_time')
+    e.SubElement(result_elem, 'modification_time').text = (
+        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time()))[:-2]
+        + ':00'
+    )  # Hell of a Timeformat :D
+    e.SubElement(result_elem, 'comment').text = ''
+    e.SubElement(result_elem, 'creation_time').text = (
+        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 20))[
+            :-2
+        ]
+        + ':00'
+    )
+
+    host_elem = e.Element('host')
+    host_elem.text = host_ip
+    e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
+    e.SubElement(host_elem, 'hostname').text = host_name
+    result_elem.append(host_elem)
+
+    port_elem = e.Element('port')
+    port_elem.text = host_port
+    result_elem.append(port_elem)
+
+    nvt = result_templates[randrange(len(result_templates))]
     e.SubElement(result_elem, 'severity').text = nvt['severity']
     nvt_elem = e.Element('nvt', {'oid': nvt['oid']})
     result_elem.append(nvt_elem)
+
+    e.SubElement(result_elem, 'notes').text = 'TestNotes'
+
+    result_elem.append(elem)
+
+    return result_elem, nvt['oid'], nvt['severity']
+
+
+def generate_host_elem(host_ip, oid, host_asset, host_name):
+
     host_elem = e.Element('host')
-    host_elem.text = host_ip
-    result_elem.append(host_elem)
+    e.SubElement(host_elem, 'ip').text = host_ip
+    e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
 
-    return result_elem
+    e.SubElement(host_elem, 'start').text = (
+        time.strftime(
+            "%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 1000)
+        )[:-2]
+        + ':00'
+    )
+    e.SubElement(host_elem, 'end').text = (
+        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 30))[
+            :-2
+        ]
+        + ':00'
+    )
+
+    app = choice(list(apps.keys()))
+    os = choice(list(oss.keys()))
+
+    app_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(app_elem, 'name').text = "App"
+    e.SubElement(app_elem, 'value').text = apps.get(app)
+    app_source = e.SubElement(app_elem, 'source')
+    e.SubElement(app_source, 'type').text = "nvt"
+    e.SubElement(app_source, 'name').text = oid
+
+    hostname_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(hostname_elem, 'name').text = "hostname"
+    e.SubElement(hostname_elem, 'value').text = host_name
+    hostname_source = e.SubElement(hostname_elem, 'source')
+    e.SubElement(hostname_source, 'type').text = "nvt"
+    e.SubElement(hostname_source, 'name').text = oid
+    e.SubElement(hostname_source, 'description').text = "Host Details"
+
+    os_txt_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(os_txt_elem, 'name').text = "best_os_txt"
+    e.SubElement(os_txt_elem, 'value').text = os
+    os_txt_source = e.SubElement(os_txt_elem, 'source')
+    e.SubElement(os_txt_source, 'type').text = "nvt"
+    e.SubElement(os_txt_source, 'name').text = oid
+    e.SubElement(os_txt_source, 'description').text = "Host Details"
+
+    os_cpe_elem = e.SubElement(host_elem, 'detail')
+    e.SubElement(os_cpe_elem, 'name').text = "best_os_cpe"
+    e.SubElement(os_cpe_elem, 'value').text = oss.get(os)
+    os_cpe_source = e.SubElement(os_cpe_elem, 'source')
+    e.SubElement(os_cpe_source, 'type').text = "nvt"
+    e.SubElement(os_cpe_source, 'name').text = oid
+    e.SubElement(os_cpe_source, 'description').text = "Host Details"
+
+    return host_elem
 
 
-def generate_reports(gauss=False, **kwargs):
+def generate_reports(task, gauss=False, **kwargs):
     reports = []
     gauss = kwargs.get('gauss', '')
     n_reports = kwargs.get('n_reports')
     n_results = kwargs.get('n_results')
 
     if gauss is True:
-        n_reports = abs(int(random.gauss(n_reports, 1)))
-        if n_reports is 0:
+        n_reports = abs(int(g(n_reports, 1)))
+        if n_reports == 0:
             n_reports += 1
 
     for _ in range(n_reports):
-        if gauss is True:
-            n_results = abs(int(random.gauss(n_results, 2)))
+        if gauss:
+            n_results = abs(int(g(n_results, 2)))
         report_elem = generate_report_elem(
-            kwargs.get('template'), n_results, kwargs.get('n_hosts')
+            kwargs.get('template'), n_results, kwargs.get('n_hosts'), task
         )
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
@@ -117,23 +305,21 @@ def generate_reports(gauss=False, **kwargs):
 
 
 def generate_data(gmp, **kwargs):
-    task_ids = []
 
     for i in range(kwargs.get('n_tasks')):
         index = '{{0:0>{}}}'.format(len(str(kwargs.get('n_tasks'))))
         task_name = 'Task_for_GenReport:_{}'.format(index.format(i + 1))
-
-        reports = generate_reports(**kwargs)
 
         gmp.create_container_task(task_name)
 
         task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
             '//@id'
         )[0]
-        task_ids.append(task_id)
+
+        reports = generate_reports(task=(task_id, task_name), **kwargs)
 
         for report in reports[0:]:
-            gmp.import_report(report, task_id=task_id)
+            gmp.import_report(report, task_id=task_id, in_assets=True)
 
 
 TEMPLATE = {
@@ -918,9 +1104,13 @@ def main(gmp, args):
     if 'with-gauss' in args.script:
         keywords['gauss'] = True
 
-    print('\n  Generating randomized report(s)...\n')
+    seed()
+
+    print('\n  Generating randomized data(s)...\n')
 
     generate_data(gmp, **keywords)
+
+    print('\n  Generation done.\n')
 
 
 if __name__ == '__gmp__':
