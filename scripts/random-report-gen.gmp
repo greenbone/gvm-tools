@@ -20,7 +20,7 @@ import uuid
 import string
 import time
 
-from random import randrange as r, choice as c, gauss as g
+from random import randrange as r, choice as c, gauss as g, seed as s
 
 from lxml import etree as e
 
@@ -1103,7 +1103,7 @@ def main(gmp, args):
     if 'with-gauss' in args.script:
         keywords['gauss'] = True
 
-    random.seed()
+    s()
 
     print('\n  Generating randomized data(s)...\n')
 
