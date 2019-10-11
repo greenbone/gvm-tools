@@ -20,7 +20,7 @@ import uuid
 import string
 import time
 
-from random import randrange as r, choice as c, gauss as g, seed as s
+from random import randrange, choice, gauss, seed
 
 from lxml import etree as e
 
@@ -80,18 +80,18 @@ def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
     return [
-        '{}.{}.{}.{}'.format(c(exclude_127), r(0, 256), r(0, 256), r(1, 255))
+        '{}.{}.{}.{}'.format(choice(exclude_127), randrange(0, 256), randrange(0, 256), randrange(1, 255))
         for i in range(n_hosts)
     ]
 
 
 def generate_ports(n_ports):
     protocol = ['/tcp', '/udp', '/ssh']
-    return [str(r(0, 65536)) + c(protocol) for i in range(n_ports)]
+    return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
 
 
 def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
-    return ''.join(c(chars) for _ in range(size))
+    return ''.join(choice(chars) for _ in range(size))
 
 
 def generate_report_elem(template, n_results, n_hosts, task):
@@ -143,8 +143,8 @@ def generate_inner_report(rep_id, template, n_results, n_hosts):
 
     # Create <result> tags with random data
     for _ in range(n_results):
-        host_ip = c(hosts)
-        host_port = c(ports)
+        host_ip = choice(hosts)
+        host_port = choice(ports)
         result_elem, oid, severity = generate_result_elem(
             template,
             host_ip,
@@ -208,7 +208,7 @@ def generate_result_elem(template, host_ip, host_port, host_asset, host_name):
     port_elem.text = host_port
     result_elem.append(port_elem)
 
-    nvt = result_templates[r(len(result_templates))]
+    nvt = result_templates[randrange(len(result_templates))]
     e.SubElement(result_elem, 'severity').text = nvt['severity']
     nvt_elem = e.Element('nvt', {'oid': nvt['oid']})
     result_elem.append(nvt_elem)
@@ -239,8 +239,8 @@ def generate_host_elem(host_ip, oid, host_asset, host_name):
         + ':00'
     )
 
-    app = c(list(apps.keys()))
-    os = c(list(oss.keys()))
+    app = choice(list(apps.keys()))
+    os = choice(list(oss.keys()))
 
     app_elem = e.SubElement(host_elem, 'detail')
     e.SubElement(app_elem, 'name').text = "App"
@@ -1099,7 +1099,7 @@ def main(gmp, args):
     if 'with-gauss' in args.script:
         keywords['gauss'] = True
 
-    s()
+    seed()
 
     print('\n  Generating randomized data(s)...\n')
 
