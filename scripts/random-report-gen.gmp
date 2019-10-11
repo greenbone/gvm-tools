@@ -80,7 +80,12 @@ def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
     return [
-        '{}.{}.{}.{}'.format(choice(exclude_127), randrange(0, 256), randrange(0, 256), randrange(1, 255))
+        '{}.{}.{}.{}'.format(
+            choice(exclude_127),
+            randrange(0, 256),
+            randrange(0, 256),
+            randrange(1, 255),
+        )
         for i in range(n_hosts)
     ]
 
