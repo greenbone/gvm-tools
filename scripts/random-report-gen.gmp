@@ -225,7 +225,6 @@ def generate_host_elem(host_ip, oid, host_asset, host_name):
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
     e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
-    # e.SubElement(host_elem, 'hostname').text = host_name
 
     e.SubElement(host_elem, 'start').text = (
         time.strftime(
@@ -239,9 +238,6 @@ def generate_host_elem(host_ip, oid, host_asset, host_name):
         ]
         + ':00'
     )
-
-    # pc = e.SubElement(host_elem, 'port_count')
-    # e.SubElement(pc, 'page').text = str(1)
 
     app = c(list(apps.keys()))
     os = c(list(oss.keys()))
