@@ -132,7 +132,6 @@ def generate_report_elem(template, n_results, n_hosts, task):
 
 
 def generate_inner_report(rep_id, template, n_results, n_hosts):
-
     report_elem = e.Element('report', attrib={'id': rep_id})
     results_elem = e.SubElement(
         report_elem, 'results', {'max': str(n_results), 'start': '1'}
@@ -159,6 +158,7 @@ def generate_inner_report(rep_id, template, n_results, n_hosts):
         )
         if float(severity) > max_sev:
             max_sev = float(severity)
+
         oid_dict[host_ip].append(oid)
         results_elem.append(result_elem)
 
@@ -226,7 +226,6 @@ def generate_result_elem(template, host_ip, host_port, host_asset, host_name):
 
 
 def generate_host_elem(host_ip, oid, host_asset, host_name):
-
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
     e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
