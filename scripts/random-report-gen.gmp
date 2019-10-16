@@ -281,33 +281,30 @@ def generate_host_elem(host_ip, oid, host_asset, host_name):
     return host_elem
 
 
-def generate_reports(task, gauss=False, **kwargs):
+def generate_reports(
+    task, n_reports, n_results, n_hosts, template, with_gauss=False
+):
     reports = []
-    gauss = kwargs.get('gauss', '')
-    n_reports = kwargs.get('n_reports')
-    n_results = kwargs.get('n_results')
 
-    if gauss is True:
-        n_reports = abs(int(g(n_reports, 1)))
+    if with_gauss:
+        n_reports = abs(int(gauss(n_reports, 1)))
         if n_reports == 0:
             n_reports += 1
 
     for _ in range(n_reports):
-        if gauss:
-            n_results = abs(int(g(n_results, 2)))
-        report_elem = generate_report_elem(
-            kwargs.get('template'), n_results, kwargs.get('n_hosts'), task
-        )
+        if with_gauss:
+            n_results = abs(int(gauss(n_results, 2)))
+
+        report_elem = generate_report_elem(template, n_results, n_hosts, task)
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
 
     return reports
 
 
-def generate_data(gmp, **kwargs):
-
-    for i in range(kwargs.get('n_tasks')):
-        index = '{{0:0>{}}}'.format(len(str(kwargs.get('n_tasks'))))
+def generate_data(gmp, n_tasks, **kwargs):
+    for i in range(n_tasks):
+        index = '{{0:0>{}}}'.format(len(str(n_tasks)))
         task_name = 'Task_for_GenReport:_{}'.format(index.format(i + 1))
 
         gmp.create_container_task(task_name)
@@ -1093,22 +1090,19 @@ def main(gmp, args):
 
     check_args(args)
 
-    keywords = {
-        'n_tasks': int(args.script[1]),
-        'n_reports': int(args.script[2]),
-        'n_results': int(args.script[3]),
-        'n_hosts': int(args.script[4]),
-        'template': TEMPLATE,
-    }
-
-    if 'with-gauss' in args.script:
-        keywords['gauss'] = True
-
     seed()
 
     print('\n  Generating randomized data(s)...\n')
 
-    generate_data(gmp, **keywords)
+    generate_data(
+        gmp,
+        n_tasks=int(args.script[1]),
+        n_reports=int(args.script[2]),
+        n_results=int(args.script[3]),
+        n_hosts=int(args.script[4]),
+        template=TEMPLATE,
+        with_gauss='with-gauss' in args.script,
+    )
 
     print('\n  Generation done.\n')
 
