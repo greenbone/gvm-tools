@@ -49,19 +49,97 @@ APPS = {
     'Samba 3.3.9': 'cpe:/a:samba:samba:3.3.9',
 }
 
+HOST_DETAILS = (
+    {
+        'name': 'MAC',
+        'value': '00:CC:29:DD:01:D6',
+        'source_name': '1.3.6.1.4.1.25623.1.0.103585',
+        'source_description': 'Nmap MAC Scan',
+    },
+    {
+        'name': 'Services',
+        'value': '6000,tcp,X11',
+        'source_name': '1.3.6.1.4.1.25623.1.0.10407',
+        'source_description': 'Service detection (1.3.6.1.4.1.25623.1.0.10407)',
+    },
+    {
+        'name': 'TLS/5432',
+        'value': 'SSLv3',
+        'source_name': '1.3.6.1.4.1.25623.1.0.103823',
+        'source_description': 'SSL/TLS: Version Detection Report',
+    },
+    {
+        'name': 'Services',
+        'value': '2049,tcp,RPC/nfs',
+        'source_name': '1.3.6.1.4.1.25623.1.0.11111',
+        'source_description': 'Service detection (1.3.6.1.4.1.25623.1.0.11111)',
+    },
+    {
+        'name': 'tcp_ports',
+        'value': '80,8787,5900,3632,8009,6667,445,21,2049,111,22,6000,512,23,'
+        '513,1099,25,514,3306,2121,139,1524,53,5432',
+        'source_name': '1.3.6.1.4.1.25623.1.0.900239',
+        'source_description': 'Check Open TCP Ports',
+    },
+    {
+        'name': 'SSLInfo',
+        'value': '25::E7A7FA0D63E457C7C4A59B31230849C6A70BDA6F830C7AF1E32DEE43'
+        '6DE813CC',
+        'source_name': '1.3.6.1.4.1.25623.1.0.103692',
+        'source_description': 'SSL/TLS Certificate Information',
+    },
+    {
+        'name': 'Services',
+        'value': '23,tcp,telnet,A telnet server seems to be running on this '
+        'port',
+        'source_name': '1.3.6.1.4.1.25623.1.0.100074',
+        'source_description': 'Service detection '
+        '(1.3.6.1.4.1.25623.1.0.100074)',
+    },
+    {
+        'name': 'Auth-SMB-Success',
+        'value': 'Protocol SMB, Port 445, User',
+        'source_name': '1.3.6.1.4.1.25623.1.0.10394',
+    },
+    {
+        'name': 'TLS/25',
+        'value': 'TLSv1.0',
+        'source_name': '1.3.6.1.4.1.25623.1.0.103823',
+        'source_description': 'SSL/TLS: Version Detection Report',
+    },
+    {
+        'name': 'ssh-key',
+        'value': '22 ssh-rsa AAAABCNzaC1yc2EAAAABIwAAAQEA123nuFMBOZvO3WTEjP4TU'
+        'djgWkIVNdTq6kboEDjteOfc65TlI7sRvQBwqAhQjeeyyIk8T55gMDkOD0akSlSXvLDcmc'
+        'dYfxeIF0ZSuT+nkRhij7XSSA/Oc5QSk3sJ/SInfb78e3anbRHpmkJcVgETJ5WhKObUNf1'
+        'AKZW++4Xlc63M4KI5cjvMMIPEVOyR3AKmI78Fo3HJjYucg87JjLeC66I7+dlEYX6zT8i1'
+        'XYwa/L1vZ3qSJISGVu8kRPikMv/cNSvki4j+qDYyZ2E5497W87+Ed46/8P42LNGoOV8Oc'
+        'X/ro6pAcbEPUdUEfkJrqi2YXbhvwIJ0gFMb6wfe5cnQew==',
+        'source_name': '1.3.6.1.4.1.25623.1.0.100259',
+        'source_description': 'SSH Key',
+    },
+    {
+        'name': 'EXIT_CODE',
+        'value': 'EXIT_NOTVULN',
+        'source_name': '1.3.6.1.4.1.25623.1.0.11903',
+    },
+    # {'name': '', 'value': '', 'source_name': '', 'source_description': ''},
+)
+
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args != 4 and len_args != 5:
+    if len_args != 5 and len_args != 6:
         message = """
         This script generates randomized report data.
 
         Four parameters after the script name are required.
 
-        1. <number of tasks>    --number of tasks to be generated
-        2. <number of reports>  --number of reports per task
-        3. <number of results>  --number of results per report
-        4. <number of hosts>    --number of randomized hosts to select from
+        1. <number of tasks>        --number of tasks to be generated
+        2. <number of reports>      --number of reports per task
+        3. <number of results>      --number of results per report
+        4. <number of hosts>        --number of randomized hosts to select from
+        5. <number of host details> --number of additional host details per host
 
         In addition, if you would like for the number of reports/task and \
     results/report to be randomized along a Gaussian distribution, add \
@@ -102,7 +180,7 @@ def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
     return ''.join(choice(chars) for _ in range(size))
 
 
-def generate_report_elem(template, n_results, n_hosts, task):
+def generate_report_elem(task, **kwargs):
     rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
     rep_id = generate_uuid()
     outer_report_elem = e.Element(
@@ -127,14 +205,12 @@ def generate_report_elem(template, n_results, n_hosts, task):
     e.SubElement(repform_elem, 'name').text = 'XML'
 
     # Generating inner <report> tag
-    outer_report_elem.append(
-        generate_inner_report(rep_id, template, n_results, n_hosts)
-    )
+    outer_report_elem.append(generate_inner_report(rep_id, **kwargs))
 
     return outer_report_elem
 
 
-def generate_inner_report(rep_id, template, n_results, n_hosts):
+def generate_inner_report(rep_id, template, n_results, n_hosts, **kwargs):
     report_elem = e.Element('report', attrib={'id': rep_id})
     results_elem = e.SubElement(
         report_elem, 'results', {'max': str(n_results), 'start': '1'}
@@ -178,7 +254,11 @@ def generate_inner_report(rep_id, template, n_results, n_hosts):
         if len(oid_dict[host]) > 0:
             report_elem.append(
                 generate_host_elem(
-                    host, oid_dict[host][0], asset_dict[host], host_names[host]
+                    host,
+                    oid_dict[host][0],
+                    asset_dict[host],
+                    host_names[host],
+                    **kwargs
                 )
             )
 
@@ -228,7 +308,42 @@ def generate_result_elem(template, host_ip, host_port, host_asset, host_name):
     return result_elem, nvt['oid'], nvt['severity']
 
 
-def generate_host_elem(host_ip, oid, host_asset, host_name):
+def generate_host_detail_elem(
+    name, value, source_name=None, source_description=None
+):
+    host_detail_elem = e.Element('detail')
+    e.SubElement(host_detail_elem, 'name').text = name
+    e.SubElement(host_detail_elem, 'value').text = value
+
+    if source_name:
+        source_elem = e.SubElement(host_detail_elem, 'source')
+        e.SubElement(source_elem, 'name').text = source_name
+
+        if source_description:
+            e.SubElement(source_elem, 'description').text = source_description
+
+    return host_detail_elem
+
+
+def generate_additional_host_details(n_host_details):
+    host_detail_elems = []
+
+    for _ in range(n_host_details):
+        details = choice(HOST_DETAILS)
+
+        host_detail_elems.append(
+            generate_host_detail_elem(
+                details['name'],
+                details['value'],
+                source_name=details.get('source_name'),
+                source_description=details.get('source_description'),
+            )
+        )
+
+    return host_detail_elems
+
+
+def generate_host_elem(host_ip, oid, host_asset, host_name, n_host_details):
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
     e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
@@ -249,43 +364,46 @@ def generate_host_elem(host_ip, oid, host_asset, host_name):
     app = choice(list(APPS.keys()))
     os = choice(list(OSS.keys()))
 
-    app_elem = e.SubElement(host_elem, 'detail')
-    e.SubElement(app_elem, 'name').text = "App"
-    e.SubElement(app_elem, 'value').text = APPS.get(app)
-    app_source = e.SubElement(app_elem, 'source')
-    e.SubElement(app_source, 'type').text = "nvt"
-    e.SubElement(app_source, 'name').text = oid
+    host_elem.append(
+        generate_host_detail_elem('App', APPS.get(app), source_name=oid)
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            APPS.get(app), '/usr/bin/foo', source_name=oid
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            'hostname',
+            host_name,
+            source_name=oid,
+            source_description="Host Details",
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            'best_os_txt',
+            os,
+            source_name=oid,
+            source_description="Host Details",
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            'best_os_cpe',
+            OSS.get(os),
+            source_name=oid,
+            source_description="Host Details",
+        )
+    )
 
-    hostname_elem = e.SubElement(host_elem, 'detail')
-    e.SubElement(hostname_elem, 'name').text = "hostname"
-    e.SubElement(hostname_elem, 'value').text = host_name
-    hostname_source = e.SubElement(hostname_elem, 'source')
-    e.SubElement(hostname_source, 'type').text = "nvt"
-    e.SubElement(hostname_source, 'name').text = oid
-    e.SubElement(hostname_source, 'description').text = "Host Details"
-
-    os_txt_elem = e.SubElement(host_elem, 'detail')
-    e.SubElement(os_txt_elem, 'name').text = "best_os_txt"
-    e.SubElement(os_txt_elem, 'value').text = os
-    os_txt_source = e.SubElement(os_txt_elem, 'source')
-    e.SubElement(os_txt_source, 'type').text = "nvt"
-    e.SubElement(os_txt_source, 'name').text = oid
-    e.SubElement(os_txt_source, 'description').text = "Host Details"
-
-    os_cpe_elem = e.SubElement(host_elem, 'detail')
-    e.SubElement(os_cpe_elem, 'name').text = "best_os_cpe"
-    e.SubElement(os_cpe_elem, 'value').text = OSS.get(os)
-    os_cpe_source = e.SubElement(os_cpe_elem, 'source')
-    e.SubElement(os_cpe_source, 'type').text = "nvt"
-    e.SubElement(os_cpe_source, 'name').text = oid
-    e.SubElement(os_cpe_source, 'description').text = "Host Details"
+    if n_host_details:
+        host_elem.extend(generate_additional_host_details(n_host_details))
 
     return host_elem
 
 
-def generate_reports(
-    task, n_reports, n_results, n_hosts, template, with_gauss=False
-):
+def generate_reports(task, n_reports, with_gauss=False, **kwargs):
     reports = []
 
     if with_gauss:
@@ -297,7 +415,7 @@ def generate_reports(
         if with_gauss:
             n_results = abs(int(gauss(n_results, 2)))
 
-        report_elem = generate_report_elem(template, n_results, n_hosts, task)
+        report_elem = generate_report_elem(task, **kwargs)
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
 
@@ -1111,6 +1229,7 @@ def main(gmp, args):
         n_reports=int(args.script[2]),
         n_results=int(args.script[3]),
         n_hosts=int(args.script[4]),
+        n_host_details=int(args.script[5]),
         template=TEMPLATE,
         with_gauss='with-gauss' in args.script,
     )
