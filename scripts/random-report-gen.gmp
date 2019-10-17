@@ -128,7 +128,7 @@ HOST_DETAILS = (
 
 
 def check_args(args):
-    len_args = len(args.script) - 1
+    len_args = len(args.argv) - 1
     if len_args != 5 and len_args != 6:
         message = """
         This script generates randomized report data.
@@ -1225,13 +1225,13 @@ def main(gmp, args):
 
     generate_data(
         gmp,
-        n_tasks=int(args.script[1]),
-        n_reports=int(args.script[2]),
-        n_results=int(args.script[3]),
-        n_hosts=int(args.script[4]),
-        n_host_details=int(args.script[5]),
+        n_tasks=int(args.argv[1]),
+        n_reports=int(args.argv[2]),
+        n_results=int(args.argv[3]),
+        n_hosts=int(args.argv[4]),
+        n_host_details=int(args.argv[5]),
         template=TEMPLATE,
-        with_gauss='with-gauss' in args.script,
+        with_gauss='with-gauss' in args.argv,
     )
 
     print('\n  Generation done.\n')
