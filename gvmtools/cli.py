@@ -124,36 +124,39 @@ def main():
     else:
         protocol_class = Gmp
 
-    with protocol_class(connection, transform=transform) as protocol:
+    try:
+        with protocol_class(connection, transform=transform) as protocol:
 
-        if args.protocol == PROTOCOL_GMP:
-            # Ask for password if none are given
-            if args.gmp_username and not args.gmp_password:
-                args.gmp_password = getpass.getpass(
-                    'Enter password for ' + args.gmp_username + ': '
-                )
+            if args.protocol == PROTOCOL_GMP:
+                # Ask for password if none are given
+                if args.gmp_username and not args.gmp_password:
+                    args.gmp_password = getpass.getpass(
+                        'Enter password for ' + args.gmp_username + ': '
+                    )
 
-            if args.gmp_username:
-                protocol.authenticate(args.gmp_username, args.gmp_password)
+                if args.gmp_username:
+                    protocol.authenticate(args.gmp_username, args.gmp_password)
 
-        try:
-            if args.duration:
-                starttime = time.time()
+            try:
+                if args.duration:
+                    starttime = time.time()
 
-            result = protocol.send_command(xml)
+                result = protocol.send_command(xml)
 
-            if args.duration:
-                duration = time.time() - starttime
-                print('Elapsed time: {} seconds'.format(duration))
-            elif args.pretty:
-                pretty_print(result)
-            else:
-                print(result)
+                if args.duration:
+                    duration = time.time() - starttime
+                    print('Elapsed time: {} seconds'.format(duration))
+                elif args.pretty:
+                    pretty_print(result)
+                else:
+                    print(result)
 
-        except Exception as e:  # pylint: disable=broad-except
-            print(e, file=sys.stderr)
-            sys.exit(1)
-
+            except Exception as e:  # pylint: disable=broad-except
+                print(e, file=sys.stderr)
+                sys.exit(1)
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
     sys.exit(0)
 
 
