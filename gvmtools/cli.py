@@ -139,7 +139,8 @@ def main():
 
             if args.duration:
                 starttime = time.time()
-             result = protocol.send_command(xml)
+
+            result = protocol.send_command(xml)
 
             if args.duration:
                 duration = time.time() - starttime
