@@ -111,11 +111,12 @@ def main():
 
             run_script(args.scriptname, global_vars)
 
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e, file=sys.stderr)
         sys.exit(1)
-       
+
     sys.exit(0)
+
 
 if __name__ == '__main__':
     main()
