@@ -130,7 +130,11 @@ class InstanceManager:
                 self.connect_db()
 
         except PermissionError:
-            parser.error("The selected temporary database file {} or the parent dir has not the correct permissions.".format(self.db))
+            parser.error(
+                "The selected temporary database file {} or the parent dir has not the correct permissions.".format(
+                    self.db
+                )
+            )
 
     @staticmethod
     def _to_sql_bool(pending):
