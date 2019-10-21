@@ -745,25 +745,25 @@
             "name": "X Server Detection"
         }
     ],
-    "oss": [
-        {"Ubuntu 16.04": "cpe:/o:canonical:ubuntu_linux:16.04"},
-        {"Debian GNU/Linux": "cpe:/o:debian:debian_linux:9"},
-        {"Linux/Unix": "cpe:/o:linux:kernel"},
-        {"Greenbone OS (GOS)": "cpe:/o:greenbone:greenbone_os:5.0.10"}
-    ],
-    "apps": [
-        {"Greenbone Security Manager (GSM) / Greenbone OS (GOS) Detection (Version)": "cpe:/a:greenbone:gsm_expo"},
-        {"OpenSSH 4.3": "cpe:/a:openbsd:openssh:4.3"},
-        {"OpenSSH 5.3": "cpe:/a:openbsd:openssh:5.3"},
-        {"OpenSSH 6.6.1": "cpe:/a:openbsd:openssh:6.6.1"},
-        {"Plone": "cpe:/a:plone:plone"},
-        {"Apache Server 2.2.3": "cpe:/a:apache:http_server:2.2.3"},
-        {"Apache Tomcat": "cpe:/a:apache:tomcat"},
-        {"PHP 5.1.6": "cpe:/a:php:php:5.1.6"},
-        {"MySQL 5.1.73": "cpe:/a:oracle:mysql:5.1.73"},
-        {"Webmin 1.791": "cpe:/a:webmin:webmin:1.791"},
-        {"Samba 3.3.9": "cpe:/a:samba:samba:3.3.9"}
-    ],
+    "oss": {
+        "Ubuntu 16.04": "cpe:/o:canonical:ubuntu_linux:16.04",
+        "Debian GNU/Linux": "cpe:/o:debian:debian_linux:9",
+        "Linux/Unix": "cpe:/o:linux:kernel",
+        "Greenbone OS (GOS)": "cpe:/o:greenbone:greenbone_os:5.0.10"
+    },
+    "apps": {
+        "Greenbone Security Manager (GSM) / Greenbone OS (GOS) Detection (Version)": "cpe:/a:greenbone:gsm_expo",
+        "OpenSSH 4.3": "cpe:/a:openbsd:openssh:4.3",
+        "OpenSSH 5.3": "cpe:/a:openbsd:openssh:5.3",
+        "OpenSSH 6.6.1": "cpe:/a:openbsd:openssh:6.6.1",
+        "Plone": "cpe:/a:plone:plone",
+        "Apache Server 2.2.3": "cpe:/a:apache:http_server:2.2.3",
+        "Apache Tomcat": "cpe:/a:apache:tomcat",
+        "PHP 5.1.6": "cpe:/a:php:php:5.1.6",
+        "MySQL 5.1.73": "cpe:/a:oracle:mysql:5.1.73",
+        "Webmin 1.791": "cpe:/a:webmin:webmin:1.791",
+        "Samba 3.3.9": "cpe:/a:samba:samba:3.3.9"
+    },
     "host_details": [
         {
             "name": "MAC",

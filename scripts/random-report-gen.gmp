@@ -271,11 +271,11 @@ def generate_host_elem(
     os = choice(list(data["oss"]))
 
     host_elem.append(
-        generate_host_detail_elem('App', app.get(list(app)[0]), source_name=oid)
+        generate_host_detail_elem('App', data["apps"].get(app), source_name=oid)
     )
     host_elem.append(
         generate_host_detail_elem(
-            app.get(list(app)[0]), '/usr/bin/foo', source_name=oid
+            data["apps"].get(app), '/usr/bin/foo', source_name=oid
         )
     )
     host_elem.append(
@@ -297,7 +297,7 @@ def generate_host_elem(
     host_elem.append(
         generate_host_detail_elem(
             'best_os_cpe',
-            os.get(list(os)[0]),
+            data["oss"].get(os),
             source_name=oid,
             source_description="Host Details",
         )
