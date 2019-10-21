@@ -49,34 +49,11 @@ HELP_TEXT = """
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    This script generates randomized report data.
     """.format(
     version=__version__
 )
-
-def check_args(args):
-    len_args = len(args.argv) - 1
-    if len_args != 5 and len_args != 6:
-        message = """
-        This script generates randomized report data.
-
-        Four parameters after the script name are required.
-
-        1. <number of tasks>        --number of tasks to be generated
-        2. <number of reports>      --number of reports per task
-        3. <number of results>      --number of results per report
-        4. <number of hosts>        --number of randomized hosts to select from
-        5. <number of host details> --number of additional host details per host
-
-        In addition, if you would like for the number of reports/task and \
-    results/report to be randomized along a Gaussian distribution, add \
-    'with-gauss'
-
-        Example:
-            $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/gen-random-reports.gmp 10 50 2500 256 with-gauss
-        """
-        print(message)
-        quit()
 
 
 def generate_uuid():
@@ -194,7 +171,7 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
 
 def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
     result_elem = e.Element('result', {'id': generate_uuid()})
-    #result_templates = vulns
+    # result_templates = vulns
 
     e.SubElement(result_elem, 'name').text = "a_result" + id_generator()
     own = e.SubElement(result_elem, 'owner')
@@ -270,7 +247,9 @@ def generate_additional_host_details(n_host_details, host_details):
     return host_detail_elems
 
 
-def generate_host_elem(host_ip, oid, host_asset, host_name, n_host_details, data, **kwargs):
+def generate_host_elem(
+    host_ip, oid, host_asset, host_name, n_host_details, data, **kwargs
+):
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
     e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
@@ -325,7 +304,11 @@ def generate_host_elem(host_ip, oid, host_asset, host_name, n_host_details, data
     )
 
     if n_host_details:
-        host_elem.extend(generate_additional_host_details(n_host_details, data["host_details"]))
+        host_elem.extend(
+            generate_additional_host_details(
+                n_host_details, data["host_details"]
+            )
+        )
 
     return host_elem
 
@@ -366,9 +349,6 @@ def generate_data(gmp, n_tasks, **kwargs):
             gmp.import_report(report, task_id=task_id, in_assets=True)
 
 
-
-
-
 def main(gmp, args):
     # pylint: disable=undefined-variable
 
@@ -378,12 +358,13 @@ def main(gmp, args):
         description=HELP_TEXT,
         formatter_class=RawTextHelpFormatter,
         add_help=False,
-        epilog=
-        textwrap.dedent("""
+        epilog=textwrap.dedent(
+            """
         Example:
             $ gvm-script --gmp-username name --gmp-password pass
             ssh --hostname <gsm> scripts/gen-random-reports.gmp -T 5 -r 4 -R 3 --hosts 10
-        """)
+        """
+        ),
     )
 
     parser.add_argument(
@@ -391,43 +372,65 @@ def main(gmp, args):
     )
 
     parser.add_argument(
-        "--datafile", default=Path(args.script[0]).parent / "default_report_data.json", help="A json file containing the following information: vulnerabilities, operating systems, applications and host details. Take the default json file as an example."
+        "--datafile",
+        default=Path(args.script[0]).parent / "default_report_data.json",
+        help="A json file containing the following information: vulnerabilities, operating systems, applications and host details. Take the default json file as an example.",
     )
 
     parser.add_argument(
-        "--tasks", "-T", type=int, default="1", help="Number of Tasks to be generated."
+        "--tasks",
+        "-T",
+        type=int,
+        default="1",
+        help="Number of Tasks to be generated.",
     )
 
     parser.add_argument(
-        "--reports", "-r", type=int, default="5", help="Number of Reports per Task."
+        "--reports",
+        "-r",
+        type=int,
+        default="5",
+        help="Number of Reports per Task.",
     )
 
     parser.add_argument(
-        "--results", "-R", type=int, default="5", help="Number of Results per Report."
+        "--results",
+        "-R",
+        type=int,
+        default="5",
+        help="Number of Results per Report.",
     )
 
     parser.add_argument(
-        "--hosts", type=int, default="5", help="Number of randomized hosts to select from."
+        "--hosts",
+        type=int,
+        default="5",
+        help="Number of randomized hosts to select from.",
     )
 
     parser.add_argument(
-        "--host_details", type=int, default="2", help="Number of additional host details per host."
+        "--host_details",
+        type=int,
+        default="2",
+        help="Number of additional host details per host.",
     )
 
     parser.add_argument(
-        "--with_gauss", action="store_true", help="if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution."
+        "--with_gauss",
+        action="store_true",
+        help="if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution.",
     )
 
     parser.add_argument(
         "--seed", help="RNG Seed, in case the same data should be generated."
     )
 
-    #check_args(args)
+    # check_args(args)
 
     script_args = parser.parse_args(args.script_args)
 
     seed() if not script_args.seed else seed(script_args.seed)
-    
+
     with open(script_args.datafile) as file:
         data = json.load(file)
 
@@ -441,7 +444,7 @@ def main(gmp, args):
         n_hosts=script_args.hosts,
         n_host_details=script_args.host_details,
         data=data,
-        with_gauss=script_args.with_gauss
+        with_gauss=script_args.with_gauss,
     )
 
     print('\n  Generation done.\n')
