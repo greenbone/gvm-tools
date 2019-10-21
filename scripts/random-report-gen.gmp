@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Host-Details: {'name': '', 'value': '', 'source_name': '', 'source_description': ''},
-
 # pylint: disable=too-many-lines
 
 import uuid
@@ -171,7 +169,6 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
 
 def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
     result_elem = e.Element('result', {'id': generate_uuid()})
-    # result_templates = vulns
 
     e.SubElement(result_elem, 'name').text = "a_result" + id_generator()
     own = e.SubElement(result_elem, 'owner')
@@ -409,14 +406,16 @@ def main(gmp, args):
     )
 
     parser.add_argument(
-        "--host_details",
+        "--host-details",
+        dest="host_details",
         type=int,
         default="2",
         help="Number of additional host details per host.",
     )
 
     parser.add_argument(
-        "--with_gauss",
+        "--with-gauss",
+        dest="with_gauss",
         action="store_true",
         help="if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution.",
     )
@@ -424,8 +423,6 @@ def main(gmp, args):
     parser.add_argument(
         "--seed", help="RNG Seed, in case the same data should be generated."
     )
-
-    # check_args(args)
 
     script_args = parser.parse_args(args.script_args)
 
