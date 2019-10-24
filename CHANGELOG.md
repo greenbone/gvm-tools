@@ -23,6 +23,7 @@ $ cd gvm-tools && git log
   and `application` data now, so the created reports are more realistic
   [PR 218](https://github.com/greenbone/gvm-tools/pull/218),
   [PR 220](https://github.com/greenbone/gvm-tools/pull/220)
+  [PR 225](https://github.com/greenbone/gvm-tools/pull/225)
 - The script `random-report-gen.gmp` now uses argparser, to improve its usage [PR 223](https://github.com/greenbone/gvm-tools/pull/223)
 
 ### Fixed
