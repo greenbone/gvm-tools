@@ -6,13 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 For detailed code changes, please visit
-https://github.com/greenbone/gvm-tools/commits/master
+[Master Branch](https://github.com/greenbone/gvm-tools/commits/master)
 or get the entire source code repository and view log history:
 
-```sh
-$ git clone https://github.com/greenbone/gvm-tools.git
-$ cd gvm-tools && git log
-```
+    ```sh
+    git clone https://github.com/greenbone/gvm-tools.git
+    cd gvm-tools && git log
+    ```
+
 ## [unreleased]
 
 ### Added
@@ -39,6 +40,7 @@ $ cd gvm-tools && git log
 ## [2.0.0] - 2019-09-19
 
 ### Added
+
 - Added --duration switch to gvm-cli for command execution measurement [PR 206](https://github.com/greenbone/gvm-tools/pull/206)
 - Added --ssh-password switch for ssh connection [PR 140](https://github.com/greenbone/gvm-tools/pull/140)
 - Added a new console line interface `gvm-script` for only running GMP and OSP
@@ -49,6 +51,7 @@ $ cd gvm-tools && git log
   [PR 203](https://github.com/greenbone/gvm-tools/pull/203)
 
 ### Changed
+
 - Improved error messages if unix socket could not be found [PR 78](https://github.com/greenbone/python-gvm/pull/78)
 - The structure for the config file (default is ~/.config/gvm-tools.conf) has
   changed. It's possible to set defaults for nearly all command line arguments
@@ -69,11 +72,13 @@ $ cd gvm-tools && git log
 - Renamed `clean-slave.gmp` to `clean-sensor.gmp` [PR 202](https://github.com/greenbone/gvm-tools/pull/202)
 
 ### Deprecated
+
 - Only running scripts with gvm-pyshell is deprecated [PR 152](https://github.com/greenbone/gvm-tools/pull/152)
 - \[Auth\] section in config file is deprecated and will be ignored in future
   releases [PR 160](https://github.com/greenbone/gvm-tools/pull/160)
 
 ### Fixed
+
 - Fix a bug which caused `gvm-pyshell` to immediately re-enter interactive mode
   upon exiting it for the first time [PR 139](https://github.com/greenbone/gvm-tools/pull/139)
 - Support \[Auth\] section in config file for backwards compatibility [PR 160](https://github.com/greenbone/gvm-tools/pull/160)
@@ -94,6 +99,7 @@ has also been refactored and stabilized. For details please take a look at
 [PR 126](https://github.com/greenbone/gvm-tools/pull/126).
 
 ### Added
+
 - It's now possible to write OSP scripts. Using the `--protocol=OSP` switch
   `gvm-pyshell` adds a global **osp** object instead of the **gmp** one.
 - Added new client helper module.
@@ -102,6 +108,7 @@ has also been refactored and stabilized. For details please take a look at
 - Use pipenv for development.
 
 ### Changed
+
 - The `__name__` variable is set to `__gmp__` for GMP scripts and to `__osp__`
   for OSP scripts *(Remember: for normal Python scripts `__name__` is set to
   [`__main__`](https://docs.python.org/3/library/__main__.html))*.
@@ -114,18 +121,23 @@ has also been refactored and stabilized. For details please take a look at
   and the additional scripts parameters as `args.argv`.
 - **GMPError** got renamed to **GvmError** and must be imported from
   `gvm.errors` module.
-  ```python
-  from gvm.errors import GvmError as GMPError
-  ```
+
+        ```python
+        from gvm.errors import GvmError as GMPError
+        ```
+
 - pretty function isn't available as a global function in the scripts anymore.
   It must be imported separately like
-  ```python
-  from gvmtools.helper import pretty_print as pretty
-  ```
+
+        ```python
+        from gvmtools.helper import pretty_print as pretty
+        ```
+
 - The included [gmp scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
   have been cleaned up and adjusted for the new API.
 
 ### Removed
+
 - Removed experimental `gvm-dialog` application.
 
 ## [1.4.1] - 2018-08-10

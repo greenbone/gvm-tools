@@ -59,6 +59,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   [testpypi]
   repository = https://test.pypi.org/legacy/
   username = <username>
+  ```
 
 * Create an account at [Test PyPI](https://packaging.python.org/guides/using-testpypi/)
 
@@ -97,6 +98,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   ```sh
   git push origin
   ```
+
   Open GitHub and create a PR against https://github.com/greenbone/gvm-tools
 
 * Update after PR is merged
@@ -117,6 +119,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   ```sh
   git tag -s v<version>
   ```
+
 * Create final distribution files
 
   ```sh
@@ -132,7 +135,6 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   ```
 
 * Check if new version is available at https://pypi.org/project/gvm-tools
-
 
 * Update version in [gvmtools/__init__.py](https://github.com/greenbone/gvm-tools/blob/master/gvmtools/__init__.py)
 
