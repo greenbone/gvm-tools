@@ -60,7 +60,9 @@ Python 3.5 and later is supported.
 You can install the latest stable release of gvm-tools from the Python Package
 Index using [pip](https://pip.pypa.io/):
 
-    pip install --user gvm-tools
+```sh
+pip install --user gvm-tools
+```
 
 ## Usage
 
@@ -68,9 +70,9 @@ There are several clients to communicate via GMP/OSP.
 
 All clients have the ability to build a connection in various ways:
 
-    * Unix Socket
-    * TLS Connection
-    * SSH Connection
+- Unix Socket
+- TLS Connection
+- SSH Connection
 
 ### gvm-cli
 
@@ -82,36 +84,36 @@ asks for an XML command and for the user credentials.
 
 Returns the current version.
 
-    ```sh
-    gvm-cli socket --xml "<get_version/>"
-    ```
+```sh
+gvm-cli socket --xml "<get_version/>"
+```
 
 Returns the current version using a TLS connection with certificates.
 
-    ```sh
-    gvm-cli tls --hostname 192.168.0.10 --port 1234 --certfile '/tmp/certs/cert.pem' --keyfile '/tmp/certs/key.pem' --cafile '/tmp/certs/cert.pem' --xml "<get_version/>"
-    ```
+```sh
+gvm-cli tls --hostname 192.168.0.10 --port 1234 --certfile '/tmp/certs/cert.pem' --keyfile '/tmp/certs/key.pem' --cafile '/tmp/certs/cert.pem' --xml "<get_version/>"
+```
 
 Return all
 tasks.
 
-    ```sh
-    gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
-    ```
+```sh
+gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
+```
 
 Reads a file with GMP commands and return the result.
 
-    ```sh
-    gvm-cli --gmp-username foo --gmp-password socket bar < myfile.xml
-    ```
+```sh
+gvm-cli --gmp-username foo --gmp-password socket bar < myfile.xml
+```
 
 Note that `gvm-cli` will by default raise an exception when a command is
 rejected by the server. If this kind of error handling is not desired, the
 unparsed XML response can be requested using the `--raw` parameter:
 
-    ```sh
-    gvm-cli socket --raw --xml "<authenticate/>"
-    ```
+```sh
+gvm-cli socket --raw --xml "<authenticate/>"
+```
 
 ### gvm-script
 
@@ -122,21 +124,21 @@ Python 3 itself.
 
 #### Example script
 
-    ```python
-    # Retrieve current GMP version
-    version = gmp.get_version()
+```python
+# Retrieve current GMP version
+version = gmp.get_version()
 
-    # Prints the XML in beautiful form
-    from gvmtools.helper import pretty_print
-    pretty_print(version)
+# Prints the XML in beautiful form
+from gvmtools.helper import pretty_print
+pretty_print(version)
 
-    # Retrieve all tasks
-    tasks = gmp.get_tasks()
+# Retrieve all tasks
+tasks = gmp.get_tasks()
 
-    # Get names of tasks
-    task_names = tasks.xpath('task/name/text()')
-    pretty_print(task_names)
-    ```
+# Get names of tasks
+task_names = tasks.xpath('task/name/text()')
+pretty_print(task_names)
+```
 
 #### More example scripts
 
@@ -156,15 +158,15 @@ API as [gvm-script](#gvm-script) using the
 Connect with given credentials via a unix domain socket and open an interactive
 shell.
 
-    ```sh
-    gvm-pyshell socket --gmp-username=user --gmp-password=pass -i
-    ```
+```sh
+gvm-pyshell socket --gmp-username=user --gmp-password=pass -i
+```
 
 Connect through SSH connection and open the interactive shell.
 
-    ```sh
-    gvm-pyshell ssh --hostname=127.0.0.1 -i
-    ```
+```sh
+gvm-pyshell ssh --hostname=127.0.0.1 -i
+```
 
 ## Support
 
@@ -188,15 +190,15 @@ For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/
 to keep you python packages separated in different environments. First install
 pipenv via pip
 
-    ```sh
-    pip install --user pipenv
-    ```
+```sh
+pip install --user pipenv
+```
 
 Afterwards run
 
-    ```sh
-    pipenv install --dev
-    ```
+```sh
+pipenv install --dev
+```
 
 in the checkout directory of gvm-tools (the directory containing the Pipfile) to
 install all dependencies including the packages only required for development.
