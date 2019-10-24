@@ -231,7 +231,7 @@ def generate_additional_host_details(n_details, host_details, not_vuln):
 
     for _ in range(n_details):
         details = None
-        
+
         if not_vuln:
             details = host_details.copy()
             details["source_name"] += str(randrange(14259, 103585))
@@ -251,7 +251,14 @@ def generate_additional_host_details(n_details, host_details, not_vuln):
 
 
 def generate_host_elem(
-    host_ip, oid, host_asset, host_name, n_host_details, n_not_vuln, data, **kwargs
+    host_ip,
+    oid,
+    host_asset,
+    host_name,
+    n_host_details,
+    n_not_vuln,
+    data,
+    **kwargs
 ):
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
@@ -313,7 +320,7 @@ def generate_host_elem(
             )
         )
 
-    dev = (n_not_vuln / 10)
+    dev = n_not_vuln / 10
     if n_not_vuln:
         host_elem.extend(
             generate_additional_host_details(
