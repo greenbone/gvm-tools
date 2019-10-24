@@ -823,11 +823,11 @@
             "value": "22 ssh-rsa AAAABCNzaC1yc2EAAAABIwAAAQEA123nuFMBOZvO3WTEjP4TUdjgWkIVNdTq6kboEDjteOfc65TlI7sRvQBwqAhQjeeyyIk8T55gMDkOD0akSlSXvLDcmcdYfxeIF0ZSuT+nkRhij7XSSA/Oc5QSk3sJ/SInfb78e3anbRHpmkJcVgETJ5WhKObUNf1AKZW++4Xlc63M4KI5cjvMMIPEVOyR3AKmI78Fo3HJjYucg87JjLeC66I7+dlEYX6zT8i1XYwa/L1vZ3qSJISGVu8kRPikMv/cNSvki4j+qDYyZ2E5497W87+Ed46/8P42LNGoOV8OcX/ro6pAcbEPUdUEfkJrqi2YXbhvwIJ0gFMb6wfe5cnQew==",
             "source_name": "1.3.6.1.4.1.25623.1.0.100259",
             "source_description": "SSH Key"
-        },
-        {
-            "name": "EXIT_CODE",
-            "value": "EXIT_NOTVULN",
-            "source_name": "1.3.6.1.4.1.25623.1.0.11903"
         }
-    ]
+    ],
+    "not_vuln": {
+        "name": "EXIT_CODE",
+        "value": "EXIT_NOTVULN",
+        "source_name": "1.3.6.1.4.1.25623.1.0."
+    }
 }
