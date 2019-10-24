@@ -69,7 +69,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   twine upload -r testpypi dist/*
   ```
 
-* Check if the package is available at https://test.pypi.org/project/gvm-tools
+* Check if the package is available at [PyPI](https://test.pypi.org/project/gvm-tools)
 
 * Create a test directory
 
@@ -99,7 +99,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   git push origin
   ```
 
-  Open GitHub and create a PR against https://github.com/greenbone/gvm-tools
+  Open GitHub and create a PR against the [Repository](https://github.com/greenbone/gvm-tools)
 
 * Update after PR is merged
 
@@ -134,7 +134,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   twine upload dist/*
   ```
 
-* Check if new version is available at https://pypi.org/project/gvm-tools
+* Check if new version is available at [PyPI](https://test.pypi.org/project/gvm-tools)
 
 * Update version in [gvmtools/__init__.py](https://github.com/greenbone/gvm-tools/blob/master/gvmtools/__init__.py)
 
@@ -155,4 +155,4 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 
 * Create a Github release
 
-  See https://help.github.com/articles/creating-releases/
+  See [creating Releases on Github](https://help.github.com/articles/creating-releases/)
