@@ -9,10 +9,10 @@ For detailed code changes, please visit
 [Master Branch](https://github.com/greenbone/gvm-tools/commits/master)
 or get the entire source code repository and view log history:
 
-    ```sh
-    git clone https://github.com/greenbone/gvm-tools.git
-    cd gvm-tools && git log
-    ```
+```sh
+git clone https://github.com/greenbone/gvm-tools.git
+cd gvm-tools && git log
+```
 
 ## [unreleased]
 
@@ -122,16 +122,16 @@ has also been refactored and stabilized. For details please take a look at
 - **GMPError** got renamed to **GvmError** and must be imported from
   `gvm.errors` module.
 
-        ```python
-        from gvm.errors import GvmError as GMPError
-        ```
+```python
+from gvm.errors import GvmError as GMPError
+```
 
 - pretty function isn't available as a global function in the scripts anymore.
   It must be imported separately like
 
-        ```python
-        from gvmtools.helper import pretty_print as pretty
-        ```
+```python
+from gvmtools.helper import pretty_print as pretty
+```
 
 - The included [gmp scripts](https://github.com/greenbone/gvm-tools/tree/master/scripts)
   have been cleaned up and adjusted for the new API.
