@@ -19,10 +19,18 @@ $ cd gvm-tools && git log
 
 ### Changed
 
+- The script `random-report-gen.gmp` is able to add `host`, `host details`, `os`
+  and `application` data now, so the created reports are more realistic
+  [PR 218](https://github.com/greenbone/gvm-tools/pull/218),
+  [PR 220](https://github.com/greenbone/gvm-tools/pull/220)
+- The script `random-report-gen.gmp` now uses argparser, to improve its usage [PR 223](https://github.com/greenbone/gvm-tools/pull/223)
+
 ### Fixed
 
 - Exit with an error, if the `check_gmp.gmp` script is used with an temporary path, that has not the correct permissions.
 - Fixed `update-task-target.gmp` to create unique target names to support Gmpv8
+- Fixed an error, where the `--sockpath` argument didn't worked as expected [PR 216](https://github.com/greenbone/gvm-tools/pull/216)
+- Catch exeption from gvm lib [PR 222](https://github.com/greenbone/gvm-tools/pull/222) [PR 224](https://github.com/greenbone/gvm-tools/pull/224)
 
 ### Removed
 

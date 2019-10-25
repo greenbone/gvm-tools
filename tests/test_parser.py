@@ -177,8 +177,7 @@ class RootArgumentsParserTest(ParserTestCase):
 class SocketParserTestCase(ParserTestCase):
     def test_defaults(self):
         args = self.parser.parse_args(['socket'])
-        self.assertIsNone(args.sockpath)
-        self.assertEqual(args.socketpath, '/usr/local/var/run/gvmd.sock')
+        self.assertEqual(args.socketpath, DEFAULT_UNIX_SOCKET_PATH)
 
     def test_connection_type(self):
         args = self.parser.parse_args(['socket'])
@@ -186,7 +185,7 @@ class SocketParserTestCase(ParserTestCase):
 
     def test_sockpath(self):
         args = self.parser.parse_args(['socket', '--sockpath', 'foo.sock'])
-        self.assertEqual(args.sockpath, 'foo.sock')
+        self.assertEqual(args.socketpath, 'foo.sock')
 
     def test_socketpath(self):
         args = self.parser.parse_args(['socket', '--socketpath', 'foo.sock'])

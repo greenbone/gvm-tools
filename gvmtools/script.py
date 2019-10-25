@@ -64,13 +64,6 @@ def main():
     )
     args, script_args = parser.parse_known_args()
 
-    if 'socket' in args.connection_type and args.sockpath:
-        print(
-            'The --sockpath parameter has been deprecated. Please use '
-            '--socketpath instead',
-            file=sys.stderr,
-        )
-
     connection = create_connection(**vars(args))
 
     transform = EtreeCheckCommandTransform()
@@ -90,33 +83,40 @@ def main():
         protocol_class = Gmp
         name = 'gmp'
 
-    with protocol_class(connection, transform=transform) as protocol:
-        global_vars[name] = protocol
-        global_vars['__name__'] = '__{}__'.format(name)
+    try:
+        with protocol_class(connection, transform=transform) as protocol:
+            global_vars[name] = protocol
+            global_vars['__name__'] = '__{}__'.format(name)
 
-        if args.protocol == PROTOCOL_GMP:
-            if args.gmp_username:
-                (username, password) = authenticate(
-                    protocol,
-                    username=args.gmp_username,
-                    password=args.gmp_password,
-                )
+            if args.protocol == PROTOCOL_GMP:
+                if args.gmp_username:
+                    (username, password) = authenticate(
+                        protocol,
+                        username=args.gmp_username,
+                        password=args.gmp_password,
+                    )
 
-        argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+            argv = [os.path.abspath(args.scriptname), *args.scriptargs]
 
-        shell_args = Namespace(
-            username=username,
-            password=password,
-            argv=argv,
-            # for backwards compatibility we add script here
-            script=argv,
-            # the unknown args, which are owned by the script.
-            script_args=script_args,
-        )
+            shell_args = Namespace(
+                username=username,
+                password=password,
+                argv=argv,
+                # for backwards compatibility we add script here
+                script=argv,
+                # the unknown args, which are owned by the script.
+                script_args=script_args,
+            )
 
-        global_vars['args'] = shell_args
+            global_vars['args'] = shell_args
 
-        run_script(args.scriptname, global_vars)
+            run_script(args.scriptname, global_vars)
+
+    except Exception as e:  # pylint: disable=broad-except
+        print(e, file=sys.stderr)
+        sys.exit(1)
+
+    sys.exit(0)
 
 
 if __name__ == '__main__':

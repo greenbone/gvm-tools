@@ -16,37 +16,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import uuid
-import random
+# pylint: disable=too-many-lines
 
-from random import randrange as r, choice as c
+import uuid
+import string
+import time
+import textwrap
+import json
+
+from random import randrange, choice, gauss, seed
+from argparse import ArgumentParser, RawTextHelpFormatter
+from pathlib import Path
 
 from lxml import etree as e
 
+__version__ = "0.1.0"
 
-def check_args(args):
-    len_args = len(args.script) - 1
-    if len_args != 4 and len_args != 5:
-        message = """
-        This script generates randomized report data.
+HELP_TEXT = """
+    Random Report Generation Script {version} (C) 2017-2019 Greenbone Networks GmbH
 
-        Four parameters after the script name are required.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-        1. <number of tasks>  --number of tasks to be generated
-        2. <number of reports>  --number of reports per task
-        3. <number of results>  --number of results per report
-        4. <number of hosts> --number of randomized hosts to select from
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-        In addition, if you would like for the number of reports/task and \
-    results/report to be randomized along a Gaussian distribution, add \
-    'with-gauss'
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-        Example:
-            $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/gen-random-reports.gmp 10 50 2500 256 with-gauss
-        """
-        print(message)
-        quit()
+    This script generates randomized report data.
+    """.format(
+    version=__version__
+)
 
 
 def generate_uuid():
@@ -56,871 +61,390 @@ def generate_uuid():
 def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
-
-    ips = [
-        '{}.{}.{}.{}'.format(c(exclude_127), r(0, 256), r(0, 256), r(1, 255))
+    return [
+        '{}.{}.{}.{}'.format(
+            choice(exclude_127),
+            randrange(0, 256),
+            randrange(0, 256),
+            randrange(1, 255),
+        )
         for i in range(n_hosts)
     ]
 
-    return ips
+
+def generate_ports(n_ports):
+    protocol = ['/tcp', '/udp', '/ssh']
+    return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
 
 
-def generate_report_elem(template, n_results, n_hosts):
-    report_elem = e.Element('report', attrib={'id': generate_uuid()})
-    results_elem = e.Element('results', {'max': str(n_results), 'start': '1'})
-    report_elem.append(results_elem)
-    hosts = generate_ips(n_hosts)
+def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+    return ''.join(choice(chars) for _ in range(size))
 
+
+def generate_report_elem(task, **kwargs):
+    rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
+    rep_id = generate_uuid()
+    outer_report_elem = e.Element(
+        'report',
+        attrib={
+            'extension': 'xml',
+            'id': rep_id,
+            'format_id': rep_format_id,
+            'content_type': 'text/xml',
+        },
+    )
+    owner_elem = e.SubElement(outer_report_elem, 'owner')
+    e.SubElement(owner_elem, 'name').text = 'testowner'
+    e.SubElement(outer_report_elem, 'name').text = 'testname'
+    e.SubElement(outer_report_elem, 'writeable').text = str(0)
+    e.SubElement(outer_report_elem, 'in_use').text = str(0)
+    task_elem = e.SubElement(outer_report_elem, 'task', attrib={'id': task[0]})
+    e.SubElement(task_elem, 'name').text = task[1]
+    repform_elem = e.SubElement(
+        outer_report_elem, 'report_format', attrib={'id': rep_format_id}
+    )
+    e.SubElement(repform_elem, 'name').text = 'XML'
+
+    # Generating inner <report> tag
+    outer_report_elem.append(generate_inner_report(rep_id, **kwargs))
+
+    return outer_report_elem
+
+
+def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
+    report_elem = e.Element('report', attrib={'id': rep_id})
+    results_elem = e.SubElement(
+        report_elem, 'results', {'max': str(n_results), 'start': '1'}
+    )
+
+    # Create Hosts, Ports, Data
+    hosts = generate_ips(n_hosts)  # Host IPs
+    ports = generate_ports(n_hosts)
+    oid_dict = {host: [] for host in hosts}
+    asset_dict = {host: generate_uuid() for host in hosts}
+    host_names = {host: id_generator() for host in hosts}
+    max_sev = 0.0
+
+    # Create <result> tags with random data
     for _ in range(n_results):
-        host_ip = c(hosts)
-        result_elem = generate_result_elem(template, host_ip)
+        host_ip = choice(hosts)
+        host_port = choice(ports)
+        result_elem, oid, severity = generate_result_elem(
+            data["vulns"],
+            host_ip,
+            host_port,
+            asset_dict[host_ip],
+            host_names[host_ip],
+        )
+        if float(severity) > max_sev:
+            max_sev = float(severity)
+
+        oid_dict[host_ip].append(oid)
         results_elem.append(result_elem)
+
+    e.SubElement(report_elem, "result_count").text = str(n_results)
+
+    sev_elem = e.Element("severity")
+    e.SubElement(sev_elem, "full").text = str(max_sev)
+    e.SubElement(sev_elem, "filtered").text = str(max_sev)
+
+    report_elem.append(sev_elem)
+
+    # Create <host> tags with random data
+    for host in hosts:
+        if len(oid_dict[host]) > 0:
+            report_elem.append(
+                generate_host_elem(
+                    host,
+                    oid_dict[host][0],
+                    asset_dict[host],
+                    host_names[host],
+                    data=data,
+                    **kwargs
+                )
+            )
 
     return report_elem
 
 
-def generate_result_elem(template, host_ip):
+def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
     result_elem = e.Element('result', {'id': generate_uuid()})
-    result_templates = template['results']
-    nvt = result_templates[r(len(result_templates))]
+
+    e.SubElement(result_elem, 'name').text = "a_result" + id_generator()
+    own = e.SubElement(result_elem, 'owner')
+    e.SubElement(own, 'name').text = id_generator()
+
+    elem = e.Element('modification_time')
+    e.SubElement(result_elem, 'modification_time').text = (
+        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time()))[:-2]
+        + ':00'
+    )  # Hell of a Timeformat :D
+    e.SubElement(result_elem, 'comment').text = ''
+    e.SubElement(result_elem, 'creation_time').text = (
+        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 20))[
+            :-2
+        ]
+        + ':00'
+    )
+
+    host_elem = e.Element('host')
+    host_elem.text = host_ip
+    e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
+    e.SubElement(host_elem, 'hostname').text = host_name
+    result_elem.append(host_elem)
+
+    port_elem = e.Element('port')
+    port_elem.text = host_port
+    result_elem.append(port_elem)
+
+    nvt = vulns[randrange(len(vulns))]
     e.SubElement(result_elem, 'severity').text = nvt['severity']
     nvt_elem = e.Element('nvt', {'oid': nvt['oid']})
     result_elem.append(nvt_elem)
+
+    e.SubElement(result_elem, 'notes').text = 'TestNotes'
+
+    result_elem.append(elem)
+
+    return result_elem, nvt['oid'], nvt['severity']
+
+
+def generate_host_detail_elem(
+    name, value, source_name=None, source_description=None
+):
+    host_detail_elem = e.Element('detail')
+    e.SubElement(host_detail_elem, 'name').text = name
+    e.SubElement(host_detail_elem, 'value').text = value
+
+    if source_name:
+        source_elem = e.SubElement(host_detail_elem, 'source')
+        e.SubElement(source_elem, 'name').text = source_name
+
+        if source_description:
+            e.SubElement(source_elem, 'description').text = source_description
+
+    return host_detail_elem
+
+
+def generate_additional_host_details(n_host_details, host_details):
+    host_detail_elems = []
+
+    for _ in range(n_host_details):
+        details = choice(host_details)
+
+        host_detail_elems.append(
+            generate_host_detail_elem(
+                details['name'],
+                details['value'],
+                source_name=details.get('source_name'),
+                source_description=details.get('source_description'),
+            )
+        )
+
+    return host_detail_elems
+
+
+def generate_host_elem(
+    host_ip, oid, host_asset, host_name, n_host_details, data, **kwargs
+):
     host_elem = e.Element('host')
-    host_elem.text = host_ip
-    result_elem.append(host_elem)
+    e.SubElement(host_elem, 'ip').text = host_ip
+    e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
 
-    return result_elem
+    e.SubElement(host_elem, 'start').text = (
+        time.strftime(
+            "%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 1000)
+        )[:-2]
+        + ':00'
+    )
+    e.SubElement(host_elem, 'end').text = (
+        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 30))[
+            :-2
+        ]
+        + ':00'
+    )
+
+    app = choice(list(data["apps"]))
+    os = choice(list(data["oss"]))
+
+    host_elem.append(
+        generate_host_detail_elem('App', data["apps"].get(app), source_name=oid)
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            data["apps"].get(app), '/usr/bin/foo', source_name=oid
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            'hostname',
+            host_name,
+            source_name=oid,
+            source_description="Host Details",
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            'best_os_txt',
+            list(os)[0],
+            source_name=oid,
+            source_description="Host Details",
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            'best_os_cpe',
+            data["oss"].get(os),
+            source_name=oid,
+            source_description="Host Details",
+        )
+    )
+
+    if n_host_details:
+        host_elem.extend(
+            generate_additional_host_details(
+                n_host_details, data["host_details"]
+            )
+        )
+
+    return host_elem
 
 
-def generate_reports(gauss=False, **kwargs):
+def generate_reports(task, n_reports, with_gauss, **kwargs):
     reports = []
-    gauss = kwargs.get('gauss', '')
-    n_reports = kwargs.get('n_reports')
-    n_results = kwargs.get('n_results')
 
-    if gauss is True:
-        n_reports = abs(int(random.gauss(n_reports, 1)))
-        if n_reports is 0:
+    if with_gauss:
+        n_reports = abs(int(gauss(n_reports, 1)))
+        if n_reports == 0:
             n_reports += 1
 
     for _ in range(n_reports):
-        if gauss is True:
-            n_results = abs(int(random.gauss(n_results, 2)))
-        report_elem = generate_report_elem(
-            kwargs.get('template'), n_results, kwargs.get('n_hosts')
-        )
+        if with_gauss:
+            n_results = abs(int(gauss(n_results, 2)))
+
+        report_elem = generate_report_elem(task, **kwargs)
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
 
     return reports
 
 
-def generate_data(gmp, **kwargs):
-    task_ids = []
-
-    for i in range(kwargs.get('n_tasks')):
-        index = '{{0:0>{}}}'.format(len(str(kwargs.get('n_tasks'))))
+def generate_data(gmp, n_tasks, **kwargs):
+    for i in range(n_tasks):
+        index = '{{0:0>{}}}'.format(len(str(n_tasks)))
         task_name = 'Task_for_GenReport:_{}'.format(index.format(i + 1))
-
-        reports = generate_reports(**kwargs)
 
         gmp.create_container_task(task_name)
 
         task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
             '//@id'
         )[0]
-        task_ids.append(task_id)
+
+        reports = generate_reports(task=(task_id, task_name), **kwargs)
 
         for report in reports[0:]:
-            gmp.import_report(report, task_id=task_id)
-
-
-TEMPLATE = {
-    'results': [
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10056',
-            'port': '80/tcp',
-            'severity': '5.0',
-            'name': '/doc directory browsable',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.902830',
-            'port': '80/tcp',
-            'severity': '4.3',
-            'name': "Apache HTTP Server 'httpOnly' Cookie Information Disclosure "
-            "Vulnerability",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108082',
-            'port': '8009/tcp',
-            'severity': '0.0',
-            'name': 'Apache JServ Protocol v1.3 Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.900498',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'Apache Web Server Version Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103210',
-            'port': '80/tcp',
-            'severity': '5.0',
-            'name': 'awiki Multiple Local File Include Vulnerabilities',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.111038',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'CGI Scanning Consolidation',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.900600',
-            'port': '21/tcp',
-            'severity': '6.4',
-            'name': 'Check for Anonymous FTP Login',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100111',
-            'port': '512/tcp',
-            'severity': '10.0',
-            'name': 'Check for rexecd Service',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.901202',
-            'port': '513/tcp',
-            'severity': '7.5',
-            'name': 'Check for rlogin Service',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100074',
-            'port': '1524/tcp',
-            'severity': '0.0',
-            'name': 'Check for Telnet Server',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100072',
-            'port': '25/tcp',
-            'severity': '5.0',
-            'name': 'Check if Mailserver answer to VRFY and EXPN requests',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.810002',
-            'port': 'general/CPE-T',
-            'severity': '0.0',
-            'name': 'CPE Inventory',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.902799',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'Database Open Access Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.902799',
-            'port': '3306/tcp',
-            'severity': '0.0',
-            'name': 'Database Open Access Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10028',
-            'port': '53/tcp',
-            'severity': '0.0',
-            'name': 'Determine which version of BIND name daemon is running',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.12638',
-            'port': '3632/tcp',
-            'severity': '8.5',
-            'name': 'DistCC Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103553',
-            'port': '3632/tcp',
-            'severity': '9.3',
-            'name': 'DistCC Remote Code Execution Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108010',
-            'port': '8787/tcp',
-            'severity': '10.0',
-            'name': 'Distributed Ruby (dRuby/DRb) Multiple Remote Code Execution '
-            'Vulnerabilities',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108018',
-            'port': '53/tcp',
-            'severity': '0.0',
-            'name': 'DNS Server Detection (TCP)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.20108',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'Fingerprint web server with favicon.ico',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10092',
-            'port': '21/tcp',
-            'severity': '0.0',
-            'name': 'FTP Banner Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10092',
-            'port': '2121/tcp',
-            'severity': '0.0',
-            'name': 'FTP Banner Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11213',
-            'port': '80/tcp',
-            'severity': '5.8',
-            'name': 'HTTP Debugging Methods (TRACE/TRACK) Enabled',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.112081',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'HTTP Security Headers Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10107',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'HTTP Server type and version',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103190',
-            'port': 'general/icmp',
-            'severity': '0.0',
-            'name': 'ICMP Timestamp Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11156',
-            'port': '6667/tcp',
-            'severity': '0.0',
-            'name': 'IRC daemon identification',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.140051',
-            'port': '1099/tcp',
-            'severity': '10.0',
-            'name': 'Java RMI Server Insecure Default Configuration Remote Code '
-            'Execution Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.802726',
-            'port': '445/tcp',
-            'severity': '0.0',
-            'name': 'Microsoft SMB Signing Disabled',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.902425',
-            'port': '445/tcp',
-            'severity': '0.0',
-            'name': 'Microsoft Windows SMB Accessible Shares',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103935',
-            'port': '25/tcp',
-            'severity': '6.8',
-            'name': 'Multiple Vendors STARTTLS Implementation Plaintext Arbitrary '
-            'Command Injection Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103551',
-            'port': '3306/tcp',
-            'severity': '9.0',
-            'name': 'MySQL / MariaDB weak password',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100152',
-            'port': '3306/tcp',
-            'severity': '0.0',
-            'name': 'MySQL/MariaDB Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11111',
-            'port': '111/tcp',
-            'severity': '0.0',
-            'name': 'Obtain list of all port mapper registered programs via RPC',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105937',
-            'port': 'general/tcp',
-            'severity': '0.0',
-            'name': 'OS Detection Consolidation and Reporting',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103674',
-            'port': 'general/tcp',
-            'severity': '10.0',
-            'name': 'OS End Of Life Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.800109',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'PHP Version Detection (Remote)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103482',
-            'port': '80/tcp',
-            'severity': '7.5',
-            'name': 'PHP-CGI-based setups vulnerability when parsing query '
-            'string parameters from php files.',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11229',
-            'port': '80/tcp',
-            'severity': '7.5',
-            'name': 'phpinfo() output accessible',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.801660',
-            'port': '80/tcp',
-            'severity': '4.3',
-            'name': "phpMyAdmin 'error.php' Cross Site Scripting Vulnerability",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.900129',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'phpMyAdmin Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103549',
-            'port': '1524/tcp',
-            'severity': '10.0',
-            'name': 'Possible Backdoor: Ingreslock',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.111086',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'Postfix SMTP Server Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100151',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'PostgreSQL Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105013',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'PostgreSQL TLS Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103552',
-            'port': '5432/tcp',
-            'severity': '9.0',
-            'name': 'PostgreSQL weak password',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.900815',
-            'port': '2121/tcp',
-            'severity': '0.0',
-            'name': 'ProFTPD Server Version Detection (Remote)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10281',
-            'port': '23/tcp',
-            'severity': '0.0',
-            'name': 'Report Telnet Banner',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10281',
-            'port': '1524/tcp',
-            'severity': '0.0',
-            'name': 'Report Telnet Banner',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105839',
-            'port': '1099/tcp',
-            'severity': '0.0',
-            'name': 'RMI-Registry Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108090',
-            'port': '111/tcp',
-            'severity': '0.0',
-            'name': 'RPC portmapper (TCP)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108011',
-            'port': '445/tcp',
-            'severity': '6.0',
-            'name': 'Samba MS-RPC Remote Shell Command Execution Vulnerability '
-            '(Active Check)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108204',
-            'port': '512/tcp',
-            'severity': '0.0',
-            'name': "Service Detection with 'BINARY' Request",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.17975',
-            'port': '8787/tcp',
-            'severity': '0.0',
-            'name': "Service Detection with 'GET' Request",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11153',
-            'port': '6667/tcp',
-            'severity': '0.0',
-            'name': "Service Detection with 'HELP' Request'",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.66286',
-            'port': '514/tcp',
-            'severity': '0.0',
-            'name': 'Service Detection with nmap',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '23/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '21/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '2121/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '22/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10330',
-            'port': '3306/tcp',
-            'severity': '0.0',
-            'name': 'Services',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10394',
-            'port': '445/tcp',
-            'severity': '0.0',
-            'name': 'SMB log in',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.102011',
-            'port': '445/tcp',
-            'severity': '0.0',
-            'name': 'SMB NativeLanMan',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.807830',
-            'port': '445/tcp',
-            'severity': '0.0',
-            'name': 'SMB Remote Version Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11011',
-            'port': '139/tcp',
-            'severity': '0.0',
-            'name': 'SMB/CIFS Server Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.11011',
-            'port': '445/tcp',
-            'severity': '0.0',
-            'name': 'SMB/CIFS Server Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10263',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SMTP Server type and version',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103118',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SMTP STARTTLS Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103239',
-            'port': '22/tcp',
-            'severity': '7.5',
-            'name': 'SSH Brute Force Logins With Default Credentials Reporting',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105565',
-            'port': '22/tcp',
-            'severity': '0.0',
-            'name': 'SSH Protocol Algorithms Supported',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100259',
-            'port': '22/tcp',
-            'severity': '0.0',
-            'name': 'SSH Protocol Versions Supported',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10267',
-            'port': '22/tcp',
-            'severity': '0.0',
-            'name': 'SSH Server type and version',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105611',
-            'port': '22/tcp',
-            'severity': '4.3',
-            'name': 'SSH Weak Encryption Algorithms Supported',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105610',
-            'port': '22/tcp',
-            'severity': '2.6',
-            'name': 'SSH Weak MAC Algorithms Supported',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.805188',
-            'port': '25/tcp',
-            'severity': '4.3',
-            'name': "SSL/TLS: 'DHE_EXPORT' Man in the Middle Security Bypass "
-            "Vulnerability (LogJam)",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103140',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Certificate - Self-Signed Certificate Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103140',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Certificate - Self-Signed Certificate Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103955',
-            'port': '25/tcp',
-            'severity': '5.0',
-            'name': 'SSL/TLS: Certificate Expired',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103955',
-            'port': '5432/tcp',
-            'severity': '5.0',
-            'name': 'SSL/TLS: Certificate Expired',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105880',
-            'port': '5432/tcp',
-            'severity': '4.0',
-            'name': 'SSL/TLS: Certificate Signed Using A Weak Signature Algorithm',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105880',
-            'port': '25/tcp',
-            'severity': '4.0',
-            'name': 'SSL/TLS: Certificate Signed Using A Weak Signature Algorithm',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103692',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Collect and Report Certificate Details',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103692',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Collect and Report Certificate Details',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.111012',
-            'port': '5432/tcp',
-            'severity': '4.3',
-            'name': 'SSL/TLS: Deprecated SSLv2 and SSLv3 Protocol Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.111012',
-            'port': '25/tcp',
-            'severity': '4.3',
-            'name': 'SSL/TLS: Deprecated SSLv2 and SSLv3 Protocol Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.106223',
-            'port': '25/tcp',
-            'severity': '4.0',
-            'name': 'SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group '
-            'Strength Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.106223',
-            'port': '5432/tcp',
-            'severity': '4.0',
-            'name': 'SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group '
-            'Strength Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.111010',
-            'port': 'general/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Hostname discovery from server certificate',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105042',
-            'port': '5432/tcp',
-            'severity': '6.8',
-            'name': 'SSL/TLS: OpenSSL CCS Man in the Middle Security Bypass '
-            'Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.902816',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Medium Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.902816',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Medium Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103441',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Non Weak Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103441',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Non Weak Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105018',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Perfect Forward Secrecy (PFS) Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.105018',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Perfect Forward Secrecy (PFS) Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.802067',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Supported Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.802067',
-            'port': '5432/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Supported Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103440',
-            'port': '5432/tcp',
-            'severity': '4.3',
-            'name': 'SSL/TLS: Report Weak Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103440',
-            'port': '25/tcp',
-            'severity': '0.0',
-            'name': 'SSL/TLS: Report Weak Cipher Suites',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.805142',
-            'port': '25/tcp',
-            'severity': '4.3',
-            'name': "SSL/TLS: RSA Temporary Key Handling 'RSA_EXPORT' Downgrade "
-            "Issue (FREAK)",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.802087',
-            'port': '25/tcp',
-            'severity': '4.3',
-            'name': 'SSL/TLS: SSLv3 Protocol CBC Cipher Suites Information '
-            'Disclosure Vulnerability (POODLE)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.802087',
-            'port': '5432/tcp',
-            'severity': '4.3',
-            'name': 'SSL/TLS: SSLv3 Protocol CBC Cipher Suites Information '
-            'Disclosure Vulnerability (POODLE)',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.80091',
-            'port': 'general/tcp',
-            'severity': '2.6',
-            'name': 'TCP timestamps',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10498',
-            'port': '80/tcp',
-            'severity': '7.5',
-            'name': 'Test HTTP dangerous methods',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.108064',
-            'port': '80/tcp',
-            'severity': '5.0',
-            'name': "Tiki Wiki CMS Groupware 'fixedURLData' Local File Inclusion "
-            "Vulnerability",
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.100537',
-            'port': '80/tcp',
-            'severity': '7.5',
-            'name': 'Tiki Wiki CMS Groupware < 4.2 Multiple Unspecified '
-            'Vulnerabilities',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.800315',
-            'port': '80/tcp',
-            'severity': '5.0',
-            'name': 'Tiki Wiki CMS Groupware Input Sanitation Weakness '
-            'Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.901001',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'Tiki Wiki CMS Groupware Version Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.140797',
-            'port': '80/tcp',
-            'severity': '6.5',
-            'name': 'Tiki Wiki CMS Groupware XSS Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.51662',
-            'port': 'general/tcp',
-            'severity': '0.0',
-            'name': 'Traceroute',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.800400',
-            'port': '80/tcp',
-            'severity': '6.0',
-            'name': 'TWiki Cross-Site Request Forgery Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.801281',
-            'port': '80/tcp',
-            'severity': '6.8',
-            'name': 'TWiki Cross-Site Request Forgery Vulnerability - Sep10',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.800399',
-            'port': '80/tcp',
-            'severity': '0.0',
-            'name': 'TWiki Version Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.800320',
-            'port': '80/tcp',
-            'severity': '10.0',
-            'name': 'TWiki XSS and Command Execution Vulnerabilities',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.106056',
-            'port': '5900/tcp',
-            'severity': '9.0',
-            'name': 'VNC Brute Force Login',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.19288',
-            'port': '5900/tcp',
-            'severity': '0.0',
-            'name': 'VNC security types',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10342',
-            'port': '5900/tcp',
-            'severity': '0.0',
-            'name': 'VNC Server and Protocol Version Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103185',
-            'port': '6200/tcp',
-            'severity': '7.5',
-            'name': 'vsftpd Compromised Source Packages Backdoor Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.103185',
-            'port': '21/tcp',
-            'severity': '7.5',
-            'name': 'vsftpd Compromised Source Packages Backdoor Vulnerability',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.111050',
-            'port': '21/tcp',
-            'severity': '0.0',
-            'name': 'vsFTPd FTP Server Detection',
-        },
-        {
-            'oid': '1.3.6.1.4.1.25623.1.0.10407',
-            'port': '6000/tcp',
-            'severity': '0.0',
-            'name': 'X Server Detection',
-        },
-    ]
-}
+            gmp.import_report(report, task_id=task_id, in_assets=True)
 
 
 def main(gmp, args):
     # pylint: disable=undefined-variable
 
-    check_args(args)
+    parser = ArgumentParser(
+        prog="random-report-gen",
+        prefix_chars="-",
+        description=HELP_TEXT,
+        formatter_class=RawTextHelpFormatter,
+        add_help=False,
+        epilog=textwrap.dedent(
+            """
+        Example:
+            $ gvm-script --gmp-username name --gmp-password pass
+            ssh --hostname <gsm> scripts/gen-random-reports.gmp -T 5 -r 4 -R 3 --hosts 10
+        """
+        ),
+    )
 
-    keywords = {
-        'n_tasks': int(args.script[1]),
-        'n_reports': int(args.script[2]),
-        'n_results': int(args.script[3]),
-        'n_hosts': int(args.script[4]),
-        'template': TEMPLATE,
-    }
+    parser.add_argument(
+        "-H", action="help", help="Show this help message and exit."
+    )
 
-    if 'with-gauss' in args.script:
-        keywords['gauss'] = True
+    parser.add_argument(
+        "--datafile",
+        default=Path(args.script[0]).parent / "default_report_data.json",
+        help="A json file containing the following information: vulnerabilities, operating systems, applications and host details. Take the default json file as an example.",
+    )
 
-    print('\n  Generating randomized report(s)...\n')
+    parser.add_argument(
+        "--tasks",
+        "-T",
+        type=int,
+        default="1",
+        help="Number of Tasks to be generated.",
+    )
 
-    generate_data(gmp, **keywords)
+    parser.add_argument(
+        "--reports",
+        "-r",
+        type=int,
+        default="5",
+        help="Number of Reports per Task.",
+    )
+
+    parser.add_argument(
+        "--results",
+        "-R",
+        type=int,
+        default="5",
+        help="Number of Results per Report.",
+    )
+
+    parser.add_argument(
+        "--hosts",
+        type=int,
+        default="5",
+        help="Number of randomized hosts to select from.",
+    )
+
+    parser.add_argument(
+        "--host-details",
+        dest="host_details",
+        type=int,
+        default="2",
+        help="Number of additional host details per host.",
+    )
+
+    parser.add_argument(
+        "--with-gauss",
+        dest="with_gauss",
+        action="store_true",
+        help="if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution.",
+    )
+
+    parser.add_argument(
+        "--seed", help="RNG Seed, in case the same data should be generated."
+    )
+
+    script_args = parser.parse_args(args.script_args)
+
+    seed() if not script_args.seed else seed(script_args.seed)
+
+    with open(script_args.datafile) as file:
+        data = json.load(file)
+
+    print('\n  Generating randomized data(s)...\n')
+
+    generate_data(
+        gmp,
+        n_tasks=script_args.tasks,
+        n_reports=script_args.reports,
+        n_results=script_args.results,
+        n_hosts=script_args.hosts,
+        n_host_details=script_args.host_details,
+        data=data,
+        with_gauss=script_args.with_gauss,
+    )
+
+    print('\n  Generation done.\n')
 
 
 if __name__ == '__gmp__':
