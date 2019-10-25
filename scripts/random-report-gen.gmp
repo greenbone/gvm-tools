@@ -226,7 +226,9 @@ def generate_host_detail_elem(
     return host_detail_elem
 
 
-def generate_additional_host_details(n_details, host_details, *, not_vuln=False):
+def generate_additional_host_details(
+    n_details, host_details, *, not_vuln=False
+):
     host_detail_elems = []
 
     for _ in range(n_details):
@@ -251,13 +253,7 @@ def generate_additional_host_details(n_details, host_details, *, not_vuln=False)
 
 
 def generate_host_elem(
-    host_ip,
-    oid,
-    host_asset,
-    host_name,
-    n_host_details,
-    n_not_vuln,
-    data,
+    host_ip, oid, host_asset, host_name, n_host_details, n_not_vuln, data
 ):
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
@@ -323,9 +319,9 @@ def generate_host_elem(
     if n_not_vuln:
         host_elem.extend(
             generate_additional_host_details(
-                n_not_vuln + randrange(-dev, dev), 
-                data["not_vuln"], 
-                not_vuln=True
+                n_not_vuln + randrange(-dev, dev),
+                data["not_vuln"],
+                not_vuln=True,
             )
         )
 
