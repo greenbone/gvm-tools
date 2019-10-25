@@ -30,7 +30,7 @@ $ cd gvm-tools && git log
 - Exit with an error, if the `check_gmp.gmp` script is used with an temporary path, that has not the correct permissions.
 - Fixed `update-task-target.gmp` to create unique target names to support Gmpv8
 - Fixed an error, where the `--sockpath` argument didn't worked as expected [PR 216](https://github.com/greenbone/gvm-tools/pull/216)
-- Catch exeption from gvm lib [PR 222](https://github.com/greenbone/gvm-tools/pull/222) [PR 224](https://github.com/greenbone/gvm-tools/pull/224)
+- Catch exception from gvm lib [PR 222](https://github.com/greenbone/gvm-tools/pull/222) [PR 224](https://github.com/greenbone/gvm-tools/pull/224)
 
 ### Removed
 
