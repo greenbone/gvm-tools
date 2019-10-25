@@ -19,6 +19,7 @@
 import sys
 import os
 
+
 class Suppress:
     def __init__(self, *, suppress_stdout=False, suppress_stderr=False):
         self.suppress_stdout = suppress_stdout
