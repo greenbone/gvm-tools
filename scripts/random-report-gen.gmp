@@ -454,7 +454,7 @@ def main(gmp, args):
 
     seed() if not script_args.seed else seed(script_args.seed)
 
-    with open(script_args.datafile) as file:
+    with open(str(script_args.datafile)) as file:
         data = json.load(file)
 
     print('\n  Generating randomized data(s)...\n')
