@@ -6,16 +6,16 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 
 * Install twine for pypi package uploads and update setuptools, pipenv and wheel packages
 
-```sh
-python3 -m pip install --user --upgrade twine setuptools wheel pipenv
-```
+  ```sh
+  python3 -m pip install --user --upgrade twine setuptools wheel pipenv
+  ```
 
 * Fetch upstream changes and create release branch
 
-```sh
-git fetch upstream
-git checkout -b create-new-release upstream/master
-```
+  ```sh
+  git fetch upstream
+  git checkout -b create-new-release upstream/master
+  ```
 
 * Open [gvmtools/__init__.py](https://github.com/greenbone/gvm-tools/blob/master/gvmtools/__init__.py)
   and increment the version number.
@@ -27,113 +27,113 @@ git checkout -b create-new-release upstream/master
 
 * Create a source and wheel distribution
 
-```sh
-rm -rf dist build gvm_tools.egg-info
-python3 setup.py sdist bdist_wheel
-```
+  ```sh
+  rm -rf dist build gvm_tools.egg-info
+  python3 setup.py sdist bdist_wheel
+  ```
 
 * Create a git commit
 
-```sh
-git add .
-git commit -m "Prepare release <version>"
-```
+  ```sh
+  git add .
+  git commit -m "Prepare release <version>"
+  ```
 
 * Create a pypi configuration file
 
-```sh
-vim ~/.pypirc
-```
+  ```sh
+  vim ~/.pypirc
+  ```
 
   with the following content (Note: `<username>` must be replaced)
 
-```ini
-[distutils]
-index-servers =
-    pypi
-    testpypi
+  ```ini
+  [distutils]
+  index-servers =
+      pypi
+      testpypi
 
-[pypi]
-username = <username>
+  [pypi]
+  username = <username>
 
-[testpypi]
-repository = https://test.pypi.org/legacy/
-username = <username>
-```
+  [testpypi]
+  repository = https://test.pypi.org/legacy/
+  username = <username>
+  ```
 
 * Create an account at [Test PyPI](https://packaging.python.org/guides/using-testpypi/)
 
 * Upload the archives in dist to [Test PyPI](https://test.pypi.org/)
 
-```sh
-twine upload -r testpypi dist/*
-```
+  ```sh
+  twine upload -r testpypi dist/*
+  ```
 
 * Check if the package is available at [PyPI](https://test.pypi.org/project/gvm-tools)
 
 * Create a test directory
 
-```sh
-mkdir gvm-tools-install-test
-cd gvm-tools-install-test
-pipenv run pip install --pre -I --extra-index-url https://test.pypi.org/simple/ gvm-tools
-```
+  ```sh
+  mkdir gvm-tools-install-test
+  cd gvm-tools-install-test
+  pipenv run pip install --pre -I --extra-index-url https://test.pypi.org/simple/ gvm-tools
+  ```
 
 * Check install version with a python script
 
-```sh
-pipenv run python -c "from gvmtools import get_version; print(get_version())"
-```
+  ```sh
+  pipenv run python -c "from gvmtools import get_version; print(get_version())"
+  ``` 
 
 * Remove test environment
 
-```sh
-pipenv --rm
-cd ..
-rm -rf gvm-tools-install-test
-```
+  ```sh
+  pipenv --rm
+  cd ..
+  rm -rf gvm-tools-install-test
+  ```
 
 * Create a release PR
 
-```sh
-git push origin
-```
+  ```sh
+  git push origin
+  ```
 
   Open GitHub and create a PR against the [Repository](https://github.com/greenbone/gvm-tools)
 
 * Update after PR is merged
 
-```sh
-git fetch upstream
-git rebase upstream/master master
-```
+  ```sh
+  git fetch upstream
+  git rebase upstream/master master
+  ```
 
 * Create a git tag
 
-```sh
-git tag v<version>
-```
+  ```sh
+  git tag v<version>
+  ```
 
   or even signed with your gpg key
 
-```sh
-git tag -s v<version>
-```
+  ```sh
+  git tag -s v<version>
+  ```
 
 * Create final distribution files
 
-```sh
-rm -rf dist build gvm_tools.egg-info
-python3 setup.py sdist bdist_wheel
-```
+  ```sh
+  rm -rf dist build gvm_tools.egg-info
+  python3 setup.py sdist bdist_wheel
+  ```
 
 * Create an account at [PyPI](https://pypi.org/) if not exist already
 
 * Upload to real [PyPI](https://pypi.org/)
 
-```sh
-twine upload dist/*
-```
+  ```sh
+  twine upload dist/*
+  ```
 
 * Check if new version is available at [PyPI](https://test.pypi.org/project/gvm-tools)
 
@@ -144,15 +144,15 @@ twine upload dist/*
 
 * Create a commit
 
-```sh
-git commit -m "Update version after <version> release"
-```
+  ```sh
+  git commit -m "Update version after <version> release"
+  ```
 
 * Push changes and tag to Github
 
-```sh
-git push --tags upstream master
-```
+  ```sh
+  git push --tags upstream master
+  ```
 
 * Create a Github release
 
