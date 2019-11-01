@@ -73,7 +73,7 @@ def generate_ips(n_hosts):
 
 
 def generate_ports(n_ports):
-    protocol = ['/tcp', '/udp', '/ssh']
+    protocol = ['/tcp', '/udp']
     return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
 
 
@@ -226,11 +226,19 @@ def generate_host_detail_elem(
     return host_detail_elem
 
 
-def generate_additional_host_details(n_host_details, host_details):
+def generate_additional_host_details(
+    n_details, host_details, *, not_vuln=False
+):
     host_detail_elems = []
 
-    for _ in range(n_host_details):
-        details = choice(host_details)
+    for _ in range(n_details):
+        details = None
+
+        if not_vuln:
+            details = host_details.copy()
+            details["source_name"] += str(randrange(14259, 103585))
+        else:
+            details = choice(host_details)
 
         host_detail_elems.append(
             generate_host_detail_elem(
@@ -245,7 +253,7 @@ def generate_additional_host_details(n_host_details, host_details):
 
 
 def generate_host_elem(
-    host_ip, oid, host_asset, host_name, n_host_details, data, **kwargs
+    host_ip, oid, host_asset, host_name, n_host_details, n_not_vuln, data
 ):
     host_elem = e.Element('host')
     e.SubElement(host_elem, 'ip').text = host_ip
@@ -304,6 +312,16 @@ def generate_host_elem(
         host_elem.extend(
             generate_additional_host_details(
                 n_host_details, data["host_details"]
+            )
+        )
+
+    dev = n_not_vuln / 10
+    if n_not_vuln:
+        host_elem.extend(
+            generate_additional_host_details(
+                n_not_vuln + randrange(-dev, dev),
+                data["not_vuln"],
+                not_vuln=True,
             )
         )
 
@@ -414,6 +432,14 @@ def main(gmp, args):
     )
 
     parser.add_argument(
+        "--not-vuln-details",
+        dest="not_vuln",
+        type=int,
+        default="10",
+        help="Number of 'NOT_VULN' host details per host.",
+    )
+
+    parser.add_argument(
         "--with-gauss",
         dest="with_gauss",
         action="store_true",
@@ -428,7 +454,7 @@ def main(gmp, args):
 
     seed() if not script_args.seed else seed(script_args.seed)
 
-    with open(script_args.datafile) as file:
+    with open(str(script_args.datafile)) as file:
         data = json.load(file)
 
     print('\n  Generating randomized data(s)...\n')
@@ -440,6 +466,7 @@ def main(gmp, args):
         n_results=script_args.results,
         n_hosts=script_args.hosts,
         n_host_details=script_args.host_details,
+        n_not_vuln=script_args.not_vuln,
         data=data,
         with_gauss=script_args.with_gauss,
     )
