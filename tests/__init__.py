@@ -15,3 +15,36 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import os
+
+
+class SuppressOutput:
+    def __init__(self, *, suppress_stdout=False, suppress_stderr=False):
+        self.suppress_stdout = suppress_stdout
+        self.suppress_stderr = suppress_stderr
+        self.original_stdout = None
+        self.original_stderr = None
+
+    def __enter__(self):
+        self.devnull = open(os.devnull, "w")
+
+        # Suppress streams
+        if self.suppress_stdout:
+            self.original_stdout = sys.stdout
+            sys.stdout = self.devnull
+
+        if self.suppress_stderr:
+            self.original_stderr = sys.stderr
+            sys.stderr = self.devnull
+
+    def __exit__(self, *args, **kwargs):
+        # Restore streams
+        if self.suppress_stdout:
+            sys.stdout = self.original_stdout
+
+        if self.suppress_stderr:
+            sys.stderr = self.original_stderr
+
+        self.devnull.close()
