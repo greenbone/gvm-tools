@@ -278,7 +278,7 @@ class CliParser:
         self._parser.set_defaults(
             gmp_username=self._config.get('gmp', 'username'),
             gmp_password=self._config.get('gmp', 'password'),
-            **self._config.defaults()
+            **self._config.defaults(),
         )
 
         self._parser_ssh.set_defaults(

@@ -160,7 +160,7 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
                     asset_dict[host],
                     host_names[host],
                     data=data,
-                    **kwargs
+                    **kwargs,
                 )
             )
 

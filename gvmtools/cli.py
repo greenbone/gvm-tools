@@ -150,7 +150,7 @@ def main():
             else:
                 print(result)
 
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e, file=sys.stderr)
         sys.exit(1)
     sys.exit(0)
