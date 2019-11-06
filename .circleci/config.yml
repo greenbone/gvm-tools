@@ -67,11 +67,10 @@ commands:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install
+          command: pipenv install --dev
       - run:
-          name: Install pylint
-          command: |
-            pipenv run pip install pylint
+          name: Check with black
+          command: pipenv run black --check gvmtools
       - run:
           name: Run pylint
           command: |
@@ -82,14 +81,13 @@ commands:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install
+          command: pipenv install --dev
       - run:
           name: Install additional script dependencies
           command: pipenv run pip install -r scripts/requirements.txt
       - run:
-          name: Install pylint
-          command: |
-            pipenv run pip install pylint
+          name: Check with black
+          command: pipenv run black --check scripts/*.gmp
       - run:
           name: Run pylint
           command: |
