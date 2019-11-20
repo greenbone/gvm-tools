@@ -92,7 +92,7 @@ class ConfigTestCase(unittest.TestCase):
 
         root.disabled = False
 
-    def test_load_with_non_existing_conigfile(self):
+    def test_load_with_non_existing_configfile(self):
         test_config_path = __here__ / 'foo.cfg'
 
         self.assertFalse(test_config_path.is_file())
