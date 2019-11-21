@@ -291,7 +291,7 @@ can be used:
 
 
 
-.. _python-gvm: https://python-gvm.readthedocs.io/
+.. _python-gvm: https://python-gvm.readthedocs.io/en/latest/
 
 Example Scripts
 ---------------
