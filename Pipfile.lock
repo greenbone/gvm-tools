@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1bdb07e0c9779cc4288f88af1645eae0ff473cae866943af1ff13d940939d51c"
+            "sha256": "794a61512538e28150e63617543c408c12fffca8e236b98329190153b1711ef3"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -237,6 +237,14 @@
             ],
             "index": "pypi",
             "version": "==1.1.0"
+        },
+        "autohooks-plugin-pylint": {
+            "hashes": [
+                "sha256:4eb816e93fa16b731bcd169aa55ede19d72057a17032917fe7f3511ff6b7f3bf",
+                "sha256:97c52f776dd2870dfe851bd5ba5ee85e9032abe4953a7896697a1aa3e225cb01"
+            ],
+            "index": "pypi",
+            "version": "==1.1.1"
         },
         "babel": {
             "hashes": [
