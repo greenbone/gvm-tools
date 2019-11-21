@@ -160,7 +160,7 @@ user name and password for the GMP connection. The most important aspect about t
 script is that it contains the :dfn:`argv` property with the list of additional script
 specific arguments. The :dfn:`gmp` variable contains a connected and
 authenticated instance of a `Greenbone Management Protocol class
-<https://python-gvm.readthedocs.io/en/latest/api/protocols.html#gvm.protocols.gmpv7.Gmp>`_.
+<https://python-gvm.readthedocs.io/en/latest/api/gmpv9.html#protocol>`_.
 
 2. The main function begins with the following code lines:
 
