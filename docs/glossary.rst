@@ -47,17 +47,17 @@ Glossary
     OpenVAS.
 
   GVM9
-    `Version 9 <https://community.greenbone.net/t/gvm-9-stable-initial-release-2017-03-07/211>`_
+    `Version 9 <https://community.greenbone.net/t/gvm-9-end-of-life-initial-release-2017-03-07/211>`_
     of the :term:`GVM` framework. Also known as **OpenVAS 9**. Used in the
     :term:`GOS 4 <GOS>` series.
 
   GVM10
-    `Version 10 <https://community.greenbone.net/t/gvm-10-beta/208>`_ of the
+    `Version 10 <https://community.greenbone.net/t/gvm-10-old-stable-initial-release-2019-04-05/208>`_ of the
     :term:`GVM` framework. Used in :term:`GOS 5 <GOS>`.
 
   GSE
     The `Greenbone Source Edition (GSE)
-    <https://community.greenbone.net/t/about-the-source-edition-gse-category/176>`_
+    <https://community.greenbone.net/t/about-the-greenbone-source-edition-gse-category/176>`_
     covers the actual source codes of the Greenbone application stack
     for vulnerability scanning and vulnerability management :term:`GVM`.
     The source edition is adopted by external third parties, e.g., if the

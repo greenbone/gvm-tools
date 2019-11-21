@@ -84,6 +84,6 @@ Once there is a copy of the source, it can be installed into the current Python
 
     pip install -e /path/to/gvm-tools
 
-.. _pip: https://pip.pypa.io/
-.. _pipenv: http://pipenv.org/
+.. _pip: https://pip.pypa.io/en/stable/
+.. _pipenv: https://pipenv.readthedocs.io/en/latest/
 .. _pypi: https://pypi.org/
