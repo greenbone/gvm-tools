@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b14870887561e1ce103ecc8d16b8fe6ee0b4e0d33bc43355b457cdf14981f5b6"
+            "sha256": "794a61512538e28150e63617543c408c12fffca8e236b98329190153b1711ef3"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -225,17 +225,26 @@
         },
         "autohooks": {
             "hashes": [
-                "sha256:2ef6e1b90d1837191bacd5faa2f4cdaafebebb7c21707b6ba22ad1879ec31326"
+                "sha256:5262bfffffc725c2d0b654260fd064fb4a090f6501c168031e49656fd9047961"
             ],
-            "version": "==1.1.0"
+            "index": "pypi",
+            "version": "==2.0.0"
         },
         "autohooks-plugin-black": {
             "hashes": [
-                "sha256:741aa4f06de987ec717171eba35d97f622d6bc749299ae82ed665237301e1973",
-                "sha256:ae6154a287458bceca814c4f877457d25b59b596c1b8d96f76a7d9017cbf95a7"
+                "sha256:5099f620e01d3fcfd70195e63f101d003528b40475e921829a9ebde000f2c5ee",
+                "sha256:e69a18209f3fd584da903e87faf0e3685caa4d51a9e870ddb3c2b1aef93387b8"
             ],
             "index": "pypi",
-            "version": "==1.1.0"
+            "version": "==1.2.0"
+        },
+        "autohooks-plugin-pylint": {
+            "hashes": [
+                "sha256:4eb816e93fa16b731bcd169aa55ede19d72057a17032917fe7f3511ff6b7f3bf",
+                "sha256:97c52f776dd2870dfe851bd5ba5ee85e9032abe4953a7896697a1aa3e225cb01"
+            ],
+            "index": "pypi",
+            "version": "==1.1.1"
         },
         "babel": {
             "hashes": [
