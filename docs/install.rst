@@ -26,7 +26,7 @@ The following command installs :program:`gvm-tools` system wide:
   pip install gvm-tools
 
 A system wide installation usually requires admin permissions. Therefore, 
-:program:`gvm-tools` may has to be installed only for the
+:program:`gvm-tools` may only be installed for the
 `current user <https://docs.python.org/3/library/site.html#site.USER_BASE>`_
 via:
 
