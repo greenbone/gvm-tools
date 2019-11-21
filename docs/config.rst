@@ -8,7 +8,7 @@ Configuration
 By default, :program:`gvm-tools` :ref:`programs <tools>` are evaluating the
 :file:`~/.config/gvm-tools.conf`
 `ini style <https://docs.python.org/3/library/configparser.html#supported-ini-file-structure>`_
-config file since version 2.0. The name of the config file to be used can be set with the
+config file since version 2.0. The name of the used config file can be set using the
 :command:`-c/--config` command line switch.
 
 Settings
@@ -16,7 +16,7 @@ Settings
 
 The configuration file consists of sections, each led by a :code:`[section]`
 header, followed by key/value entries separated by a :code:`=` character.
-Whitespace between key and value is ignored. Meaning :code:`key = value` is the
+Whitespaces between key and value are ignored, i.e., :code:`key = value` is the
 same as :code:`key=value`.
 
 Currently five sections are evaluated:
@@ -29,7 +29,7 @@ Currently five sections are evaluated:
 
 .. _main_section:
 
-.. rubric:: Main section
+.. rubric:: Main Section
 
 The main section allows changing the default connection timeout besides
 defining variables for :ref:`interpolation`.
@@ -42,10 +42,10 @@ defining variables for :ref:`interpolation`.
 
 .. _gmp_section:
 
-.. rubric:: GMP section
+.. rubric:: GMP Section
 
-The GMP section allows setting the default username and password for
-`GMP (Greenbone Management Protocol)
+The GMP section allows setting the default user name and password for
+`Greenbone Management Protocol (GMP)
 <https://community.greenbone.net/t/about-the-greenbone-management-protocol-gmp-category/83>`_
 based communication.
 
@@ -58,12 +58,14 @@ based communication.
 
 .. _socket_config_section:
 
-.. rubric:: Socket section
+.. rubric:: Socket Section
+
+This section is only relevant if the :ref:`socket connection type 
+<socket_connection_type>` is used.
 
 The socket section allows setting the default path to the Unix Domain socket of
-:term:`gvmd` or :term:`openvasmd` respectively. Not to be confused with the
-socket path to the redis server used by :term:`openvassd`. Only relevant if
-the :ref:`socket connection type <socket_connection_type>` is used.
+:term:`gvmd` or :term:`openvasmd` respectively. It must not be confused with the
+socket path to the redis server used by :term:`openvassd`. 
 
 .. code-block:: ini
 
@@ -73,12 +75,14 @@ the :ref:`socket connection type <socket_connection_type>` is used.
 
 .. _tls_config_section:
 
-.. rubric:: TLS section
+.. rubric:: TLS Section
+
+This section is only relevant if the :ref:`TLS connection type 
+<tls_connection_type>` is used (default for accessing :term:`openvasmd` 
+on :term:`GOS` 3.1).
 
 The TLS section allows setting the default port, TLS certificate file, TLS key
-file and TLS certificate authority file. Only relevant if the
-:ref:`TLS connection type <tls_connection_type>` is used (Default for accessing
-:term:`openvasmd` on :term:`GOS` 3.1).
+file and TLS certificate authority file.
 
 .. code-block:: ini
 
@@ -91,11 +95,13 @@ file and TLS certificate authority file. Only relevant if the
 
 .. _ssh_config_section:
 
-.. rubric:: SSH section
+.. rubric:: SSH Section
 
-The SSH section allows setting the default SSH port, SSH username and SSH
-password. Only relevant if the :ref:`SSH connection type <ssh_connection_type>`
-is used (Default for accessing :term:`openvasmd` on :term:`GOS` 4 and beyond).
+This section is only relevant if the :ref:`SSH connection type <ssh_connection_type>`
+is used (default for accessing :term:`openvasmd` on :term:`GOS` 4 and beyond).
+
+The SSH section allows setting the default SSH port, SSH user name and SSH
+password. 
 
 .. code-block:: ini
 
@@ -121,10 +127,10 @@ setting.
 
 .. rubric:: Interpolation
 
-The configuration file also supports `interpolation of values
+The configuration file also supports the `interpolation of values
 <https://docs.python.org/3/library/configparser.html#interpolation-of-values>`_.
-It is possible to define values in the :code:`[main]` section which can be
-referenced via a :code:`%(<variablename>)s` syntax. Additionally, values of the
+It is possible to define values in the :code:`[main]` section and reference
+them via a :code:`%(<variablename>)s` syntax. Additionally, values of the
 same section can be referenced.
 
 .. code-block:: ini
@@ -136,12 +142,12 @@ same section can be referenced.
   my_last_name=Smith
   username=%(my_first_name)s%(my_last_name)s
 
-Using this syntax will set the gmp username setting to `JohnSmith`.
+Using this syntax will set the gmp user name setting to `JohnSmith`.
 
 Example
 -------
 
-Full example configuration.
+Full example configuration:
 
 .. code-block:: ini
 

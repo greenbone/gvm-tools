@@ -3,17 +3,17 @@
 Provided Tools
 ==============
 
-Currently, :program:`gvm-tools` ships with three command line interface
-programs.
+Currently, :program:`gvm-tools` comes with three command line interface
+programs:
 
 * :ref:`gvm-cli <gvm_cli>`
 * :ref:`gvm-script <gvm_script>`
 * :ref:`gvm-pyshell <gvm_pyshell>`
 
-All of these programs are clients to communicate either via
-:term:`GMP (Greenbone Management Protocol) <GMP>`
-or :term:`OSP (Open Scanner Protocol) <OSP>`. The
-:ref:`connection <connection_types>` is established over a
+All of these programs are clients communicating either via
+:term:`Greenbone Management Protocol (GMP) <GMP>`
+or :term:`Open Scanner Protocol (OSP) <OSP>`. The
+:ref:`connection <connection_types>` is established using a
 :ref:`TLS <tls_connection_type>`, :ref:`SSH <ssh_connection_type>` or
 :ref:`Unix Domain Socket <socket_connection_type>` communication channel.
 
@@ -26,11 +26,10 @@ for details about the possible settings and capabilities.
 gvm-cli
 -------
 
-:program:`gvm-cli` is a low level tool which offers sending and receiving of
-commands and responses for the XML-based :term:`GMP (Greenbone Management
-Protocol) <GMP>` and :term:`OSP (Open Scanner Protocol) <OSP>` directly via the
-command line. It is intended for :ref:`simple scripting <xml_scripting>` via
-shell.
+:program:`gvm-cli` is a low level tool which offers sending and receiving 
+commands and responses for the XML-based :term:`GMP <GMP>` and :term:`OSP <OSP>` 
+directly via the command line. It is intended for :ref:`simple scripting <xml_scripting>`
+via shell.
 
 .. code-block:: shell
 
@@ -87,14 +86,13 @@ gvm-script
 
 .. versionadded:: 2.0
 
-The :program:`gvm-script` allows running :ref:`gvm scripts <gvm_scripting>`
+:program:`gvm-script` allows running :ref:`gvm scripts <gvm_scripting>`
 which are Python based scripts calling the `Python based GVM API
 <https://python-gvm.readthedocs.io/en/latest/>`_. Depending on the
 :command:`--protocol` argument a global gmp or osp object is passed to the
 script.
 
-.. note:: :program:`gvm-script` is only available with gvm-tools version 2.0 and
-  later
+.. note:: :program:`gvm-script` is only available with :program:`gvm-tools` version 2.0 and beyond.
 
 .. code-block:: shell
 
