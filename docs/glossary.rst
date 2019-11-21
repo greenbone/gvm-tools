@@ -15,7 +15,7 @@ Glossary
 
   OSPd
     A `framework <https://github.com/greenbone/ospd>`_ for several scanner
-    daemons speaking the :term:`Open Scanner Protocol <OSP>`.
+    daemons speaking the :term:`Open Scanner Protocol (OSP) <OSP>`.
 
   GOS
     Greenbone Operating System, the operating system of the
@@ -60,6 +60,6 @@ Glossary
     <https://community.greenbone.net/t/about-the-source-edition-gse-category/176>`_
     covers the actual source codes of the Greenbone application stack
     for vulnerability scanning and vulnerability management :term:`GVM`.
-    The source edition is adopted by external third parties. E.g., if your
-    :term:`GVM` stack is provided by a Linux Distribution, it is build from
+    The source edition is adopted by external third parties, e.g., if the
+    :term:`GVM` stack is provided by a Linux distribution, it is build from
     the Greenbone Source Edition.

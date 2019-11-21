@@ -10,11 +10,14 @@ the `pip`_ installer tool in conjunction with the `pypi`_ package repository.
   tools are provided by your distribution, you may need to explicitly use the
   Python 3 version of the tool, e.g. :program:`pip3`.
 
-Using pip
----------
+Installing the Latest Stable Release of gvm-tools
+-------------------------------------------------
 
-You can install the latest stable release of :program:`gvm-tools` from the
-`Python Package Index <https://pypi.org/>`_ using `pip`_.
+For installing the latest stable release of :program:`gvm-tools` from the
+`Python Package Index <https://pypi.org/>`_, `pip`_ or `pipenv`_ can be used.
+
+Using pip
+^^^^^^^^^
 
 The following command installs :program:`gvm-tools` system wide:
 
@@ -22,8 +25,8 @@ The following command installs :program:`gvm-tools` system wide:
 
   pip install gvm-tools
 
-A system wide installation usually requires admin permissions. Therefore, you
-may need install :program:`gvm-tools` only for the
+A system wide installation usually requires admin permissions. Therefore, 
+:program:`gvm-tools` may only be installed for the
 `current user <https://docs.python.org/3/library/site.html#site.USER_BASE>`_
 via:
 
@@ -35,19 +38,20 @@ For further details and additional installation options, please take a look at
 the documentation of `pip`_.
 
 Using pipenv
-------------
+^^^^^^^^^^^^
 
 To avoid polluting the system and user namespaces with Python packages and to
 allow installing different versions of the same package at the same time,
 `python virtual environments <https://docs.python.org/3/library/venv.html>`_
-have been introduced. `pipenv`_ is a tool to combine using virtual environments
-and `pip`_ elegantly.
+have been introduced.
+
+`pipenv`_ is a tool combining the use of virtual environments and `pip`_ elegantly.
 
 Please follow the `pipenv documentation <https://pipenv.readthedocs.io/en/latest/install/#pragmatic-installation-of-pipenv>`_
 to install the tool.
 
 To install :program:`gvm-tools` into a virtual environment, the following
-commands needs to be executed:
+commands need to be executed:
 
 .. code-block:: shell
 
@@ -66,14 +70,14 @@ activated by running:
 Getting the Source
 ------------------
 
-The source code of python-gvm can be found at
+The source code of **python-gvm** can be found at
 `GitHub <https://github.com/greenbone/python-gvm>`_.
 
 To clone the public repository run::
 
     git clone git://github.com/greenbone/gvm-tools
 
-Once you have a copy of the source, you can install it into your current Python
+Once there is a copy of the source, it can be installed into the current Python
 `environment <https://docs.python.org/3/library/venv.html#venv-def>`_:
 
 .. code-block:: shell
