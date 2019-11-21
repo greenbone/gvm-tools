@@ -232,11 +232,11 @@
         },
         "autohooks-plugin-black": {
             "hashes": [
-                "sha256:741aa4f06de987ec717171eba35d97f622d6bc749299ae82ed665237301e1973",
-                "sha256:ae6154a287458bceca814c4f877457d25b59b596c1b8d96f76a7d9017cbf95a7"
+                "sha256:5099f620e01d3fcfd70195e63f101d003528b40475e921829a9ebde000f2c5ee",
+                "sha256:e69a18209f3fd584da903e87faf0e3685caa4d51a9e870ddb3c2b1aef93387b8"
             ],
             "index": "pypi",
-            "version": "==1.1.0"
+            "version": "==1.2.0"
         },
         "autohooks-plugin-pylint": {
             "hashes": [
