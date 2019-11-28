@@ -152,8 +152,8 @@ output-format=text
 # Tells whether to display a full report or only the messages
 reports=no
 
-# Activate the evaluation score.
-score=yes
+# Deactivate the evaluation score.
+score=no
 
 
 [REFACTORING]
