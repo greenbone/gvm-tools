@@ -12,6 +12,8 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+# pylint: disable=invalid-name,redefined-builtin,wrong-import-position
+
 import os
 import sys
 
@@ -45,7 +47,7 @@ release = gvmtools.get_version()
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.githubpages',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
