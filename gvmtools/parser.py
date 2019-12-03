@@ -45,6 +45,7 @@ DEFAULT_CONFIG_PATH = '~/.config/gvm-tools.conf'
 PROTOCOL_OSP = 'OSP'
 PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
+DEFAULT_HOSTNAME = '127.0.0.1'
 
 
 class CliParser:
@@ -197,7 +198,9 @@ class CliParser:
         )
 
         parser_ssh.add_argument(
-            '--hostname', required=True, help='Hostname or IP address'
+            '--hostname',
+            help='Hostname or IP address (default: %(default)s)',
+            default=DEFAULT_HOSTNAME,
         )
         parser_ssh.add_argument(
             '--port',
@@ -216,7 +219,9 @@ class CliParser:
             'tls', help='Use TLS secured connection to connect to service'
         )
         parser_tls.add_argument(
-            '--hostname', required=True, help='Hostname or IP address'
+            '--hostname',
+            help='Hostname or IP address (default: %(default)s)',
+            default=DEFAULT_HOSTNAME,
         )
         parser_tls.add_argument(
             '--port',
@@ -285,12 +290,14 @@ class CliParser:
             port=int(self._config.get('ssh', 'port')),
             ssh_username=self._config.get('ssh', 'username'),
             ssh_password=self._config.get('ssh', 'password'),
+            hostname=self._config.get('ssh', 'hostname'),
         )
         self._parser_tls.set_defaults(
             port=int(self._config.get('tls', 'port')),
             certfile=self._config.get('tls', 'certfile'),
             keyfile=self._config.get('tls', 'keyfile'),
             cafile=self._config.get('tls', 'cafile'),
+            hostname=self._config.get('tls', 'hostname'),
         )
         self._parser_socket.set_defaults(
             socketpath=self._config.get('unixsocket', 'socketpath')
