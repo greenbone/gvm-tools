@@ -16,6 +16,7 @@ $ cd gvm-tools && git log
 ## [unreleased]
 
 ### Added
+- Allow to specify hostname for SSH and TLS connections in the config file [#239](https://github.com/greenbone/gvm-tools/pull/239)
 
 ### Changed
 
