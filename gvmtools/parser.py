@@ -46,6 +46,7 @@ PROTOCOL_OSP = 'OSP'
 PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
 
+
 class CliParser:
     def __init__(
         self, description, logfilename, *, prog=None, ignore_config=False
@@ -196,8 +197,7 @@ class CliParser:
         )
 
         parser_ssh.add_argument(
-            '--hostname',
-            help='Hostname or IP address (default: %(default)s)',
+            '--hostname', help='Hostname or IP address (default: %(default)s)',
         )
         parser_ssh.add_argument(
             '--port',
@@ -216,8 +216,7 @@ class CliParser:
             'tls', help='Use TLS secured connection to connect to service'
         )
         parser_tls.add_argument(
-            '--hostname',
-            help='Hostname or IP address (default: %(default)s)',
+            '--hostname', help='Hostname or IP address (default: %(default)s)',
         )
         parser_tls.add_argument(
             '--port',
