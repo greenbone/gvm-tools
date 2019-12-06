@@ -22,11 +22,11 @@ Module to store gvm-tools configuration settings
 import configparser
 import logging
 
-from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_GVM_PORT
+from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_GVM_PORT, DEFAULT_SSH_PORT, DEFAULT_HOSTNAME
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SSH_PORT = 22
+
 
 
 class Config:
@@ -37,10 +37,10 @@ class Config:
 
         self._config['gmp'] = dict(username='', password='')
         self._config['ssh'] = dict(
-            username='gmp', password='gmp', port=DEFAULT_SSH_PORT
+            username='gmp', password='gmp', port=DEFAULT_SSH_PORT, hostname=DEFAULT_HOSTNAME
         )
         self._config['unixsocket'] = dict(socketpath=DEFAULT_UNIX_SOCKET_PATH)
-        self._config['tls'] = dict(port=DEFAULT_GVM_PORT)
+        self._config['tls'] = dict(port=DEFAULT_GVM_PORT, hostname=DEFAULT_HOSTNAME)
 
         self._defaults = dict()
 

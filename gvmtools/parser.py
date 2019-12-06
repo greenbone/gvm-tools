@@ -45,8 +45,6 @@ DEFAULT_CONFIG_PATH = '~/.config/gvm-tools.conf'
 PROTOCOL_OSP = 'OSP'
 PROTOCOL_GMP = 'GMP'
 DEFAULT_PROTOCOL = PROTOCOL_GMP
-DEFAULT_HOSTNAME = '127.0.0.1'
-
 
 class CliParser:
     def __init__(
@@ -200,7 +198,6 @@ class CliParser:
         parser_ssh.add_argument(
             '--hostname',
             help='Hostname or IP address (default: %(default)s)',
-            default=DEFAULT_HOSTNAME,
         )
         parser_ssh.add_argument(
             '--port',
@@ -221,7 +218,6 @@ class CliParser:
         parser_tls.add_argument(
             '--hostname',
             help='Hostname or IP address (default: %(default)s)',
-            default=DEFAULT_HOSTNAME,
         )
         parser_tls.add_argument(
             '--port',
