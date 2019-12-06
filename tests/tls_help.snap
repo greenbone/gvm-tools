@@ -5,7 +5,7 @@ usage: gvm-test-cli tls [-h] [--hostname HOSTNAME] [--port PORT]
 optional arguments:
   -h, --help           show this help message and exit
   --hostname HOSTNAME  Hostname or IP address (default: 127.0.0.1)
-  --port PORT          GMP/OSP port (default: None)
+  --port PORT          GMP/OSP port (default: 9390)
   --certfile CERTFILE  Path to the certificate file for client authentication.
                        (default: None)
   --keyfile KEYFILE    Path to key file for client authentication. (default:
