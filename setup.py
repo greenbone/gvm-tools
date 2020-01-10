@@ -46,7 +46,7 @@ setup(
         ],
     },
     install_requires=[
-        'python-gvm',
+        'python-gvm>=1.2.0',
     ],
     python_requires='>=3.5',
     classifiers=[
