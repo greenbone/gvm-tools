@@ -30,7 +30,7 @@ def check_args(args):
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp CB-K16/0943
+    ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp.py CB-K16/0943
         """
         print(message)
         quit()

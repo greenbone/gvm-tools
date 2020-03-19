@@ -16,44 +16,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 
 def check_args(args):
     len_args = len(args.script) - 1
+
     if len_args is not 1:
         message = """
-        This script will display all hosts with the searched applications!
+        This script deletes overrides with a specific filter value
 
-        1. <application>  -- Name of the application
+        <filter>  -- the parameter for the filter.
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/application-detection.gmp <application>
+    ssh --hostname <gsm> scripts/delete-overrides-by-filter.gmp.py <filter>
         """
         print(message)
         quit()
 
 
-def print_assets(gmp, appname):
-    res = gmp.get_reports()
+def delete_overrides(gmp, filter_value):
+    filters = gmp.get_overrides(filter=filter_value)
 
-    hosts = res.xpath('//host')
+    if not filters.xpath('override'):
+        print('No overrides with filter: %s' % filter_value)
 
-    for host in hosts:
-        ip = host.xpath('ip/text()')
-        hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
-        if len(hostname) is 0:
-            hostname = ""
+    for f_id in filters.xpath('override/@id'):
+        print('Delete override: %s' % f_id, end='')
+        res = gmp.delete_override(f_id)
+
+        if 'OK' in res.xpath('@status_text')[0]:
+            print(' OK')
         else:
-            hostname = hostname[0]
+            print(' ERROR')
 
-        print('{ip} ({hostname})'.format(ip=ip, hostname=hostname))
-        apps = host.xpath(
-            'detail/name[text() = "App"]/../value['
-            'contains(text(), "{0}")]/text()'.format(appname)
-        )
-        for app in apps:
-            print('\t' + app)
-        print('\n')
+        time.sleep(60)
 
 
 def main(gmp, args):
@@ -61,7 +59,9 @@ def main(gmp, args):
 
     check_args(args)
 
-    print_assets(gmp, args.script[1])
+    filter_value = args.script[1]
+
+    delete_overrides(gmp, filter_value)
 
 
 if __name__ == '__gmp__':

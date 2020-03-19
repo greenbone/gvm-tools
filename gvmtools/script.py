@@ -57,7 +57,7 @@ def main():
     parser.add_argument(
         'scriptname',
         metavar="SCRIPT",
-        help='Path to script to be executed (example: myscript.gmp)',
+        help='Path to script to be executed (example: myscript.gmp.py)',
     )
     parser.add_argument(
         'scriptargs', nargs='*', metavar="ARG", help='Arguments for the script'

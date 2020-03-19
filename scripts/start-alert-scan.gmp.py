@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 inovex GmbH
+# Copyright (C) 2018 Henning Häcker
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -20,15 +20,15 @@
 def check_args(args):
     len_args = len(args.script) - 1
     message = """
-        This script makes an alert scan
+        This script makes an alert scan.
         It needs two parameters after the script name.
 
         1. <sender_email>     -- E-Mail of the sender
         2. <receiver_email>   -- E-Mail of the receiver
         
-                Example:
+        Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/start-multiple-alert-scan.gmp <sender_email> <receiver_email>
+ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_email>
     """
     if len_args != 2:
         print(message)
@@ -66,6 +66,7 @@ def get_config(gmp, debug=False):
         "deep-ulti": config_list[3],
         "discovery": config_list[4],
     }
+
     config_id = "-"
     for conf in res.xpath('config'):
         cid = conf.xpath('@id')[0]
@@ -75,13 +76,14 @@ def get_config(gmp, debug=False):
         if template_abbreviation_mapper.get(template, "-") == name:
             config_id = cid
             if debug:
-                print("%s: %s" % (name, config_id))
+                print(name + ": " + config_id)
             break
+
     # check for existence of the desired config
     if config_id == "-":
         print(
-            "error: could not recognize template '%s'\n"
-            "valid template names are: %s\n" % (template, config_list)
+            "error: could not recognize template '%s'"
+            "\nvalid template names are: %s\n" % (template, config_list)
         )
         exit()
 
@@ -91,14 +93,12 @@ def get_config(gmp, debug=False):
 def get_target(gmp, debug=False):
     # find a targetName
     targets = gmp.get_targets()
-
     counter = 0
     exists = True
-
     # iterate over existing targets and find a vacant targetName
     while exists:
         exists = False
-        target_name = "targetName%s" % str(counter)
+        target_name = "targetName" + str(counter)
         for target in targets.xpath('target'):
             name = target.xpath('name/text()')[0]
             if name == target_name:
@@ -107,14 +107,13 @@ def get_target(gmp, debug=False):
         counter += 1
 
     if debug:
-        print("target name: %s" % target_name)
+        print("target name: " + target_name)
 
     # iterate over existing port lists and find a vacant name
     new_port_list_name = "portlistName"
     counter = 0
-
     while True:
-        portlist_name = '%s%s' % (new_port_list_name, str(counter))
+        portlist_name = str(new_port_list_name + str(counter))
         if portlist_name not in get_port_list_names(gmp):
             break
         counter += 1
@@ -125,8 +124,8 @@ def get_target(gmp, debug=False):
     portlist = gmp.create_port_list(portlist_name, port_string)
     portlist_id = portlist.xpath('@id')[0]
     if debug:
-        print("Portlist-name:\t%s" % str(portlist_name))
-        print("Portlist-id:\t%s" % str(portlist_id))
+        print("Portlist-name:\t" + str(portlist_name))
+        print("Portlist-id:\t" + str(portlist_id))
 
     # configurable hosts
     hosts = ["localhost"]
@@ -136,7 +135,7 @@ def get_target(gmp, debug=False):
     return res.xpath('@id')[0]
 
 
-def get_alerts(gmp, sender_email, recipient_email, debug=False):
+def get_alert(gmp, sender_email, recipient_email, debug=False):
     # configurable alert name
     alert_name = recipient_email
 
@@ -144,11 +143,13 @@ def get_alerts(gmp, sender_email, recipient_email, debug=False):
     alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
     alert_id = None
     alert = alert_object.xpath('alert')
+
     if len(alert) == 0:
+        print("creating alert")
         gmp.create_alert(
             alert_name,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
-            event_data={'status': 'Done'},
+            event_data={"status": "Done"},
             condition=gmp.types.AlertCondition.ALWAYS,
             method=gmp.types.AlertMethod.EMAIL,
             method_data={
@@ -174,59 +175,16 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
+
         alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
         alert = alert_object.xpath('alert')
         alert_id = alert[0].get('id', 'no id found')
     else:
         alert_id = alert[0].get('id', 'no id found')
         if debug:
-            print("alert_id: %s" % str(alert_id))
+            print("alert_id: " + str(alert_id))
 
-    # second configurable alert name
-    alert_name2 = "%s-2" % recipient_email
-
-    # create second alert if necessary
-    alert_object2 = gmp.get_alerts(filter='name=%s' % alert_name2)
-    alert_id2 = None
-    alert2 = alert_object2.xpath('alert')
-    if len(alert2) == 0:
-        gmp.create_alert(
-            alert_name2,
-            event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
-            event_data={'status': 'Done'},
-            condition=gmp.types.AlertCondition.ALWAYS,
-            method=gmp.types.AlertMethod.EMAIL,
-            method_data={
-                """Task '$n': $e
-
-After the event $e,
-the following condition was met: $c
-
-This email escalation is configured to attach report format '$r'.
-Full details and other report formats are available on the scan engine.
-
-$t
-
-Note:
-This email was sent to you as a configured security scan escalation.
-Please contact your local system administrator if you think you
-should not have received it.
-""": "message",
-                "2": "notice",
-                sender_email: "from_address",
-                "[OpenVAS-Manager] Task": "subject",
-                recipient_email: "to_address",
-            },
-        )
-        alert_object2 = gmp.get_alerts(filter='name=%s' % recipient_email)
-        alert2 = alert_object2.xpath('alert')
-        alert_id2 = alert2[0].get('id', 'no id found')
-    else:
-        alert_id2 = alert2[0].get('id', 'no id found')
-        if debug:
-            print("alert_id2: %s" % str(alert_id2))
-
-    return (alert_id, alert_id2)
+    return alert_id
 
 
 def get_scanner(gmp):
@@ -236,25 +194,26 @@ def get_scanner(gmp):
 
 
 def create_and_start_task(
-    gmp, config_id, target_id, scanner_id, alerts, debug=False
+    gmp, config_id, target_id, scanner_id, alert_id, debug=False
 ):
     # Create the task
-    tasks = gmp.get_tasks(filter="name~ScanDoneMultipleAlert")
-    task_name = "ScanDoneMultipleAlert{0}".format(len(tasks.xpath('tasks/@id')))
-    task_comment = "test comment"
+    tasks = gmp.get_tasks(filter="name~ScanDoneAlert")
+    task_name = "ScanDoneAlert{0}".format(len(tasks.xpath('tasks/@id')))
+    task_comment = "Scan Done Alert"
     res = gmp.create_task(
         task_name,
         config_id,
         target_id,
         scanner_id,
-        alert_ids=alerts,
+        alert_ids=[alert_id],
         comment=task_comment,
     )
+
     # Start the task
     task_id = res.xpath('@id')[0]
     gmp.start_task(task_id)
 
-    print('Task started: %s' % task_name)
+    print('Task started: ' + task_name)
 
     if debug:
         # Stop the task (for performance reasons)
@@ -272,10 +231,10 @@ def main(gmp, args):
 
     config_id = get_config(gmp)
     target_id = get_target(gmp)
-    alerts = get_alerts(gmp, sender_email, recipient_email)
+    alert_id = get_alert(gmp, sender_email, recipient_email)
     scanner_id = get_scanner(gmp)
 
-    create_and_start_task(gmp, config_id, target_id, scanner_id, alerts)
+    create_and_start_task(gmp, config_id, target_id, scanner_id, alert_id)
 
     print("\nScript finished\n")
 

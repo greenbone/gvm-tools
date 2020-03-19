@@ -35,7 +35,7 @@ def check_args(args):
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/gen-random-tasks.gmp 3 40 with-gauss
+    ssh --hostname <gsm> scripts/gen-random-targets.gmp.py 3 40 with-gauss
         """
         print(message)
         quit()

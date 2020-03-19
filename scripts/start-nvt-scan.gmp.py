@@ -28,7 +28,7 @@ def check_args(args):
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/start-nvt-scan.gmp \
+ssh --hostname <gsm> scripts/start-nvt-scan.gmp.py \
     1.3.6.1.4.1.25623.1.0.106223 localhost
         """
         print(message)

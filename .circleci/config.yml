@@ -87,7 +87,7 @@ commands:
           command: pipenv run pip install -r scripts/requirements.txt
       - run:
           name: Check with black
-          command: pipenv run black --check scripts/*.gmp
+          command: pipenv run black --check scripts/*.gmp.py
       - run:
           name: Run pylint
           command: |

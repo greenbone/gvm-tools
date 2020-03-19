@@ -26,6 +26,7 @@ $ cd gvm-tools && git log
   [PR 220](https://github.com/greenbone/gvm-tools/pull/220)
   [PR 225](https://github.com/greenbone/gvm-tools/pull/225)
 - The script `random-report-gen.gmp` now uses argparser, to improve its usage [PR 223](https://github.com/greenbone/gvm-tools/pull/223)
+* Use .py ending for all gmp scripts to support auto highlighting [PR 244](https://github.com/greenbone/gvm-tools/pull/244)
 
 ### Fixed
 

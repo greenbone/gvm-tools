@@ -135,8 +135,8 @@ Scripting of :term:`Greenbone Management Protocol (GMP) <GMP>` and :term:`Open S
 at `python-gvm`_ for further details about the API.
 
 .. note:: By convention, scripts using :term:`GMP` are called *GMP scripts* and
-  are files with the ending :file:`.gmp`. Accordingly, *OSP scripts* with the
-  ending :file:`.osp` are using :term:`OSP`. Technically both protocols could be
+  are files with the ending :file:`.gmp.py`. Accordingly, *OSP scripts* with the
+  ending :file:`.osp.py` are using :term:`OSP`. Technically both protocols could be
   used in one single script file.
 
 The following sections are using the same example as it was used in 
@@ -146,7 +146,7 @@ new systems and unusual, new TCP ports is in use. The IDS will provide the
 IP address of a new system to the GMP script.
 
 1. Define the function that should be called when the script is
-   started by adding the following code to a file named :file:`scan-new-system.gmp`:
+   started by adding the following code to a file named :file:`scan-new-system.gmp.py`:
 
 .. code-block:: python3
 
@@ -246,7 +246,7 @@ Finally, the function to start the task and get the report ID:
       return response[0].text
 
 
-For getting a PDF document of the report, a second script :file:`pdf-report.gmp`
+For getting a PDF document of the report, a second script :file:`pdf-report.gmp.py`
 can be used:
 
 .. code-block:: python3
