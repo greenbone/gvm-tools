@@ -1208,8 +1208,8 @@ def main(gmp, args):
         formatter_class=RawTextHelpFormatter,
         add_help=False,
         epilog="""
-        usage: gvm-script [connection_type] check-gmp.gmp ...
-        or: gvm-script [connection_type] check-gmp.gmp -H
+        usage: gvm-script [connection_type] check-gmp.gmp.py ...
+        or: gvm-script [connection_type] check-gmp.gmp.py -H
         or: gvm-script connection_type --help""",
     )
 

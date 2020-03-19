@@ -40,7 +40,7 @@ def check_args(args):
 
         Example for starting up the routine:
             $ gvm-script --gmp-username=namessh --gmp-password=pass ssh --hostname=hostname  \
-     scripts/gsm-updater.gmp \
+     scripts/combine-reports.gmp.py \
     "d15a337c-56f3-4208-a462-afeb79eb03b7" \
     "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698" 'first_task'
 

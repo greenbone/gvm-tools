@@ -11,7 +11,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=docs
+ignore-patterns=docs, "scripts/[\S+].py" scripts/*
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -172,7 +172,7 @@ never-returning-functions=optparse.Values,sys.exit
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
-additional-builtins=
+additional-builtins=gmp,args
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes

@@ -27,7 +27,7 @@ def check_args(args):
         
                 Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/scan -net-system.gmp <host_ip>
+ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip>
     """
     if len_args != 1:
         print(message)

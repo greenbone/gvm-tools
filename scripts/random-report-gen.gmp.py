@@ -377,7 +377,7 @@ def main(gmp, args):
             """
         Example:
             $ gvm-script --gmp-username name --gmp-password pass
-            ssh --hostname <gsm> scripts/gen-random-reports.gmp -T 5 -r 4 -R 3 --hosts 10
+            ssh --hostname <gsm> scripts/gen-random-reports.gmp.py -T 5 -r 4 -R 3 --hosts 10
         """
         ),
     )

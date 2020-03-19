@@ -2,7 +2,7 @@
 
 # GVM Example Scripts
 
-## `application-detection.gmp`
+## `application-detection.gmp.py`
 
 This script will search the reports and display all hosts with the requested applications!
 
@@ -12,11 +12,11 @@ This script will search the reports and display all hosts with the requested app
 
 ### Example
 
-  `$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/application-detection.gmp <application>`
+  `$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/application-detection.gmp.py <application>`
 
 ---
 
-## `cfg-gen-for-certs.gmp`
+## `cfg-gen-for-certs.gmp.py`
 
 This script creates a new scan config with nvts from a given CERT-Bund!
 
@@ -26,11 +26,11 @@ This script creates a new scan config with nvts from a given CERT-Bund!
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp CB-K16/0943`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp.py CB-K16/0943`
 
 ---
 
-## `check-gmp.gmp`
+## `check-gmp.gmp.py`
 
 This script can test different methods of the gmp API.
 
@@ -67,21 +67,21 @@ This script can test different methods of the gmp API.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/check-gmp.gmp --ip 127.0.0.1 --ping`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/check-gmp.gmp.py --ip 127.0.0.1 --ping`
 
 ---
 
-## `clean-sensor.gmp`
+## `clean-sensor.gmp.py`
 
 This script removes all resources from a sensor, except active tasks.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/clean-sensor.gmp`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/clean-sensor.gmp.py`
 
 ---
 
-## `combine-reports.gmp`
+## `combine-reports.gmp.py`
 
 This script will combine desired reports into a single report. The combined report will then be sent to a desired container task. This script will create a container task for the combined report to be sent to, however, if you would like the report to be sent to an existing task, place the report of the desired task first and add the argument 'first_task'.
 
@@ -91,11 +91,11 @@ This script will combine desired reports into a single report. The combined repo
 
 ### Example
 
-`$ gvm-script --gmp-username=namessh --gmp-password=pass ssh --hostname=hostname scripts/gsm-updater.gmp "d15a337c-56f3-4208-a462-afeb79eb03b7" "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698" 'first_task'`
+`$ gvm-script --gmp-username=namessh --gmp-password=pass ssh --hostname=hostname scripts/combine-reports.gmp.py "d15a337c-56f3-4208-a462-afeb79eb03b7" "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698" 'first_task'`
 
 ---
 
-## `create-dummy-data.gmp`
+## `create-dummy-data.gmp.py`
 
 This script will create random data in the given GVM database.
 
@@ -105,11 +105,11 @@ This script will create random data in the given GVM database.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/create-dummy-data.gmp <count>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/create-dummy-data.gmp.py <count>`
 
 ---
 
-## `create-targets-from-host-list.gmp`
+## `create-targets-from-host-list.gmp.py`
 
 This script pulls hostnames from a text file and creates a target for each.
 
@@ -120,11 +120,11 @@ This script pulls hostnames from a text file and creates a target for each.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/create_targets_from_host_list.gmp <hostname> <hosts_textfile>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/create_targets_from_host_list.gmp.py <hostname> <hosts_textfile>`
 
 ---
 
-## `delete-overrides-by-filter.gmp`
+## `delete-overrides-by-filter.gmp.py`
 
 This script deletes overrides with a specific filter value.
 
@@ -134,11 +134,11 @@ This script deletes overrides with a specific filter value.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/delete-overrides-by-filter.gmp <filter>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/delete-overrides-by-filter.gmp.py <filter>`
 
 ---
 
-## `gen-random-targets.gmp`
+## `gen-random-targets.gmp.py`
 
 This script generates random task data and feeds it to a desired GSM database.
 
@@ -151,21 +151,21 @@ This script generates random task data and feeds it to a desired GSM database.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/gen-random-tasks.gmp 3 40 with-gauss`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/gen-random-targets.gmp.py 3 40 with-gauss`
 
 ---
 
-## `list-tasks.gmp`
+## `list-tasks.gmp.py`
 
 Lists the tasks stored in an GSM Database
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/list-tasks.gmp`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/list-tasks.gmp.py`
 
 ---
 
-## `monthly-report.gmp`
+## `monthly-report.gmp.py`
 
 This script will display all vulnerabilities from the hosts of the reports in a given month!
 
@@ -177,11 +177,11 @@ This script will display all vulnerabilities from the hosts of the reports in a 
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/monthly-report.gmp 05 2019 with-tables`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/monthly-report.gmp.py 05 2019 with-tables`
 
 ---
 
-## `monthly-report2.gmp`
+## `monthly-report2.gmp.py`
 
 This script will display all vulnerabilities from the hosts of the reports in a given month!
 
@@ -192,11 +192,11 @@ This script will display all vulnerabilities from the hosts of the reports in a 
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/monthly-report2.gmp 05 2019`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/monthly-report2.gmp.py 05 2019`
 
 ---
 
-## `nvt-scan.gmp`
+## `nvt-scan.gmp.py`
 
 This script creates a new task with specific host and nvt!
 
@@ -210,7 +210,7 @@ This script creates a new task with specific host and nvt!
 
 ---
 
-## `pdf-report.gmp`
+## `pdf-report.gmp.py`
 
 This script requests the given report and saves it as a pdf file locally.
 
@@ -221,11 +221,11 @@ This script requests the given report and saves it as a pdf file locally.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/pdf-report.gmp <report_id> <pdf_file>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/pdf-report.gmp.py <report_id> <pdf_file>`
 
 ---
 
-## `random-report-gen.gmp`
+## `random-report-gen.gmp.py`
 
 This script generates randomized report data.
 
@@ -239,11 +239,11 @@ This script generates randomized report data.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/gen-random-reports.gmp 10 50 2500 256 with-gauss`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/random-report-gen.gmp.py 10 50 2500 256 with-gauss`
 
 ---
 
-## `scan-new-system.gmp`
+## `scan-new-system.gmp.py`
 
 This script starts a new scan on the given host.
 
@@ -253,11 +253,11 @@ This script starts a new scan on the given host.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/scan -net-system.gmp <host_ip>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip>`
 
 ---
 
-## `send-delta-emails.gmp`   
+## `send-delta-emails.gmp.py`   
 
 This script, once started, will continuously send delta reports via email for selected tasks. The routine follows this procedure:
 
@@ -273,11 +273,11 @@ Every `<interval>` minutes do:
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-delta-emails.gmp`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-delta-emails.gmp.py`
 
 ---
 
-## `send-schedules.gmp`
+## `send-schedules.gmp.py`
 
 This script pulls schedule data from an xml document and feeds it to a desired GSM.
 
@@ -287,11 +287,11 @@ This script pulls schedule data from an xml document and feeds it to a desired G
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-schedules.gmp targethost example_file.xml`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-schedules.gmp.py targethost example_file.xml`
 
 ---
 
-## `send-targets.gmp`
+## `send-targets.gmp.py`
 
 This script pulls target data from an xml document and feeds it to a desired GSM.
 
@@ -301,11 +301,11 @@ This script pulls target data from an xml document and feeds it to a desired GSM
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-targets.gmp example_file.xml`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-targets.gmp.py example_file.xml`
 
 ---
 
-## `send-tasks.gmp`
+## `send-tasks.gmp.py`
 
 This script pulls tasks data from an xml document and feeds it to a desired GSM.
 
@@ -315,11 +315,11 @@ This script pulls tasks data from an xml document and feeds it to a desired GSM.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-tasks.gmp example_file.xml`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-tasks.gmp.py example_file.xml`
 
 ---
 
-## `start-alert-scan.gmp`
+## `start-alert-scan.gmp.py`
 
 This script makes an alert scan and sends the report via email.
 
@@ -330,11 +330,11 @@ This script makes an alert scan and sends the report via email.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/start-alert-scan.gmp <sender_email> <receiver_email>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_email>`
 
 ---
 
-## `start-multiple-alerts-scan.gmp`
+## `start-multiple-alerts-scan.gmp.py`
 
 This script makes an alert scan and sends the report via email.
 
@@ -345,11 +345,11 @@ This script makes an alert scan and sends the report via email.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/start-multiple-alerts-scan.gmp <sender_email> <receiver_email>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/start-multiple-alerts-scan.gmp.py <sender_email> <receiver_email>`
 
 ---
 
-## `start-nvt-scan.gmp`
+## `start-nvt-scan.gmp.py`
 
 This script creates a new task (if the target is not existing) with specific host and nvt!
 
@@ -359,11 +359,11 @@ This script creates a new task (if the target is not existing) with specific hos
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/start-nvt-scan.gmp 1.3.6.1.4.1.25623.1.0.106223 localhost`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/start-nvt-scan.gmp.py 1.3.6.1.4.1.25623.1.0.106223 localhost`
 
 ---
 
-## `sync-assets.gmp`
+## `sync-assets.gmp.py`
 
 This script reads asset data from a csv file and sync it with the gsm.
 
@@ -373,11 +373,11 @@ This script reads asset data from a csv file and sync it with the gsm.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/sync-assets.gmp <csv_file>`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/sync-assets.gmp.py <csv_file>`
 
 ---
 
-## `update-task-target.gmp`
+## `update-task-target.gmp.py`
 
 This script will update target hosts information for a desired task.
 
@@ -388,4 +388,4 @@ This script will update target hosts information for a desired task.
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/update-task-target-hosts.gmp hosts_file.csv "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698"`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/update-task-target.gmp.py hosts_file.csv "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698"`

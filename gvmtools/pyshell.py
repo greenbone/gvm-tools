@@ -93,7 +93,7 @@ def main():
         'scriptname',
         nargs='?',
         metavar="SCRIPT",
-        help='Path to script to be preloaded (example: myscript.gmp)',
+        help='Path to script to be preloaded (example: myscript.gmp.py)',
     )
     parser.add_argument(
         'scriptargs',
