@@ -136,7 +136,7 @@ at `python-gvm`_ for further details about the API.
 
 .. note:: By convention, scripts using :term:`GMP` are called *GMP scripts* and
   are files with the ending :file:`.gmp.py`. Accordingly, *OSP scripts* with the
-  ending :file:`.osp` are using :term:`OSP`. Technically both protocols could be
+  ending :file:`.osp.py` are using :term:`OSP`. Technically both protocols could be
   used in one single script file.
 
 The following sections are using the same example as it was used in 
