@@ -4,18 +4,34 @@ Glossary
 .. glossary::
 
   gvmd
-    Management daemon shipped with :term:`GVM 10 <GVM10>`.
+    Management daemon shipped with :term:`GVM 10 <GVM10>` and later.
+    Abbreviation for **G**\reenbone **V**\ulnerability **M**\anagement
+    **D**\aemon.
 
   openvasmd
     Management daemon shipped with :term:`GVM 9 <GVM9>` and before.
+    Abbreviation for **OpenVAS** **M**\anagement **D**\aemon.
 
   openvassd
     Scanner daemon used by :term:`GVM`. Runs the actual vulnerability tests and
-    reports the results to the management daemon.
+    reports the results to the management daemon. Used in :term:`GVM 10 <GVM10>`
+    and before. With :term:`GVM 11 <GVM11>` it has been converted into the
+    :term:`openvas` application. Abbreviation for **OpenVAS** **S**\canner
+    **D**\aemon.
+
+  openvas
+    Scanner application executable to run vulnerability tests against targets
+    and to store scan results into a redis database. Used in
+    :term:`GVM 11 <GVM11>` and later.
 
   OSPd
     A `framework <https://github.com/greenbone/ospd>`_ for several scanner
     daemons speaking the :term:`Open Scanner Protocol (OSP) <OSP>`.
+
+  ospd-openvas
+    A :term:`OSP <OSP>` scanner daemon managing the :term:`openvas <openvas>`
+    executable for reporting scan results to the management daemon :term:`gvmd`.
+    Used in :term:`GVM 11 <GVM11>` and later.
 
   GOS
     Greenbone Operating System, the operating system of the
@@ -54,6 +70,10 @@ Glossary
   GVM10
     `Version 10 <https://community.greenbone.net/t/gvm-10-old-stable-initial-release-2019-04-05/208>`_ of the
     :term:`GVM` framework. Used in :term:`GOS 5 <GOS>`.
+
+  GVM11
+    `Version 11 <https://community.greenbone.net/t/gvm-11-stable-initial-release-2019-10-14/3674>`_ of the
+    :term:`GVM` framework. Used in :term:`GOS 6 <GOS>`.
 
   GSE
     The `Greenbone Source Edition (GSE)
