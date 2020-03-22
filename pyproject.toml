@@ -1,5 +1,54 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "gvm-tools"
+version = "20.4dev1"
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+description = "Tools to control a GSM/GVM over GMP or OSP"
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/greenbone/gvm-tools/"
+repository = "https://github.com/greenbone/gvm-tools/"
+documentation = "https://gvm-tools.readthedocs.io/"
+classifiers=[
+    # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+    'Development Status :: 5 - Production/Stable',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Environment :: Console',
+    'Intended Audience :: Developers',
+    'Intended Audience :: System Administrators',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Operating System :: OS Independent',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+packages = [
+    { include = "gvmtools" },
+    { include = "tests", format = "sdist" },
+    { include = "scripts", format = "sdist" },
+]
+
+[tool.poetry.scripts]
+gvm-pyshell = "gvmtools.pyshell:main"
+gvm-cli = "gvmtools.cli:main"
+gvm-script = "gvmtools.script:main"
+
+[tool.poetry.dependencies]
+python = "^3.5"
+python-gvm = "^1.2.0"
+
+[tool.poetry.dev-dependencies]
+autohooks = "^2.0.0"
+autohooks-plugin-pylint = "^1.2.0"
+sphinx = "^2.4.4"
+pylint = "^2.4.4"
+coverage = "^5.0.4"
+autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
+black = {version = "19.10b0", python = "^3.6"}
 
 [tool.black]
 line-length = 80
