@@ -131,9 +131,9 @@ def parse_send_xml_tree(gmp, xml_tree):
         if reverse_lookup_unify == '1':
             keywords['reverse_lookup_unify'] = 1
 
-        port_range = target.find('port_range').text
+        port_range = target.find('port_range')
         if port_range is not None:
-            keywords['port_range'] = port_range
+            keywords['port_range'] = port_range.text
 
         if target.xpath('port_list/@id') is not None:
             port_list = {}
