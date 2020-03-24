@@ -4,10 +4,10 @@ Before creating a new release please do a careful consideration about the
 version number for the new release. We are following [Semantic Versioning](https://semver.org/)
 and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 
-* Install twine for pypi package uploads and update setuptools, pipenv and wheel packages
+* Install twine for pypi package uploads and update poetry
 
   ```sh
-  python3 -m pip install --user --upgrade twine setuptools wheel pipenv
+  python3 -m pip install --user --upgrade twine poetry
   ```
 
 * Fetch upstream changes and create release branch
@@ -17,8 +17,8 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   git checkout -b create-new-release upstream/master
   ```
 
-* Open [gvmtools/__init__.py](https://github.com/greenbone/gvm-tools/blob/master/gvmtools/__init__.py)
-  and increment the version number.
+* Open [pyproject.toml](https://github.com/greenbone/gvm-tools/blob/master/pyproject.toml)
+  and increment the version number at the `[tool.poetry]` section.
 
 * Update [CHANGELOG.md](https://github.com/greenbone/gvm-tools/blob/master/CHANGELOG.md)
   * Change [unreleased] to new release version
@@ -29,7 +29,7 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 
   ```sh
   rm -rf dist build gvm_tools.egg-info
-  python3 setup.py sdist bdist_wheel
+  poetry build
   ```
 
 * Create a git commit
@@ -75,19 +75,20 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   ```sh
   mkdir gvm-tools-install-test
   cd gvm-tools-install-test
-  pipenv run pip install --pre -I --extra-index-url https://test.pypi.org/simple/ gvm-tools
+  python3 -m venv test-env 
+  source test-env/bin/activate
+  pip install --pre -I --extra-index-url https://test.pypi.org/simple/ gvm-tools
   ```
 
 * Check install version with a python script
 
   ```sh
-  pipenv run python -c "from gvmtools import get_version; print(get_version())"
+  python3 -c "from gvmtools import get_version; print(get_version())"
   ```
 
 * Remove test environment
 
   ```sh
-  pipenv --rm
   cd ..
   rm -rf gvm-tools-install-test
   ```
@@ -120,8 +121,8 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 * Create final distribution files
 
   ```sh
-  rm -rf dist build gvm_tools.egg-info
-  python3 setup.py sdist bdist_wheel
+  poetry build
+  ```
 
 * Create an account at [PyPI](https://pypi.org/) if not exist already
 
@@ -134,10 +135,9 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 * Check if new version is available at https://pypi.org/project/gvm-tools
 
 
-* Update version in [gvmtools/__init__.py](https://github.com/greenbone/gvm-tools/blob/master/gvmtools/__init__.py)
+* Update version in [pyproject.toml](https://github.com/greenbone/gvm-tools/blob/master/pyproject.toml)
 
-  Use a development version like `(1, 0, 0, 'beta', 1, 'dev', 1)` or
-  `(1, 1, 0, 'dev', 1)`
+  Use a development version like `"22.4.dev1"`
 
 * Create a commit
 

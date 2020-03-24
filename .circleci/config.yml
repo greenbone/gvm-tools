@@ -4,20 +4,14 @@ executors:
   python-35:
     docker:
       - image: circleci/python:3.5
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
     working_directory: ~/repo
   python-36:
     docker:
       - image: circleci/python:3.6
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
     working_directory: ~/repo
   python-37:
     docker:
       - image: circleci/python:3.7
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
     working_directory: ~/repo
 
 commands:
@@ -27,71 +21,64 @@ commands:
       - checkout
       - run:
           name: Install dependencies
-          command: |
-            pipenv install
-      - run:
-          name: Install GVM-Tools
-          command: |
-            pipenv run pip install .
+          command: poetry install --no-dev
   test:
     description: "Download and run tests"
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install
+          command: poetry install --no-dev
       - run:
           name: Run unit tests
-          command: pipenv run python -m unittest
+          command: poetry run python -m unittest
   test-with-codecov:
     description: "Download and run tests with code coverage"
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install
+          command: poetry install
       - run:
           name: Install codecov
           command: |
-            pipenv run pip install codecov
+            poetry run pip install codecov
       - run:
           name: Run unit tests
-          command: |
-            pipenv run coverage run -m unittest
+          command: poetry run coverage run -m unittest
       - run:
           name: Upload coverage to Codecov
-          command: pipenv run codecov
+          command: poetry run codecov
   lint:
     description: "Lint python files"
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install --dev
+          command: poetry install
       - run:
           name: Check with black
-          command: pipenv run black --check gvmtools
+          command: poetry run black --check gvmtools
       - run:
           name: Run pylint
-          command: |
-            pipenv run pylint --score=n --disable=R gvmtools
+          command: poetry run pylint --score=n --disable=R gvmtools
   lint-scripts:
     description: "Lint GVM scripts"
     steps:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install --dev
+          command: poetry install
       - run:
           name: Install additional script dependencies
-          command: pipenv run pip install -r scripts/requirements.txt
+          command: poetry run pip install -r scripts/requirements.txt
       - run:
           name: Check with black
-          command: pipenv run black --check scripts/*.gmp.py
+          command: poetry run black --check scripts/*.gmp.py
       - run:
           name: Run pylint
           command: |
-            pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
+            poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
 
 jobs:
   lint-python-files:

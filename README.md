@@ -184,18 +184,24 @@ Your contributions are highly appreciated. Please
 For bigger changes, please discuss it first in the
 [issues](https://github.com/greenbone/gvm-tools/issues).
 
-For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+For development you should use [poetry](https://python-poetry.org/)
 to keep you python packages separated in different environments. First install
-pipenv via pip
+poetry via pip
 
-    pip install --user pipenv
+    pip install --user poetry
 
 Afterwards run
 
-    pipenv install --dev
+    poetry install
 
-in the checkout directory of gvm-tools (the directory containing the Pipfile) to
-install all dependencies including the packages only required for development.
+in the checkout directory of gvm-tools (the directory containing the
+pyproject.toml file) to install all dependencies including the packages only
+required for development.
+
+Afterwards active the git hooks for auto-formatting and linting via
+[autohooks](https://github.com/greenbone/autohooks).
+
+    poetry run autohooks activate --force
 
 ## License
 
