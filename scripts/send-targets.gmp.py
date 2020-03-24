@@ -82,9 +82,11 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         keywords['name'] = target.find('name').text
 
-        keywords['hosts'] = target.find('hosts').text
+        keywords['hosts'] = target.find('hosts').text.split(',')
 
-        keywords['exclude_hosts'] = target.find('exclude_hosts').text
+        exclude_hosts = target.find('exclude_hosts').text
+        if exclude_hosts is not None:
+            keywords['exclude_hosts'] = exclude_hosts.split(',')
 
         comment = target.find('comment').text
         if comment is not None:
@@ -131,9 +133,9 @@ def parse_send_xml_tree(gmp, xml_tree):
         if reverse_lookup_unify == '1':
             keywords['reverse_lookup_unify'] = 1
 
-        port_range = target.find('port_range').text
+        port_range = target.find('port_range')
         if port_range is not None:
-            keywords['port_range'] = port_range
+            keywords['port_range'] = port_range.text
 
         if target.xpath('port_list/@id') is not None:
             port_list = {}

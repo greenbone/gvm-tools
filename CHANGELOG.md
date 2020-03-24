@@ -40,6 +40,8 @@ $ cd gvm-tools && git log
 - Fixed `update-task-target.gmp` to create unique target names to support Gmpv8
 - Fixed an error, where the `--sockpath` argument didn't worked as expected [PR 216](https://github.com/greenbone/gvm-tools/pull/216)
 - Catch exception from gvm lib [PR 222](https://github.com/greenbone/gvm-tools/pull/222) [PR 224](https://github.com/greenbone/gvm-tools/pull/224)
+- Fixed `send-targets.gmp` throwing an exception due to an improper check [PR 248](https://github.com/greenbone/gvm-tools/pull/248)
+- Fixed `send-targets.gmp` : `hosts` and `exclude_hosts` expecting lists [PR 248](https://github.com/greenbone/gvm-tools/pull/248)
 
 ### Removed
 
