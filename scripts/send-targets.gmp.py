@@ -82,9 +82,11 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         keywords['name'] = target.find('name').text
 
-        keywords['hosts'] = target.find('hosts').text
+        keywords['hosts'] = target.find('hosts').text.split(',')
 
-        keywords['exclude_hosts'] = target.find('exclude_hosts').text
+        exclude_hosts = target.find('exclude_hosts').text
+        if exclude_hosts is not None:
+            keywords['exclude_hosts'] = exclude_hosts.split(',')
 
         comment = target.find('comment').text
         if comment is not None:
