@@ -28,6 +28,11 @@ $ cd gvm-tools && git log
 - The script `random-report-gen.gmp` now uses argparser, to improve its usage [PR 223](https://github.com/greenbone/gvm-tools/pull/223)
 - Use .py ending for all gmp scripts to support auto highlighting [PR 244](https://github.com/greenbone/gvm-tools/pull/244)
 - Updated glossary in the documentation to reflect changes in GVM 11 [PR 245](https://github.com/greenbone/gvm-tools/pull/245)
+- Replaced `pipenv` with `poetry` for dependency management. `poetry install`
+  works a bit different then `pipenv install`. It installs dev packages by
+  default and also gvmtools in editable mode. This means after running
+  `poetry install` all gvm-tools scripts are available in the created virtual
+  environment. [PR 246](https://github.com/greenbone/gvm-tools/pull/246)
 
 ### Fixed
 
