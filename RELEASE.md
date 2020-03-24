@@ -75,19 +75,20 @@ and [PEP440](https://www.python.org/dev/peps/pep-0440/).
   ```sh
   mkdir gvm-tools-install-test
   cd gvm-tools-install-test
-  pipenv run pip install --pre -I --extra-index-url https://test.pypi.org/simple/ gvm-tools
+  python3 -m venv test-env 
+  source test-env/bin/activate
+  pip install --pre -I --extra-index-url https://test.pypi.org/simple/ gvm-tools
   ```
 
 * Check install version with a python script
 
   ```sh
-  pipenv run python -c "from gvmtools import get_version; print(get_version())"
+  python3 -c "from gvmtools import get_version; print(get_version())"
   ```
 
 * Remove test environment
 
   ```sh
-  pipenv --rm
   cd ..
   rm -rf gvm-tools-install-test
   ```
