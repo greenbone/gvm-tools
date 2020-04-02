@@ -13,7 +13,7 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
-## [unreleased]
+## [2.1.0] - 2020-04-02
 
 ### Added
 - Allow to specify hostname for SSH and TLS connections in the config file [#239](https://github.com/greenbone/gvm-tools/pull/239)
@@ -33,6 +33,7 @@ $ cd gvm-tools && git log
   default and also gvmtools in editable mode. This means after running
   `poetry install` all gvm-tools scripts are available in the created virtual
   environment. [PR 246](https://github.com/greenbone/gvm-tools/pull/246)
+- Fixed version handling after switching to poetry [#249](https://github.com/greenbone/gvm-tools/pull/249)
 
 ### Fixed
 
@@ -45,7 +46,7 @@ $ cd gvm-tools && git log
 
 ### Removed
 
-[unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.0.0...master
+[2.1.0]: https://github.com/greenbone/gvm-tools/compare/v2.0.0...v2.1.0
 
 ## [2.0.0] - 2019-09-19
 
