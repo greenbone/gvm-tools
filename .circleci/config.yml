@@ -41,8 +41,7 @@ commands:
           command: poetry install
       - run:
           name: Install codecov
-          command: |
-            poetry run pip install codecov
+          command: poetry run pip install codecov
       - run:
           name: Run unit tests
           command: poetry run coverage run -m unittest
@@ -62,6 +61,9 @@ commands:
       - run:
           name: Run pylint
           command: poetry run pylint --score=n --disable=R gvmtools
+      - run:
+          name: Check version information
+          command: poetry run python -m gvmtools.version verify current
   lint-scripts:
     description: "Lint GVM scripts"
     steps:
