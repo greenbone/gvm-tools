@@ -81,6 +81,33 @@ commands:
           name: Run pylint
           command: |
             poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
+  deploy:
+    description: "Upload package to PyPI"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: poetry install --no-dev
+      - run:
+          name: Verify tag version
+          command: poetry run python -m gvmtools.version verify ${CIRCLE_TAG}
+      - run:
+          name: Install twine
+          command: poetry run pip install twine
+      - run:
+          name: Initialize .pypirc
+          command: |
+            echo -e "[distutils]" >> ~/.pypirc
+            echo -e "index-servers = pypi" >> ~/.pypirc
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = __token__" >> ~/.pypirc
+            echo -e "password = $PYPI_TOKEN" >> ~/.pypirc
+      - run:
+          name: Create and upload distribution to pypi
+          command: |
+            rm -rf dist build gvm_tools.egg-info
+            poetry build
+            poetry run twine upload dist/*
 
 jobs:
   lint-python-files:
@@ -115,6 +142,10 @@ jobs:
     executor: python-37
     steps:
       - test-with-codecov
+  deploy-37:
+    executor: python-37
+    steps:
+      - deploy
 
 workflows:
   version: 2
@@ -127,3 +158,19 @@ workflows:
       - test-36
       - build-37
       - test-37
+  build_and_deploy:
+    jobs:
+      - build-37:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      - deploy-37:
+          requires:
+            - build-37
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
