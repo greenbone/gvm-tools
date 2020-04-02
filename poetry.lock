@@ -589,7 +589,7 @@ lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python Library for Tom's Obvious, Minimal Language"
 name = "toml"
 optional = false
@@ -635,7 +635,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "6879bb3d92fc82e55d09377f114b4f1d0b8745323ee28092a6293980a68dd3ea"
+content-hash = "e3452208bb800799b3498321fa38ee7a0393bb0ddfc525ef24a0dcb2d380a361"
 python-versions = "^3.5.2"
 
 [metadata.files]
