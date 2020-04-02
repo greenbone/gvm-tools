@@ -38,8 +38,8 @@ gvm-cli = "gvmtools.cli:main"
 gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
-python = "^3.5"
-python-gvm = "^1.2.0"
+python = "^3.5.2"
+python-gvm = "^1.4.0"
 toml = "^0.10.0"
 
 [tool.poetry.dev-dependencies]
@@ -50,6 +50,7 @@ pylint = "^2.4.4"
 coverage = "^5.0.4"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
 black = {version = "19.10b0", python = "^3.6"}
+rope = "^0.16.0"
 
 [tool.black]
 line-length = 80
