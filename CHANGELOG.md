@@ -13,6 +13,16 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
+
+## [unreleased]
+
+### Added
+### Changed
+### Fixed
+### Removed
+
+[unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.1.0...master
+
 ## [2.1.0] - 2020-04-03
 
 ### Added
@@ -43,8 +53,6 @@ $ cd gvm-tools && git log
 - Catch exception from gvm lib [PR 222](https://github.com/greenbone/gvm-tools/pull/222) [PR 224](https://github.com/greenbone/gvm-tools/pull/224)
 - Fixed `send-targets.gmp` throwing an exception due to an improper check [PR 248](https://github.com/greenbone/gvm-tools/pull/248)
 - Fixed `send-targets.gmp` : `hosts` and `exclude_hosts` expecting lists [PR 248](https://github.com/greenbone/gvm-tools/pull/248)
-
-### Removed
 
 [2.1.0]: https://github.com/greenbone/gvm-tools/compare/v2.0.0...v2.1.0
 
