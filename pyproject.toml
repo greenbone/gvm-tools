@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "gvm-tools"
-version = "20.4dev1"
+version = "2.1.0"
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 description = "Tools to control a GSM/GVM over GMP or OSP"
 license = "GPL-3.0-or-later"
@@ -38,9 +38,8 @@ gvm-cli = "gvmtools.cli:main"
 gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
-python = "^3.5"
-python-gvm = "^1.2.0"
-toml = "^0.10.0"
+python = "^3.5.2"
+python-gvm = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 autohooks = "^2.0.0"
@@ -50,6 +49,7 @@ pylint = "^2.4.4"
 coverage = "^5.0.4"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
 black = {version = "19.10b0", python = "^3.6"}
+rope = "^0.16.0"
 
 [tool.black]
 line-length = 80
