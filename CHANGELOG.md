@@ -13,7 +13,7 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
-## [2.1.0] - 2020-04-02
+## [2.1.0] - 2020-04-03
 
 ### Added
 - Allow to specify hostname for SSH and TLS connections in the config file [#239](https://github.com/greenbone/gvm-tools/pull/239)
