@@ -52,12 +52,13 @@ category = "dev"
 description = "Library for managing git hooks"
 name = "autohooks"
 optional = false
-python-versions = ">=3.5"
-version = "2.0.0"
+python-versions = ">=3.5,<4.0"
+version = "2.1.0"
 
 [package.dependencies]
-blessings = "*"
-toml = "*"
+colorful = ">=0.5.4,<0.6.0"
+packaging = ">=20.3,<21.0"
+tomlkit = ">=0.5.11,<0.6.0"
 
 [[package]]
 category = "dev"
@@ -133,17 +134,6 @@ d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
 category = "dev"
-description = "A thin, practical wrapper around terminal coloring, styling, and positioning"
-name = "blessings"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.7"
-
-[package.dependencies]
-six = "*"
-
-[[package]]
-category = "dev"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
@@ -181,11 +171,22 @@ version = "7.1.1"
 [[package]]
 category = "dev"
 description = "Cross-platform colored terminal text."
-marker = "sys_platform == \"win32\""
+marker = "platform_system == \"Windows\" or sys_platform == \"win32\" or python_version >= \"3.6\" and python_version < \"4.0\" and platform_system == \"Windows\""
 name = "colorama"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "0.4.3"
+
+[[package]]
+category = "dev"
+description = "Terminal string styling done right, in Python."
+name = "colorful"
+optional = false
+python-versions = "*"
+version = "0.5.4"
+
+[package.dependencies]
+colorama = "*"
 
 [[package]]
 category = "dev"
@@ -592,6 +593,7 @@ test = ["pytest"]
 [[package]]
 category = "dev"
 description = "Python Library for Tom's Obvious, Minimal Language"
+marker = "python_version >= \"3.6\" and python_version < \"4.0\""
 name = "toml"
 optional = false
 python-versions = "*"
@@ -636,7 +638,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "22f229b37292d21cf9fd59eea8365a6613fb0b8aeb51bc73911deb0b346955d0"
+content-hash = "2f826f732dd16a70e7265abdf395ccec34bffd505b702103daa0b81cc1ff6c7f"
 python-versions = "^3.5.2"
 
 [metadata.files]
@@ -657,7 +659,8 @@ attrs = [
     {file = "attrs-19.3.0.tar.gz", hash = "sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72"},
 ]
 autohooks = [
-    {file = "autohooks-2.0.0.tar.gz", hash = "sha256:5262bfffffc725c2d0b654260fd064fb4a090f6501c168031e49656fd9047961"},
+    {file = "autohooks-2.1.0-py3-none-any.whl", hash = "sha256:b21863e4e47c612462cb8d5d6150072eb41ce8fc3eee687d56d1965b2f46c42b"},
+    {file = "autohooks-2.1.0.tar.gz", hash = "sha256:a9770c39ab80128ec9fbaf0584e6528837b2ea6ea5f2a156452d589cb3ba8b35"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-1.2.0.tar.gz", hash = "sha256:e69a18209f3fd584da903e87faf0e3685caa4d51a9e870ddb3c2b1aef93387b8"},
@@ -694,11 +697,6 @@ bcrypt = [
 black = [
     {file = "black-19.10b0-py36-none-any.whl", hash = "sha256:1b30e59be925fafc1ee4565e5e08abef6b03fe455102883820fe5ee2e4734e0b"},
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
-]
-blessings = [
-    {file = "blessings-1.7-py2-none-any.whl", hash = "sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e"},
-    {file = "blessings-1.7-py3-none-any.whl", hash = "sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3"},
-    {file = "blessings-1.7.tar.gz", hash = "sha256:98e5854d805f50a5b58ac2333411b0482516a8210f23f43308baeb58d77c157d"},
 ]
 certifi = [
     {file = "certifi-2019.11.28-py2.py3-none-any.whl", hash = "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3"},
@@ -745,6 +743,10 @@ click = [
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
     {file = "colorama-0.4.3.tar.gz", hash = "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"},
+]
+colorful = [
+    {file = "colorful-0.5.4-py2.py3-none-any.whl", hash = "sha256:8d264b52a39aae4c0ba3e2a46afbaec81b0559a99be0d2cfe2aba4cf94531348"},
+    {file = "colorful-0.5.4.tar.gz", hash = "sha256:86848ad4e2eda60cd2519d8698945d22f6f6551e23e95f3f14dfbb60997807ea"},
 ]
 coverage = [
     {file = "coverage-5.0.4-cp27-cp27m-macosx_10_12_x86_64.whl", hash = "sha256:8a620767b8209f3446197c0e29ba895d75a1e272a36af0786ec70fe7834e4307"},
