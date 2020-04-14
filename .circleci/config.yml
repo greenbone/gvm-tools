@@ -67,7 +67,7 @@ commands:
           command: poetry run pylint --score=n --disable=R gvmtools
       - run:
           name: Check version information
-          command: poetry run python -m gvmtools.version verify current
+          command: poetry run python -m pontos.version verify current
   lint-scripts:
     description: "Lint GVM scripts"
     steps:
@@ -91,10 +91,10 @@ commands:
       - checkout
       - run:
           name: Install dependencies
-          command: poetry install --no-dev
+          command: poetry install
       - run:
           name: Verify tag version
-          command: poetry run python -m gvmtools.version verify ${CIRCLE_TAG}
+          command: poetry run python -m pontos.version verify ${CIRCLE_TAG}
       - run:
           name: Install twine
           command: poetry run pip install twine
