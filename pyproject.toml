@@ -74,3 +74,6 @@ exclude = '''
 [tool.autohooks]
 mode = "poetry"
 pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint']
+
+[tool.pontos.version]
+version-module-file = "gvmtools/__version__.py"
