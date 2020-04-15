@@ -13,6 +13,10 @@ executors:
     docker:
       - image: circleci/python:3.7
     working_directory: ~/repo
+  python-38:
+    docker:
+      - image: circleci/python:3.8
+    working_directory: ~/repo
 
 commands:
   build:
@@ -146,6 +150,14 @@ jobs:
     executor: python-37
     steps:
       - deploy
+  build-38:
+    executor: python-38
+    steps:
+      - build
+  test-38:
+    executor: python-38
+    steps:
+      - test
 
 workflows:
   version: 2
@@ -158,6 +170,8 @@ workflows:
       - test-36
       - build-37
       - test-37
+      - build-38
+      - test-38
   build_and_deploy:
     jobs:
       - build-37:
