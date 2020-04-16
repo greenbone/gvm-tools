@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import unittest
 
@@ -312,6 +313,21 @@ class HelpFormattingParserTestCase(ParserTestCase):
     # pylint: disable=protected-access
     maxDiff = None
     python_version = '.'.join([str(i) for i in sys.version_info[:2]])
+
+    def setUp(self):
+        super().setUp()
+
+        # ensure all tests are using the same terminal width
+        self.columns = os.environ.get('COLUMNS')
+        os.environ['COLUMNS'] = '80'
+
+    def tearDown(self):
+        super().tearDown()
+
+        if not self.columns:
+            del os.environ['COLUMNS']
+        else:
+            os.environ['COLUMNS'] = self.columns
 
     def _snapshot_specific_path(self, name):
         return __here__ / '{}.{}.snap'.format(name, self.python_version)
