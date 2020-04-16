@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import unittest
 
 from pathlib import Path
@@ -310,15 +311,24 @@ class CustomizeParserTestCase(ParserTestCase):
 class HelpFormattingParserTestCase(ParserTestCase):
     # pylint: disable=protected-access
     maxDiff = None
+    python_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
-    def _snapshot_path(self, name):
+    def _snapshot_specific_path(self, name):
+        return __here__ / '{}.{}.snap'.format(name, self.python_version)
+
+    def _snapshot_generic_path(self, name):
         return __here__ / '{}.snap'.format(name)
 
-    def _load_snapshot(self, path):
-        return path.read_text()
+    def _snapshot_failed_path(self, name):
+        return __here__ / '{}.{}-failed.snap'.format(name, self.python_version)
 
-    def _write_snapshot(self, path, output):
-        path.write_text(output)
+    def _snapshot_path(self, name):
+        snapshot_specific_path = self._snapshot_specific_path(name)
+
+        if snapshot_specific_path.exists():
+            return snapshot_specific_path
+
+        return self._snapshot_generic_path(name)
 
     def assert_snapshot(self, name, output):
         path = self._snapshot_path(name)
@@ -327,7 +337,15 @@ class HelpFormattingParserTestCase(ParserTestCase):
             path.write_text(output)
 
         content = path.read_text()
-        self.assertEqual(content, output, 'Snapshot differs from output')
+
+        try:
+            self.assertEqual(content, output, 'Snapshot differs from output')
+        except AssertionError:
+            # write new output to snapshot file
+            # reraise error afterwards
+            path = self._snapshot_failed_path(name)
+            path.write_text(output)
+            raise
 
     def test_root_help(self):
         help_output = self.parser._parser.format_help()
