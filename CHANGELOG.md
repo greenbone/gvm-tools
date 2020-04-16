@@ -21,6 +21,9 @@ $ cd gvm-tools && git log
 ### Fixed
 ### Removed
 
+* Removed `gvm.version` module in favor of using `pontos.version`
+  [#254](https://github.com/greenbone/gvm-tools/pull/254)
+
 [unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.1.0...master
 
 ## [2.1.0] - 2020-04-03

@@ -50,6 +50,7 @@ coverage = "^5.1"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
 black = {version = "19.10b0", python = "^3.6"}
 rope = "^0.16.0"
+pontos = "^0.2.0"
 
 [tool.black]
 line-length = 80
@@ -73,3 +74,6 @@ exclude = '''
 [tool.autohooks]
 mode = "poetry"
 pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint']
+
+[tool.pontos.version]
+version-module-file = "gvmtools/__version__.py"
