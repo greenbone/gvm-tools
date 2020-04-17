@@ -14,7 +14,7 @@ Glossary
 
   openvassd
     Scanner daemon used by :term:`GVM 10 <GVM10>` and before. It listens for
-    incomming connections via :term:`OTP` and starts scan processes to run the
+    incoming connections via :term:`OTP` and starts scan processes to run the
     actual vulnerability tests. It collects the results and reports them to the
     management daemon. With :term:`GVM 11 <GVM11>` it has been converted into
     the :term:`openvas` application by removing the daemon and OTP parts.
