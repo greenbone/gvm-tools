@@ -479,7 +479,7 @@ description = "a python refactoring library..."
 name = "rope"
 optional = false
 python-versions = "*"
-version = "0.16.0"
+version = "0.17.0"
 
 [package.extras]
 dev = ["pytest"]
@@ -650,7 +650,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "ef9d98e072611ee39295c68f746b1be37ecdf93a3507d8973305ef72a6f1b48c"
+content-hash = "49db01e6388207c7a7ac452d11e2146e86b9216cd1d94171e3b2ec65c2fd8735"
 python-versions = "^3.5.2"
 
 [metadata.files]
@@ -1022,9 +1022,7 @@ requests = [
     {file = "requests-2.23.0.tar.gz", hash = "sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"},
 ]
 rope = [
-    {file = "rope-0.16.0-py2-none-any.whl", hash = "sha256:ae1fa2fd56f64f4cc9be46493ce54bed0dd12dee03980c61a4393d89d84029ad"},
-    {file = "rope-0.16.0-py3-none-any.whl", hash = "sha256:52423a7eebb5306a6d63bdc91a7c657db51ac9babfb8341c9a1440831ecf3203"},
-    {file = "rope-0.16.0.tar.gz", hash = "sha256:d2830142c2e046f5fc26a022fe680675b6f48f81c7fc1f03a950706e746e9dfe"},
+    {file = "rope-0.17.0.tar.gz", hash = "sha256:658ad6705f43dcf3d6df379da9486529cf30e02d9ea14c5682aa80eb33b649e1"},
 ]
 six = [
     {file = "six-1.14.0-py2.py3-none-any.whl", hash = "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"},
