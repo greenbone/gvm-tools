@@ -317,7 +317,7 @@ python-versions = "*"
 version = "0.6.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Core utilities for Python packages"
 name = "packaging"
 optional = false
@@ -416,7 +416,7 @@ docs = ["sphinx (>=1.6.5)", "sphinx-rtd-theme"]
 tests = ["pytest (>=3.2.1,<3.3.0 || >3.3.0)", "hypothesis (>=3.27.0)"]
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python parsing module"
 name = "pyparsing"
 optional = false
@@ -429,14 +429,12 @@ description = "Library to communicate with remote servers over GMP or OSP"
 name = "python-gvm"
 optional = false
 python-versions = ">=3.5.2,<4.0.0"
-version = "1.4.0"
+version = "1.5.0"
 
 [package.dependencies]
 defusedxml = ">=0.6.0,<0.7.0"
 lxml = ">=4.5.0,<5.0.0"
-packaging = ">=20.3,<21.0"
 paramiko = ">=2.7.1,<3.0.0"
-tomlkit = ">=0.5.11,<0.6.0"
 
 [[package]]
 category = "dev"
@@ -612,7 +610,7 @@ python-versions = "*"
 version = "0.10.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Style preserving TOML library"
 name = "tomlkit"
 optional = false
@@ -987,8 +985,8 @@ pyparsing = [
     {file = "pyparsing-2.4.6.tar.gz", hash = "sha256:4c830582a84fb022400b85429791bc551f1f4871c33f23e44f353119e92f969f"},
 ]
 python-gvm = [
-    {file = "python-gvm-1.4.0.tar.gz", hash = "sha256:f15df2c7d9871555d7ba464267128e135bcfe9c3f37ec9f497f3b0e96bf4c059"},
-    {file = "python_gvm-1.4.0-py3-none-any.whl", hash = "sha256:cf659a5c841e61de2fb7e9a3bc13789c6b8abe2dcef4b7fe4ed9ca93f16080c9"},
+    {file = "python-gvm-1.5.0.tar.gz", hash = "sha256:25539d0e35399a791af6d4898dbd3363e4e73e9c255b014d854700586e01a4de"},
+    {file = "python_gvm-1.5.0-py3-none-any.whl", hash = "sha256:d3a3cde8cc8e60b4cdb3ae3a119c660a385c5bbf949fb78f25cfce3a2f8217e3"},
 ]
 pytz = [
     {file = "pytz-2019.3-py2.py3-none-any.whl", hash = "sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d"},
