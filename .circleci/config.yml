@@ -71,7 +71,9 @@ commands:
       - run:
           name: Check MyPy
           command: poetry run pip install mypy==0.770  # Pinned version avoids surprises
-
+      - run:
+          name: Run MyPy
+          command: poetry run mypy -m gvmtools
   lint-scripts:
     description: "Lint GVM scripts"
     steps:
@@ -89,9 +91,6 @@ commands:
           name: Run pylint
           command: |
             poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
-      - run:
-          name: Run MyPy
-          command: poetry run mypy -m gvmtools
   deploy:
     description: "Upload package to PyPI"
     steps:
