@@ -47,6 +47,7 @@ $ cd gvm-tools && git log
   `poetry install` all gvm-tools scripts are available in the created virtual
   environment. [PR 246](https://github.com/greenbone/gvm-tools/pull/246)
 - Fixed version handling after switching to poetry [#249](https://github.com/greenbone/gvm-tools/pull/249)
+- Added mypy to Circle CI workflow [#264](https://github.com/greenbone/gvm-tools/pull/264)
 
 ### Fixed
 
