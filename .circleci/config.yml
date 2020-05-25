@@ -68,6 +68,11 @@ commands:
       - run:
           name: Check version information
           command: poetry run python -m pontos.version verify current
+      - run:
+          name: Check MyPy
+          command: |
+            poetry run pip install mypy==0.600  # Pinned version avoids surprises
+            poetry run mypy -m gvmtools
   lint-scripts:
     description: "Lint GVM scripts"
     steps:
