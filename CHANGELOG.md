@@ -18,6 +18,9 @@ $ cd gvm-tools && git log
 
 ### Added
 ### Changed
+
+- Using the `--log` argument is not casesensitive anymore. Use the lower-case or upper-case loglevel as the argument now.[PR 218](https://github.com/greenbone/gvm-tools/pull/218)
+
 ### Fixed
 ### Removed
 
@@ -29,7 +32,7 @@ $ cd gvm-tools && git log
 ## [2.1.0] - 2020-04-03
 
 ### Added
-- Allow to specify hostname for SSH and TLS connections in the config file [#239](https://github.com/greenbone/gvm-tools/pull/239)
+- Allow to specify hostname for SSH and TLS connections in the config file [#276](https://github.com/greenbone/gvm-tools/pull/276)
 
 ### Changed
 
