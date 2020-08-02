@@ -18,6 +18,9 @@ $ cd gvm-tools && git log
 
 ### Added
 ### Changed
+
+- Using the `--log` argument is not casesensitive anymore. Use the lower-case or upper-case loglevel as the argument now.[PR 276](https://github.com/greenbone/gvm-tools/pull/276)
+
 ### Fixed
 ### Removed
 

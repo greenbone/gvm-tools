@@ -66,12 +66,16 @@ class CliParser:
             default=DEFAULT_CONFIG_PATH,
             help='Configuration file path (default: %(default)s)',
         )
+
+        choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+
         bootstrap_parser.add_argument(
             '--log',
             nargs='?',
             dest='loglevel',
             const='INFO',
-            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+            type=lambda arg: {x.upper(): x for x in choices}[arg.upper()],
+            choices=choices,
             help='Activate logging (default level: %(default)s)',
         )
 
