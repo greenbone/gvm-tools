@@ -655,16 +655,16 @@ def status(gmp, im, script_args):
 
                 full_report = gmp.get_report(
                     report_id=last_report_id,
-                    filter="sort-reverse=id result_hosts_only=1 "
-                    "min_cvss_base= min_qod= levels=hmlgd autofp=%s "
-                    "notes=0 apply_overrides=%s overrides=%s first=1 rows=-1 "
-                    "delta_states=cgns host=%s"
-                    % (
+                    filter="""sort-reverse=id result_hosts_only=1 
+                    min_cvss_base= min_qod= levels=hmlgd autofp={} 
+                    notes=0 apply_overrides={} overrides={} first=1 rows=-1 
+                    delta_states=cgns host={}""".format(
                         script_args.autofp,
                         int(script_args.overrides),
                         int(script_args.apply_overrides),
                         host,
                     ),
+                    details=True,
                 )
 
                 im.add_report(last_scan_end, params_used, full_report)
