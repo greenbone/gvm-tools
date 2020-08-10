@@ -5,7 +5,7 @@ Glossary
 
   gvmd
     Management daemon shipped with :term:`GVM 10 <GVM10>` and later.
-    Abbreviation for **G**\reenbone **V**\ulnerability **M**\anagement
+    Abbreviation for **G**\reenbone **V**\ulnerability **M**\anager
     **D**\aemon.
 
   openvasmd
