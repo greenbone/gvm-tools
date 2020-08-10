@@ -65,7 +65,7 @@ Glossary
     some background.
 
   GVM
-    The `Greenbone Vulnerability Manager (GVM)
+    The `Greenbone Vulnerability Management (GVM)
     <https://community.greenbone.net/t/about-gvm-architecture/1231>`_ is a
     framework of several services. It is developed as part of the commercial
     product line :term:`Greenbone Security Manager <GSM>`. Formerly known as
