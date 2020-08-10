@@ -10,7 +10,7 @@ Glossary
 
   openvasmd
     Management daemon shipped with :term:`GVM 9 <GVM9>` and before.
-    Abbreviation for **OpenVAS** **M**\anagement **D**\aemon.
+    Abbreviation for **OpenVAS** **M**\anager **D**\aemon.
 
   openvassd
     Scanner daemon used by :term:`GVM 10 <GVM10>` and before. It listens for
