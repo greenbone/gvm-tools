@@ -22,6 +22,10 @@ $ cd gvm-tools && git log
 - Using the `--log` argument is not casesensitive anymore. Use the lower-case or upper-case loglevel as the argument now.[PR 276](https://github.com/greenbone/gvm-tools/pull/276)
 
 ### Fixed
+
+- Fixed the `check-gmp.gmp.py` script, as it was not compatible to Python 3.5 anymore. [PR 280](https://github.com/greenbone/gvm-tools/pull/280)
+- Fixed the `check-gmp.gmp.py` script: results have not been loaded with `-F host -T task --status` and probably some other cases. Added `details=True` to the command that requests the report. [PR 280](https://github.com/greenbone/gvm-tools/pull/280)
+
 ### Removed
 
 * Removed `gvm.version` module in favor of using `pontos.version`
