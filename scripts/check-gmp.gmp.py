@@ -149,7 +149,7 @@ class InstanceManager:
         """
         try:
             logger.debug("connect db: %s", self.db)
-            self.con_db = sqlite3.connect(self.db)
+            self.con_db = sqlite3.connect(str(self.db))
             self.cursor = self.con_db.cursor()
             logger.debug(sqlite3.sqlite_version)
         except Exception as e:  # pylint: disable=broad-except
