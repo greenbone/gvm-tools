@@ -45,7 +45,7 @@ python-gvm = ">=1.4,<21.0"
 autohooks = "^2.1.0"
 autohooks-plugin-pylint = "^1.2.0"
 sphinx = "^3.2.1"
-pylint = "^2.5.3"
+pylint = "^2.6.0"
 coverage = "^5.2"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
 black = {version = "19.10b0", python = "^3.6"}
