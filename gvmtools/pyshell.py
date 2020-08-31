@@ -63,8 +63,7 @@ HELP_TEXT = """
 
 
 class Help(object):
-    """Help class to overwrite the help function from python itself.
-    """
+    """Help class to overwrite the help function from python itself."""
 
     def __call__(self):
         return print(HELP_TEXT)

@@ -201,7 +201,7 @@ class CliParser:
         )
 
         parser_ssh.add_argument(
-            '--hostname', help='Hostname or IP address (default: %(default)s)',
+            '--hostname', help='Hostname or IP address (default: %(default)s)'
         )
         parser_ssh.add_argument(
             '--port',
@@ -220,7 +220,7 @@ class CliParser:
             'tls', help='Use TLS secured connection to connect to service'
         )
         parser_tls.add_argument(
-            '--hostname', help='Hostname or IP address (default: %(default)s)',
+            '--hostname', help='Hostname or IP address (default: %(default)s)'
         )
         parser_tls.add_argument(
             '--port',
