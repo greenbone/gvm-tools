@@ -24,22 +24,24 @@ def check_args(args):
         It needs one parameters after the script name.
 
         1. <host_ip>     -- IP Address of the host system
+        2. <port_list_id>     -- Port List UUID for scanning the host system. Preconfigured UUID might be under /var/lib/gvm/data-objects/gvmd/20.08/port_lists/. ex. iana-tcp-udp is "4a4717fe-57d2-11e1-9a26-406186ea4fc5".
         
                 Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip>
+ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip> <port_list_id>
     """
-    if len_args != 1:
+    if len_args != 2:
         print(message)
         quit()
 
 
-def create_target(gmp, ipaddress):
+def create_target(gmp, ipaddress, port_list_id):
     import datetime
 
     # create a unique name by adding the current datetime
     name = "Suspect Host {} {}".format(ipaddress, str(datetime.datetime.now()))
-    response = gmp.create_target(name=name, hosts=[ipaddress])
+
+    response = gmp.create_target(name=name, hosts=[ipaddress], port_list_id=port_list_id)
     return response.get('id')
 
 
@@ -67,8 +69,9 @@ def main(gmp, args):
     check_args(args)
 
     ipaddress = args.argv[1]
+    port_list_id = args.argv[2]
 
-    target_id = create_target(gmp, ipaddress)
+    target_id = create_target(gmp, ipaddress, port_list_id)
 
     full_and_fast_scan_config_id = 'daba56c8-73ec-11df-a475-002264764cea'
     openvas_scanner_id = '08b69003-5fc2-4037-a479-93b440211c73'
