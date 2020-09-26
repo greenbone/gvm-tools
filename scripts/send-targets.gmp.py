@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from gvm.protocols.gmpv9.types import get_alive_test_from_string
 
 from lxml import etree as e
 
@@ -52,28 +53,6 @@ def yes_or_no(question):
         return False
     else:
         return yes_or_no("Please enter 'y' or 'n'")
-
-def alive_test_convert(alive_tests):
-    if alive_tests == ('ARP Ping'):
-        return gmp.types.AliveTest.ARP_PING
-    if alive_tests == ('Consider Alive'):
-        return gmp.types.AliveTest.CONSIDER_ALIVE
-    if alive_tests == ('ICMP & ARP Ping'):
-        return gmp.types.AliveTest.ICMP_AND_ARP_PING
-    if alive_tests == ('ICMP & TCP-ACK Service Ping'):
-        return gmp.types.AliveTest.ICMP_AND_TCP_ACK_SERVICE_PING
-    if alive_tests == ('ICMP Ping'):
-        return gmp.types.AliveTest.ICMP_PING
-    if alive_tests == ('ICMP, TCP-ACK Service & ARP Ping'):
-        return gmp.types.AliveTest.ICMP_TCP_ACK_SERVICE_AND_ARP_PING
-    if alive_tests == ('TCP-ACK Service & ARP Ping'):
-        return gmp.types.AliveTest.TCP_ACK_SERVICE_AND_ARP_PING
-    if alive_tests == ('TCP-ACK Service Ping'):
-        return gmp.types.AliveTest.TCP_ACK_SERVICE_PING
-    if alive_tests == ('TCP-SYN Service Ping'):
-        return gmp.types.AliveTest.TCP_SYN_SERVICE_PING
-    else:
-        return gmp.types.AliveTest.SCAN_CONFIG_DEFAULT
 
 def create_xml_tree(xml_doc):
     try:
@@ -141,12 +120,10 @@ def parse_send_xml_tree(gmp, xml_tree):
 
             keywords[credential] = temp_dict
 
-        alive_test = alive_test_convert(target.find('alive_tests').text)
-        print(alive_test)
+        alive_test = get_alive_test_from_string(target.find('alive_tests').text)
 
         if alive_test is not None:
             keywords['alive_test'] = alive_test
-            print(keywords['alive_test'])
 
         reverse_lookup_only = target.find('reverse_lookup_only').text
         if reverse_lookup_only == '1':
