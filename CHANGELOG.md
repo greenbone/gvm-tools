@@ -19,7 +19,7 @@ $ cd gvm-tools && git log
 ### Added
 ### Changed
 
-- Fixed `send-schedule.gmp.py` script, because it expected to pull timezone only from <timezone_abbrev>, not <timezone> in xml. Also we don't need "targethost" in Example, README.
+- Fixed `send-schedule.gmp.py` script, because <timezone_abbrev> has been [removed](https://github.com/greenbone/gvmd/commit/d4a0fa2287b425199330b7e5671b61cdbd836fe4) from Schedules, using <timezone> instead. [#299](https://github.com/greenbone/gvm-tools/pull/299)
 - Fixed `send-targets.gmp.py` script, because alive_test needs to be from `AliveTest` enum in `create_target` function. [#297](https://github.com/greenbone/gvm-tools/pull/297)
 - Added gmpv20.08 support to the `scan-new-system.gmp.py` script, as `create_target` requires an argument `port_range` or `port_list_id` now. [#295](https://github.com/greenbone/gvm-tools/pull/295)
 
