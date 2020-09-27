@@ -287,7 +287,7 @@ This script pulls schedule data from an xml document and feeds it to a desired G
 
 ### Example
 
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-schedules.gmp.py targethost example_file.xml`
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/send-schedules.gmp.py example_file.xml`
 
 ---
 
