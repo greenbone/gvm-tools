@@ -72,9 +72,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         ical = schedule.find('icalendar').text
 
-        timezone = schedule.find('timezone_abbrev').text
-        if timezone is None:
-            timezone = schedule.find('timezone').text
+        timezone = schedule.find('timezone').text
 
         gmp.create_schedule(
             name=name, comment=comment, timezone=timezone, icalendar=ical
