@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from gvm.protocols.gmpv9.types import get_alive_test_from_string
 
 from lxml import etree as e
 
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args !=1:
         message = """
         This script pulls target data from an xml document and feeds it to \
     a desired GSM
@@ -52,7 +53,6 @@ def yes_or_no(question):
         return False
     else:
         return yes_or_no("Please enter 'y' or 'n'")
-
 
 def create_xml_tree(xml_doc):
     try:
@@ -120,7 +120,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
             keywords[credential] = temp_dict
 
-        alive_test = target.find('alive_test')
+        alive_test = get_alive_test_from_string(target.find('alive_tests').text)
 
         if alive_test is not None:
             keywords['alive_test'] = alive_test
