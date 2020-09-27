@@ -23,7 +23,7 @@ from lxml import etree as e
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args != 1:
         message = """
         This script pulls schedule data from an xml document and feeds it to \
     a desired GSM
@@ -33,7 +33,7 @@ def check_args(args):
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/send-schedules.gmp.py targethost example_file.xml
+    ssh --hostname <gsm> scripts/send-schedules.gmp.py example_file.xml
 
         """
         print(message)
@@ -72,10 +72,10 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         ical = schedule.find('icalendar').text
 
-        timezone_abbrev = schedule.find('timezone_abbrev').text
+        timezone = schedule.find('timezone').text
 
         gmp.create_schedule(
-            name=name, comment=comment, timezone=timezone_abbrev, icalendar=ical
+            name=name, comment=comment, timezone=timezone, icalendar=ical
         )
 
 
