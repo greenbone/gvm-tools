@@ -50,7 +50,7 @@ def main(gmp, args):
     else:
         pdf_filename = args.argv[1] + ".pdf"
 
-    pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
+    pdf_report_format_id = "35ba7077-dc85-42ef-87c9-b0eda7e903b6"
 
     response = gmp.get_report(
         report_id=report_id, report_format_id=pdf_report_format_id
