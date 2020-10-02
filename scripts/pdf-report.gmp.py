@@ -18,7 +18,6 @@
 
 from base64 import b64decode
 from pathlib import Path
-from lxml import etree
 
 
 def check_args(args):
