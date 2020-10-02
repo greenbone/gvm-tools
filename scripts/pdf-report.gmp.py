@@ -18,6 +18,7 @@
 
 from base64 import b64decode
 from pathlib import Path
+from lxml import etree
 
 
 def check_args(args):
@@ -50,15 +51,15 @@ def main(gmp, args):
     else:
         pdf_filename = args.argv[1] + ".pdf"
 
-    pdf_report_format_id = "35ba7077-dc85-42ef-87c9-b0eda7e903b6"
+    pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
 
     response = gmp.get_report(
         report_id=report_id, report_format_id=pdf_report_format_id
     )
 
-    report_element = response[0]
+    report_element = response.find("report")
     # get the full content of the report element
-    content = "".join(report_element.itertext())
+    content = report_element.find("report_format").tail
 
     # convert content to 8-bit ASCII bytes
     binary_base64_encoded_pdf = content.encode('ascii')
