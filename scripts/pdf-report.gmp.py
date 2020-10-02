@@ -56,9 +56,9 @@ def main(gmp, args):
         report_id=report_id, report_format_id=pdf_report_format_id
     )
 
-    report_element = response[0]
+    report_element = response.find("report")
     # get the full content of the report element
-    content = "".join(report_element.itertext())
+    content = report_element.find("report_format").tail
 
     # convert content to 8-bit ASCII bytes
     binary_base64_encoded_pdf = content.encode('ascii')
