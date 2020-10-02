@@ -29,7 +29,7 @@ $ cd gvm-tools && git log
 
 - Fixed the `check-gmp.gmp.py` script, as it was not compatible to Python 3.5 anymore. [PR 280](https://github.com/greenbone/gvm-tools/pull/280)
 - Fixed the `check-gmp.gmp.py` script: results have not been loaded with `-F host -T task --status` and probably some other cases. Added `details=True` to the command that requests the report. [PR 280](https://github.com/greenbone/gvm-tools/pull/280)
-
+- Fixed the `pdf-report.gmp.py` script. Joining the Content of the tag was not the correct way here ... we needed the tail of the `<report_format>` tag ... [PR 301](https://github.com/greenbone/gvm-tools/pull/301)
 ### Removed
 
 * Removed `gvm.version` module in favor of using `pontos.version`
