@@ -14,9 +14,8 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
-## [unreleased]
+## [20.10.0] - 2020-10-05
 
-### Added
 ### Changed
 
 - Fixed `send-schedule.gmp.py` script, because <timezone_abbrev> has been [removed](https://github.com/greenbone/gvmd/commit/d4a0fa2287b425199330b7e5671b61cdbd836fe4) from Schedules, using <timezone> instead. [#299](https://github.com/greenbone/gvm-tools/pull/299)
@@ -35,7 +34,7 @@ $ cd gvm-tools && git log
 * Removed `gvm.version` module in favor of using `pontos.version`
   [#254](https://github.com/greenbone/gvm-tools/pull/254)
 
-[unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.1.0...master
+[20.10.0]: https://github.com/greenbone/gvm-tools/compare/v2.1.0...v20.10.0
 
 ## [2.1.0] - 2020-04-03
 
