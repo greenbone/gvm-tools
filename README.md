@@ -50,6 +50,14 @@ gives a short overview.
 See the [documentation](https://gvm-tools.readthedocs.io/en/latest/install.html)
 for all supported installation options.
 
+### Version
+
+Please consider to always use the **newest** version of `gvm-tools` and `python-gvm`.
+We freqently update this projects to add features and keep them free from bugs.
+This is why installing `gvm-tools` using pip is recommended.
+
+The current release of `gvm-tools` can be used with all supported GOS versions.
+
 ### Requirements
 
 Python 3.5 and later is supported.
