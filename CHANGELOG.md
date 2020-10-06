@@ -14,15 +14,12 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
-## [Unreleased]
-### Added
-### Changed
-### Deprecated
-### Removed
+## [20.10.1] - 2020-10-06
 ### Fixed
 
-[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.0...HEAD
+- Reverted changes in the dependency that causes CI failures.
 
+[20.10.1]: https://github.com/greenbone/gvm-tools/compare/v20.10.0...HEAD
 
 ## [20.10.0] - 2020-10-05
 
