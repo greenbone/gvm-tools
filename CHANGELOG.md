@@ -16,6 +16,8 @@ $ cd gvm-tools && git log
 
 ## [Unreleased]
 ### Added
+* Added `pretty_print` to `pyshell` by default, so it does not need to be manually imported [#305](https://github.com/greenbone/gvm-tools/pull/305)
+
 ### Changed
 ### Deprecated
 ### Removed
