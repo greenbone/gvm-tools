@@ -6,10 +6,6 @@ Installation of gvm-tools
 The current universally applicable installation process for Python is using
 the `pip`_ installer tool in conjunction with the `pypi`_ package repository.
 
-.. note:: All commands listed here use the general tool names. If some of these
-  tools are provided by your distribution, you may need to explicitly use the
-  Python 3 version of the tool, e.g. :program:`pip3`.
-
 Installing the Latest Stable Release of gvm-tools
 -------------------------------------------------
 
@@ -23,7 +19,7 @@ The following command installs :program:`gvm-tools` system wide:
 
 .. code-block:: shell
 
-  pip install gvm-tools
+  python3 -m pip install gvm-tools
 
 A system wide installation usually requires admin permissions. Therefore, 
 :program:`gvm-tools` may only be installed for the
@@ -32,7 +28,7 @@ via:
 
 .. code-block:: shell
 
-  pip install --user gvm-tools
+  python3 -m pip install --user gvm-tools
 
 For further details and additional installation options, please take a look at
 the documentation of `pip`_.
@@ -83,7 +79,7 @@ Once there is a copy of the source, it can be installed into the current Python
 
 .. code-block:: shell
 
-    pip install -e /path/to/gvm-tools
+    python3 -m pip install -e /path/to/gvm-tools
 
 .. _pip: https://pip.pypa.io/en/stable/
 .. _poetry: https://python-poetry.org/
