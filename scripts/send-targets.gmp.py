@@ -24,7 +24,7 @@ from lxml import etree as e
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args !=1:
+    if len_args != 1:
         message = """
         This script pulls target data from an xml document and feeds it to \
     a desired GSM
@@ -53,6 +53,7 @@ def yes_or_no(question):
         return False
     else:
         return yes_or_no("Please enter 'y' or 'n'")
+
 
 def create_xml_tree(xml_doc):
     try:

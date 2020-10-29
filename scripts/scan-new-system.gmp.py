@@ -41,7 +41,9 @@ def create_target(gmp, ipaddress, port_list_id):
     # create a unique name by adding the current datetime
     name = "Suspect Host {} {}".format(ipaddress, str(datetime.datetime.now()))
 
-    response = gmp.create_target(name=name, hosts=[ipaddress], port_list_id=port_list_id)
+    response = gmp.create_target(
+        name=name, hosts=[ipaddress], port_list_id=port_list_id
+    )
     return response.get('id')
 
 

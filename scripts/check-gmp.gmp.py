@@ -138,8 +138,7 @@ class InstanceManager:
 
     @staticmethod
     def _to_sql_bool(pending):
-        """ Replace True/False with 1/0.
-        """
+        """Replace True/False with 1/0."""
         return '1' if pending else '0'
 
     def connect_db(self):
@@ -156,8 +155,7 @@ class InstanceManager:
             logger.debug(e)
 
     def close_db(self):
-        """Close database
-        """
+        """Close database"""
         self.con_db.close()
 
     def set_host(self, host):
@@ -259,8 +257,7 @@ class InstanceManager:
         self.con_db.commit()
 
     def delete_report(self):
-        """Delete report from database
-        """
+        """Delete report from database"""
         self.cursor.execute("DELETE FROM Report WHERE host=?", (self.host,))
 
         # Save the changes
@@ -1035,9 +1032,7 @@ ZERO = timedelta(0)
 
 
 class Utc(tzinfo):
-    """UTC Timezone
-
-    """
+    """UTC Timezone"""
 
     def utcoffset(self, dt):
         return ZERO
@@ -1056,9 +1051,7 @@ UTC = Utc()
 
 
 class FixedOffset(tzinfo):
-    """Fixed offset in hours and minutes from UTC
-
-    """
+    """Fixed offset in hours and minutes from UTC"""
 
     def __init__(self, offset_hours, offset_minutes, name):
         self.__offset_hours = offset_hours  # Keep for later __getinitargs__
@@ -1117,9 +1110,7 @@ def to_int(
 
 
 def parse_timezone(matches, default_timezone=UTC):
-    """Parses ISO 8601 time zone specs into tzinfo offsets
-
-    """
+    """Parses ISO 8601 time zone specs into tzinfo offsets"""
 
     if matches["timezone"] == "Z":
         return UTC
