@@ -131,9 +131,8 @@ class InstanceManager:
 
         except PermissionError:
             parser.error(
-                "The selected temporary database file {} or the parent dir has not the correct permissions.".format(
-                    self.db
-                )
+                "The selected temporary database file {} or the parent dir has"
+                " not the correct permissions.".format(self.db)
             )
 
     @staticmethod
@@ -273,7 +272,7 @@ class InstanceManager:
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
         self.con_db.isolation_level = None
         self.cursor.execute("VACUUM")
-        self.con_db.isolation_level = ''  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe
+        self.con_db.isolation_level = ''  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long
         # Save the changes
         self.con_db.commit()
 
@@ -652,10 +651,10 @@ def status(gmp, im, script_args):
 
                 full_report = gmp.get_report(
                     report_id=last_report_id,
-                    filter="""sort-reverse=id result_hosts_only=1 
-                    min_cvss_base= min_qod= levels=hmlgd autofp={} 
-                    notes=0 apply_overrides={} overrides={} first=1 rows=-1 
-                    delta_states=cgns host={}""".format(
+                    filter="sort-reverse=id result_hosts_only=1 "
+                    "min_cvss_base= min_qod= levels=hmlgd autofp={} "
+                    "notes=0 apply_overrides={} overrides={} first=1 rows=-1 "
+                    "delta_states=cgns host={}".format(
                         script_args.autofp,
                         int(script_args.overrides),
                         int(script_args.apply_overrides),
@@ -1124,8 +1123,8 @@ def parse_timezone(matches, default_timezone=UTC):
     minutes = to_int(matches, "tz_minute", default_to_zero=True)
     description = "%s%02d:%02d" % (sign, hours, minutes)
     if sign == "-":
-        hours = -hours
-        minutes = -minutes
+        hours = -1 * hours
+        minutes = -1 * minutes
     return FixedOffset(hours, minutes, description)
 
 
@@ -1185,7 +1184,7 @@ def parse_date(datestring, default_timezone=UTC):
             tzinfo=tz,
         )
     except Exception as e:
-        raise ParseError(e)
+        raise ParseError(e) from None
 
 
 def main(gmp, args):
