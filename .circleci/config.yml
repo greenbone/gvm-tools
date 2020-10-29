@@ -125,11 +125,11 @@ commands:
 
 jobs:
   lint-python-files:
-    executor: python-36
+    executor: python-38
     steps:
       - lint
   lint-gvm-scripts:
-    executor: python-36
+    executor: python-38
     steps:
       - lint-scripts
   build-documentation:
