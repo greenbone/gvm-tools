@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -36,12 +38,12 @@ ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip> <port_list_id>
 
 
 def create_target(gmp, ipaddress, port_list_id):
-    import datetime
-
     # create a unique name by adding the current datetime
     name = "Suspect Host {} {}".format(ipaddress, str(datetime.datetime.now()))
 
-    response = gmp.create_target(name=name, hosts=[ipaddress], port_list_id=port_list_id)
+    response = gmp.create_target(
+        name=name, hosts=[ipaddress], port_list_id=port_list_id
+    )
     return response.get('id')
 
 
@@ -64,7 +66,6 @@ def start_task(gmp, task_id):
 
 
 def main(gmp, args):
-    # pylint: disable=undefined-variable
 
     check_args(args)
 
@@ -93,4 +94,5 @@ def main(gmp, args):
 
 
 if __name__ == '__gmp__':
+    # pylint: disable=undefined-variable
     main(gmp, args)

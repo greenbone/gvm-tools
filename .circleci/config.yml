@@ -26,6 +26,16 @@ commands:
       - run:
           name: Install dependencies
           command: poetry install --no-dev
+  build-docs:
+    description: "Download and build the documentation"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: poetry install
+      - run:
+          name: Build docs
+          command: cd docs && poetry run make html
   test:
     description: "Download and run tests"
     steps:
@@ -84,7 +94,7 @@ commands:
       - run:
           name: Run pylint
           command: |
-            poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
+            poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*.py
   deploy:
     description: "Upload package to PyPI"
     steps:
@@ -115,13 +125,17 @@ commands:
 
 jobs:
   lint-python-files:
-    executor: python-36
+    executor: python-38
     steps:
       - lint
   lint-gvm-scripts:
-    executor: python-36
+    executor: python-38
     steps:
       - lint-scripts
+  build-documentation:
+    executor: python-38
+    steps:
+      - build-docs
   build-35:
     executor: python-35
     steps:
@@ -164,6 +178,8 @@ workflows:
   build_and_test:
     jobs:
       - lint-python-files
+      - lint-gvm-scripts
+      - build-documentation
       - build-35
       - test-35
       - build-36
