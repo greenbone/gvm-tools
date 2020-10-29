@@ -28,11 +28,8 @@ project = 'gvm-tools'
 copyright = '2018-2019, Greenbone Networks GmbH'
 author = 'Greenbone Networks GmbH'
 
-# The short X.Y version
-
-version = '{0}.{1}'.format(gvmtools.VERSION[0], gvmtools.VERSION[1])
-# The full version, including alpha/beta/rc tags
-release = gvmtools.get_version()
+version = gvmtools.get_version()
+release = version
 
 
 # -- General configuration ---------------------------------------------------
