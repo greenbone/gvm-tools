@@ -26,6 +26,16 @@ commands:
       - run:
           name: Install dependencies
           command: poetry install --no-dev
+  build-docs:
+    description: "Download and build the documentation"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: poetry install
+      - run:
+          name: Build docs
+          command: cd docs && poetry run make html
   test:
     description: "Download and run tests"
     steps:
@@ -122,6 +132,10 @@ jobs:
     executor: python-36
     steps:
       - lint-scripts
+  build-documentation:
+    executor: python-38
+    steps:
+      - build-docs
   build-35:
     executor: python-35
     steps:
@@ -164,6 +178,7 @@ workflows:
   build_and_test:
     jobs:
       - lint-python-files
+      - build-documentation
       - build-35
       - test-35
       - build-36
