@@ -178,6 +178,7 @@ workflows:
   build_and_test:
     jobs:
       - lint-python-files
+      - lint-gvm-scripts
       - build-documentation
       - build-35
       - test-35
