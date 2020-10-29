@@ -94,7 +94,7 @@ commands:
       - run:
           name: Run pylint
           command: |
-            poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
+            poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*.py
   deploy:
     description: "Upload package to PyPI"
     steps:
