@@ -26,6 +26,7 @@ from pathlib import Path
 from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_TIMEOUT
 
 from gvmtools.parser import CliParser
+from gvmtools.config import Config
 
 from . import SuppressOutput
 
@@ -77,6 +78,22 @@ class ConfigParserTestCase(unittest.TestCase):
         self.assertEqual(args.keyfile, 'foo.key')
         self.assertEqual(args.cafile, 'foo.ca')
         self.assertEqual(args.port, 123)
+
+    @mock.patch('gvmtools.parser.Path')
+    def test_resolve_file_not_found_error(self, path_mock):
+        def resolve_raises_error():
+            raise FileNotFoundError
+
+        configpath = mock.MagicMock()
+        configpath.expanduser().resolve = mock.MagicMock(
+            side_effect=resolve_raises_error
+        )
+        path_mock.return_value = configpath
+
+        # pylint: disable=protected-access
+        return_value = self.parser._load_config('foobar')
+
+        self.assertTrue(isinstance(return_value, Config))
 
 
 class IgnoreConfigParserTestCase(unittest.TestCase):
