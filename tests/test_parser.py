@@ -194,6 +194,17 @@ class RootArgumentsParserTest(ParserTestCase):
 
         self.assertIsNone(args.timeout)
 
+    @mock.patch('gvmtools.parser.logging')
+    @mock.patch('gvmtools.parser.argparse.ArgumentParser.print_usage')
+    @mock.patch('gvmtools.parser.argparse.ArgumentParser._print_message')
+    def test_no_args_provided(
+        self, logging_mock, print_usage_mock, print_message
+    ):  # pylint: disable=unused-argument
+        # pylint: disable=protected-access
+        self.parser._set_defaults = mock.MagicMock()
+
+        self.assertRaises(SystemExit, self.parser.parse_known_args, None)
+
 
 class SocketParserTestCase(ParserTestCase):
     def test_defaults(self):
