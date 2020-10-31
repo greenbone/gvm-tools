@@ -25,7 +25,7 @@ from pathlib import Path
 
 from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_TIMEOUT
 
-from gvmtools.parser import CliParser
+from gvmtools.parser import CliParser, create_parser
 from gvmtools.config import Config
 
 from . import SuppressOutput
@@ -448,3 +448,16 @@ class HelpFormattingParserTestCase(ParserTestCase):
         self.parser._set_defaults(None)
         help_output = self.parser._parser_tls.format_help()
         self.assert_snapshot('tls_help', help_output)
+
+
+class ParserModuleFunctionTestCase(unittest.TestCase):
+    # pylint: disable=protected-access
+    def test_create_parser(self):
+        description = 'parser description'
+        logfilename = 'logfilename'
+
+        parser = create_parser(description, logfilename)
+
+        self.assertTrue(isinstance(parser, CliParser))
+        self.assertEqual(parser._logfilename, logfilename)
+        self.assertEqual(parser._bootstrap_parser.description, description)
