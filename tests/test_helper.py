@@ -15,12 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import sys
 import unittest
 from unittest import mock
 
 from gvm.errors import GvmError
 
-from gvmtools.helper import Table, do_not_run_as_root, authenticate
+from gvmtools.helper import Table, do_not_run_as_root, authenticate, run_script
 
 
 class TableTestCase(unittest.TestCase):
@@ -163,3 +164,33 @@ class HelperFunctionsTestCase(unittest.TestCase):
             return_value=authenticated_return_value
         )
         return mock_gmp
+
+    @mock.patch('gvmtools.helper.open')
+    @mock.patch('gvmtools.helper.exec')
+    def test_run_script(self, mock_exec, mock_open):
+        path = 'foo'
+        global_vars = ['OpenVAS', 'is', 'awesome']
+        mock_open().read.return_value = 'file content'
+
+        run_script(path, global_vars)
+
+        mock_open.assert_called_with(path, 'r', newline='')
+        mock_exec.assert_called_with('file content', global_vars)
+
+    @mock.patch('gvmtools.helper.open')
+    @mock.patch('gvmtools.helper.print')
+    def test_run_script_file_not_found(self, mock_print, mock_open):
+        def my_open(path, mode, newline):
+            raise FileNotFoundError
+
+        mock_open.side_effect = my_open
+
+        path = 'foo'
+        global_vars = ['OpenVAS', 'is', 'awesome']
+
+        with self.assertRaises(SystemExit):
+            run_script(path, global_vars)
+
+        mock_print.assert_called_with(
+            'Script {path} does not exist'.format(path=path), file=sys.stderr
+        )
