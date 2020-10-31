@@ -23,9 +23,15 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
-from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_TIMEOUT
+from gvm.connections import (
+    DEFAULT_UNIX_SOCKET_PATH,
+    DEFAULT_TIMEOUT,
+    UnixSocketConnection,
+    TLSConnection,
+    SSHConnection,
+)
 
-from gvmtools.parser import CliParser, create_parser
+from gvmtools.parser import CliParser, create_parser, create_connection
 from gvmtools.config import Config
 
 from . import SuppressOutput
@@ -461,3 +467,33 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
         self.assertTrue(isinstance(parser, CliParser))
         self.assertEqual(parser._logfilename, logfilename)
         self.assertEqual(parser._bootstrap_parser.description, description)
+
+    @mock.patch('gvmtools.parser.TLSConnection')
+    @mock.patch('gvmtools.parser.SSHConnection')
+    def test_create_unix_socket_connection(
+        self, *args
+    ):  # pylint: disable=unused-argument
+        self.perform_create_connection_test()
+
+    @mock.patch('gvmtools.parser.UnixSocketConnection')
+    @mock.patch('gvmtools.parser.SSHConnection')
+    def test_create_tls_connection(
+        self, *args
+    ):  # pylint: disable=unused-argument
+        self.perform_create_connection_test('tls', TLSConnection)
+
+    @mock.patch('gvmtools.parser.UnixSocketConnection')
+    @mock.patch('gvmtools.parser.TLSConnection')
+    def test_create_ssh_connection(
+        self, *args
+    ):  # pylint: disable=unused-argument
+        self.perform_create_connection_test('ssh', SSHConnection)
+
+        connection = create_connection('ssh', port=123)
+        self.assertTrue(isinstance(connection, SSHConnection))
+
+    def perform_create_connection_test(
+        self, connection_type='socket', connection_class=UnixSocketConnection
+    ):
+        connection = create_connection(connection_type)
+        self.assertTrue(isinstance(connection, connection_class))
