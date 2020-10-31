@@ -115,7 +115,7 @@ def authenticate(gmp, username=None, password=None):
 
     # Ask for login credentials if none are given.
     if not username:
-        while len(username) == 0:
+        while username is None or len(username) == 0:
             username = input('Enter username: ')
 
     if not password:
