@@ -95,6 +95,27 @@ class ConfigParserTestCase(unittest.TestCase):
 
         self.assertTrue(isinstance(return_value, Config))
 
+    @mock.patch('gvmtools.parser.Path')
+    @mock.patch('gvmtools.parser.Config')
+    def test_config_load_raises_error(self, config_mock, path_mock):
+        def config_load_error():
+            raise Exception
+
+        config = mock.MagicMock()
+        config.load = mock.MagicMock(side_effect=config_load_error)
+        config_mock.return_value = config
+
+        configpath = mock.Mock()
+        configpath.expanduser().resolve().exists = mock.MagicMock(
+            return_value=True
+        )
+        path_mock.return_value = configpath
+
+        configfile = 'configfile'
+
+        # pylint: disable=protected-access
+        self.assertRaises(RuntimeError, self.parser._load_config, configfile)
+
 
 class IgnoreConfigParserTestCase(unittest.TestCase):
     def test_unkown_config_file(self):
