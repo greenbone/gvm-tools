@@ -18,7 +18,9 @@
 import unittest
 from unittest import mock
 
-from gvmtools.helper import Table, do_not_run_as_root
+from gvm.errors import GvmError
+
+from gvmtools.helper import Table, do_not_run_as_root, authenticate
 
 
 class TableTestCase(unittest.TestCase):
@@ -105,3 +107,59 @@ class HelperFunctionsTestCase(unittest.TestCase):
         mock_os.geteuid.return_value = 123
 
         self.assertIsNone(do_not_run_as_root())
+
+    def test_authenticate_already_authenticated(self):
+        mock_gmp = self.create_gmp_mock(True)
+
+        self.assertIsNone(authenticate(mock_gmp))
+
+    @mock.patch('gvmtools.helper.input', return_value='foo')
+    def test_authenticate_username_is_none(
+        self, mock_input
+    ):  # pylint: disable=unused-argument,line-too-long
+        mock_gmp = self.create_gmp_mock(False)
+
+        return_value = authenticate(mock_gmp, password='bar')
+
+        self.assertTrue(isinstance(return_value, tuple))
+        self.assertEqual(return_value[0], 'foo')
+        self.assertEqual(return_value[1], 'bar')
+
+    @mock.patch('gvmtools.helper.getpass')
+    def test_authenticate_password_is_none(self, mock_getpass):
+        mock_gmp = self.create_gmp_mock(False)
+        mock_getpass.getpass = mock.MagicMock(return_value='SuperSecret123!')
+
+        return_value = authenticate(mock_gmp, username='user')
+
+        self.assertTrue(isinstance(return_value, tuple))
+        self.assertEqual(return_value[0], 'user')
+        self.assertEqual(return_value[1], 'SuperSecret123!')
+
+    def test_authenticate(self):
+        mock_gmp = self.create_gmp_mock(False)
+
+        return_value = authenticate(
+            mock_gmp, username='user', password='password'
+        )
+
+        self.assertTrue(isinstance(return_value, tuple))
+        self.assertEqual(return_value[0], 'user')
+        self.assertEqual(return_value[1], 'password')
+
+    def test_authenticate_bad_credentials(self):
+        mock_gmp = self.create_gmp_mock(False)
+
+        def my_authenticate(username, password):
+            raise GvmError('foo')
+
+        mock_gmp.authenticate = my_authenticate
+
+        self.assertRaises(GvmError, authenticate, mock_gmp, 'user', 'password')
+
+    def create_gmp_mock(self, authenticated_return_value):
+        mock_gmp = mock.MagicMock()
+        mock_gmp.is_authenticated = mock.MagicMock(
+            return_value=authenticated_return_value
+        )
+        return mock_gmp
