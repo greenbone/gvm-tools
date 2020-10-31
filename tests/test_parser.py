@@ -20,6 +20,7 @@ import os
 import sys
 import unittest
 
+from unittest import mock
 from pathlib import Path
 
 from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_TIMEOUT
@@ -174,6 +175,24 @@ class RootArgumentsParserTest(ParserTestCase):
         )
         self.assertEqual(args.gmp_password, 'foo')
         self.assertEqual(script_args, ['--bar', '--bar2'])
+
+    @mock.patch('gvmtools.parser.logging')
+    def test_socket_has_no_timeout(
+        self, logging_mock
+    ):  # pylint: disable=unused-argument
+        # pylint: disable=protected-access
+        self.parser._parser = mock.MagicMock()
+        args_mock = mock.MagicMock()
+        args_mock.timeout = -1
+        self.parser._parser.parse_known_args = mock.MagicMock(
+            return_value=(args_mock, mock.MagicMock())
+        )
+
+        args, _ = self.parser.parse_known_args(
+            ['socket', '--timeout', '--', '-1']
+        )
+
+        self.assertIsNone(args.timeout)
 
 
 class SocketParserTestCase(ParserTestCase):
