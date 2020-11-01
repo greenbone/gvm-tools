@@ -229,7 +229,6 @@ class RootArgumentsParserTest(ParserTestCase):
     @patch('gvmtools.parser.logging')
     def test_socket_has_no_timeout(self, _logging_mock):
         # pylint: disable=protected-access
-        self.parser._parser = unittest.mock.MagicMock()
         args_mock = unittest.mock.MagicMock()
         args_mock.timeout = -1
         self.parser._parser.parse_known_args = unittest.mock.MagicMock(
