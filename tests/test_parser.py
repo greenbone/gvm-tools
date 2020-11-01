@@ -119,16 +119,14 @@ class ConfigParserTestCase(unittest.TestCase):
         config.load = unittest.mock.MagicMock(side_effect=config_load_error)
         config_mock.return_value = config
 
-        configpath = unittest.mock.Mock()
-        configpath.expanduser().resolve().exists = unittest.mock.MagicMock(
-            return_value=True
+        # Making sure that the function thinks the config file exists
+        configpath_exists = unittest.mock.Mock()
+        configpath_exists.expanduser().resolve().exists = (
+            unittest.mock.MagicMock(return_value=True)
         )
-        path_mock.return_value = configpath
+        path_mock.return_value = configpath_exists
 
-        configfile = 'configfile'
-
-        # pylint: disable=protected-access
-        self.assertRaises(RuntimeError, self.parser._load_config, configfile)
+        self.assertRaises(RuntimeError, self.parser.parse_args, ['socket'])
 
 
 class IgnoreConfigParserTestCase(unittest.TestCase):
