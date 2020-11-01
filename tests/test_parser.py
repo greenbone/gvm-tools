@@ -489,9 +489,6 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
     ):  # pylint: disable=unused-argument
         self.perform_create_connection_test('ssh', SSHConnection)
 
-        connection = create_connection('ssh', port=123)
-        self.assertTrue(isinstance(connection, SSHConnection))
-
     def perform_create_connection_test(
         self, connection_type='socket', connection_class=UnixSocketConnection
     ):
