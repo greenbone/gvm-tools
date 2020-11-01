@@ -23,6 +23,7 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 
+from argparse import Namespace
 from gvm.connections import (
     DEFAULT_UNIX_SOCKET_PATH,
     DEFAULT_TIMEOUT,
@@ -32,7 +33,6 @@ from gvm.connections import (
 )
 
 from gvmtools.parser import CliParser, create_parser, create_connection
-from gvmtools.config import Config
 
 from . import SuppressOutput
 
@@ -85,10 +85,12 @@ class ConfigParserTestCase(unittest.TestCase):
         self.assertEqual(args.cafile, 'foo.ca')
         self.assertEqual(args.port, 123)
 
+    @patch('gvmtools.parser.logger')
     @patch('gvmtools.parser.Path')
-    def test_resolve_file_not_found_error(self, path_mock):
+    def test_resolve_file_not_found_error(self, path_mock, logger_mock):
+        # Making sure that resolve raises an error
         def resolve_raises_error():
-            raise FileNotFoundError
+            raise FileNotFoundError()
 
         configpath = unittest.mock.MagicMock()
         configpath.expanduser().resolve = unittest.mock.MagicMock(
@@ -96,10 +98,16 @@ class ConfigParserTestCase(unittest.TestCase):
         )
         path_mock.return_value = configpath
 
-        # pylint: disable=protected-access
-        return_value = self.parser._load_config('foobar')
+        logger_mock.debug = unittest.mock.MagicMock()
 
-        self.assertIsInstance(return_value, Config)
+        args = self.parser.parse_args(['socket'])
+
+        self.assertIsInstance(args, Namespace)
+        self.assertEqual(args.connection_type, 'socket')
+        self.assertEqual(args.config, '~/.config/gvm-tools.conf')
+        logger_mock.debug.assert_any_call(
+            'Ignoring non existing config file %s', '~/.config/gvm-tools.conf'
+        )
 
     @patch('gvmtools.parser.Path')
     @patch('gvmtools.parser.Config')
