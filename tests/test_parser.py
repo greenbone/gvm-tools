@@ -480,10 +480,13 @@ class CreateConnectionTestCase(unittest.TestCase):
         self.perform_create_connection_test('tls', TLSConnection)
 
     def test_create_ssh_connection(self):
-        self.perform_create_connection_test('ssh', SSHConnection)
+        self.perform_create_connection_test('ssh', SSHConnection, 22)
 
     def perform_create_connection_test(
-        self, connection_type='socket', connection_class=UnixSocketConnection
+        self,
+        connection_type='socket',
+        connection_class=UnixSocketConnection,
+        port=None,
     ):
-        connection = create_connection(connection_type)
+        connection = create_connection(connection_type, port=port)
         self.assertIsInstance(connection, connection_class)
