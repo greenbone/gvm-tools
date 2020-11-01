@@ -20,7 +20,7 @@ import os
 import sys
 import unittest
 
-from unittest import mock
+from unittest.mock import patch
 from pathlib import Path
 
 from gvm.connections import (
@@ -85,13 +85,13 @@ class ConfigParserTestCase(unittest.TestCase):
         self.assertEqual(args.cafile, 'foo.ca')
         self.assertEqual(args.port, 123)
 
-    @mock.patch('gvmtools.parser.Path')
+    @patch('gvmtools.parser.Path')
     def test_resolve_file_not_found_error(self, path_mock):
         def resolve_raises_error():
             raise FileNotFoundError
 
-        configpath = mock.MagicMock()
-        configpath.expanduser().resolve = mock.MagicMock(
+        configpath = unittest.mock.MagicMock()
+        configpath.expanduser().resolve = unittest.mock.MagicMock(
             side_effect=resolve_raises_error
         )
         path_mock.return_value = configpath
@@ -101,18 +101,18 @@ class ConfigParserTestCase(unittest.TestCase):
 
         self.assertTrue(isinstance(return_value, Config))
 
-    @mock.patch('gvmtools.parser.Path')
-    @mock.patch('gvmtools.parser.Config')
+    @patch('gvmtools.parser.Path')
+    @patch('gvmtools.parser.Config')
     def test_config_load_raises_error(self, config_mock, path_mock):
         def config_load_error():
             raise Exception
 
-        config = mock.MagicMock()
-        config.load = mock.MagicMock(side_effect=config_load_error)
+        config = unittest.mock.MagicMock()
+        config.load = unittest.mock.MagicMock(side_effect=config_load_error)
         config_mock.return_value = config
 
-        configpath = mock.Mock()
-        configpath.expanduser().resolve().exists = mock.MagicMock(
+        configpath = unittest.mock.Mock()
+        configpath.expanduser().resolve().exists = unittest.mock.MagicMock(
             return_value=True
         )
         path_mock.return_value = configpath
@@ -220,16 +220,16 @@ class RootArgumentsParserTest(ParserTestCase):
         self.assertEqual(args.gmp_password, 'foo')
         self.assertEqual(script_args, ['--bar', '--bar2'])
 
-    @mock.patch('gvmtools.parser.logging')
+    @patch('gvmtools.parser.logging')
     def test_socket_has_no_timeout(
         self, logging_mock
     ):  # pylint: disable=unused-argument
         # pylint: disable=protected-access
-        self.parser._parser = mock.MagicMock()
-        args_mock = mock.MagicMock()
+        self.parser._parser = unittest.mock.MagicMock()
+        args_mock = unittest.mock.MagicMock()
         args_mock.timeout = -1
-        self.parser._parser.parse_known_args = mock.MagicMock(
-            return_value=(args_mock, mock.MagicMock())
+        self.parser._parser.parse_known_args = unittest.mock.MagicMock(
+            return_value=(args_mock, unittest.mock.MagicMock())
         )
 
         args, _ = self.parser.parse_known_args(
@@ -238,14 +238,14 @@ class RootArgumentsParserTest(ParserTestCase):
 
         self.assertIsNone(args.timeout)
 
-    @mock.patch('gvmtools.parser.logging')
-    @mock.patch('gvmtools.parser.argparse.ArgumentParser.print_usage')
-    @mock.patch('gvmtools.parser.argparse.ArgumentParser._print_message')
+    @patch('gvmtools.parser.logging')
+    @patch('gvmtools.parser.argparse.ArgumentParser.print_usage')
+    @patch('gvmtools.parser.argparse.ArgumentParser._print_message')
     def test_no_args_provided(
         self, logging_mock, print_usage_mock, print_message
     ):  # pylint: disable=unused-argument
         # pylint: disable=protected-access
-        self.parser._set_defaults = mock.MagicMock()
+        self.parser._set_defaults = unittest.mock.MagicMock()
 
         self.assertRaises(SystemExit, self.parser.parse_known_args, None)
 
@@ -468,22 +468,22 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
         self.assertEqual(parser._logfilename, logfilename)
         self.assertEqual(parser._bootstrap_parser.description, description)
 
-    @mock.patch('gvmtools.parser.TLSConnection')
-    @mock.patch('gvmtools.parser.SSHConnection')
+    @patch('gvmtools.parser.TLSConnection')
+    @patch('gvmtools.parser.SSHConnection')
     def test_create_unix_socket_connection(
         self, *args
     ):  # pylint: disable=unused-argument
         self.perform_create_connection_test()
 
-    @mock.patch('gvmtools.parser.UnixSocketConnection')
-    @mock.patch('gvmtools.parser.SSHConnection')
+    @patch('gvmtools.parser.UnixSocketConnection')
+    @patch('gvmtools.parser.SSHConnection')
     def test_create_tls_connection(
         self, *args
     ):  # pylint: disable=unused-argument
         self.perform_create_connection_test('tls', TLSConnection)
 
-    @mock.patch('gvmtools.parser.UnixSocketConnection')
-    @mock.patch('gvmtools.parser.TLSConnection')
+    @patch('gvmtools.parser.UnixSocketConnection')
+    @patch('gvmtools.parser.TLSConnection')
     def test_create_ssh_connection(
         self, *args
     ):  # pylint: disable=unused-argument
