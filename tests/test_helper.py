@@ -110,7 +110,7 @@ class DoNotRunAsRootTestCase(unittest.TestCase):
         self.assertIsNone(do_not_run_as_root())
 
 
-class AuthenticateFunctionTestCase(unittest.TestCase):
+class AuthenticateTestCase(unittest.TestCase):
     def test_authenticate_already_authenticated(self):
         mock_gmp = self.create_gmp_mock(True)
 
