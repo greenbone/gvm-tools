@@ -468,25 +468,13 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
         self.assertEqual(parser._logfilename, logfilename)
         self.assertEqual(parser._bootstrap_parser.description, description)
 
-    @patch('gvmtools.parser.TLSConnection')
-    @patch('gvmtools.parser.SSHConnection')
-    def test_create_unix_socket_connection(
-        self, *args
-    ):  # pylint: disable=unused-argument
+    def test_create_unix_socket_connection(self):
         self.perform_create_connection_test()
 
-    @patch('gvmtools.parser.UnixSocketConnection')
-    @patch('gvmtools.parser.SSHConnection')
-    def test_create_tls_connection(
-        self, *args
-    ):  # pylint: disable=unused-argument
+    def test_create_tls_connection(self):
         self.perform_create_connection_test('tls', TLSConnection)
 
-    @patch('gvmtools.parser.UnixSocketConnection')
-    @patch('gvmtools.parser.TLSConnection')
-    def test_create_ssh_connection(
-        self, *args
-    ):  # pylint: disable=unused-argument
+    def test_create_ssh_connection(self):
         self.perform_create_connection_test('ssh', SSHConnection)
 
     def perform_create_connection_test(
