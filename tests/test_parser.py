@@ -221,9 +221,7 @@ class RootArgumentsParserTest(ParserTestCase):
         self.assertEqual(script_args, ['--bar', '--bar2'])
 
     @patch('gvmtools.parser.logging')
-    def test_socket_has_no_timeout(
-        self, logging_mock
-    ):  # pylint: disable=unused-argument
+    def test_socket_has_no_timeout(self, _logging_mock):
         # pylint: disable=protected-access
         self.parser._parser = unittest.mock.MagicMock()
         args_mock = unittest.mock.MagicMock()
@@ -242,8 +240,8 @@ class RootArgumentsParserTest(ParserTestCase):
     @patch('gvmtools.parser.argparse.ArgumentParser.print_usage')
     @patch('gvmtools.parser.argparse.ArgumentParser._print_message')
     def test_no_args_provided(
-        self, logging_mock, print_usage_mock, print_message
-    ):  # pylint: disable=unused-argument
+        self, _logging_mock, _print_usage_mock, _print_message
+    ):
         # pylint: disable=protected-access
         self.parser._set_defaults = unittest.mock.MagicMock()
 
