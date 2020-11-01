@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019 Greenbone Networks GmbH
+# Copyright (C) 2020 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -94,7 +94,7 @@ class TableTestCase(unittest.TestCase):
         self.assertEqual(str(self.table), expected)
 
 
-class HelperFunctionsTestCase(unittest.TestCase):
+class DoNotRunAsRootTestCase(unittest.TestCase):
     @mock.patch('gvmtools.helper.os')
     def test_do_not_run_as_root_as_root(self, mock_os):
         mock_os.geteuid = unittest.mock.MagicMock(spec='geteuid')
@@ -109,6 +109,8 @@ class HelperFunctionsTestCase(unittest.TestCase):
 
         self.assertIsNone(do_not_run_as_root())
 
+
+class AuthenticateTestCase(unittest.TestCase):
     def test_authenticate_already_authenticated(self):
         mock_gmp = self.create_gmp_mock(True)
 
@@ -165,6 +167,8 @@ class HelperFunctionsTestCase(unittest.TestCase):
         )
         return mock_gmp
 
+
+class RunScriptTestCase(unittest.TestCase):
     @mock.patch('gvmtools.helper.open')
     @mock.patch('gvmtools.helper.exec')
     def test_run_script(self, mock_exec, mock_open):
