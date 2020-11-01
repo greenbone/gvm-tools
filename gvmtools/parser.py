@@ -333,18 +333,13 @@ def create_connection(
             cafile=cafile,
         )
 
+    ssh_connection_args = {
+        'timeout': timeout,
+        'hostname': hostname,
+        'username': ssh_username,
+        'password': ssh_password,
+    }
     if port is not None:
-        return SSHConnection(
-            timeout=timeout,
-            hostname=hostname,
-            port=port,
-            username=ssh_username,
-            password=ssh_password,
-        )
-    else:
-        return SSHConnection(
-            timeout=timeout,
-            hostname=hostname,
-            username=ssh_username,
-            password=ssh_password,
-        )
+        ssh_connection_args['port'] = port
+
+    return SSHConnection(**ssh_connection_args)
