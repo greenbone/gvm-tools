@@ -99,7 +99,7 @@ class ConfigParserTestCase(unittest.TestCase):
         # pylint: disable=protected-access
         return_value = self.parser._load_config('foobar')
 
-        self.assertTrue(isinstance(return_value, Config))
+        self.assertIsInstance(return_value, Config)
 
     @patch('gvmtools.parser.Path')
     @patch('gvmtools.parser.Config')
@@ -464,7 +464,7 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
 
         parser = create_parser(description, logfilename)
 
-        self.assertTrue(isinstance(parser, CliParser))
+        self.assertIsInstance(parser, CliParser)
         self.assertEqual(parser._logfilename, logfilename)
         self.assertEqual(parser._bootstrap_parser.description, description)
 
@@ -493,4 +493,4 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
         self, connection_type='socket', connection_class=UnixSocketConnection
     ):
         connection = create_connection(connection_type)
-        self.assertTrue(isinstance(connection, connection_class))
+        self.assertIsInstance(connection, connection_class)
