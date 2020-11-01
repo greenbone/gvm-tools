@@ -456,7 +456,7 @@ class HelpFormattingParserTestCase(ParserTestCase):
         self.assert_snapshot('tls_help', help_output)
 
 
-class ParserModuleFunctionTestCase(unittest.TestCase):
+class CreateParserFunctionTestCase(unittest.TestCase):
     # pylint: disable=protected-access
     def test_create_parser(self):
         description = 'parser description'
@@ -468,6 +468,8 @@ class ParserModuleFunctionTestCase(unittest.TestCase):
         self.assertEqual(parser._logfilename, logfilename)
         self.assertEqual(parser._bootstrap_parser.description, description)
 
+
+class CreateConnectionTestCase(unittest.TestCase):
     def test_create_unix_socket_connection(self):
         self.perform_create_connection_test()
 
