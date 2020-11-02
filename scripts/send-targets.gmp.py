@@ -19,8 +19,7 @@
 import sys
 from gvm.protocols.gmpv9.types import get_alive_test_from_string
 
-from script_utils import create_xml_tree, yes_or_no
-from lxml import etree as e
+from lxml import etree
 
 
 def check_args(args):
@@ -44,6 +43,31 @@ def check_args(args):
 def error_and_exit(msg):
     print("Error: {}\n".format(msg), file=sys.stderr)
     sys.exit(1)
+
+
+def yes_or_no(question):
+    reply = str(input(question + ' (y/n): ')).lower().strip()
+    if reply[0] == ('y'):
+        return True
+    if reply[0] == ('n'):
+        return False
+    else:
+        return yes_or_no("Please enter 'y' or 'n'")
+
+
+def create_xml_tree(xml_doc):
+    try:
+        xml_tree = etree.parse(xml_doc)
+        xml_tree = xml_tree.getroot()
+    except IOError as err:
+        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
+    except etree.Error as err:
+        error_and_exit("Failed to parse xml_file: {} (exit)".format(str(err)))
+
+    if len(xml_tree) == 0:
+        error_and_exit("XML file is empty (exit)")
+
+    return xml_tree
 
 
 def parse_send_xml_tree(gmp, xml_tree):
@@ -94,7 +118,7 @@ def parse_send_xml_tree(gmp, xml_tree):
             keywords[key] = cred_id
             elem_path = target.find(credential)
             port = elem_path.find('port')
-            if port and port.text is not None:
+            if port is not None and port.text is not None:
                 port_key = '{}_port'.format(credential)
                 keywords[port_key] = elem_path.find('port').text
 
@@ -143,4 +167,4 @@ def main(gmp, args):
 
 
 if __name__ == '__gmp__':
-    main(gmp, args)
+    main(gmp, args)  # pylint: disable=undefined-variable
