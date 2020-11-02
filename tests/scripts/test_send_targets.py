@@ -41,18 +41,16 @@ class SendTargetTestCase(unittest.TestCase):
 
         mock_gmp.mock_response(
             'get_credentials',
-            """
-<get_credentials_response status="200" status_text="OK">
-    <credential id="6da5b7de-92ad-4dd2-8610-d5711b9c5937">
-    </credential>
-    <credential id="7802648d-1a31-4f69-bb30-00766a1ae1e6">
-    </credential>
-    <credential id="70a63257-4923-4bf4-a9bb-dd8b710b2d80">
-    </credential>
-    <credential id="2bac0c76-795e-4742-b17a-808a0ec8e409">
-    </credential>
-</get_credentials_response>
-        """,
+            '<get_credentials_response status="200" status_text="OK">'
+            '<credential id="6da5b7de-92ad-4dd2-8610-d5711b9c5937">'
+            '</credential>'
+            '<credential id="7802648d-1a31-4f69-bb30-00766a1ae1e6">'
+            '</credential>'
+            '<credential id="70a63257-4923-4bf4-a9bb-dd8b710b2d80">'
+            '</credential>'
+            '<credential id="2bac0c76-795e-4742-b17a-808a0ec8e409">'
+            '</credential>'
+            '</get_credentials_response>',
         )
         mock_gmp.mock_response(
             'create_target',
