@@ -38,8 +38,7 @@ def error_and_exit(msg):
 def create_xml_tree(xml_doc):
     try:
         xml_tree = etree.parse(xml_doc)
-        xml_tree = etree.tostring(xml_tree)
-        xml_tree = etree.XML(xml_tree)
+        xml_tree = xml_tree.getroot()
     except IOError as err:
         error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
     except etree.Error as err:

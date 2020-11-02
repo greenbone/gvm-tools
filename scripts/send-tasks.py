@@ -16,8 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-from script_utils import create_xml_tree, error_and_exit, yes_or_no
+from gvmtools.script_utils import create_xml_tree, error_and_exit, yes_or_no
 
 
 def check_args(args):
@@ -39,23 +38,6 @@ def check_args(args):
         quit()
 
 
-def error_and_exit(msg):
-    print("\nError: {}\n".format(msg), file=sys.stderr)
-    sys.exit(1)
-
-
-def inquire_yes_no(inquiry):
-    reply = str(input(inquiry + ' [Y/n]: ')).lower().strip()
-    if reply == 'y':
-        answer = True
-    elif reply == 'n':
-        answer = False
-    else:
-        answer = inquire_yes_no("Please enter valid option dummy!")
-
-    return answer
-
-
 def numerical_option(statement, list_range):
     choice = int(input(statement))
 
@@ -68,7 +50,7 @@ def numerical_option(statement, list_range):
         )
 
 
-def interactive_options(task, keywords):
+def interactive_options(gmp, task, keywords):
     options_dict = {}
     options_dict['config'] = gmp.get_configs()
     options_dict['scanner'] = gmp.get_scanners()
@@ -125,7 +107,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         if task.find('comment').text is not None:
             keywords['comment'] = task.find('comment').text
 
-        interactive_options(task, keywords)
+        interactive_options(gmp, task, keywords)
 
         new_task = gmp.create_task(**keywords)
 
@@ -180,4 +162,4 @@ def main(gmp, args):
 
 
 if __name__ == '__gmp__':
-    main(gmp, args)
+    main(gmp, args)  # pylint: disable=undefined-variable
