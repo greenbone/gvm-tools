@@ -116,7 +116,8 @@ def parse_send_xml_tree(gmp, xml_tree):
             key = '{}_id'.format(credential)
             keywords[key] = cred_id
             elem_path = target.find(credential)
-            if elem_path.find('port').text is not None:
+            port = elem_path.find('port')
+            if port and port.text is not None:
                 port_key = '{}_port'.format(credential)
                 keywords[port_key] = elem_path.find('port').text
 
