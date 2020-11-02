@@ -4,3 +4,4 @@ omit =
     tests/*
 source =
     gvmtools
+    scripts
