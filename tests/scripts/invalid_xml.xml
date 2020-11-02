@@ -1,0 +1,7 @@
+
+<get_targets_response status="200" status_text="OK">
+    <target id="f362f2cb-c218-4e8b-8ae8-dc818edcb0b8">
+        <owner>
+            <name>jloechte</name>
+        </owner>
+</get_targets_response>
