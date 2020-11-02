@@ -19,6 +19,8 @@ $ cd gvm-tools && git log
 * Added `pretty_print` to `pyshell` by default, so it does not need to be manually imported [#305](https://github.com/greenbone/gvm-tools/pull/305)
 * Added tests for `helper` module [#310](https://github.com/greenbone/gvm-tools/pull/310)
 * Added tests for `parser` module [#311](https://github.com/greenbone/gvm-tools/pull/311)
+* Added tests for `send-tasks.py` script [#317](https://github.com/greenbone/gvm-tools/pull/317)
+* Introducing the `script_utils.py` script helper functions [#317](https://github.com/greenbone/gvm-tools/pull/317)
 
 ### Changed
 ### Deprecated
