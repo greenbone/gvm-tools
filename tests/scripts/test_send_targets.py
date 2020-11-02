@@ -17,11 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+from unittest.mock import patch
 import importlib
-from unittest.mock import patch, MagicMock
 from pathlib import Path
 from argparse import Namespace
 from lxml import etree
+from . import GmpMockFactory
+
 
 CWD = Path(__file__).absolute().parent
 
@@ -32,18 +34,13 @@ class SendTargetTestCase(unittest.TestCase):
             'scripts.send-targets', 'gvmtools'
         )
 
-    def test_sent_target(self):
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_sent_target(self, mock_gmp: GmpMockFactory):
         target_xml_path = CWD / 'example_target.xml'
         target_xml_str = target_xml_path.read_text()
-        gmp = self.create_gmp_mock()
 
-        target = etree.XML(target_xml_str)
-
-        self.send_targets.parse_send_xml_tree(gmp, target)
-
-    def create_gmp_mock(self):
-        mock_gmp = MagicMock()
-        credentials = etree.XML(
+        mock_gmp.mock_response(
+            'get_credentials',
             """
 <get_credentials_response status="200" status_text="OK">
     <credential id="6da5b7de-92ad-4dd2-8610-d5711b9c5937">
@@ -171,16 +168,17 @@ class SendTargetTestCase(unittest.TestCase):
         <page>4</page>
     </credential_count>
 </get_credentials_response>
-        """
+        """,
         )
-        mock_gmp.get_credentials = MagicMock(return_value=credentials)
-        target = etree.XML(
-            """<create_target_response status="201" status_text="OK,
-            resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>"""
+        mock_gmp.mock_response(
+            'create_target',
+            '<create_target_response status="201" status_text="OK,'
+            'resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>',
         )
-        mock_gmp.create_target = MagicMock(return_value=target)
-        mock_gmp.is_authenticated = MagicMock(return_value=True)
-        return mock_gmp
+
+        target = etree.XML(target_xml_str)
+
+        self.send_targets.parse_send_xml_tree(mock_gmp.gmp_protocol, target)
 
     def test_args(self):
         args = Namespace(script=['foo'])
