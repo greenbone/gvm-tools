@@ -25,6 +25,8 @@ $ cd gvm-tools && git log
 ### Removed
 ### Fixed
 
+* Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
+
 [Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...HEAD
 
 
