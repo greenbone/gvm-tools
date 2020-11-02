@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Greenbone Networks GmbH
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from lxml import etree
 from gvm.protocols.gmpv9.types import get_alive_test_from_string
+
+from lxml import etree as e
 
 
 def check_args(args):
@@ -56,13 +57,11 @@ def yes_or_no(question):
 
 def create_xml_tree(xml_doc):
     try:
-        xml_tree = etree.parse(xml_doc)
-        xml_tree = etree.tostring(xml_tree)
-        xml_tree = etree.XML(xml_tree)
+        xml_tree = e.parse(xml_doc)
+        xml_tree = e.tostring(xml_tree)
+        xml_tree = e.XML(xml_tree)
     except IOError as err:
         error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
-    except etree.Error as err:
-        error_and_exit("Failed to parse xml_file: {} (exit)".format(str(err)))
 
     if len(xml_tree) == 0:
         error_and_exit("XML file is empty (exit)")
@@ -118,7 +117,7 @@ def parse_send_xml_tree(gmp, xml_tree):
             keywords[key] = cred_id
             elem_path = target.find(credential)
             port = elem_path.find('port')
-            if port is not None and port.text is not None:
+            if port and port.text is not None:
                 port_key = '{}_port'.format(credential)
                 keywords[port_key] = elem_path.find('port').text
 
