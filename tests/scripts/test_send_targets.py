@@ -179,6 +179,7 @@ class SendTargetTestCase(unittest.TestCase):
             resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>"""
         )
         mock_gmp.create_target = MagicMock(return_value=target)
+        mock_gmp.is_authenticated = MagicMock(return_value=True)
         return mock_gmp
 
     def test_args(self):
@@ -221,7 +222,7 @@ class SendTargetTestCase(unittest.TestCase):
             with self.assertRaises(OSError):
                 self.send_targets.create_xml_tree(str(target_xml_path))
 
-    def test_create_xml_tree_invalid_fxml(self):
+    def test_create_xml_tree_invalid_xml(self):
         target_xml_path = CWD / 'invalid_xml.xml'
 
         with self.assertRaises(SystemExit):
