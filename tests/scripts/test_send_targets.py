@@ -44,129 +44,13 @@ class SendTargetTestCase(unittest.TestCase):
             """
 <get_credentials_response status="200" status_text="OK">
     <credential id="6da5b7de-92ad-4dd2-8610-d5711b9c5937">
-        <owner>
-            <name>jloechte</name>
-        </owner>
-        <name>test_</name>
-        <comment>comm</comment>
-        <creation_time>2020-09-17T07:34:32Z</creation_time>
-        <modification_time>2020-09-30T00:46:44Z</modification_time>
-        <writable>1</writable>
-        <in_use>1</in_use>
-        <permissions>
-            <permission>
-                <name>Everything</name>
-            </permission>
-        </permissions>
-        <allow_insecure>0</allow_insecure>
-        <login>sdfsdf</login>
-        <type>up</type>
-        <full_type>username + password</full_type>
-        <formats>
-            <format>exe</format>
-        </formats>
     </credential>
     <credential id="7802648d-1a31-4f69-bb30-00766a1ae1e6">
-        <owner>
-            <name>jloechte</name>
-        </owner>
-        <name>Unnamed</name>
-        <comment></comment>
-        <creation_time>2020-09-29T20:44:49Z</creation_time>
-        <modification_time>2020-09-29T20:45:00Z</modification_time>
-        <writable>1</writable>
-        <in_use>1</in_use>
-        <permissions>
-            <permission>
-                <name>Everything</name>
-            </permission>
-        </permissions>
-        <allow_insecure>0</allow_insecure>
-        <login>rterte</login>
-        <type>usk</type>
-        <full_type>username + SSH key</full_type>
-        <formats>
-            <format>key</format>
-            <format>rpm</format>
-            <format>deb</format>
-        </formats>
     </credential>
     <credential id="70a63257-4923-4bf4-a9bb-dd8b710b2d80">
-        <owner>
-            <name>jloechte</name>
-        </owner>
-        <name>Unnamedas</name>
-        <comment></comment>
-        <creation_time>2020-09-29T21:31:50Z</creation_time>
-        <modification_time>2020-09-29T21:32:57Z</modification_time>
-        <writable>1</writable>
-        <in_use>0</in_use>
-        <permissions>
-            <permission>
-                <name>Everything</name>
-            </permission>
-        </permissions>
-        <allow_insecure>0</allow_insecure>
-        <login>abc</login>
-        <type>snmp</type>
-        <full_type>SNMP</full_type>
-        <formats></formats>
-        <auth_algorithm>sha1</auth_algorithm>
-        <privacy>
-            <algorithm>des</algorithm>
-        </privacy>
     </credential>
     <credential id="2bac0c76-795e-4742-b17a-808a0ec8e409">
-        <owner>
-            <name>jloechte</name>
-        </owner>
-        <name>work</name>
-        <comment>test</comment>
-        <creation_time>2020-08-18T18:35:04Z</creation_time>
-        <modification_time>2020-09-29T20:43:16Z</modification_time>
-        <writable>1</writable>
-        <in_use>1</in_use>
-        <permissions>
-            <permission>
-                <name>Everything</name>
-            </permission>
-        </permissions>
-        <allow_insecure>0</allow_insecure>
-        <login>jloechte</login>
-        <type>up</type>
-        <full_type>username + password</full_type>
-        <formats>
-            <format>exe</format>
-        </formats>
     </credential>
-    <filters id="">
-        <term>first=1 rows=10 sort=name</term>
-        <keywords>
-            <keyword>
-                <column>first</column>
-                <relation>=</relation>
-                <value>1</value>
-            </keyword>
-            <keyword>
-                <column>rows</column>
-                <relation>=</relation>
-                <value>10</value>
-            </keyword>
-            <keyword>
-                <column>sort</column>
-                <relation>=</relation>
-                <value>name</value>
-            </keyword>
-        </keywords>
-    </filters>
-    <sort>
-        <field>name<order>ascending</order>
-        </field>
-    </sort>
-    <credentials start="1" max="-2"/>
-    <credential_count>4<filtered>4</filtered>
-        <page>4</page>
-    </credential_count>
 </get_credentials_response>
         """,
         )
