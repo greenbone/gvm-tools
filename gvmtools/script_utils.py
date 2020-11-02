@@ -21,6 +21,11 @@ from lxml import etree
 
 
 def yes_or_no(question):
+    """Asks the user to proceed or not in a gvmtools script
+
+    Arguments:
+        question (str): The condition the user should answer
+    """
     reply = str(input(question + ' (y/n): ')).lower().strip()
     if reply[0] == ('y'):
         return True
@@ -31,11 +36,21 @@ def yes_or_no(question):
 
 
 def error_and_exit(msg):
+    """Prints an error message and quits the gvmtools script
+
+    Arguments:
+        msg (str): The error message, that will be printed
+    """
     print("\nError: {}\n".format(msg), file=stderr)
     quit(1)
 
 
 def create_xml_tree(xml_doc):
+    """Creates an XML tree that can be read by an gvmtools script
+
+    Arguments:
+        xml_doc (str): Path to the xml document
+    """
     try:
         xml_tree = etree.parse(xml_doc)
         xml_tree = xml_tree.getroot()
