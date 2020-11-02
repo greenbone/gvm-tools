@@ -113,13 +113,12 @@ def parse_send_xml_tree(gmp, xml_tree):
                 else:
                     continue
 
-            temp_dict = {}
-            temp_dict['id'] = cred_id
+            key = '{}_id'.format(credential)
+            keywords[key] = cred_id
             elem_path = target.find(credential)
             if elem_path.find('port').text is not None:
-                temp_dict['port'] = elem_path.find('port').text
-
-            keywords[credential] = temp_dict
+                port_key = '{}_port'.format(credential)
+                keywords[port_key] = elem_path.find('port').text
 
         alive_test = get_alive_test_from_string(target.find('alive_tests').text)
 
