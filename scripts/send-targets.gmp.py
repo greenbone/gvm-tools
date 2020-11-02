@@ -19,6 +19,7 @@
 import sys
 from gvm.protocols.gmpv9.types import get_alive_test_from_string
 
+from script_utils import create_xml_tree, yes_or_no
 from lxml import etree as e
 
 
@@ -43,30 +44,6 @@ def check_args(args):
 def error_and_exit(msg):
     print("Error: {}\n".format(msg), file=sys.stderr)
     sys.exit(1)
-
-
-def yes_or_no(question):
-    reply = str(input(question + ' (y/n): ')).lower().strip()
-    if reply[0] == ('y'):
-        return True
-    if reply[0] == ('n'):
-        return False
-    else:
-        return yes_or_no("Please enter 'y' or 'n'")
-
-
-def create_xml_tree(xml_doc):
-    try:
-        xml_tree = e.parse(xml_doc)
-        xml_tree = e.tostring(xml_tree)
-        xml_tree = e.XML(xml_tree)
-    except IOError as err:
-        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
-
-    if len(xml_tree) == 0:
-        error_and_exit("XML file is empty (exit)")
-
-    return xml_tree
 
 
 def parse_send_xml_tree(gmp, xml_tree):
