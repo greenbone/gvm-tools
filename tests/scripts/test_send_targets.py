@@ -64,6 +64,32 @@ class SendTargetTestCase(unittest.TestCase):
 
         self.send_targets.parse_send_xml_tree(mock_gmp.gmp_protocol, target)
 
+    @patch('builtins.input', lambda *args: 'n')
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_sent_target_no_credential(self, mock_gmp: GmpMockFactory):
+        target_xml_path = CWD / 'example_target.xml'
+        target_xml_str = target_xml_path.read_text()
+
+        mock_gmp.mock_response(
+            'get_credentials',
+            '<get_credentials_response status="200" status_text="OK">'
+            '<credential id="70a63257-4923-4bf4-a9bb-dd8b710b2d80">'
+            '</credential>'
+            '<credential id="2bac0c76-795e-4742-b17a-808a0ec8e409">'
+            '</credential>'
+            '</get_credentials_response>',
+        )
+        mock_gmp.mock_response(
+            'create_target',
+            '<create_target_response status="201" status_text="OK,'
+            'resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>',
+        )
+
+        target = etree.XML(target_xml_str)
+
+        with self.assertRaises(SystemExit):
+            self.send_targets.parse_send_xml_tree(mock_gmp.gmp_protocol, target)
+
     def test_args(self):
         args = Namespace(script=['foo'])
         with self.assertRaises(SystemExit):
