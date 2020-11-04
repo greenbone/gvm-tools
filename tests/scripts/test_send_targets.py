@@ -18,11 +18,10 @@
 
 import unittest
 from unittest.mock import patch
-import importlib
 from pathlib import Path
 from argparse import Namespace
 from lxml import etree
-from . import GmpMockFactory
+from . import GmpMockFactory, load_module
 
 
 CWD = Path(__file__).absolute().parent
@@ -30,8 +29,8 @@ CWD = Path(__file__).absolute().parent
 
 class SendTargetTestCase(unittest.TestCase):
     def setUp(self):
-        self.send_targets = importlib.import_module(
-            'scripts.send-targets', 'gvmtools'
+        self.send_targets = load_module(
+            Path(CWD.parent.parent / 'scripts'), 'send-targets'
         )
 
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
