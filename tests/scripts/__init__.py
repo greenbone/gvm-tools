@@ -26,14 +26,14 @@ from gvm.errors import GvmResponseError
 from gvm.protocols.latest import Gmp
 
 # hacky ... hacky ... loading a script ...
-def load_module(path: Union[str, Path], module_name: str):
+def load_script(path: Union[str, Path], script_name: str):
     spec = spec_from_file_location(
-        'send-targets', path / '{}.gmp.py'.format(module_name)
+        script_name, '{}/{}.gmp.py'.format(path, script_name)
     )
-    module = module_from_spec(spec)
-    spec.loader.exec_module(module)
+    script = module_from_spec(spec)
+    spec.loader.exec_module(script)
 
-    return module
+    return script
 
 
 class GmpMockFactory:
