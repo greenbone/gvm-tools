@@ -25,7 +25,7 @@ from lxml import etree
 from gvm.errors import GvmResponseError
 from gvm.protocols.latest import Gmp
 
-# hacky ... hacky ...
+# hacky ... hacky ... loading a script
 def load_module(path: Union[str, Path], module_name: str):
     spec = spec_from_file_location(
         'send-targets', Path(path / '{}.gmp.py'.format(module_name))
