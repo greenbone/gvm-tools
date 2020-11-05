@@ -21,12 +21,14 @@ $ cd gvm-tools && git log
 * Added tests for `parser` module [#311](https://github.com/greenbone/gvm-tools/pull/311)
 * Added tests for `send-tasks.py` script [#317](https://github.com/greenbone/gvm-tools/pull/317)
 * Introducing the `script_utils.py` script helper functions [#317](https://github.com/greenbone/gvm-tools/pull/317)
+* Added test for `script/send-target.gmp.py` [#314](https://github.com/greenbone/gvm-tools/pull/314/)
 
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 * Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
+* Fixed the `pdf-report.gmp.py` script when an empty report is downloaded [#328](https://github.com/greenbone/gvm-tools/pull/328)
 
 [Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...HEAD
 

@@ -17,10 +17,24 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest.mock import patch, MagicMock, create_autospec
-from lxml import etree
+from typing import Union
+from pathlib import Path
+from importlib.util import spec_from_file_location, module_from_spec
 
+from lxml import etree
 from gvm.errors import GvmResponseError
-from gvm.protocols.gmpv9 import Gmp
+from gvm.protocols.latest import Gmp
+
+
+def load_script(path: Union[str, Path], script_name: str):
+    """loading a script for a test case"""
+    spec = spec_from_file_location(
+        script_name, '{}/{}.gmp.py'.format(path, script_name)
+    )
+    script = module_from_spec(spec)
+    spec.loader.exec_module(script)
+
+    return script
 
 
 class GmpMockFactory:
