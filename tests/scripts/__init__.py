@@ -25,8 +25,9 @@ from lxml import etree
 from gvm.errors import GvmResponseError
 from gvm.protocols.latest import Gmp
 
-# hacky ... hacky ... loading a script ...
+
 def load_script(path: Union[str, Path], script_name: str):
+    """loading a script for a test case"""
     spec = spec_from_file_location(
         script_name, '{}/{}.gmp.py'.format(path, script_name)
     )
