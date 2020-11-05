@@ -25,6 +25,7 @@ $ cd gvm-tools && git log
 ### Removed
 ### Fixed
 * Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
+* Fixed the `pdf-report.gmp.py` script when an empty report is downloaded [#328](https://github.com/greenbone/gvm-tools/pull/328)
 
 [Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...HEAD
 
