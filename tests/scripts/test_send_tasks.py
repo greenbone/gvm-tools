@@ -25,7 +25,7 @@ from lxml import etree
 from . import GmpMockFactory, load_script
 
 
-CWD = Path(__file__).absolute().parent
+CWD = os.path.abspath(os.path.join(__file__, '../'))
 
 
 class SendTasksTestCase(unittest.TestCase):
