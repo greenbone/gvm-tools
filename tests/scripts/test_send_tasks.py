@@ -37,7 +37,7 @@ class SendTasksTestCase(unittest.TestCase):
     @patch('builtins.input', lambda *args: 'y')
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_task(self, mock_gmp: GmpMockFactory):
-        task_xml_path = CWD / 'example_task.xml'
+        task_xml_path = Path(CWD, 'example_task.xml')
         task_xml_str = task_xml_path.read_text()
 
         self.send_tasks.numerical_option = MagicMock(return_value=1)
