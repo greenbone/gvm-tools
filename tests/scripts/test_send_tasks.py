@@ -18,11 +18,11 @@
 
 
 import unittest
+import os
 from unittest.mock import patch, MagicMock
-import importlib
 from pathlib import Path
 from lxml import etree
-from . import GmpMockFactory
+from . import GmpMockFactory, load_script
 
 
 CWD = Path(__file__).absolute().parent
@@ -30,8 +30,8 @@ CWD = Path(__file__).absolute().parent
 
 class SendTasksTestCase(unittest.TestCase):
     def setUp(self):
-        self.send_tasks = importlib.import_module(
-            'scripts.send-tasks', 'gvmtools'
+        self.send_tasks = load_script(
+            os.path.join(CWD, '../../scripts'), 'send-tasks'
         )
 
     @patch('builtins.input', lambda *args: 'y')
