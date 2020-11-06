@@ -20,6 +20,8 @@ from gvmtools.helper import Table
 
 
 def main(gmp, args):
+    # pylint: disable=unused-argument
+
     response_xml = gmp.get_tasks()
     tasks_xml = response_xml.xpath('task')
 

@@ -7,10 +7,10 @@
 [![code test coverage](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
 [![CircleCI](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
 
-The Greenbone Vulnerability Management Tools or gvm-tools in short
+The Greenbone Vulnerability Management Tools `gvm-tools`
 are a collection of tools that help with remote controlling a
 Greenbone Security Manager (GSM) appliance and its underlying Greenbone
-Vulnerability Manager (GVM). The tools essentially aid accessing the
+Vulnerability Manager (GVM). The tools aid in accessing the
 communication protocols GMP (Greenbone Management Protocol) and OSP
 (Open Scanner Protocol).
 
@@ -40,15 +40,23 @@ Python.
 
 ## Documentation
 
-The documentation for gvm-tools can be found at
+The documentation for `gvm-tools` can be found at
 [https://gvm-tools.readthedocs.io/](https://gvm-tools.readthedocs.io/). Please
-always take a look at the documentation for further details. This README just
-gives you a short overview.
+refer to the documentation for more details as this README just
+gives a short overview.
 
 ## Installation
 
 See the [documentation](https://gvm-tools.readthedocs.io/en/latest/install.html)
 for all supported installation options.
+
+### Version
+
+Please consider to always use the **newest** version of `gvm-tools` and `python-gvm`.
+We freqently update this projects to add features and keep them free from bugs.
+This is why installing `gvm-tools` using pip is recommended.
+
+The current release of `gvm-tools` can be used with all supported GOS versions.
 
 ### Requirements
 
@@ -73,40 +81,33 @@ All clients have the ability to build a connection in various ways:
 
 ### gvm-cli
 
-This little tool sends plain GMP/OSP commands and prints the result to
-the standard output. When the program is used without any parameters, it
-asks for an XML command and for the user credentials.
+This tool sends plain GMP/OSP commands and prints the result to the standard
+output.
 
-#### Example program use
+#### Examples
 
-Returns the current version.
+Return the current protocol version used by the server:
 
 ```
 gvm-cli socket --xml "<get_version/>"
 ```
 
-Returns the current version using a TLS connection with certificates.
+Return all tasks visible to the GMP user with the provided credentials:
 
 ```
-gvm-cli tls --hostname 192.168.0.10 --port 1234 --certfile '/tmp/certs/cert.pem' --keyfile '/tmp/certs/key.pem' --cafile '/tmp/certs/cert.pem' --xml "<get_version/>"
+gvm-cli --gmp-username foo --gmp-password bar socket --xml "<get_tasks/>"
 ```
 
-Return all
-tasks.
+Read a file with GMP commands and return the result:
 
 ```
-gvm-cli socket --xml "<commands><authenticate><credentials><username>myuser</username><password>mypass</password></credentials></authenticate><get_tasks/></commands>"
+gvm-cli --gmp-username foo --gmp-password bar socket < myfile.xml
 ```
 
-Reads a file with GMP commands and return the result.
-
-```
-gvm-cli --gmp-username foo --gmp-password socket bar < myfile.xml
-```
-
-Note that `gvm-cli` will by default raise an exception when a command is
-rejected by the server. If this kind of error handling is not desired, the
-unparsed XML response can be requested using the `--raw` parameter:
+Note that `gvm-cli` will by default print an error message and exit with a
+non-zero exit code when a command is rejected by the server. If this kind of
+error handling is not desired, the unparsed XML response can be requested using
+the `--raw` parameter:
 
 ```
 gvm-cli socket --raw --xml "<authenticate/>"
@@ -115,7 +116,7 @@ gvm-cli socket --raw --xml "<authenticate/>"
 
 ### gvm-script
 
-This tool has a lot more features than the simple gvm-cli client. You
+This tool has a lot more features than the simple `gvm-cli` client. You
 have the possibility to create your own custom gmp or osp scripts with commands
 from the [python-gvm library](https://github.com/greenbone/python-gvm) and from
 Python 3 itself.
@@ -154,21 +155,21 @@ API as [gvm-script](#gvm-script) using the
 #### Example program use
 
 Connect with given credentials via a unix domain socket and open an interactive
-shell.
+shell:
 
 ```
-gvm-pyshell socket --gmp-username=user --gmp-password=pass -i
+gvm-pyshell --gmp-username user --gmp-password pass socket
 ```
 
-Connect through SSH connection and open the interactive shell.
+Connect through SSH connection and open the interactive shell:
 
 ```
-gvm-pyshell ssh --hostname=127.0.0.1 -i
+gvm-pyshell --hostname 127.0.0.1 ssh
 ```
 
 ## Support
 
-For any question on the usage of gvm-tools or gmp scripts please use the
+For any question on the usage of `gvm-tools` or gmp scripts please use the
 [Greenbone Community Portal](https://community.greenbone.net/c/gmp). If you
 found a problem with the software, please
 [create an issue](https://github.com/greenbone/gvm-tools/issues) on GitHub.
@@ -194,8 +195,8 @@ Afterwards run
 
     poetry install
 
-in the checkout directory of gvm-tools (the directory containing the
-pyproject.toml file) to install all dependencies including the packages only
+in the checkout directory of `gvm-tools` (the directory containing the
+`pyproject.toml` file) to install all dependencies including the packages only
 required for development.
 
 Afterwards active the git hooks for auto-formatting and linting via
@@ -205,6 +206,6 @@ Afterwards active the git hooks for auto-formatting and linting via
 
 ## License
 
-Copyright (C) 2017-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2017-2020 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v3.0 or later](LICENSE).

@@ -365,7 +365,7 @@ def generate_data(gmp, n_tasks, **kwargs):
 
 
 def main(gmp, args):
-    # pylint: disable=undefined-variable
+    # pylint: disable=undefined-variable, line-too-long
 
     parser = ArgumentParser(
         prog="random-report-gen",
@@ -389,7 +389,9 @@ def main(gmp, args):
     parser.add_argument(
         "--datafile",
         default=Path(args.script[0]).parent / "default_report_data.json",
-        help="A json file containing the following information: vulnerabilities, operating systems, applications and host details. Take the default json file as an example.",
+        help="A json file containing the following information: "
+        "vulnerabilities, operating systems, applications and host details. "
+        "Take the default json file as an example.",
     )
 
     parser.add_argument(
@@ -443,7 +445,8 @@ def main(gmp, args):
         "--with-gauss",
         dest="with_gauss",
         action="store_true",
-        help="if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution.",
+        help="if you would like for the number of reports/task and "
+        "results/report to be randomized along a Gaussian distribution.",
     )
 
     parser.add_argument(
@@ -452,7 +455,10 @@ def main(gmp, args):
 
     script_args = parser.parse_args(args.script_args)
 
-    seed() if not script_args.seed else seed(script_args.seed)
+    if not script_args.seed:
+        seed()
+    else:
+        seed(script_args.seed)
 
     with open(str(script_args.datafile)) as file:
         data = json.load(file)

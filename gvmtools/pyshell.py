@@ -24,6 +24,7 @@ import sys
 from argparse import Namespace
 
 from gvm import get_version as get_gvm_version
+from gvm.xml import pretty_print
 from gvm.protocols.gmp import Gmp
 from gvm.protocols.latest import Osp
 from gvm.transforms import EtreeCheckCommandTransform
@@ -53,6 +54,8 @@ HELP_TEXT = """
         >>> task_names = tasks.xpath('task/name/text()')
         >>> print(task_names)
         ['Scan Task']
+        >>> pretty_print('<xml/>')
+        <xml/>
 
     The interactive shell can be exited with:
         Ctrl + D on Linux  or
@@ -63,8 +66,7 @@ HELP_TEXT = """
 
 
 class Help(object):
-    """Help class to overwrite the help function from python itself.
-    """
+    """Help class to overwrite the help function from python itself."""
 
     def __call__(self):
         return print(HELP_TEXT)
@@ -110,6 +112,7 @@ def main():
 
     global_vars = {
         'help': Help(),
+        'pretty_print': pretty_print,
         '__version__': __version__,
         '__api_version__': __api_version__,
     }

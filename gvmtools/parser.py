@@ -66,12 +66,16 @@ class CliParser:
             default=DEFAULT_CONFIG_PATH,
             help='Configuration file path (default: %(default)s)',
         )
+
+        choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+
         bootstrap_parser.add_argument(
             '--log',
             nargs='?',
             dest='loglevel',
             const='INFO',
-            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+            type=lambda arg: {x.upper(): x for x in choices}[arg.upper()],
+            choices=choices,
             help='Activate logging (default level: %(default)s)',
         )
 
@@ -187,7 +191,7 @@ class CliParser:
             raise RuntimeError(
                 'Error while parsing config file {config}. Error was '
                 '{message}'.format(config=configfile, message=e)
-            )
+            ) from None
 
         return config
 
@@ -197,7 +201,7 @@ class CliParser:
         )
 
         parser_ssh.add_argument(
-            '--hostname', help='Hostname or IP address (default: %(default)s)',
+            '--hostname', help='Hostname or IP address (default: %(default)s)'
         )
         parser_ssh.add_argument(
             '--port',
@@ -216,7 +220,7 @@ class CliParser:
             'tls', help='Use TLS secured connection to connect to service'
         )
         parser_tls.add_argument(
-            '--hostname', help='Hostname or IP address (default: %(default)s)',
+            '--hostname', help='Hostname or IP address (default: %(default)s)'
         )
         parser_tls.add_argument(
             '--port',

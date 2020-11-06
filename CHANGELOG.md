@@ -14,17 +14,51 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
-## [unreleased]
-
+## [Unreleased]
 ### Added
+* Added `pretty_print` to `pyshell` by default, so it does not need to be manually imported [#305](https://github.com/greenbone/gvm-tools/pull/305)
+* Added tests for `helper` module [#310](https://github.com/greenbone/gvm-tools/pull/310)
+* Added tests for `parser` module [#311](https://github.com/greenbone/gvm-tools/pull/311)
+* Added test for `script/send-target.gmp.py` [#314](https://github.com/greenbone/gvm-tools/pull/314/)
+
 ### Changed
+### Deprecated
+### Removed
 ### Fixed
+* Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
+* Fixed the `pdf-report.gmp.py` script when an empty report is downloaded [#328](https://github.com/greenbone/gvm-tools/pull/328)
+
+[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...HEAD
+
+
+## [20.10.1] - 2020-10-06
+### Fixed
+
+- Reverted changes in the dependency that causes CI failures.
+
+[20.10.1]: https://github.com/greenbone/gvm-tools/compare/v20.10.0...HEAD
+
+## [20.10.0] - 2020-10-05
+
+### Changed
+
+- Fixed `send-schedule.gmp.py` script, because <timezone_abbrev> has been [removed](https://github.com/greenbone/gvmd/commit/d4a0fa2287b425199330b7e5671b61cdbd836fe4) from Schedules, using <timezone> instead. [#299](https://github.com/greenbone/gvm-tools/pull/299)
+- Fixed `send-targets.gmp.py` script, because alive_test needs to be from `AliveTest` enum in `create_target` function. [#297](https://github.com/greenbone/gvm-tools/pull/297)
+- Added gmpv20.08 support to the `scan-new-system.gmp.py` script, as `create_target` requires an argument `port_range` or `port_list_id` now. [#295](https://github.com/greenbone/gvm-tools/pull/295)
+
+- Using the `--log` argument is not casesensitive anymore. Use the lower-case or upper-case loglevel as the argument now.[PR 276](https://github.com/greenbone/gvm-tools/pull/276)
+
+### Fixed
+
+- Fixed the `check-gmp.gmp.py` script, as it was not compatible to Python 3.5 anymore. [PR 280](https://github.com/greenbone/gvm-tools/pull/280)
+- Fixed the `check-gmp.gmp.py` script: results have not been loaded with `-F host -T task --status` and probably some other cases. Added `details=True` to the command that requests the report. [PR 280](https://github.com/greenbone/gvm-tools/pull/280)
+- Fixed the `pdf-report.gmp.py` script. Joining the Content of the tag was not the correct way here ... we needed the tail of the `<report_format>` tag ... [PR 301](https://github.com/greenbone/gvm-tools/pull/301)
 ### Removed
 
 * Removed `gvm.version` module in favor of using `pontos.version`
   [#254](https://github.com/greenbone/gvm-tools/pull/254)
 
-[unreleased]: https://github.com/greenbone/gvm-tools/compare/v2.1.0...master
+[20.10.0]: https://github.com/greenbone/gvm-tools/compare/v2.1.0...v20.10.0
 
 ## [2.1.0] - 2020-04-03
 

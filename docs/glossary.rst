@@ -5,12 +5,12 @@ Glossary
 
   gvmd
     Management daemon shipped with :term:`GVM 10 <GVM10>` and later.
-    Abbreviation for **G**\reenbone **V**\ulnerability **M**\anagement
+    Abbreviation for **G**\reenbone **V**\ulnerability **M**\anager
     **D**\aemon.
 
   openvasmd
     Management daemon shipped with :term:`GVM 9 <GVM9>` and before.
-    Abbreviation for **OpenVAS** **M**\anagement **D**\aemon.
+    Abbreviation for **OpenVAS** **M**\anager **D**\aemon.
 
   openvassd
     Scanner daemon used by :term:`GVM 10 <GVM10>` and before. It listens for
@@ -65,7 +65,7 @@ Glossary
     some background.
 
   GVM
-    The `Greenbone Vulnerability Manager (GVM)
+    The `Greenbone Vulnerability Management (GVM)
     <https://community.greenbone.net/t/about-gvm-architecture/1231>`_ is a
     framework of several services. It is developed as part of the commercial
     product line :term:`Greenbone Security Manager <GSM>`. Formerly known as

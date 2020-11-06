@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 from base64 import b64decode
 from pathlib import Path
 
@@ -56,9 +58,18 @@ def main(gmp, args):
         report_id=report_id, report_format_id=pdf_report_format_id
     )
 
-    report_element = response[0]
+    report_element = response.find("report")
     # get the full content of the report element
-    content = "".join(report_element.itertext())
+    content = report_element.find("report_format").tail
+
+    if not content:
+        print(
+            'Requested report is empty. Either the report does not contain any '
+            ' results or the necessary tools for creating the report are '
+            'not installed.',
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # convert content to 8-bit ASCII bytes
     binary_base64_encoded_pdf = content.encode('ascii')

@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from gvm.protocols.gmpv9.types import get_alive_test_from_string
 
-from lxml import etree as e
+from lxml import etree
 
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args != 1:
         message = """
         This script pulls target data from an xml document and feeds it to \
     a desired GSM
@@ -56,11 +57,12 @@ def yes_or_no(question):
 
 def create_xml_tree(xml_doc):
     try:
-        xml_tree = e.parse(xml_doc)
-        xml_tree = e.tostring(xml_tree)
-        xml_tree = e.XML(xml_tree)
+        xml_tree = etree.parse(xml_doc)
+        xml_tree = xml_tree.getroot()
     except IOError as err:
         error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
+    except etree.Error as err:
+        error_and_exit("Failed to parse xml_file: {} (exit)".format(str(err)))
 
     if len(xml_tree) == 0:
         error_and_exit("XML file is empty (exit)")
@@ -112,15 +114,15 @@ def parse_send_xml_tree(gmp, xml_tree):
                 else:
                     continue
 
-            temp_dict = {}
-            temp_dict['id'] = cred_id
+            key = '{}_id'.format(credential)
+            keywords[key] = cred_id
             elem_path = target.find(credential)
-            if elem_path.find('port').text is not None:
-                temp_dict['port'] = elem_path.find('port').text
+            port = elem_path.find('port')
+            if port is not None and port.text is not None:
+                port_key = '{}_port'.format(credential)
+                keywords[port_key] = elem_path.find('port').text
 
-            keywords[credential] = temp_dict
-
-        alive_test = target.find('alive_test')
+        alive_test = get_alive_test_from_string(target.find('alive_tests').text)
 
         if alive_test is not None:
             keywords['alive_test'] = alive_test
@@ -165,4 +167,4 @@ def main(gmp, args):
 
 
 if __name__ == '__gmp__':
-    main(gmp, args)
+    main(gmp, args)  # pylint: disable=undefined-variable
