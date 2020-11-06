@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gvm.protocols.gmpv9.types import get_alive_test_from_string
-from gvmtools.script_utils import create_xml_tree, yes_or_no
+from gvmtools.helper import create_xml_tree, yes_or_no
 
 
 def check_args(args):

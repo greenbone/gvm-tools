@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gvmtools.script_utils import create_xml_tree, error_and_exit, yes_or_no
+from gvmtools.helper import create_xml_tree, error_and_exit, yes_or_no
 
 
 def check_args(args):
