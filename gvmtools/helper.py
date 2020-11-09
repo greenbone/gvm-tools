@@ -187,6 +187,6 @@ def run_script(path, global_vars):
         file = open(path, 'r', newline='').read()
     except FileNotFoundError:
         print('Script {path} does not exist'.format(path=path), file=sys.stderr)
-        quit(2)
+        sys.exit(2)
 
     exec(file, global_vars)  # pylint: disable=exec-used
