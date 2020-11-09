@@ -18,8 +18,8 @@
 
 import getpass
 import os
+import sys
 
-from sys import stderr
 from lxml import etree
 
 from gvm.errors import GvmError
@@ -109,8 +109,8 @@ def error_and_exit(msg):
     Arguments:
         msg (str): The error message, that will be printed
     """
-    print("\nError: {}\n".format(msg), file=stderr)
-    quit(1)
+    print("\nError: {}\n".format(msg), file=sys.stderr)
+    sys.exit(1)
 
 
 def create_xml_tree(xml_doc):
@@ -186,7 +186,7 @@ def run_script(path, global_vars):
     try:
         file = open(path, 'r', newline='').read()
     except FileNotFoundError:
-        print('Script {path} does not exist'.format(path=path), file=stderr)
+        print('Script {path} does not exist'.format(path=path), file=sys.stderr)
         quit(2)
 
     exec(file, global_vars)  # pylint: disable=exec-used

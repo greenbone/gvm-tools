@@ -24,7 +24,6 @@ from pathlib import Path
 from lxml import etree
 from . import GmpMockFactory, load_script
 
-
 CWD = os.path.abspath(os.path.join(__file__, '../'))
 
 
