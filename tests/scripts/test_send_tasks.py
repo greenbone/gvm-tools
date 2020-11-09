@@ -18,7 +18,6 @@
 
 
 import unittest
-import os
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 from lxml import etree
@@ -30,7 +29,7 @@ CWD = Path(__file__).absolute().parent
 class SendTasksTestCase(unittest.TestCase):
     def setUp(self):
         self.send_tasks = load_script(
-            os.path.join(CWD, '../../scripts'), 'send-tasks'
+            (CWD.parent.parent / 'scripts'), 'send-tasks'
         )
 
     @patch('builtins.input', lambda *args: 'y')
