@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-import os
 from unittest.mock import patch
 from pathlib import Path
 from argparse import Namespace
@@ -25,18 +24,18 @@ from lxml import etree
 from . import GmpMockFactory, load_script
 
 
-CWD = os.path.abspath(os.path.join(__file__, '../'))
+CWD = Path(__file__).absolute().parent
 
 
 class SendTargetTestCase(unittest.TestCase):
     def setUp(self):
         self.send_targets = load_script(
-            os.path.join(CWD, '../../scripts'), 'send-targets'
+            (CWD.parent.parent / 'scripts'), 'send-targets'
         )
 
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_target(self, mock_gmp: GmpMockFactory):
-        target_xml_path = Path(CWD, 'example_target.xml')
+        target_xml_path = CWD / 'example_target.xml'
         target_xml_str = target_xml_path.read_text()
 
         mock_gmp.mock_response(
@@ -65,7 +64,7 @@ class SendTargetTestCase(unittest.TestCase):
     @patch('builtins.input', lambda *args: 'n')
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_target_no_credential(self, mock_gmp: GmpMockFactory):
-        target_xml_path = Path(CWD, 'example_target.xml')
+        target_xml_path = CWD / 'example_target.xml'
         target_xml_str = target_xml_path.read_text()
 
         mock_gmp.mock_response(
