@@ -17,11 +17,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import unittest
-from unittest import mock
-
+from unittest.mock import patch, MagicMock
+from io import BytesIO
+from pathlib import Path
+from lxml import etree
 from gvm.errors import GvmError
+from gvmtools.helper import (
+    Table,
+    do_not_run_as_root,
+    authenticate,
+    run_script,
+    create_xml_tree,
+    error_and_exit,
+    yes_or_no,
+)
 
-from gvmtools.helper import Table, do_not_run_as_root, authenticate, run_script
+CWD = Path(__file__).absolute().parent
 
 
 class TableTestCase(unittest.TestCase):
@@ -95,16 +106,16 @@ class TableTestCase(unittest.TestCase):
 
 
 class DoNotRunAsRootTestCase(unittest.TestCase):
-    @mock.patch('gvmtools.helper.os')
+    @patch('gvmtools.helper.os')
     def test_do_not_run_as_root_as_root(self, mock_os):
-        mock_os.geteuid = unittest.mock.MagicMock(spec='geteuid')
+        mock_os.geteuid = MagicMock(spec='geteuid')
         mock_os.geteuid.return_value = 0
 
         self.assertRaises(RuntimeError, do_not_run_as_root)
 
-    @mock.patch('gvmtools.helper.os')
+    @patch('gvmtools.helper.os')
     def test_do_not_run_as_root_as_non_root(self, mock_os):
-        mock_os.geteuid = unittest.mock.MagicMock(spec='geteuid')
+        mock_os.geteuid = MagicMock(spec='geteuid')
         mock_os.geteuid.return_value = 123
 
         self.assertIsNone(do_not_run_as_root())
@@ -116,7 +127,7 @@ class AuthenticateTestCase(unittest.TestCase):
 
         self.assertIsNone(authenticate(mock_gmp))
 
-    @mock.patch('gvmtools.helper.input', return_value='foo')
+    @patch('gvmtools.helper.input', return_value='foo')
     def test_authenticate_username_is_none(
         self, mock_input
     ):  # pylint: disable=unused-argument,line-too-long
@@ -128,10 +139,10 @@ class AuthenticateTestCase(unittest.TestCase):
         self.assertEqual(return_value[0], 'foo')
         self.assertEqual(return_value[1], 'bar')
 
-    @mock.patch('gvmtools.helper.getpass')
+    @patch('gvmtools.helper.getpass')
     def test_authenticate_password_is_none(self, mock_getpass):
         mock_gmp = self.create_gmp_mock(False)
-        mock_getpass.getpass = mock.MagicMock(return_value='SuperSecret123!')
+        mock_getpass.getpass = MagicMock(return_value='SuperSecret123!')
 
         return_value = authenticate(mock_gmp, username='user')
 
@@ -161,16 +172,16 @@ class AuthenticateTestCase(unittest.TestCase):
         self.assertRaises(GvmError, authenticate, mock_gmp, 'user', 'password')
 
     def create_gmp_mock(self, authenticated_return_value):
-        mock_gmp = mock.MagicMock()
-        mock_gmp.is_authenticated = mock.MagicMock(
+        mock_gmp = MagicMock()
+        mock_gmp.is_authenticated = MagicMock(
             return_value=authenticated_return_value
         )
         return mock_gmp
 
 
 class RunScriptTestCase(unittest.TestCase):
-    @mock.patch('gvmtools.helper.open')
-    @mock.patch('gvmtools.helper.exec')
+    @patch('gvmtools.helper.open')
+    @patch('gvmtools.helper.exec')
     def test_run_script(self, mock_exec, mock_open):
         path = 'foo'
         global_vars = ['OpenVAS', 'is', 'awesome']
@@ -181,8 +192,8 @@ class RunScriptTestCase(unittest.TestCase):
         mock_open.assert_called_with(path, 'r', newline='')
         mock_exec.assert_called_with('file content', global_vars)
 
-    @mock.patch('gvmtools.helper.open')
-    @mock.patch('gvmtools.helper.print')
+    @patch('gvmtools.helper.open')
+    @patch('gvmtools.helper.print')
     def test_run_script_file_not_found(self, mock_print, mock_open):
         def my_open(path, mode, newline):
             raise FileNotFoundError
@@ -198,3 +209,38 @@ class RunScriptTestCase(unittest.TestCase):
         mock_print.assert_called_with(
             'Script {path} does not exist'.format(path=path), file=sys.stderr
         )
+
+
+class ScriptUtilsTestCase(unittest.TestCase):
+    @patch('builtins.input', lambda *args: 'y')
+    def test_yes(self):
+        yes = yes_or_no('foo?')
+        self.assertTrue(yes)
+
+    @patch('builtins.input', lambda *args: 'n')
+    def test_no(self):
+        no = yes_or_no('bar?')
+        self.assertFalse(no)
+
+    def test_error_and_exit(self):
+        with self.assertRaises(SystemExit):
+            error_and_exit('foo')
+
+    def test_create_xml_tree(self):
+        tree = create_xml_tree(BytesIO(b'<foo><baz/><bar>glurp</bar></foo>'))
+        self.assertIsInstance(
+            tree, etree._Element  # pylint: disable=protected-access
+        )
+        self.assertEqual(tree.tag, 'foo')
+
+    def test_create_xml_tree_invalid_file(self):
+        target_xml_path = CWD / 'invalid_file.xml'
+
+        with self.assertRaises(SystemExit):
+            with self.assertRaises(OSError):
+                create_xml_tree(str(target_xml_path))
+
+    def test_create_xml_tree_invalid_xml(self):
+        with self.assertRaises(SystemExit):
+            with self.assertRaises(etree.Error):
+                create_xml_tree(BytesIO(b'<foo><baz/><bar>glurp<bar></foo>'))

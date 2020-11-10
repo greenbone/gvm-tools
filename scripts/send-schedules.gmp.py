@@ -49,6 +49,8 @@ def error_and_exit(msg):
 
 
 def create_xml_tree(xml_doc):
+    """This function loads the path|file object|..
+    into"""
     try:
         xml_tree = e.parse(xml_doc)
         xml_tree = e.tostring(xml_tree)

@@ -29,7 +29,7 @@ from gvm.protocols.latest import Gmp
 def load_script(path: Union[str, Path], script_name: str):
     """loading a script for a test case"""
     spec = spec_from_file_location(
-        script_name, '{}/{}.gmp.py'.format(path, script_name)
+        script_name, '{}/{}.gmp.py'.format(str(path), script_name)
     )
     script = module_from_spec(spec)
     spec.loader.exec_module(script)

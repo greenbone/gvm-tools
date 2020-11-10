@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2018-2020 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from lxml import etree as e
+from gvmtools.helper import create_xml_tree, error_and_exit, yes_or_no
 
 
 def check_args(args):
@@ -36,24 +36,7 @@ def check_args(args):
         """
 
         print(message)
-        quit()
-
-
-def error_and_exit(msg):
-    print("\nError: {}\n".format(msg), file=sys.stderr)
-    sys.exit(1)
-
-
-def inquire_yes_no(inquiry):
-    reply = str(input(inquiry + ' [Y/n]: ')).lower().strip()
-    if reply == 'y':
-        answer = True
-    elif reply == 'n':
-        answer = False
-    else:
-        answer = inquire_yes_no("Please enter valid option dummy!")
-
-    return answer
+        sys.exit()
 
 
 def numerical_option(statement, list_range):
@@ -68,21 +51,7 @@ def numerical_option(statement, list_range):
         )
 
 
-def create_xml_tree(xml_doc):
-    try:
-        xml_tree = e.parse(xml_doc)
-        xml_tree = e.tostring(xml_tree)
-        xml_tree = e.XML(xml_tree)
-    except IOError as err:
-        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
-
-    if len(xml_tree) == 0:
-        error_and_exit("XML file is empty (exit)")
-
-    return xml_tree
-
-
-def interactive_options(task, keywords):
+def interactive_options(gmp, task, keywords):
     options_dict = {}
     options_dict['config'] = gmp.get_configs()
     options_dict['scanner'] = gmp.get_scanners()
@@ -100,7 +69,7 @@ def interactive_options(task, keywords):
         if object_id in object_dict.values():
             keywords['{}_id'.format(option)] = object_id
         elif object_id not in object_dict.values() and len(object_dict) != 0:
-            response = inquire_yes_no(
+            response = yes_or_no(
                 "\nRequired Field: failed to detect {}_id: {}... "
                 "\nWould you like to select from available options, or exit "
                 "the script?".format(
@@ -139,7 +108,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         if task.find('comment').text is not None:
             keywords['comment'] = task.find('comment').text
 
-        interactive_options(task, keywords)
+        interactive_options(gmp, task, keywords)
 
         new_task = gmp.create_task(**keywords)
 
@@ -194,4 +163,4 @@ def main(gmp, args):
 
 
 if __name__ == '__gmp__':
-    main(gmp, args)
+    main(gmp, args)  # pylint: disable=undefined-variable

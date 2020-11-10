@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2018-2020 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -18,8 +18,7 @@
 
 import sys
 from gvm.protocols.gmpv9.types import get_alive_test_from_string
-
-from lxml import etree
+from gvmtools.helper import create_xml_tree, yes_or_no
 
 
 def check_args(args):
@@ -37,37 +36,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/send-targets.gmp.py example_file.xml
         """
         print(message)
-        quit()
-
-
-def error_and_exit(msg):
-    print("Error: {}\n".format(msg), file=sys.stderr)
-    sys.exit(1)
-
-
-def yes_or_no(question):
-    reply = str(input(question + ' (y/n): ')).lower().strip()
-    if reply[0] == ('y'):
-        return True
-    if reply[0] == ('n'):
-        return False
-    else:
-        return yes_or_no("Please enter 'y' or 'n'")
-
-
-def create_xml_tree(xml_doc):
-    try:
-        xml_tree = etree.parse(xml_doc)
-        xml_tree = xml_tree.getroot()
-    except IOError as err:
-        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
-    except etree.Error as err:
-        error_and_exit("Failed to parse xml_file: {} (exit)".format(str(err)))
-
-    if len(xml_tree) == 0:
-        error_and_exit("XML file is empty (exit)")
-
-    return xml_tree
+        sys.exit()
 
 
 def parse_send_xml_tree(gmp, xml_tree):
