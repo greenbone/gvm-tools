@@ -420,7 +420,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "python-gvm"
-version = "20.11.0"
+version = "20.11.2"
 description = "Library to communicate with remote servers over GMP or OSP"
 category = "main"
 optional = false
@@ -1009,8 +1009,8 @@ pyparsing = [
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
 python-gvm = [
-    {file = "python-gvm-20.11.0.tar.gz", hash = "sha256:a18d250dea3f8f149e9ddff66dac009654ee0399cf1139d3bbed50d9a7cc3459"},
-    {file = "python_gvm-20.11.0-py3-none-any.whl", hash = "sha256:5ee81896847448c91a8916e9c6622cfb4be19792e62141b1b2f3202198fc5b14"},
+    {file = "python-gvm-20.11.2.tar.gz", hash = "sha256:0d1611b5f8da80142e24402e3f8aebbc9aff3c2ef3927b782a8735cb1dc09dcd"},
+    {file = "python_gvm-20.11.2-py3-none-any.whl", hash = "sha256:96c57e163f9be71a0f5a471260663a6e8fd9925fd93bb990e2820cb568edc8ae"},
 ]
 pytz = [
     {file = "pytz-2020.4-py2.py3-none-any.whl", hash = "sha256:5c55e189b682d420be27c6995ba6edce0c0a77dd67bfbe2ae6607134d5851ffd"},
