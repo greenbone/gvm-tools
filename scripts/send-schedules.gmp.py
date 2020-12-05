@@ -20,6 +20,8 @@ import sys
 
 from lxml import etree as e
 
+from gvmtools.helper import create_xml_tree, error_and_exit
+
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -41,27 +43,6 @@ def check_args(args):
     if int(gmp.get_protocol_version()[0]) < 8:
         print("This script requires GMP version 8")
         quit()
-
-
-def error_and_exit(msg):
-    print("Error: {}\n".format(msg), file=sys.stderr)
-    sys.exit(1)
-
-
-def create_xml_tree(xml_doc):
-    """This function loads the path|file object|..
-    into"""
-    try:
-        xml_tree = e.parse(xml_doc)
-        xml_tree = e.tostring(xml_tree)
-        xml_tree = e.XML(xml_tree)
-    except IOError as err:
-        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
-
-    if len(xml_tree) == 0:
-        error_and_exit("XML file is empty (exit)")
-
-    return xml_tree
 
 
 def parse_send_xml_tree(gmp, xml_tree):
