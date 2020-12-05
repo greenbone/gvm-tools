@@ -52,3 +52,7 @@ class GmpMockFactory:
     def mock_response(self, request_name: str, content: str):
         func = getattr(self.gmp_protocol, request_name)
         func.return_value = etree.fromstring(content)
+
+    def mock_responses(self, request_name: str, content: str):
+        func = getattr(self.gmp_protocol, request_name)
+        func.side_effect = [etree.fromstring(c) for c in content]

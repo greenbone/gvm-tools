@@ -20,6 +20,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
+from argparse import Namespace
 from lxml import etree
 from . import GmpMockFactory, load_script
 
@@ -100,3 +101,13 @@ class SendTasksTestCase(unittest.TestCase):
         task = etree.XML(task_xml_str)
 
         self.send_tasks.parse_send_xml_tree(mock_gmp.gmp_protocol, task)
+
+    def test_args(self):
+        args = Namespace(script=['foo'])
+        with self.assertRaises(SystemExit):
+            self.send_tasks.check_args(args)
+
+        args2 = Namespace(script=['foo', 'bar', 'baz'])
+
+        with self.assertRaises(SystemExit):
+            self.send_tasks.check_args(args2)
