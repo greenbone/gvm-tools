@@ -20,24 +20,6 @@ from typing import List
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 
-def check_args(args):
-    len_args = len(args.script) - 1
-    message = """
-        This script makes an E-Mail alert scan.
-        It needs two parameters after the script name.
-
-        1. <sender_email>     -- E-Mail of the sender
-        2. <receiver_email>   -- E-Mail of the receiver
-        
-        Example:
-            $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_email>
-    """
-    if len_args != 2:
-        print(message)
-        quit()
-
-
 HELP_TEXT = """
         This script makes an E-Mail alert scan.
 
@@ -51,15 +33,6 @@ HELP_TEXT = """
             $ gvm-script --gmp-username name --gmp-password pass \
 ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_email>
     """
-
-
-# returns a list containing all port_list names
-def get_port_list_names(gmp):
-    res = gmp.get_port_lists()
-    port_names_list = [""]
-    for name in res.findall("port_list/name"):
-        port_names_list.append(str(name.text))
-    return port_names_list
 
 
 def get_config(gmp, config, debug=False):
@@ -110,6 +83,7 @@ def get_target(
     target_name: str = None,
     hosts: List[str] = None,
     ports: str = None,
+    port_list_name: str = None,
     port_list_id: str = None,
     debug: bool = False,
 ):
@@ -119,7 +93,8 @@ def get_target(
     # iterate over existing targets and find a vacant targetName
     while exists:
         exists = False
-        target_name = "targetName" + str(counter)
+        if target_name is None:
+            target_name = "target_{}".format(str(counter))
         for target in targets.xpath('target'):
             name = target.xpath('name/text()')[0]
             if name == target_name:
@@ -128,43 +103,48 @@ def get_target(
         counter += 1
 
     if debug:
-        print("target name: " + target_name)
+        print("target name: {}".format(target_name))
 
     if not port_list_id:
         # iterate over existing port lists and find a vacant name
-        new_port_list_name = "portlistName"
+        existing_port_lists = [""]
+        for name in gmp.get_port_lists().findall("port_list/name"):
+            existing_port_lists.append(str(name.text))
+
+        if port_list_name is None:
+            port_list_name = "portlist_{}".format(str(counter))
         counter = 0
         while True:
-            portlist_name = str(new_port_list_name + str(counter))
-            if portlist_name not in get_port_list_names(gmp):
+            if port_list_name not in existing_port_lists:
                 break
             counter += 1
 
-        # configurable port string
-        port_string = "T:80-80"
         # create port list
-        portlist = gmp.create_port_list(portlist_name, port_string)
+        portlist = gmp.create_port_list(portlist_name, ports)
         port_list_id = portlist.xpath('@id')[0]
         if debug:
-            print("Portlist-name:\t" + str(portlist_name))
-            print("Portlist-id:\t" + str(portlist_id))
+            print("New Portlist-name:\t{}".format(str(portlist_name)))
+            print("New Portlist-id:\t{}".format(str(portlist_id)))
 
     # integrate port list id into create_target
     res = gmp.create_target(target_name, hosts=hosts, port_list_id=port_list_id)
     return res.xpath('@id')[0]
 
 
-def get_alert(gmp, sender_email, recipient_email, debug=False):
-    # configurable alert name
-    alert_name = recipient_email
+def get_alert(
+    gmp,
+    sender_email: str,
+    recipient_email: str,
+    alert_name: str = None,
+    debug=False,
+):
 
     # create alert if necessary
-    alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
-    alert_id = None
+    alert_object = gmp.get_alerts(filter='name={}'.format(alert_name))
     alert = alert_object.xpath('alert')
 
     if len(alert) == 0:
-        print("creating alert")
+        print("creating new alert {}".format(alert_name))
         gmp.create_alert(
             alert_name,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
@@ -195,13 +175,12 @@ should not have received it.
             },
         )
 
-        alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
+        alert_object = gmp.get_alerts(filter='name={}'.format(recipient_email))
         alert = alert_object.xpath('alert')
-        alert_id = alert[0].get('id', 'no id found')
-    else:
-        alert_id = alert[0].get('id', 'no id found')
-        if debug:
-            print("alert_id: " + str(alert_id))
+
+    alert_id = alert[0].get('id', 'no id found')
+    if debug:
+        print("alert_id: {}".format(str(alert_id)))
 
     return alert_id
 
@@ -334,12 +313,14 @@ def main(gmp, args):
         help="Alert senders E-Mail address",
     )
 
+    parser.add_argument(
+        "++alert-name",
+        dest='alert_name',
+        type=str,
+        help="Optional Alert name",
+    )
+
     script_args, _ = parser.parse_known_args()
-
-    # check_args(args)
-
-    sender_email = args.script[1]
-    recipient_email = args.script[2]
 
     config_id = get_config(gmp, script_args.config)
     if not script_args.target_id:
@@ -348,12 +329,18 @@ def main(gmp, args):
             target_name=script_args.target_id,
             hosts=script_args.hosts,
             ports=script_args.ports,
+            port_list_name=script_args.port_list_name,
             port_list_id=script_args.port_list_id,
         )
     else:
         target_id = script_args.target_id
+    if script_args.alert_name is None:
+        script_args.alert_name = script_args.recipient_email
     alert_id = get_alert(
-        gmp, script_args.sender_email, script_args.recipient_email
+        gmp,
+        script_args.sender_email,
+        script_args.recipient_email,
+        script_args.alert_name,
     )
     scanner_id = get_scanner(gmp)
 
