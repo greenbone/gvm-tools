@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from typing import List
 from argparse import ArgumentParser, RawTextHelpFormatter
 
@@ -23,22 +24,24 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 HELP_TEXT = """
         This script makes an E-Mail alert scan.
 
-        usage: 
+        Usage examples: 
+            $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
             ... start-alert-scan.gmp.py +h
-            ... start-alert-scan.gmp.py ++target-name ++hosts ++ports ++port-list-name +C ++recipient ++sender
-            ... start-alert-scan.gmp.py ++target-name ++hosts ++port-list-id +C ++recipient ++sender
+            ... start-alert-scan.gmp.py ++target-name ++hosts ++ports \
+                    ++port-list-name +C ++recipient ++sender
+            ... start-alert-scan.gmp.py ++target-name ++hosts ++port-list-id \
+                    +C ++recipient ++sender
             ... start-alert-scan.gmp.py ++target-id +C ++recipient ++sender
-        
-        Example:
-            $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_email>
     """
 
 
 def get_config(gmp, config, debug=False):
     # get all configs of the openvas instance
-    res = gmp.get_configs()
+    # filter for all rows!
+    res = gmp.get_configs(filter="rows=-1")
 
+    if config < 0 or config > 4:
+        raise ValueError("Wrong config identifier. Choose between [0,4].")
     # match the config abbreviation to accepted config names
     config_list = [
         'Full and fast',
@@ -192,12 +195,22 @@ def get_scanner(gmp):
 
 
 def create_and_start_task(
-    gmp, config_id, target_id, scanner_id, alert_id, debug=False
+    gmp,
+    config_id: str,
+    target_id: str,
+    scanner_id: str,
+    alert_id: str,
+    alert_name: str,
+    debug: bool = False,
 ):
     # Create the task
-    tasks = gmp.get_tasks(filter="name~ScanDoneAlert")
-    task_name = "ScanDoneAlert{0}".format(len(tasks.xpath('tasks/@id')))
-    task_comment = "Scan Done Alert"
+    tasks = gmp.get_tasks(filter="name~{}".format(alert_name))
+    task_name = "Alert Scan for Alert {}".format(alert_name)
+    if tasks:
+        task_name = "Alert Scan for Alert {} ({})".format(
+            alert_name, len(tasks.xpath('tasks/@id'))
+        )
+    task_comment = "Alert Scan"
     res = gmp.create_task(
         task_name,
         config_id,
@@ -221,8 +234,6 @@ def create_and_start_task(
 
 def main(gmp, args):
     # pylint: disable=undefined-variable
-
-    print(args)
 
     parser = ArgumentParser(
         prefix_chars="+",
@@ -322,6 +333,9 @@ def main(gmp, args):
 
     script_args, _ = parser.parse_known_args()
 
+    if script_args.alert_name is None:
+        script_args.alert_name = script_args.recipient_email
+
     config_id = get_config(gmp, script_args.config)
     if not script_args.target_id:
         target_id = get_target(
@@ -334,8 +348,6 @@ def main(gmp, args):
         )
     else:
         target_id = script_args.target_id
-    if script_args.alert_name is None:
-        script_args.alert_name = script_args.recipient_email
     alert_id = get_alert(
         gmp,
         script_args.sender_email,
@@ -344,7 +356,9 @@ def main(gmp, args):
     )
     scanner_id = get_scanner(gmp)
 
-    create_and_start_task(gmp, config_id, target_id, scanner_id, alert_id)
+    create_and_start_task(
+        gmp, config_id, target_id, scanner_id, alert_id, script_args.alert_name
+    )
 
     print("\nScript finished\n")
 
