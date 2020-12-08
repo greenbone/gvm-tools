@@ -1,0 +1,62 @@
+<get_configs_response status="200" status_text="OK">
+    <config id="d21f6c81-2b88-4ac1-b7b4-a2a9f2ad4663">
+        <name>Base</name>
+        <comment>Basic configuration template with a minimum set of NVTs required for a scan. Version 20200827.</comment>
+        <creation_time>2020-02-26T23:52:51Z</creation_time>
+        <modification_time>2020-12-02T04:09:50Z</modification_time>
+    </config>
+    <config id="8715c877-47a0-438d-98a3-27c7a6ab2196">
+        <name>Discovery</name>
+        <comment>Network Discovery scan configuration. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:55Z</modification_time>
+    </config>
+    <config id="085569ce-73ed-11df-83c3-002264764cea">
+        <name>empty</name>
+        <comment>Empty and static configuration template. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:56Z</modification_time>
+    </config>
+    <config id="9f822ad3-9208-4e02-ac03-78dce3ca9a23">
+        <name>EulerOS Linux Security Configuration</name>
+        <comment>Check compliance status of EulerOS installation against above named Policy as distributed by Huawei. Version 20200910.</comment>
+        <creation_time>2020-09-28T09:50:58Z</creation_time>
+        <modification_time>2020-12-02T04:09:59Z</modification_time>
+    </config>
+    <config id="daba56c8-73ec-11df-a475-002264764cea">
+        <name>Full and fast</name>
+        <comment>Most NVT&apos;s; optimized by using previously collected information. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:55Z</modification_time>
+    </config>
+    <config id="698f691e-7489-11df-9d8c-002264764cea">
+        <name>Full and fast ultimate</name>
+        <comment>Most NVT&apos;s including those that can stop services/hosts; optimized by using previously collected information. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:50Z</modification_time>
+    </config>
+    <config id="708f25c4-7489-11df-8094-002264764cea">
+        <name>Full and very deep</name>
+        <comment>Most NVT&apos;s; don&apos;t trust previously collected information; slow. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:56Z</modification_time>
+    </config>
+    <config id="74db13d6-7489-11df-91b9-002264764cea">
+        <name>Full and very deep ultimate</name>
+        <comment>Most NVT&apos;s including those that can stop services/hosts; don&apos;t trust previously collected information; slow. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:56Z</modification_time>
+    </config>
+    <config id="2d3f051c-55ba-11e3-bf43-406186ea4fc5">
+        <name>Host Discovery</name>
+        <comment>Network Host Discovery scan configuration. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:56Z</modification_time>
+    </config>
+    <config id="bbca7412-a950-11e3-9109-406186ea4fc5">
+        <name>System Discovery</name>
+        <comment>Network System Discovery scan configuration. Version 20200827.</comment>
+        <creation_time>2019-09-05T12:25:40Z</creation_time>
+        <modification_time>2020-12-02T04:09:55Z</modification_time>
+    </config>
+</get_configs_response>

@@ -41,20 +41,9 @@ class SendTasksTestCase(unittest.TestCase):
 
         self.send_tasks.numerical_option = MagicMock(return_value=1)
 
-        mock_gmp.mock_response(
-            'get_configs',
-            '<get_configs_response status="200" status_text="OK">'
-            '<config id="d21f6c81-2b88-4ac1-b7b4-a2a9f2ad4663">'
-            '<name>Base</name>'
-            '</config>'
-            '<config id="3fe6b460-e6ca-4af7-b712-1d7e9ea96eb0">'
-            '<name>BSI TR-03116: Part 4 (Date: 10. Januar 2020)</name>'
-            '</config>'
-            '<config id="8715c877-47a0-438d-98a3-27c7a6ab2196">'
-            '<name>Discovery</name>'
-            '</config>'
-            '</get_configs_response>',
-        )
+        configs_file = CWD / 'get_configs.xml'
+        configs = configs_file.read_text()
+        mock_gmp.mock_response('get_configs', configs)
 
         mock_gmp.mock_response(
             'get_scanners',
