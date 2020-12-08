@@ -17,10 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
-from lxml import etree as e
-
-from gvmtools.helper import create_xml_tree, error_and_exit
+from gvmtools.helper import create_xml_tree
 
 
 def check_args(args):
@@ -39,10 +36,10 @@ def check_args(args):
 
         """
         print(message)
-        quit()
+        sys.exit()
     if int(gmp.get_protocol_version()[0]) < 8:
         print("This script requires GMP version 8")
-        quit()
+        sys.exit()
 
 
 def parse_send_xml_tree(gmp, xml_tree):

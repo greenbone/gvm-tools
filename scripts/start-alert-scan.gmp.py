@@ -58,25 +58,16 @@ def get_config(gmp, config, debug=False):
         4: config_list[4],
     }
 
-    config_id = "-"
     for conf in res.xpath('config'):
         cid = conf.xpath('@id')[0]
         name = conf.xpath('name/text()')[0]
 
         # get the config id of the desired template
-        if template_abbreviation_mapper.get(config, "-") == name:
+        if template_abbreviation_mapper.get(config) == name:
             config_id = cid
             if debug:
                 print(name + ": " + config_id)
             break
-
-    # check for existence of the desired config
-    if config_id == "-":
-        print(
-            "error: could not recognize template '%s'"
-            "\nvalid template names are: %s\n" % (template, config_list)
-        )
-        exit()
 
     return config_id
 
@@ -123,11 +114,11 @@ def get_target(
             counter += 1
 
         # create port list
-        portlist = gmp.create_port_list(portlist_name, ports)
+        portlist = gmp.create_port_list(port_list_name, ports)
         port_list_id = portlist.xpath('@id')[0]
         if debug:
-            print("New Portlist-name:\t{}".format(str(portlist_name)))
-            print("New Portlist-id:\t{}".format(str(portlist_id)))
+            print("New Portlist-name:\t{}".format(str(port_list_name)))
+            print("New Portlist-id:\t{}".format(str(port_list_id)))
 
     # integrate port list id into create_target
     res = gmp.create_target(target_name, hosts=hosts, port_list_id=port_list_id)
