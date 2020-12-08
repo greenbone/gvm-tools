@@ -89,7 +89,8 @@ class SendTasksTestCase(unittest.TestCase):
 
         task = etree.XML(task_xml_str)
 
-        self.send_tasks.parse_send_xml_tree(mock_gmp.gmp_protocol, task)
+        tasks = self.send_tasks.parse_send_xml_tree(mock_gmp.gmp_protocol, task)
+        self.assertEqual(tasks, ['c8ef0597-e2c1-4e23-869f-072fa2914bf2'])
 
     def test_args(self):
         args = Namespace(script=['foo'])

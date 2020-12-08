@@ -102,6 +102,7 @@ def interactive_options(gmp, task, keywords):
 
 
 def parse_send_xml_tree(gmp, xml_tree):
+    tasks = []
     for task in xml_tree.xpath('task'):
         keywords = {'name': task.find('name').text}
 
@@ -113,6 +114,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         new_task = gmp.create_task(**keywords)
 
         mod_keywords = {'task_id': new_task.xpath('//@id')[0]}
+        tasks.append(mod_keywords['task_id'])
 
         if task.find('schedule_periods') is not None:
             mod_keywords['schedule_periods'] = int(
@@ -147,6 +149,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         if len(mod_keywords) > 1:
             gmp.modify_task(**mod_keywords)
+    return tasks
 
 
 def main(gmp, args):
@@ -157,9 +160,10 @@ def main(gmp, args):
     print('\nSending task(s)...')
 
     xml_tree = create_xml_tree(xml_doc)
-    parse_send_xml_tree(gmp, xml_tree)
-
-    print('\n  Task(s) sent!\n')
+    tasks = parse_send_xml_tree(gmp, xml_tree)
+    for task in tasks:
+        print(task)
+    print('\nTask(s) sent!\n')
 
 
 if __name__ == '__gmp__':
