@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 from typing import List
 from argparse import ArgumentParser, RawTextHelpFormatter
 
@@ -224,7 +223,7 @@ def create_and_start_task(
 
 
 def main(gmp, args):
-    # pylint: disable=undefined-variable
+    # pylint: disable=undefined-variable, unused-argument
 
     parser = ArgumentParser(
         prefix_chars="+",
