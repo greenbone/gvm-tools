@@ -22,9 +22,12 @@ $ cd gvm-tools && git log
 * Added tests for `script/send-target.gmp.py` [#314](https://github.com/greenbone/gvm-tools/pull/314/)
 * Added tests for `script/send-tasks.gmp.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
 * Adding useful script helper functions to the `helper.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
+* CI tests Python 3.9 now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
 
 ### Changed
 ### Deprecated
+* Dropped Python 3.5 and Python 3.6 support. Python 3.7+ is required now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
+
 ### Removed
 ### Fixed
 * Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
