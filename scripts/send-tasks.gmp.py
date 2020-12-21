@@ -153,8 +153,29 @@ def parse_send_xml_tree(gmp, xml_tree):
 
 
 def main(gmp, args):
-    # pylint: disable=undefined-variable
-    check_args(args)
+    # pylint: disable=undefined-variable, unused-argument
+
+    parser = ArgumentParser(
+        prefix_chars="+",
+        add_help=False,
+        formatter_class=RawTextHelpFormatter,
+        description=HELP_TEXT,
+    )
+
+    parser.add_argument(
+        "+C",
+        "++scan_config",
+        default=0,
+        type=int,
+        dest='config',
+        help="Choose from existing scan config:"
+        " 0: Full and fast"
+        " 1: Full and fast ultimate"
+        " 2: Full and very deep"
+        " 3: Full and very deep ultimate"
+        " 4: System Discovery",
+    )
+    # check_args(args)
     xml_doc = args.script[1]
 
     print('\nSending task(s)...')

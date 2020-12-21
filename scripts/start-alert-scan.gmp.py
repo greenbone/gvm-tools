@@ -284,7 +284,9 @@ def main(gmp, args):
         help="Name for the new portlist in the new target",
     )
 
-    parser.add_argument(
+    config = parser.add_mutually_exclusive_group()
+
+    config.add_argument(
         "+C",
         "++scan_config",
         default=0,
@@ -296,6 +298,14 @@ def main(gmp, args):
         " 2: Full and very deep"
         " 3: Full and very deep ultimate"
         " 4: System Discovery",
+    )
+
+    config.add_argument(
+        "++scan_config_id",
+        default=0,
+        type=int,
+        dest='scan_config_id',
+        help="Use existing scan config  by id",
     )
 
     parser.add_argument(
@@ -323,10 +333,18 @@ def main(gmp, args):
 
     script_args, _ = parser.parse_known_args()
 
+    # set alert_name to recipient email if no other name
+    # is given
     if script_args.alert_name is None:
         script_args.alert_name = script_args.recipient_email
 
-    config_id = get_config(gmp, script_args.config)
+    # use existing config from argument
+    if not script_args.scan_config_id:
+        config_id = get_config(gmp, script_args.config)
+    else:
+        config_id = script_args.scan_config_id
+
+    # create new target or use existing one from id
     if not script_args.target_id:
         target_id = get_target(
             gmp,
