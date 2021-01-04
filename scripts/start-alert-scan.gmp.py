@@ -80,7 +80,8 @@ def get_target(
     port_list_id: str = None,
     debug: bool = False,
 ):
-    targets = gmp.get_targets()
+    print(target_name)
+    targets = gmp.get_targets(filter=target_name)
     counter = 0
     exists = True
     # iterate over existing targets and find a vacant targetName
@@ -109,11 +110,12 @@ def get_target(
         counter = 0
         while True:
             if port_list_name not in existing_port_lists:
+                # create it
+                portlist = gmp.create_port_list(port_list_name, ports)
                 break
             counter += 1
 
         # create port list
-        portlist = gmp.create_port_list(port_list_name, ports)
         port_list_id = portlist.xpath('@id')[0]
         if debug:
             print("New Portlist-name:\t{}".format(str(port_list_name)))
@@ -121,6 +123,7 @@ def get_target(
 
     # integrate port list id into create_target
     res = gmp.create_target(target_name, hosts=hosts, port_list_id=port_list_id)
+    print("New target '{}' created.".format(target_name))
     return res.xpath('@id')[0]
 
 
@@ -222,9 +225,7 @@ def create_and_start_task(
         print('Task stopped')
 
 
-def main(gmp, args):
-    # pylint: disable=undefined-variable, unused-argument
-
+def parse_args(args):
     parser = ArgumentParser(
         prefix_chars="+",
         add_help=False,
@@ -245,7 +246,7 @@ def main(gmp, args):
         "++target-id",
         type=str,
         dest="target_id",
-        help="Use an existing by target id",
+        help="Use an existing target by target id",
     )
 
     target.add_argument(
@@ -288,27 +289,34 @@ def main(gmp, args):
 
     config.add_argument(
         "+C",
-        "++scan_config",
+        "++scan-config",
         default=0,
         type=int,
         dest='config',
         help="Choose from existing scan config:"
-        " 0: Full and fast"
-        " 1: Full and fast ultimate"
-        " 2: Full and very deep"
-        " 3: Full and very deep ultimate"
-        " 4: System Discovery",
+        "\n  0: Full and fast"
+        "\n  1: Full and fast ultimate"
+        "\n  2: Full and very deep"
+        "\n  3: Full and very deep ultimate"
+        "\n  4: System Discovery",
     )
 
     config.add_argument(
-        "++scan_config_id",
-        default=0,
-        type=int,
+        "++scan-config-id",
+        type=str,
         dest='scan_config_id',
-        help="Use existing scan config  by id",
+        help="Use existing scan config by id",
     )
 
     parser.add_argument(
+        "++scanner-id",
+        type=str,
+        dest='scanner_id',
+        help="Use existing scanner by id",
+    )
+
+    parser.add_argument(
+        "+R",
         "++recipient",
         required=True,
         dest='recipient_email',
@@ -317,6 +325,7 @@ def main(gmp, args):
     )
 
     parser.add_argument(
+        "+S",
         "++sender",
         required=True,
         dest='sender_email',
@@ -332,6 +341,13 @@ def main(gmp, args):
     )
 
     script_args, _ = parser.parse_known_args()
+    return script_args
+
+
+def main(gmp, args):
+    # pylint: disable=undefined-variable, unused-argument
+
+    script_args = parse_args(args)
 
     # set alert_name to recipient email if no other name
     # is given
@@ -348,7 +364,7 @@ def main(gmp, args):
     if not script_args.target_id:
         target_id = get_target(
             gmp,
-            target_name=script_args.target_id,
+            target_name=script_args.target_name,
             hosts=script_args.hosts,
             ports=script_args.ports,
             port_list_name=script_args.port_list_name,
@@ -362,7 +378,10 @@ def main(gmp, args):
         script_args.recipient_email,
         script_args.alert_name,
     )
-    scanner_id = get_scanner(gmp)
+    if not script_args.scanner_id:
+        scanner_id = get_scanner(gmp)
+    else:
+        scanner_id = script_args.scanner_id
 
     create_and_start_task(
         gmp, config_id, target_id, scanner_id, alert_id, script_args.alert_name

@@ -17,12 +17,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from argparse import ArgumentParser, RawTextHelpFormatter
+
 from gvmtools.helper import create_xml_tree, error_and_exit, yes_or_no
+
+HELP_TEXT = """
+        This script makes an E-Mail alert scan.
+
+        Usage examples: 
+            $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
+            ... start-alert-scan.gmp.py +h
+            ... start-alert-scan.gmp.py ++target-name ++hosts ++ports \
+                    ++port-list-name +C ++recipient ++sender
+            ... start-alert-scan.gmp.py ++target-name ++hosts ++port-list-id \
+                    +C ++recipient ++sender
+            ... start-alert-scan.gmp.py ++target-id +C ++recipient ++sender
+    """
 
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args != 1:
         message = """
         This script pulls tasks data from an xml document and feeds it to \
     a desired GSM
@@ -51,7 +66,7 @@ def numerical_option(statement, list_range):
         )
 
 
-def interactive_options(gmp, task, keywords):
+def interactive_option(gmp, task, keywords):
     options_dict = {}
     options_dict['config'] = gmp.get_configs()
     options_dict['scanner'] = gmp.get_scanners()
@@ -59,10 +74,10 @@ def interactive_options(gmp, task, keywords):
 
     for option in options_dict:
         object_dict, object_list = {}, []
-        object_id = task.xpath('{}/@id'.format(option))[0]
+        object_id = task.find(option).get('id')
         object_xml = options_dict[option]
 
-        for i in object_xml.xpath('{}'.format(option)):
+        for i in object_xml.findall(option):
             object_dict[i.find('name').text] = i.xpath('@id')[0]
             object_list.append(i.find('name').text)
 
@@ -102,8 +117,12 @@ def interactive_options(gmp, task, keywords):
 
 
 def parse_send_xml_tree(gmp, xml_tree):
+    task_xml_elements = xml_tree.xpath('task')
+    print(task_xml_elements)
+    if not task_xml_elements:
+        error_and_exit("No tasks found.")
     tasks = []
-    for task in xml_tree.xpath('task'):
+    for task in task_xml_elements:
         keywords = {'name': task.find('name').text}
 
         if task.find('comment').text is not None:
@@ -163,24 +182,42 @@ def main(gmp, args):
     )
 
     parser.add_argument(
-        "+C",
-        "++scan_config",
-        default=0,
-        type=int,
-        dest='config',
-        help="Choose from existing scan config:"
-        " 0: Full and fast"
-        " 1: Full and fast ultimate"
-        " 2: Full and very deep"
-        " 3: Full and very deep ultimate"
-        " 4: System Discovery",
+        "+x",
+        "++xml-file",
+        dest='xml',
+        type=str,
+        required=True,
+        help='xml file containing tasks',
     )
+
+    parser.add_argument(
+        "++target-id",
+        type=str,
+        dest="target_id",
+        help="Use an existing target by target id",
+    )
+
+    config.add_argument(
+        "++scan-config-id",
+        type=str,
+        dest='scan_config_id',
+        help="Use existing scan config by id",
+    )
+
+    parser.add_argument(
+        "++scanner-id",
+        type=str,
+        dest='scanner_id',
+        help="Use existing scanner by id",
+    )
+
+    script_args, _ = parser.parse_known_args()
+
     # check_args(args)
-    xml_doc = args.script[1]
 
     print('\nSending task(s)...')
 
-    xml_tree = create_xml_tree(xml_doc)
+    xml_tree = create_xml_tree(script_args.xml)
     tasks = parse_send_xml_tree(gmp, xml_tree)
     for task in tasks:
         print(task)
