@@ -27,7 +27,7 @@ HELP_TEXT = """
             $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
             ... start-alert-scan.gmp.py +h
             ... start-alert-scan.gmp.py ++target-name ++hosts ++ports \
-                    ++port-list-name +C ++recipient ++sender
+                    ++port-list-name +C +R +S
             ... start-alert-scan.gmp.py ++target-name ++hosts ++port-list-id \
                     +C ++recipient ++sender
             ... start-alert-scan.gmp.py ++target-id +C ++recipient ++sender
@@ -78,45 +78,52 @@ def get_target(
     ports: str = None,
     port_list_name: str = None,
     port_list_id: str = None,
-    debug: bool = False,
+    debug: bool = True,
 ):
-    print(target_name)
+    if target_name is None:
+        target_name = "target"
     targets = gmp.get_targets(filter=target_name)
+    existing_targets = [""]
+    for target in targets.findall("target"):
+        existing_targets.append(str(target.find('name').text))
     counter = 0
-    exists = True
     # iterate over existing targets and find a vacant targetName
-    while exists:
-        exists = False
-        if target_name is None:
-            target_name = "target_{}".format(str(counter))
-        for target in targets.xpath('target'):
-            name = target.xpath('name/text()')[0]
-            if name == target_name:
-                exists = True
+    if target_name in existing_targets:
+        while True:
+            tmp_name = "{} ({})".format(target_name, str(counter))
+            if tmp_name in existing_targets:
+                counter += 1
+            else:
+                target_name = tmp_name
                 break
-        counter += 1
 
     if debug:
         print("target name: {}".format(target_name))
 
     if not port_list_id:
-        # iterate over existing port lists and find a vacant name
         existing_port_lists = [""]
-        for name in gmp.get_port_lists().findall("port_list/name"):
-            existing_port_lists.append(str(name.text))
+        port_lists_tree = gmp.get_port_lists()
+        for p in port_lists_tree.findall("port_list"):
+            existing_port_lists.append(str(p.find('name').text))
+
+        print(existing_port_lists)
 
         if port_list_name is None:
-            port_list_name = "portlist_{}".format(str(counter))
-        counter = 0
-        while True:
-            if port_list_name not in existing_port_lists:
-                # create it
-                portlist = gmp.create_port_list(port_list_name, ports)
-                break
-            counter += 1
+            port_list_name = "portlist"
 
+        if port_list_name in existing_port_lists:
+            counter = 0
+            while True:
+                tmp_name = "{} ({})".format(port_list_name, str(counter))
+                if tmp_name in existing_port_lists:
+                    counter += 1
+                else:
+                    port_list_name = tmp_name
+                    break
+
+        port_list = gmp.create_port_list(port_list_name, ports)
         # create port list
-        port_list_id = portlist.xpath('@id')[0]
+        port_list_id = port_list.xpath('@id')[0]
         if debug:
             print("New Portlist-name:\t{}".format(str(port_list_name)))
             print("New Portlist-id:\t{}".format(str(port_list_id)))
@@ -184,7 +191,7 @@ should not have received it.
 def get_scanner(gmp):
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
-    return scanner_ids[1]  # default scanner
+    return scanner_ids[1]  # "default scanner"
 
 
 def create_and_start_task(
@@ -197,9 +204,9 @@ def create_and_start_task(
     debug: bool = False,
 ):
     # Create the task
-    tasks = gmp.get_tasks(filter="name~{}".format(alert_name))
     task_name = "Alert Scan for Alert {}".format(alert_name)
-    if tasks:
+    tasks = gmp.get_tasks(filter="name~{}".format(task_name))
+    if tasks is not None:
         task_name = "Alert Scan for Alert {} ({})".format(
             alert_name, len(tasks.xpath('tasks/@id'))
         )
