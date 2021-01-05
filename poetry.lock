@@ -386,11 +386,11 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "python-gvm"
-version = "20.12.1"
+version = "21.1.1"
 description = "Library to communicate with remote servers over GMP or OSP"
 category = "main"
 optional = false
-python-versions = ">=3.5.2,<4.0.0"
+python-versions = ">=3.7.0,<4.0.0"
 
 [package.dependencies]
 defusedxml = ">=0.6.0,<0.7.0"
@@ -597,7 +597,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "d6f5e2435eb4a2db37c7dc80b01a462698581f87bbc396cfb125b0e736889fb0"
+content-hash = "13f355dc5750386305198a20fed836f982c37256cfb17ac3719dbbba2c6037ad"
 
 [metadata.files]
 alabaster = [
@@ -935,8 +935,8 @@ pyparsing = [
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
 python-gvm = [
-    {file = "python-gvm-20.12.1.tar.gz", hash = "sha256:cef82bc78c64dbede980645461130f65c2c6a3a31e221f27620cb6a85632386b"},
-    {file = "python_gvm-20.12.1-py3-none-any.whl", hash = "sha256:81c4c42d908555f51ec518f00dbbf81649f116933c61d725789b42c427c152e9"},
+    {file = "python-gvm-21.1.1.tar.gz", hash = "sha256:36bd41d3534e7d378c4e0c38509ebd27ae8f40354cf6baa494bb95bc35d27191"},
+    {file = "python_gvm-21.1.1-py3-none-any.whl", hash = "sha256:7bbc4da6d112c147cb7c102d2eb487440b21b1cb8eab563064807ab204547bf0"},
 ]
 pytz = [
     {file = "pytz-2020.5-py2.py3-none-any.whl", hash = "sha256:16962c5fb8db4a8f63a26646d8886e9d769b6c511543557bc84e9569fb9a9cb4"},
