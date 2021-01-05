@@ -233,6 +233,7 @@ def create_and_start_task(
 
 
 def parse_args(args):
+    # pylint: disable=unused-argument
     parser = ArgumentParser(
         prefix_chars="+",
         add_help=False,
