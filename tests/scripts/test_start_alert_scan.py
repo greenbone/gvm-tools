@@ -96,3 +96,116 @@ class StartAlertScanTestCase(unittest.TestCase):
         )
 
         self.assertEqual(alert_id, returned_id)
+
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_get_target(self, mock_gmp: GmpMockFactory):
+        target_name = "test_target"
+        hosts = ['127.0.0.1', '8.8.8.8']
+        ports = 'T:1-3,5,7,9,11,13,17-25'
+        port_list_name = "test_port_list"
+
+        port_list_id = '6742e61a-a7b0-45dd-a8e1-35751c970958'
+        target_id = '3b76a0c2-14fc-4de2-868c-35132977a25e'
+
+        mock_gmp.mock_response(
+            'create_port_list',
+            '<create_port_list_response status="201" status_text='
+            f'"OK, resource created" id="{port_list_id}"/>',
+        )
+
+        mock_gmp.mock_response(
+            'create_target',
+            '<create_target_response status="201" status_text='
+            f'"OK, resource created" id="{target_id}"/>',
+        )
+
+        returned_id = self.start_alert_scan.get_target(
+            gmp=mock_gmp.gmp_protocol,
+            target_name=target_name,
+            hosts=hosts,
+            ports=ports,
+            port_list_name=port_list_name,
+        )
+
+        self.assertEqual(target_id, returned_id)
+
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_create_and_start_task(self, mock_gmp: GmpMockFactory):
+        alert_name = 'test_alert'
+        alert_id = '3eefd4b9-59ec-48d6-b84d-f6a73bdb909f'
+        target_id = '3b76a0c2-14fc-4de2-868c-35132977a25e'
+        config_id = 'daba56c8-73ec-11df-a475-002264764cea'
+        scanner_id = '08b69003-5fc2-4037-a479-93b440211c73'
+
+        task_id = 'd78453ab-d907-44b6-abe0-2ef54a77f1c2'
+
+        mock_gmp.mock_response(
+            'create_task',
+            '<create_task_response status="201" status_text='
+            f'"OK, resource created" id="{task_id}"/>',
+        )
+
+        mock_gmp.mock_response(
+            'get_tasks',
+            """
+<get_tasks_response status="200" status_text="OK">
+  <apply_overrides>0</apply_overrides>
+  <filters id="">
+    <term>
+        apply_overrides=0 min_qod=70
+        name="Alert Scan for Alert test_alert" first=1 rows=100 sort=name
+    </term>
+    <keywords>
+      <keyword>
+        <column>apply_overrides</column>
+        <relation>=</relation>
+        <value>0</value>
+      </keyword>
+      <keyword>
+        <column>min_qod</column>
+        <relation>=</relation>
+        <value>70</value>
+      </keyword>
+      <keyword>
+        <column>name</column>
+        <relation>=</relation>
+        <value>"Alert Scan for Alert test_alert"</value>
+      </keyword>
+      <keyword>
+        <column>first</column>
+        <relation>=</relation>
+        <value>1</value>
+      </keyword>
+      <keyword>
+        <column>rows</column>
+        <relation>=</relation>
+        <value>100</value>
+      </keyword>
+      <keyword>
+        <column>sort</column>
+        <relation>=</relation>
+        <value>name</value>
+      </keyword>
+    </keywords>
+  </filters>
+  <sort>
+    <field>name<order>ascending</order></field>
+  </sort>
+  <tasks start="1" max="100"/>
+  <task_count>27<filtered>0</filtered><page>0</page></task_count>
+</get_tasks_response>
+            """,
+        )
+
+        task_name = "Alert Scan for Alert {}".format(alert_name)
+
+        returned_name = self.start_alert_scan.create_and_start_task(
+            gmp=mock_gmp.gmp_protocol,
+            config_id=config_id,
+            target_id=target_id,
+            scanner_id=scanner_id,
+            alert_id=alert_id,
+            alert_name=alert_name,
+        )
+
+        self.assertEqual(task_name, returned_name)

@@ -205,11 +205,14 @@ def create_and_start_task(
 ):
     # Create the task
     task_name = "Alert Scan for Alert {}".format(alert_name)
-    tasks = gmp.get_tasks(filter="name~{}".format(task_name))
-    if tasks is not None:
+    tasks = gmp.get_tasks(filter='name="{}"'.format(task_name))
+    task_objects = tasks.findall('task')
+    print(task_objects)
+    if task_objects:
         task_name = "Alert Scan for Alert {} ({})".format(
-            alert_name, len(tasks.xpath('tasks/@id'))
+            alert_name, len(task_objects)
         )
+
     task_comment = "Alert Scan"
     res = gmp.create_task(
         task_name,
@@ -224,12 +227,12 @@ def create_and_start_task(
     task_id = res.xpath('@id')[0]
     gmp.start_task(task_id)
 
-    print('Task started: ' + task_name)
-
     if debug:
         # Stop the task (for performance reasons)
         gmp.stop_task(task_id)
         print('Task stopped')
+
+    return task_name
 
 
 def parse_args(args):  # pylint: disable=unused-argument
@@ -393,6 +396,8 @@ def main(gmp, args):
     create_and_start_task(
         gmp, config_id, target_id, scanner_id, alert_id, script_args.alert_name
     )
+
+    print('Task started: ' + task_name)
 
     print("\nScript finished\n")
 
