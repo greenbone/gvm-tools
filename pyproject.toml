@@ -38,18 +38,18 @@ gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
 python = "^3.7.0"
-python-gvm = ">=1.4,<21.0"
+python-gvm = ">=1.4,<22.0"
 
 [tool.poetry.dev-dependencies]
 autohooks = "^2.2.0"
 autohooks-plugin-pylint = "^1.2.0"
-sphinx = "^3.4.1"
+sphinx = "^3.4.2"
 pylint = "^2.5.3"
 coverage = "^5.3"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
 black = {version = "20.8b1", python = "^3.6"}
 rope = "^0.18.0"
-pontos = "^0.2.0"
+pontos = "^0.3.1"
 
 [tool.black]
 line-length = 80
