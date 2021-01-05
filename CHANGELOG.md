@@ -19,12 +19,15 @@ $ cd gvm-tools && git log
 * Added `pretty_print` to `pyshell` by default, so it does not need to be manually imported [#305](https://github.com/greenbone/gvm-tools/pull/305)
 * Added tests for `helper` module [#310](https://github.com/greenbone/gvm-tools/pull/310)
 * Added tests for `parser` module [#311](https://github.com/greenbone/gvm-tools/pull/311)
-* Added tests for `script/send-target.gmp.py` [#314](https://github.com/greenbone/gvm-tools/pull/314/)
-* Added tests for `script/send-tasks.gmp.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
+* Added tests for `scripts/send-target.gmp.py` [#314](https://github.com/greenbone/gvm-tools/pull/314/)
+* Added tests for `scripts/send-tasks.gmp.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
+* Added tests for `scripts/send-schedules.gmp.py` [#344](https://github.com/greenbone/gvm-tools/pull/344)
+* Added tests for `script/start-alert-scan.gmp.py` [#344](https://github.com/greenbone/gvm-tools/pull/344)
 * Adding useful script helper functions to the `helper.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
 * CI tests Python 3.9 now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
 
 ### Changed
+* The `script/start-alert-scan.gmp.py` has been reworked with argparser [#344](https://github.com/greenbone/gvm-tools/pull/344)
 ### Deprecated
 * Dropped Python 3.5 and Python 3.6 support. Python 3.7+ is required now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
 
