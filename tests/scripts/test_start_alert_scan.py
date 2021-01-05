@@ -71,3 +71,28 @@ class StartAlertScanTestCase(unittest.TestCase):
             config_id = self.start_alert_scan.get_config(
                 gmp=mock_gmp.gmp_protocol, config=-1
             )
+
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_get_alert(self, mock_gmp: GmpMockFactory):
+        sender_email = "sender@test.com"
+        recipient_email = "recipient@test.com"
+        alert_name = "test_alert"
+        alert_id = '3eefd4b9-59ec-48d6-b84d-f6a73bdb909f'
+
+        alerts_file = CWD / 'get_alerts.xml'
+        alerts = alerts_file.read_text()
+        mock_gmp.mock_response('get_alerts', alerts)
+        mock_gmp.mock_response(
+            'create_alert',
+            '<create_alert_response status="201" status_text='
+            f'"OK, resource created" id="{alert_id}"/>',
+        )
+
+        returned_id = self.start_alert_scan.get_alert(
+            gmp=mock_gmp.gmp_protocol,
+            alert_name=alert_name,
+            recipient_email=recipient_email,
+            sender_email=sender_email,
+        )
+
+        self.assertEqual(alert_id, returned_id)

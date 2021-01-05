@@ -1,0 +1,66 @@
+<get_alerts_response status="200" status_text="OK">
+  <alert id="3eefd4b9-59ec-48d6-b84d-f6a73bdb909f">
+    <owner>
+      <name>jloechte</name>
+    </owner>
+    <name>test_alert</name>
+    <comment/>
+    <creation_time>2021-01-03T13:45:20Z</creation_time>
+    <modification_time>2021-01-03T13:45:20Z</modification_time>
+    <writable>1</writable>
+    <in_use>0</in_use>
+    <permissions>
+      <permission>
+        <name>Everything</name>
+      </permission>
+    </permissions>
+    <condition>Always</condition>
+    <event>Task run status changed<data><name>status</name>Done</data></event>
+    <method>Email<data><name>Task '$n': $e
+
+After the event $e,
+the following condition was met: $c
+
+This email escalation is configured to attach report format '$r'.
+Full details and other report formats are available on the scan engine.
+
+$t
+
+Note:
+This email was sent to you as a configured security scan escalation.
+Please contact your local system administrator if you think you
+should not have received it.
+</name>message</data><data><name>2</name>notice</data><data><name>sender@test.com</name>from_address</data><data><name>[OpenVAS-Manager] Task</name>subject</data><data><name>c402cc3e-b531-11e1-9163-406186ea4fc5</name>notice_attach_format</data><data><name>recipient@test.com</name>to_address</data></method>
+    <active>1</active>
+  </alert>
+  <filters id="">
+    <term>name=test_alert first=1 rows=100 sort=name</term>
+    <keywords>
+      <keyword>
+        <column>name</column>
+        <relation>=</relation>
+        <value>test_alert</value>
+      </keyword>
+      <keyword>
+        <column>first</column>
+        <relation>=</relation>
+        <value>1</value>
+      </keyword>
+      <keyword>
+        <column>rows</column>
+        <relation>=</relation>
+        <value>100</value>
+      </keyword>
+      <keyword>
+        <column>sort</column>
+        <relation>=</relation>
+        <value>name</value>
+      </keyword>
+    </keywords>
+  </filters>
+  <sort>
+    <field>name<order>ascending</order></field>
+  </sort>
+  <alerts start="1" max="100"/>
+  <alert_count>13<filtered>1</filtered><page>1</page></alert_count>
+</get_alerts_response>
