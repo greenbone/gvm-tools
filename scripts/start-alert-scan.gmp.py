@@ -103,8 +103,8 @@ def get_target(
     if not port_list_id:
         existing_port_lists = [""]
         port_lists_tree = gmp.get_port_lists()
-        for p in port_lists_tree.findall("port_list"):
-            existing_port_lists.append(str(p.find('name').text))
+        for plist in port_lists_tree.findall("port_list"):
+            existing_port_lists.append(str(plist.find('name').text))
 
         print(existing_port_lists)
 
