@@ -19,10 +19,9 @@ classifiers=[
     'Environment :: Console',
     'Intended Audience :: Developers',
     'Intended Audience :: System Administrators',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Operating System :: OS Independent',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
@@ -38,7 +37,7 @@ gvm-cli = "gvmtools.cli:main"
 gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
-python = "^3.5.2"
+python = "^3.7.0"
 python-gvm = ">=1.4,<21.0"
 
 [tool.poetry.dev-dependencies]
