@@ -26,12 +26,8 @@ HELP_TEXT = """
 
         Usage examples: 
             $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
-            ... start-alert-scan.gmp.py +h
-            ... start-alert-scan.gmp.py ++target-name ++hosts ++ports \
-                    ++port-list-name +C ++recipient ++sender
-            ... start-alert-scan.gmp.py ++target-name ++hosts ++port-list-id \
-                    +C ++recipient ++sender
-            ... start-alert-scan.gmp.py ++target-id +C ++recipient ++sender
+            ... send-task.gmp.py +h
+            ... send-task.gmp.py ++x xml_file
     """
 
 
@@ -66,7 +62,7 @@ def numerical_option(statement, list_range):
         )
 
 
-def interactive_option(gmp, task, keywords):
+def interactive_options(gmp, task, keywords):
     options_dict = {}
     options_dict['config'] = gmp.get_configs()
     options_dict['scanner'] = gmp.get_scanners()
@@ -130,21 +126,16 @@ def parse_send_xml_tree(gmp, xml_tree):
 
         interactive_options(gmp, task, keywords)
 
-        new_task = gmp.create_task(**keywords)
-
-        mod_keywords = {'task_id': new_task.xpath('//@id')[0]}
-        tasks.append(mod_keywords['task_id'])
-
         if task.find('schedule_periods') is not None:
-            mod_keywords['schedule_periods'] = int(
+            keywords['schedule_periods'] = int(
                 task.find('schedule_periods').text
             )
 
         if task.find('observers').text:
-            mod_keywords['observers'] = task.find('observers').text
+            keywords['observers'] = task.find('observers').text
 
         if task.xpath('schedule/@id')[0]:
-            mod_keywords['schedule_id'] = task.xpath('schedule/@id')[0]
+            keywords['schedule_id'] = task.xpath('schedule/@id')[0]
 
         if task.xpath('preferences/preference'):
             preferences, scanner_name_list, value_list = {}, [], []
@@ -157,17 +148,11 @@ def parse_send_xml_tree(gmp, xml_tree):
                     value_list.append('')
             preferences['scanner_name'] = scanner_name_list
             preferences['value'] = value_list
-            mod_keywords['preferences'] = preferences
+            keywords['preferences'] = preferences
 
-        if task.xpath('file/@name'):
-            file = dict(
-                name=task.xpath('file/@name'), action=task.xpath('file/@action')
-            )
+        new_task = gmp.create_task(**keywords)
 
-            mod_keywords['file'] = file
-
-        if len(mod_keywords) > 1:
-            gmp.modify_task(**mod_keywords)
+        tasks.append(new_task.xpath('//@id')[0])
     return tasks
 
 
@@ -182,33 +167,19 @@ def main(gmp, args):
     )
 
     parser.add_argument(
+        "+h",
+        "++help",
+        action="help",
+        help="Show this help message and exit.",
+    )
+
+    parser.add_argument(
         "+x",
         "++xml-file",
         dest='xml',
         type=str,
         required=True,
         help='xml file containing tasks',
-    )
-
-    parser.add_argument(
-        "++target-id",
-        type=str,
-        dest="target_id",
-        help="Use an existing target by target id",
-    )
-
-    config.add_argument(
-        "++scan-config-id",
-        type=str,
-        dest='scan_config_id',
-        help="Use existing scan config by id",
-    )
-
-    parser.add_argument(
-        "++scanner-id",
-        type=str,
-        dest='scanner_id',
-        help="Use existing scanner by id",
     )
 
     script_args, _ = parser.parse_known_args()
