@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -37,7 +37,7 @@ from gvmtools.helper import (
 __version__ = "0.1.0"
 
 HELP_TEXT = """
-    Random Report Generation Script {version} (C) 2017-2019 Greenbone Networks GmbH
+    Random Report Generation Script {version} (C) 2017-2021 Greenbone Networks GmbH
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
