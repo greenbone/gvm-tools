@@ -19,7 +19,10 @@
 import getpass
 import os
 import sys
+import uuid
+import string
 
+from random import choice
 from lxml import etree
 
 from gvm.errors import GvmError
@@ -111,6 +114,16 @@ def error_and_exit(msg):
     """
     print("\nError: {}\n".format(msg), file=sys.stderr)
     sys.exit(1)
+
+
+def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+    """Generate a random ID"""
+    return ''.join(choice(chars) for _ in range(size))
+
+
+def generate_uuid():
+    """Generate a random new uuid"""
+    return str(uuid.uuid4())
 
 
 def create_xml_tree(xml_doc):
