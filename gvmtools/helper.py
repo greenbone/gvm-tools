@@ -22,7 +22,7 @@ import sys
 import uuid
 import string
 
-from random import choice
+from random import choice, randrange
 from lxml import etree
 
 from gvm.errors import GvmError
@@ -116,12 +116,29 @@ def error_and_exit(msg):
     sys.exit(1)
 
 
-def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+def generate_random_ips(count: int):
+    """Generate count random IPv4s"""
+    exclude_127 = [i for i in range(1, 256)]
+    exclude_127.remove(127)
+    return [
+        '{}.{}.{}.{}'.format(
+            choice(exclude_127),
+            randrange(0, 256),
+            randrange(0, 256),
+            randrange(1, 255),
+        )
+        for i in range(count)
+    ]
+
+
+def generate_random_id(
+    size: int = 12, chars: str = string.ascii_uppercase + string.digits
+):
     """Generate a random ID"""
     return ''.join(choice(chars) for _ in range(size))
 
 
-def generate_uuid():
+def generate_random_uuid():
     """Generate a random new uuid"""
     return str(uuid.uuid4())
 
