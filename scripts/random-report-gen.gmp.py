@@ -18,7 +18,6 @@
 
 # pylint: disable=too-many-lines
 
-import uuid
 import string
 import time
 import textwrap
@@ -29,6 +28,8 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
 
 from lxml import etree as e
+
+from gvmtools.helper import generate_uuid, id_generator
 
 __version__ = "0.1.0"
 
@@ -54,10 +55,6 @@ HELP_TEXT = """
 )
 
 
-def generate_uuid():
-    return str(uuid.uuid4())
-
-
 def generate_ips(n_hosts):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
@@ -75,10 +72,6 @@ def generate_ips(n_hosts):
 def generate_ports(n_ports):
     protocol = ['/tcp', '/udp']
     return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
-
-
-def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
-    return ''.join(choice(chars) for _ in range(size))
 
 
 def generate_report_elem(task, **kwargs):

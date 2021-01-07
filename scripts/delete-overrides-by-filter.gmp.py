@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
+import sys
 
 
 def check_args(args):
@@ -33,7 +34,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/delete-overrides-by-filter.gmp.py <filter>
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def delete_overrides(gmp, filter_value):

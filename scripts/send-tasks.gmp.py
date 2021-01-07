@@ -92,7 +92,7 @@ def interactive_options(gmp, task, keywords):
                 ]
             else:
                 print("\nTerminating...")
-                quit()
+                sys.exit()
         else:
             error_and_exit(
                 "Failed to detect {}_id"

@@ -38,7 +38,7 @@ def check_args(args):
 ssh --hostname <gsm> scripts/pdf-report.gmp.py <report_id> <pdf_file>
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def main(gmp, args):

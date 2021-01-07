@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from datetime import date, timedelta
 
 from terminaltables import AsciiTable
@@ -39,7 +40,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/monthly-report.gmp.py 05 2017 with-tables
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def print_reports(gmp, args, from_date, to_date):

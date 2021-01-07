@@ -52,7 +52,7 @@ def check_args(args):
             Send the CSV as an attachment to the configured email address.
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def execute_send_delta_emails(sc, **kwargs):

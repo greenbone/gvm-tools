@@ -16,10 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import uuid
 import time
+import sys
 
 from lxml import etree as e
+
+from gvmtools.helper import generate_uuid
 
 
 def check_args(args):
@@ -47,10 +49,6 @@ def check_args(args):
         """
         print(message)
         quit(1)
-
-
-def generate_uuid():
-    return str(uuid.uuid4())
 
 
 def gen_combined_report(gmp, args):

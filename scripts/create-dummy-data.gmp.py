@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import random
-import string
+import sys
+
+from gvmtools.helper import id_generator
 
 
 def check_args(args):
@@ -33,11 +34,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/create-dummy-data.gmp.py <count>
         """
         print(message)
-        quit()
-
-
-def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+        sys.exit()
 
 
 def create_data(gmp, count):

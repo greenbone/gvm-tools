@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import random as r
+import sys
+from random import randrange, choice, gauss
 
 
 def check_args(args):
@@ -38,11 +39,11 @@ def check_args(args):
     ssh --hostname <gsm> scripts/gen-random-targets.gmp.py 3 40 with-gauss
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def rand_number():
-    return r.randrange(256)
+    return randrange(256)
 
 
 def n_ip(number_of_ips):
@@ -60,10 +61,10 @@ def generate(gmp, args, n_targets, n_ips):
     ips = n_ip(n_ips)
 
     if 'with-gauss' in args.script:
-        n_targets = int(r.gauss(n_targets, 2))
+        n_targets = int(gauss(n_targets, 2))
 
     for i in range(n_targets):
-        host_ip = r.choice(ips)
+        host_ip = choice(ips)
         index = '{{0:0>{}}}'.format(len(str(n_targets)))
         name = 'Target_{}'.format(index.format(i + 1))
 

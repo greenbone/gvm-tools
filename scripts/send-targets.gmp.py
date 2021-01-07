@@ -79,7 +79,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
                 if response is False:
                     print("Terminating...\n")
-                    quit()
+                    sys.exit()
                 else:
                     continue
 

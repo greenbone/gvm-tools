@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 from gvm.errors import GvmError
 
 
@@ -33,7 +35,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/cfg-gen-for-certs.gmp.py CB-K16/0943
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def create_config(gmp, cert_bund_name):

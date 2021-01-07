@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -32,7 +34,7 @@ ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_em
     """
     if len_args != 2:
         print(message)
-        quit()
+        sys.exit()
 
 
 # returns a list containing all port_list names

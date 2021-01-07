@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+import sys
 
 
 def check_args(args):
@@ -33,7 +34,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/sync-assets.gmp.py <csv_file>
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def sync_assets(gmp, filename):

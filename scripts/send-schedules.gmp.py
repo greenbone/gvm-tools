@@ -37,10 +37,10 @@ def check_args(args):
 
         """
         print(message)
-        quit()
+        sys.exit()
     if int(gmp.get_protocol_version()[0]) < 8:
         print("This script requires GMP version 8")
-        quit()
+        sys.exit()
 
 
 def error_and_exit(msg):
