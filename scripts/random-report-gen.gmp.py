@@ -18,7 +18,6 @@
 
 # pylint: disable=too-many-lines
 
-import string
 import time
 import textwrap
 import json
@@ -29,7 +28,11 @@ from pathlib import Path
 
 from lxml import etree as e
 
-from gvmtools.helper import generate_uuid, id_generator
+from gvmtools.helper import (
+    generate_random_uuid,
+    generate_random_id,
+    generate_random_ips,
+)
 
 __version__ = "0.1.0"
 
@@ -55,20 +58,6 @@ HELP_TEXT = """
 )
 
 
-def generate_ips(n_hosts):
-    exclude_127 = [i for i in range(1, 256)]
-    exclude_127.remove(127)
-    return [
-        '{}.{}.{}.{}'.format(
-            choice(exclude_127),
-            randrange(0, 256),
-            randrange(0, 256),
-            randrange(1, 255),
-        )
-        for i in range(n_hosts)
-    ]
-
-
 def generate_ports(n_ports):
     protocol = ['/tcp', '/udp']
     return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
@@ -76,7 +65,7 @@ def generate_ports(n_ports):
 
 def generate_report_elem(task, **kwargs):
     rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
-    rep_id = generate_uuid()
+    rep_id = generate_random_uuid()
     outer_report_elem = e.Element(
         'report',
         attrib={
@@ -111,11 +100,11 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
     )
 
     # Create Hosts, Ports, Data
-    hosts = generate_ips(n_hosts)  # Host IPs
+    hosts = generate_random_ips(n_hosts)  # Host IPs
     ports = generate_ports(n_hosts)
     oid_dict = {host: [] for host in hosts}
-    asset_dict = {host: generate_uuid() for host in hosts}
-    host_names = {host: id_generator() for host in hosts}
+    asset_dict = {host: generate_random_uuid() for host in hosts}
+    host_names = {host: generate_random_id() for host in hosts}
     max_sev = 0.0
 
     # Create <result> tags with random data
@@ -161,11 +150,11 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
 
 
 def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
-    result_elem = e.Element('result', {'id': generate_uuid()})
+    result_elem = e.Element('result', {'id': generate_random_uuid()})
 
-    e.SubElement(result_elem, 'name').text = "a_result" + id_generator()
+    e.SubElement(result_elem, 'name').text = "a_result" + generate_random_id()
     own = e.SubElement(result_elem, 'owner')
-    e.SubElement(own, 'name').text = id_generator()
+    e.SubElement(own, 'name').text = generate_random_id()
 
     elem = e.Element('modification_time')
     e.SubElement(result_elem, 'modification_time').text = (

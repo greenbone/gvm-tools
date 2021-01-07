@@ -17,7 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from random import randrange, choice, gauss
+from random import choice, gauss
+
+from gvmtools.helper import generate_random_ips
 
 
 def check_args(args):
@@ -42,23 +44,8 @@ def check_args(args):
         sys.exit()
 
 
-def rand_number():
-    return randrange(256)
-
-
-def n_ip(number_of_ips):
-    list_of_ips = []
-    for _ in range(number_of_ips):
-        list_of_ips.append(
-            '{}.{}.{}.{}'.format(
-                rand_number(), rand_number(), rand_number(), rand_number()
-            )
-        )
-    return list_of_ips
-
-
 def generate(gmp, args, n_targets, n_ips):
-    ips = n_ip(n_ips)
+    ips = generate_random_ips(n_ips)
 
     if 'with-gauss' in args.script:
         n_targets = int(gauss(n_targets, 2))

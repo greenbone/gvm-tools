@@ -21,7 +21,7 @@ import sys
 
 from lxml import etree as e
 
-from gvmtools.helper import generate_uuid
+from gvmtools.helper import generate_random_uuid
 
 
 def check_args(args):
@@ -48,11 +48,11 @@ def check_args(args):
 
         """
         print(message)
-        quit(1)
+        sys.exit()
 
 
 def gen_combined_report(gmp, args):
-    id_assign = str(generate_uuid())
+    id_assign = str(generate_random_uuid())
     report = e.Element(
         'report',
         {

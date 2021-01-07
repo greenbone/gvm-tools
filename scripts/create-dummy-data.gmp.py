@@ -18,7 +18,9 @@
 
 import sys
 
-from gvmtools.helper import id_generator
+from random import choice
+
+from gvmtools.helper import generate_random_id
 
 
 def check_args(args):
@@ -42,7 +44,7 @@ def create_data(gmp, count):
     target_ids = []
 
     for _ in range(0, count):
-        name = id_generator()
+        name = generate_random_id()
         gmp.create_credential(
             name,
             login=name,
@@ -52,27 +54,27 @@ def create_data(gmp, count):
     print(str(count) + ' random credentials generated.')
 
     for _ in range(0, count):
-        name = id_generator()
+        name = generate_random_id()
         gmp.create_port_list(name, port_range='T:1-42')
     print(str(count) + ' random port lists generated.')
 
     for _ in range(0, count):
-        name = id_generator()
+        name = generate_random_id()
         res = gmp.create_config('085569ce-73ed-11df-83c3-002264764cea', name)
         config_ids.append(res.xpath('@id')[0])
     print(str(count) + ' random scan configs generated.')
 
     for _ in range(0, count):
-        name = id_generator()
+        name = generate_random_id()
         res = gmp.create_target(name, hosts=['127.0.0.1'])
 
         target_ids.append(res.xpath('@id')[0])
     print(str(count) + ' random targets generated.')
 
     for _ in range(0, count):
-        name = id_generator()
-        config_id = random.choice(config_ids)
-        target_id = random.choice(target_ids)
+        name = generate_random_id()
+        config_id = choice(config_ids)
+        target_id = choice(target_ids)
         gmp.create_task(
             name, config_id, target_id, '08b69003-5fc2-4037-a479-93b440211c73'
         )
