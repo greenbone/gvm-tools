@@ -51,9 +51,9 @@ def check_args(args):
         sys.exit()
 
 
-def gen_combined_report(gmp, args):
+def combine_reports(gmp, args):
     new_uuid = generate_uuid()
-    report = e.Element(
+    combined_report = e.Element(
         'report',
         {
             'id': new_uuid,
@@ -64,7 +64,7 @@ def gen_combined_report(gmp, args):
     )
     report_elem = e.Element('report', {'id': new_uuid})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
-    report.append(report_elem)
+    combined_report.append(report_elem)
     report_elem.append(results_elem)
 
     if 'first_task' in args.script:
@@ -76,10 +76,10 @@ def gen_combined_report(gmp, args):
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
 
-    send_report(gmp, args, report)
+    return combined_report
 
 
-def send_report(gmp, args, report):
+def send_report(gmp, args, combined_report):
     if 'first_task' in args.script:
         main_report = gmp.get_report(args.script[1])[0]
         task_id = main_report.xpath('//task/@id')[0]
@@ -89,9 +89,9 @@ def send_report(gmp, args, report):
         task_id = ''
         task_name = "Combined_Report_{}".format(the_time)
 
-    report = e.tostring(report)
+    combined_report = e.tostring(combined_report)
 
-    gmp.import_report(report, task_id=task_id, task_name=task_name)
+    gmp.import_report(combined_report, task_id=task_id, task_name=task_name)
 
 
 def main(gmp, args):
@@ -99,7 +99,8 @@ def main(gmp, args):
 
     check_args(args)
 
-    gen_combined_report(gmp, args)
+    combined_report = combine_reports(gmp, args)
+    send_repot(gmp, args, combined_report)
 
 
 if __name__ == '__gmp__':
