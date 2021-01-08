@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020 Greenbone Networks GmbH
+# Copyright (C) 2020-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,17 +16,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
+import uuid
 import unittest
+import ipaddress
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 from pathlib import Path
 from lxml import etree
+
 from gvm.errors import GvmError
+
 from gvmtools.helper import (
     Table,
     do_not_run_as_root,
     authenticate,
     run_script,
+    generate_random_id,
+    generate_random_ips,
+    generate_random_uuid,
     create_xml_tree,
     error_and_exit,
     yes_or_no,
@@ -48,6 +55,31 @@ class TableTestCase(unittest.TestCase):
         self.table = Table(
             heading=self.heading, rows=self.rows, divider=self.divider
         )
+
+    def test_generate_random_uuid(self):
+        random_uuid = generate_random_uuid()
+        try:
+            uuid.UUID(random_uuid, version=4)
+        except (ValueError, TypeError, AttributeError):
+            self.fail("No valid UUID.")
+
+    def test_generate_random_id(self):
+        random_id = generate_random_id(size=1, chars="a")
+        self.assertEqual(random_id, 'a')
+
+        random_id = generate_random_id(size=10)
+        self.assertEqual(len(random_id), 10)
+        self.assertTrue(random_id.isalnum())
+
+    def test_generate_random_ips(self):
+        random_ip = generate_random_ips(1)
+        ip_addr = ipaddress.ip_address(random_ip[0])
+        self.assertEqual(ip_addr.version, 4)
+        self.assertEqual(str(ip_addr), random_ip[0])
+
+        num = 10
+        random_ips = generate_random_ips(num)
+        self.assertEqual(len(random_ips), num)
 
     def test_init_no_args(self):
         table = Table()
