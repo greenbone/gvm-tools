@@ -52,17 +52,17 @@ def check_args(args):
 
 
 def gen_combined_report(gmp, args):
-    id_assign = str(generate_random_uuid())
+    new_uuid = generate_random_uuid()
     report = e.Element(
         'report',
         {
-            'id': id_assign,
+            'id': new_uuid,
             'format_id': 'd5da9f67-8551-4e51-807b-b6a873d70e34',
             'extension': 'xml',
             'content_type': 'text/xml',
         },
     )
-    report_elem = e.Element('report', {'id': id_assign})
+    report_elem = e.Element('report', {'id': new_uuid})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
     report.append(report_elem)
     report_elem.append(results_elem)
