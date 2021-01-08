@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -52,7 +52,7 @@ def check_args(args):
             Send the CSV as an attachment to the configured email address.
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def execute_send_delta_emails(sc, **kwargs):

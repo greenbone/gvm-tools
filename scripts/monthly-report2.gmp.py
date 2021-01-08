@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2017-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from datetime import date, timedelta
 from terminaltables import AsciiTable
 
@@ -39,7 +40,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/monthly-report2.gmp.py 05 2019
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def print_reports(gmp, from_date, to_date):

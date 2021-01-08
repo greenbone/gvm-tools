@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -38,7 +38,7 @@ __version__ = "2.0.0"
 logger = logging.getLogger(__name__)
 
 HELP_TEXT = """
-    Check-GMP Nagios Command Plugin {version} (C) 2017-2019 Greenbone Networks GmbH
+    Check-GMP Nagios Command Plugin {version} (C) 2017-2021 Greenbone Networks GmbH
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

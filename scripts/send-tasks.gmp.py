@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Greenbone Networks GmbH
+# Copyright (C) 2018-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -103,7 +103,7 @@ def interactive_options(gmp, task, keywords):
                 ]
             else:
                 print("\nTerminating...")
-                quit()
+                sys.exit()
         else:
             error_and_exit(
                 "Failed to detect {}_id"

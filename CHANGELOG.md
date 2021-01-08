@@ -28,6 +28,8 @@ $ cd gvm-tools && git log
 
 ### Changed
 * The `script/start-alert-scan.gmp.py` has been reworked with argparser [#344](https://github.com/greenbone/gvm-tools/pull/344)
+* Moved generic functions to generate random ids and ips from scripts to the `helper` module. [#365](https://github.com/greenbone/gvm-tools/pull/365)
+
 ### Deprecated
 * Dropped Python 3.5 and Python 3.6 support. Python 3.7+ is required now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
 
