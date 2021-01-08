@@ -71,8 +71,9 @@ def combine_reports(gmp, args):
         arg_len = args.script[1:-1]
     else:
         arg_len = args.script[1:]
+
     for argument in arg_len:
-        current_report = gmp.get_report(argument)[0]
+        current_report = gmp.get_report(argument, details=True)[0]
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
 
@@ -91,7 +92,9 @@ def send_report(gmp, args, combined_report):
 
     combined_report = e.tostring(combined_report)
 
-    gmp.import_report(combined_report, task_id=task_id, task_name=task_name)
+    res = gmp.import_report(
+        combined_report, task_id=task_id, task_name=task_name
+    )
 
 
 def main(gmp, args):
