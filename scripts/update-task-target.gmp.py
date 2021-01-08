@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -19,6 +19,8 @@
 import sys
 import time
 
+from gvmtools.helper import error_and_exit
+
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -37,12 +39,7 @@ def check_args(args):
 
         """
         print(message)
-        quit()
-
-
-def error_and_exit(msg):
-    sys.stderr.write("Error: {}\n".format(msg))
-    sys.exit(1)
+        sys.exit()
 
 
 def load_host_file(filename):

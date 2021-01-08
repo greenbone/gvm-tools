@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Greenbone Networks GmbH
+# Copyright (C) 2018-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -79,7 +79,7 @@ def parse_send_xml_tree(gmp, xml_tree):
 
                 if response is False:
                     print("Terminating...\n")
-                    quit()
+                    sys.exit()
                 else:
                     continue
 

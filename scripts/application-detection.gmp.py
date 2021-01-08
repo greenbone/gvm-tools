@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2017-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -30,7 +32,7 @@ def check_args(args):
     ssh --hostname <gsm> scripts/application-detection.gmp.py <application>
         """
         print(message)
-        quit()
+        sys.exit()
 
 
 def print_assets(gmp, appname):

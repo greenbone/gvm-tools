@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,10 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import uuid
 import time
+import sys
 
 from lxml import etree as e
+
+from gvmtools.helper import generate_uuid
 
 
 def check_args(args):
@@ -46,25 +48,21 @@ def check_args(args):
 
         """
         print(message)
-        quit(1)
-
-
-def generate_uuid():
-    return str(uuid.uuid4())
+        sys.exit()
 
 
 def gen_combined_report(gmp, args):
-    id_assign = str(generate_uuid())
+    new_uuid = generate_uuid()
     report = e.Element(
         'report',
         {
-            'id': id_assign,
+            'id': new_uuid,
             'format_id': 'd5da9f67-8551-4e51-807b-b6a873d70e34',
             'extension': 'xml',
             'content_type': 'text/xml',
         },
     )
-    report_elem = e.Element('report', {'id': id_assign})
+    report_elem = e.Element('report', {'id': new_uuid})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
     report.append(report_elem)
     report_elem.append(results_elem)

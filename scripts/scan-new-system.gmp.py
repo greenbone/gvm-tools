@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019 Greenbone Networks GmbH
+# Copyright (C) 2019-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import sys
 
 
 def check_args(args):
@@ -34,7 +35,7 @@ ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip> <port_list_id>
     """
     if len_args != 2:
         print(message)
-        quit()
+        sys.exit()
 
 
 def create_target(gmp, ipaddress, port_list_id):

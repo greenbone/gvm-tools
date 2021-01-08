@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -37,10 +37,10 @@ def check_args(args):
 
         """
         print(message)
-        quit()
+        sys.exit()
     if int(gmp.get_protocol_version()[0]) < 8:
         print("This script requires GMP version 8")
-        quit()
+        sys.exit()
 
 
 def error_and_exit(msg):

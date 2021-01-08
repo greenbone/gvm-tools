@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Greenbone Networks GmbH
+# Copyright (C) 2017-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,7 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import random as r
+import sys
+from random import choice, gauss
+
+from gvmtools.helper import generate_random_ips
 
 
 def check_args(args):
@@ -38,32 +41,17 @@ def check_args(args):
     ssh --hostname <gsm> scripts/gen-random-targets.gmp.py 3 40 with-gauss
         """
         print(message)
-        quit()
-
-
-def rand_number():
-    return r.randrange(256)
-
-
-def n_ip(number_of_ips):
-    list_of_ips = []
-    for _ in range(number_of_ips):
-        list_of_ips.append(
-            '{}.{}.{}.{}'.format(
-                rand_number(), rand_number(), rand_number(), rand_number()
-            )
-        )
-    return list_of_ips
+        sys.exit()
 
 
 def generate(gmp, args, n_targets, n_ips):
-    ips = n_ip(n_ips)
+    ips = generate_random_ips(n_ips)
 
     if 'with-gauss' in args.script:
-        n_targets = int(r.gauss(n_targets, 2))
+        n_targets = int(gauss(n_targets, 2))
 
     for i in range(n_targets):
-        host_ip = r.choice(ips)
+        host_ip = choice(ips)
         index = '{{0:0>{}}}'.format(len(str(n_targets)))
         name = 'Target_{}'.format(index.format(i + 1))
 
