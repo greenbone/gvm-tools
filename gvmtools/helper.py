@@ -131,14 +131,14 @@ def generate_random_ips(count: int):
     ]
 
 
-def generate_random_id(
+def generate_id(
     size: int = 12, chars: str = string.ascii_uppercase + string.digits
 ):
     """Generate a random ID"""
     return ''.join(choice(chars) for _ in range(size))
 
 
-def generate_random_uuid():
+def generate_uuid():
     """Generate a random new uuid"""
     return str(uuid.uuid4())
 

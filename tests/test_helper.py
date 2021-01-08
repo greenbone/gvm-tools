@@ -31,9 +31,9 @@ from gvmtools.helper import (
     do_not_run_as_root,
     authenticate,
     run_script,
-    generate_random_id,
+    generate_id,
     generate_random_ips,
-    generate_random_uuid,
+    generate_uuid,
     create_xml_tree,
     error_and_exit,
     yes_or_no,
@@ -56,18 +56,18 @@ class TableTestCase(unittest.TestCase):
             heading=self.heading, rows=self.rows, divider=self.divider
         )
 
-    def test_generate_random_uuid(self):
-        random_uuid = generate_random_uuid()
+    def test_generate_uuid(self):
+        random_uuid = generate_uuid()
         try:
             uuid.UUID(random_uuid, version=4)
         except (ValueError, TypeError, AttributeError):
             self.fail("No valid UUID.")
 
-    def test_generate_random_id(self):
-        random_id = generate_random_id(size=1, chars="a")
+    def test_generate_id(self):
+        random_id = generate_id(size=1, chars="a")
         self.assertEqual(random_id, 'a')
 
-        random_id = generate_random_id(size=10)
+        random_id = generate_id(size=10)
         self.assertEqual(len(random_id), 10)
         self.assertTrue(random_id.isalnum())
 

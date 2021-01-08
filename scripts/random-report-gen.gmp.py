@@ -29,8 +29,8 @@ from pathlib import Path
 from lxml import etree as e
 
 from gvmtools.helper import (
-    generate_random_uuid,
-    generate_random_id,
+    generate_uuid,
+    generate_id,
     generate_random_ips,
 )
 
@@ -65,7 +65,7 @@ def generate_ports(n_ports):
 
 def generate_report_elem(task, **kwargs):
     rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
-    rep_id = generate_random_uuid()
+    rep_id = generate_uuid()
     outer_report_elem = e.Element(
         'report',
         attrib={
@@ -103,8 +103,8 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
     hosts = generate_random_ips(n_hosts)  # Host IPs
     ports = generate_ports(n_hosts)
     oid_dict = {host: [] for host in hosts}
-    asset_dict = {host: generate_random_uuid() for host in hosts}
-    host_names = {host: generate_random_id() for host in hosts}
+    asset_dict = {host: generate_uuid() for host in hosts}
+    host_names = {host: generate_id() for host in hosts}
     max_sev = 0.0
 
     # Create <result> tags with random data
@@ -150,11 +150,11 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
 
 
 def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
-    result_elem = e.Element('result', {'id': generate_random_uuid()})
+    result_elem = e.Element('result', {'id': generate_uuid()})
 
-    e.SubElement(result_elem, 'name').text = "a_result" + generate_random_id()
+    e.SubElement(result_elem, 'name').text = "a_result" + generate_id()
     own = e.SubElement(result_elem, 'owner')
-    e.SubElement(own, 'name').text = generate_random_id()
+    e.SubElement(own, 'name').text = generate_id()
 
     elem = e.Element('modification_time')
     e.SubElement(result_elem, 'modification_time').text = (
