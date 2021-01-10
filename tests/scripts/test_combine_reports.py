@@ -156,8 +156,24 @@ class CombineReportsTestCase(unittest.TestCase):
             '</results></report></report>'
         )
 
-        self.combine_reports.send_report(
+        report_id = '0e4d8fb2-47fa-494e-a242-d5327d3772f9'
+
+        mock_gmp.mock_response(
+            'import_report',
+            '<create_report_response status="201" status_text="OK, '
+            f'resource created" id="{report_id}"/>',
+        )
+
+        mock_gmp.mock_response(
+            'create_container_task',
+            '<create_task_response status="201" status_text="OK, '
+            'resource created" id="6488ef71-e2d5-491f-95bd-ed9f915fa179"/>',
+        )
+
+        created_report_id = self.combine_reports.send_report(
             gmp=mock_gmp.gmp_protocol,
             args=args,
             combined_report=combined_report,
         )
+
+        self.assertEqual(report_id, created_report_id)
