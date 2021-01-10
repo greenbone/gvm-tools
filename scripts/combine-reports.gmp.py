@@ -84,17 +84,22 @@ def send_report(gmp, args, combined_report):
     if 'first_task' in args.script:
         main_report = gmp.get_report(args.script[1])[0]
         task_id = main_report.xpath('//task/@id')[0]
-        task_name = ''
     else:
         the_time = time.strftime("%Y/%m/%d-%H:%M:%S")
         task_id = ''
         task_name = "Combined_Report_{}".format(the_time)
 
+        res = gmp.create_container_task(
+            name=task_name, comment="Created with gvm-tools."
+        )
+
+        task_id = res.xpath('//@id')[0]
+
     combined_report = e.tostring(combined_report)
 
-    res = gmp.import_report(
-        combined_report, task_id=task_id, task_name=task_name
-    )
+    res = gmp.import_report(combined_report, task_id=task_id)
+
+    return res.xpath('//@id')[0]
 
 
 def main(gmp, args):
