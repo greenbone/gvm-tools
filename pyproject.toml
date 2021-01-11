@@ -43,7 +43,7 @@ python-gvm = ">=1.4,<22.0"
 [tool.poetry.dev-dependencies]
 autohooks = "^2.2.0"
 autohooks-plugin-pylint = "^1.2.0"
-sphinx = "^3.4.2"
+sphinx = "^3.4.3"
 pylint = "^2.5.3"
 coverage = "^5.3"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
