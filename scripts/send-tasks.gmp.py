@@ -22,32 +22,13 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from gvmtools.helper import create_xml_tree, error_and_exit, yes_or_no
 
 HELP_TEXT = """
-        This script makes an E-Mail alert scan.
-
+        This script pulls tasks data from an xml document and feeds it to \
+            a desired GSM
         Usage examples: 
             $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
             ... send-task.gmp.py +h
             ... send-task.gmp.py ++x xml_file
     """
-
-
-def check_args(args):
-    len_args = len(args.script) - 1
-    if len_args != 1:
-        message = """
-        This script pulls tasks data from an xml document and feeds it to \
-    a desired GSM
-        One parameter after the script name is required.
-
-        1. <xml_doc>  -- .xml file containing tasks
-
-        Example:
-            $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/send-tasks.gmp.py example_file.xml
-        """
-
-        print(message)
-        sys.exit()
 
 
 def numerical_option(statement, list_range):
