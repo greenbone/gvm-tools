@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020 Greenbone Networks GmbH
+# Copyright (C) 2020-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -78,7 +78,7 @@ class SendTargetTestCase(unittest.TestCase):
         )
         mock_gmp.mock_response(
             'create_target',
-            '<create_target_response status="201" status_text="OK,'
+            '<create_target_response status="201" status_text="OK, '
             'resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>',
         )
 

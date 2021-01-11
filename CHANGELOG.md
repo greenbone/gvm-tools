@@ -23,6 +23,7 @@ $ cd gvm-tools && git log
 * Added tests for `script/send-tasks.gmp.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
 * Adding useful script helper functions to the `helper.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
 * CI tests Python 3.9 now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
+* Added tests for `script/combine-reports.gmp.py` [#366](https://github.com/greenbone/gvm-tools/pull/366)
 
 ### Changed
 * Moved generic functions to generate random ids and ips from scripts to the `helper` module. [#365](https://github.com/greenbone/gvm-tools/pull/365)
@@ -34,6 +35,8 @@ $ cd gvm-tools && git log
 ### Fixed
 * Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
 * Fixed the `pdf-report.gmp.py` script when an empty report is downloaded [#328](https://github.com/greenbone/gvm-tools/pull/328)
+* Fixed the `combine-reports.gmp.py` script, the `import_report()` command changed since v9.0. [#366](https://github.com/greenbone/gvm-tools/pull/366)
+
 
 [Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...HEAD
 
