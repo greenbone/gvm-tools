@@ -108,7 +108,7 @@ def main(gmp, args):
     check_args(args)
 
     combined_report = combine_reports(gmp, args)
-    send_repot(gmp, args, combined_report)
+    send_report(gmp, args, combined_report)
 
 
 if __name__ == '__gmp__':
