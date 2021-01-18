@@ -16,43 +16,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
+from typing import List
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 
-def check_args(args):
-    len_args = len(args.script) - 1
-    message = """
-        This script makes an alert scan.
-        It needs two parameters after the script name.
+HELP_TEXT = """
+        This script makes an E-Mail alert scan.
 
-        1. <sender_email>     -- E-Mail of the sender
-        2. <receiver_email>   -- E-Mail of the receiver
-        
-        Example:
-            $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/start-alert-scan.gmp.py <sender_email> <receiver_email>
+        Usage examples: 
+            $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
+            ... start-alert-scan.gmp.py +h
+            ... start-alert-scan.gmp.py ++target-name ++hosts ++ports \
+                    ++port-list-name +C +R +S
+            ... start-alert-scan.gmp.py ++target-name ++hosts ++port-list-id \
+                    +C ++recipient ++sender
+            ... start-alert-scan.gmp.py ++target-id +C ++recipient ++sender
     """
-    if len_args != 2:
-        print(message)
-        sys.exit()
 
 
-# returns a list containing all port_list names
-def get_port_list_names(gmp):
-    res = gmp.get_port_lists()
-    port_names_list = [""]
-    for name in res.findall("port_list/name"):
-        port_names_list.append(str(name.text))
-    return port_names_list
-
-
-def get_config(gmp, debug=False):
+def get_config(gmp, config, debug=False):
     # get all configs of the openvas instance
-    res = gmp.get_configs()
+    # filter for all rows!
+    res = gmp.get_configs(filter="rows=-1")
 
-    # configurable template
-    template = "fast"
-
+    if config < 0 or config > 4:
+        raise ValueError("Wrong config identifier. Choose between [0,4].")
     # match the config abbreviation to accepted config names
     config_list = [
         'Full and fast',
@@ -62,92 +50,104 @@ def get_config(gmp, debug=False):
         'System Discovery',
     ]
     template_abbreviation_mapper = {
-        "fast": config_list[0],
-        "fast-ulti": config_list[1],
-        "deep": config_list[2],
-        "deep-ulti": config_list[3],
-        "discovery": config_list[4],
+        0: config_list[0],
+        1: config_list[1],
+        2: config_list[2],
+        3: config_list[3],
+        4: config_list[4],
     }
 
-    config_id = "-"
     for conf in res.xpath('config'):
         cid = conf.xpath('@id')[0]
         name = conf.xpath('name/text()')[0]
 
         # get the config id of the desired template
-        if template_abbreviation_mapper.get(template, "-") == name:
+        if template_abbreviation_mapper.get(config) == name:
             config_id = cid
             if debug:
                 print(name + ": " + config_id)
             break
 
-    # check for existence of the desired config
-    if config_id == "-":
-        print(
-            "error: could not recognize template '%s'"
-            "\nvalid template names are: %s\n" % (template, config_list)
-        )
-        exit()
-
     return config_id
 
 
-def get_target(gmp, debug=False):
-    # find a targetName
-    targets = gmp.get_targets()
+def get_target(
+    gmp,
+    target_name: str = None,
+    hosts: List[str] = None,
+    ports: str = None,
+    port_list_name: str = None,
+    port_list_id: str = None,
+    debug: bool = True,
+):
+    if target_name is None:
+        target_name = "target"
+    targets = gmp.get_targets(filter=target_name)
+    existing_targets = [""]
+    for target in targets.findall("target"):
+        existing_targets.append(str(target.find('name').text))
     counter = 0
-    exists = True
     # iterate over existing targets and find a vacant targetName
-    while exists:
-        exists = False
-        target_name = "targetName" + str(counter)
-        for target in targets.xpath('target'):
-            name = target.xpath('name/text()')[0]
-            if name == target_name:
-                exists = True
+    if target_name in existing_targets:
+        while True:
+            tmp_name = "{} ({})".format(target_name, str(counter))
+            if tmp_name in existing_targets:
+                counter += 1
+            else:
+                target_name = tmp_name
                 break
-        counter += 1
 
     if debug:
-        print("target name: " + target_name)
+        print("target name: {}".format(target_name))
 
-    # iterate over existing port lists and find a vacant name
-    new_port_list_name = "portlistName"
-    counter = 0
-    while True:
-        portlist_name = str(new_port_list_name + str(counter))
-        if portlist_name not in get_port_list_names(gmp):
-            break
-        counter += 1
+    if not port_list_id:
+        existing_port_lists = [""]
+        port_lists_tree = gmp.get_port_lists()
+        for plist in port_lists_tree.findall("port_list"):
+            existing_port_lists.append(str(plist.find('name').text))
 
-    # configurable port string
-    port_string = "T:80-80"
-    # create port list
-    portlist = gmp.create_port_list(portlist_name, port_string)
-    portlist_id = portlist.xpath('@id')[0]
-    if debug:
-        print("Portlist-name:\t" + str(portlist_name))
-        print("Portlist-id:\t" + str(portlist_id))
+        print(existing_port_lists)
 
-    # configurable hosts
-    hosts = ["localhost"]
+        if port_list_name is None:
+            port_list_name = "portlist"
+
+        if port_list_name in existing_port_lists:
+            counter = 0
+            while True:
+                tmp_name = "{} ({})".format(port_list_name, str(counter))
+                if tmp_name in existing_port_lists:
+                    counter += 1
+                else:
+                    port_list_name = tmp_name
+                    break
+
+        port_list = gmp.create_port_list(port_list_name, ports)
+        # create port list
+        port_list_id = port_list.xpath('@id')[0]
+        if debug:
+            print("New Portlist-name:\t{}".format(str(port_list_name)))
+            print("New Portlist-id:\t{}".format(str(port_list_id)))
 
     # integrate port list id into create_target
-    res = gmp.create_target(target_name, hosts=hosts, port_list_id=portlist_id)
+    res = gmp.create_target(target_name, hosts=hosts, port_list_id=port_list_id)
+    print("New target '{}' created.".format(target_name))
     return res.xpath('@id')[0]
 
 
-def get_alert(gmp, sender_email, recipient_email, debug=False):
-    # configurable alert name
-    alert_name = recipient_email
+def get_alert(
+    gmp,
+    sender_email: str,
+    recipient_email: str,
+    alert_name: str = None,
+    debug=False,
+):
 
     # create alert if necessary
-    alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
-    alert_id = None
+    alert_object = gmp.get_alerts(filter='name={}'.format(alert_name))
     alert = alert_object.xpath('alert')
 
     if len(alert) == 0:
-        print("creating alert")
+        print("creating new alert {}".format(alert_name))
         gmp.create_alert(
             alert_name,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
@@ -178,13 +178,12 @@ should not have received it.
             },
         )
 
-        alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
+        alert_object = gmp.get_alerts(filter='name={}'.format(recipient_email))
         alert = alert_object.xpath('alert')
-        alert_id = alert[0].get('id', 'no id found')
-    else:
-        alert_id = alert[0].get('id', 'no id found')
-        if debug:
-            print("alert_id: " + str(alert_id))
+
+    alert_id = alert[0].get('id', 'no id found')
+    if debug:
+        print("alert_id: {}".format(str(alert_id)))
 
     return alert_id
 
@@ -192,16 +191,29 @@ should not have received it.
 def get_scanner(gmp):
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
-    return scanner_ids[1]  # default scanner
+    return scanner_ids[1]  # "default scanner"
 
 
 def create_and_start_task(
-    gmp, config_id, target_id, scanner_id, alert_id, debug=False
+    gmp,
+    config_id: str,
+    target_id: str,
+    scanner_id: str,
+    alert_id: str,
+    alert_name: str,
+    debug: bool = False,
 ):
     # Create the task
-    tasks = gmp.get_tasks(filter="name~ScanDoneAlert")
-    task_name = "ScanDoneAlert{0}".format(len(tasks.xpath('tasks/@id')))
-    task_comment = "Scan Done Alert"
+    task_name = "Alert Scan for Alert {}".format(alert_name)
+    tasks = gmp.get_tasks(filter='name="{}"'.format(task_name))
+    task_objects = tasks.findall('task')
+    print(task_objects)
+    if task_objects:
+        task_name = "Alert Scan for Alert {} ({})".format(
+            alert_name, len(task_objects)
+        )
+
+    task_comment = "Alert Scan"
     res = gmp.create_task(
         task_name,
         config_id,
@@ -215,28 +227,177 @@ def create_and_start_task(
     task_id = res.xpath('@id')[0]
     gmp.start_task(task_id)
 
-    print('Task started: ' + task_name)
-
     if debug:
         # Stop the task (for performance reasons)
         gmp.stop_task(task_id)
         print('Task stopped')
 
+    return task_name
+
+
+def parse_args(args):  # pylint: disable=unused-argument
+    parser = ArgumentParser(
+        prefix_chars="+",
+        add_help=False,
+        formatter_class=RawTextHelpFormatter,
+        description=HELP_TEXT,
+    )
+
+    parser.add_argument(
+        "+h",
+        "++help",
+        action="help",
+        help="Show this help message and exit.",
+    )
+
+    target = parser.add_mutually_exclusive_group(required=True)
+
+    target.add_argument(
+        "++target-id",
+        type=str,
+        dest="target_id",
+        help="Use an existing target by target id",
+    )
+
+    target.add_argument(
+        "++target-name",
+        type=str,
+        dest="target_name",
+        help="Create a target by name",
+    )
+
+    parser.add_argument(
+        "++hosts",
+        nargs='+',
+        dest='hosts',
+        help="Host(s) for the new target",
+    )
+
+    ports = parser.add_mutually_exclusive_group()
+
+    ports.add_argument(
+        "++port-list-id",
+        type=str,
+        dest="port_list_id",
+        help="An existing portlist id for the new target",
+    )
+    ports.add_argument(
+        "++ports",
+        type=str,
+        dest='ports',
+        help="Ports in the new target: e.g. T:80-80,8080",
+    )
+
+    parser.add_argument(
+        "++port-list-name",
+        type=str,
+        dest="port_list_name",
+        help="Name for the new portlist in the new target",
+    )
+
+    config = parser.add_mutually_exclusive_group()
+
+    config.add_argument(
+        "+C",
+        "++scan-config",
+        default=0,
+        type=int,
+        dest='config',
+        help="Choose from existing scan config:"
+        "\n  0: Full and fast"
+        "\n  1: Full and fast ultimate"
+        "\n  2: Full and very deep"
+        "\n  3: Full and very deep ultimate"
+        "\n  4: System Discovery",
+    )
+
+    config.add_argument(
+        "++scan-config-id",
+        type=str,
+        dest='scan_config_id',
+        help="Use existing scan config by id",
+    )
+
+    parser.add_argument(
+        "++scanner-id",
+        type=str,
+        dest='scanner_id',
+        help="Use existing scanner by id",
+    )
+
+    parser.add_argument(
+        "+R",
+        "++recipient",
+        required=True,
+        dest='recipient_email',
+        type=str,
+        help="Alert recipient E-Mail address",
+    )
+
+    parser.add_argument(
+        "+S",
+        "++sender",
+        required=True,
+        dest='sender_email',
+        type=str,
+        help="Alert senders E-Mail address",
+    )
+
+    parser.add_argument(
+        "++alert-name",
+        dest='alert_name',
+        type=str,
+        help="Optional Alert name",
+    )
+
+    script_args, _ = parser.parse_known_args()
+    return script_args
+
 
 def main(gmp, args):
-    # pylint: disable=undefined-variable
+    # pylint: disable=undefined-variable, unused-argument
 
-    check_args(args)
+    script_args = parse_args(args)
 
-    sender_email = args.script[1]
-    recipient_email = args.script[2]
+    # set alert_name to recipient email if no other name
+    # is given
+    if script_args.alert_name is None:
+        script_args.alert_name = script_args.recipient_email
 
-    config_id = get_config(gmp)
-    target_id = get_target(gmp)
-    alert_id = get_alert(gmp, sender_email, recipient_email)
-    scanner_id = get_scanner(gmp)
+    # use existing config from argument
+    if not script_args.scan_config_id:
+        config_id = get_config(gmp, script_args.config)
+    else:
+        config_id = script_args.scan_config_id
 
-    create_and_start_task(gmp, config_id, target_id, scanner_id, alert_id)
+    # create new target or use existing one from id
+    if not script_args.target_id:
+        target_id = get_target(
+            gmp,
+            target_name=script_args.target_name,
+            hosts=script_args.hosts,
+            ports=script_args.ports,
+            port_list_name=script_args.port_list_name,
+            port_list_id=script_args.port_list_id,
+        )
+    else:
+        target_id = script_args.target_id
+    alert_id = get_alert(
+        gmp,
+        script_args.sender_email,
+        script_args.recipient_email,
+        script_args.alert_name,
+    )
+    if not script_args.scanner_id:
+        scanner_id = get_scanner(gmp)
+    else:
+        scanner_id = script_args.scanner_id
+
+    create_and_start_task(
+        gmp, config_id, target_id, scanner_id, alert_id, script_args.alert_name
+    )
+
+    print('Task started: ' + task_name)
 
     print("\nScript finished\n")
 
