@@ -43,7 +43,7 @@ def check_args(args):
         sys.exit()
 
 
-def get_reports_xml(gmp, args, from_date, to_date):
+def get_reports_xml(gmp, from_date, to_date):
     report_filter = "rows=-1 and created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
     )
