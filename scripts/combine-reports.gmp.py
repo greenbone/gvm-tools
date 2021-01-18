@@ -63,6 +63,7 @@ def combine_reports(gmp, args):
         },
     )
     report_elem = e.Element('report', {'id': new_uuid})
+    ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
     combined_report.append(report_elem)
     report_elem.append(results_elem)
@@ -72,10 +73,15 @@ def combine_reports(gmp, args):
     else:
         arg_len = args.script[1:]
 
+    hosts = []
     for argument in arg_len:
         current_report = gmp.get_report(argument, details=True)[0]
+        for port in current_report.xpath('report/ports/port'):
+            ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
+        for host in current_report.xpath('report/host'):
+            report_elem.append(host)
 
     return combined_report
 
