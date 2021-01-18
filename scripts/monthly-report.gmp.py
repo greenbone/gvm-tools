@@ -43,61 +43,24 @@ def check_args(args):
         sys.exit()
 
 
-def print_reports(gmp, args, from_date, to_date):
+def get_reports_xml(gmp, args, from_date, to_date):
     report_filter = "rows=-1 and created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
     )
 
-    reports_xml = gmp.get_reports(filter=report_filter)
-    report_list = reports_xml.xpath('report')
+    return gmp.get_reports(filter=report_filter)
 
+
+def print_result_sums(reports_xml, from_date, to_date):
     sum_high = reports_xml.xpath(
-        'sum(report/report/result_count/hole/full/' 'text())'
+        'sum(report/report/result_count/hole/full/text())'
     )
     sum_medium = reports_xml.xpath(
-        'sum(report/report/result_count/warning/' 'full/text())'
+        'sum(report/report/result_count/warning/full/text())'
     )
     sum_low = reports_xml.xpath(
-        'sum(report/report/result_count/info/full/' 'text())'
+        'sum(report/report/result_count/info/full/text())'
     )
-
-    print('Found {0} reports'.format(len(report_list)))
-
-    if 'with-tables' in args.script:
-        for report in report_list:
-            report_id = report.xpath('report/@id')[0]
-            name = report.xpath('name/text()')[0]
-
-            res = gmp.get_report(report_id)
-
-            print('\nReport: {0}'.format(report_id))
-
-            table_data = [
-                ['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']
-            ]
-
-            for host in res.xpath('report/report/host'):
-                hostname = host.xpath(
-                    'detail/name[text()="hostname"]/../' 'value/text()'
-                )
-                if len(hostname) > 0:
-                    hostname = str(hostname[0])
-                else:
-                    hostname = ""
-
-                ip = host.xpath('ip/text()')[0]
-                high = host.xpath('result_count/hole/page/text()')[0]
-                medium = host.xpath('result_count/warning/page/text()')[0]
-                low = host.xpath('result_count/info/page/text()')[0]
-
-                table_data.append([hostname, ip, name, high, medium, low])
-                host.clear()
-                del host
-
-            table = AsciiTable(table_data)
-            print(table.table + '\n')
-            res.clear()
-            del res
 
     print(
         'Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}\nLow: '
@@ -109,6 +72,50 @@ def print_reports(gmp, args, from_date, to_date):
             to_date.isoformat(),
         )
     )
+
+
+def print_result_tables(gmp, reports_xml):
+
+    report_list = reports_xml.xpath('report')
+
+    for report in report_list:
+        report_id = report.xpath('report/@id')[0]
+        name = report.xpath('name/text()')[0]
+
+        res = gmp.get_report(report_id)
+
+        print('\nReport: {0}'.format(report_id))
+
+        table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
+
+        for host in res.xpath('report/report/host'):
+            hostname = host.xpath(
+                'detail/name[text()="hostname"]/../' 'value/text()'
+            )
+            if len(hostname) > 0:
+                hostname = str(hostname[0])
+            else:
+                hostname = ""
+
+            ip = host.xpath('ip/text()')[0]
+            high = host.xpath('result_count/hole/page/text()')[0]
+            medium = host.xpath('result_count/warning/page/text()')[0]
+            low = host.xpath('result_count/info/page/text()')[0]
+
+            table_data.append([hostname, ip, name, high, medium, low])
+            host.clear()
+            del host
+
+        table = AsciiTable(table_data)
+        print(table.table + '\n')
+        res.clear()
+
+
+def get_report_list(gmp, args, from_date, to_date):
+    report_list = reports_xml.findall('report')
+
+    print('Found {0} reports'.format(len(report_list)))
+    return report_list
 
 
 def main(gmp, args):
@@ -123,7 +130,11 @@ def main(gmp, args):
     # To have the first day in month
     to_date = to_date.replace(day=1)
 
-    print_reports(gmp, args, from_date, to_date)
+    reports_xml = get_reports_xml(gmp, args, from_date, to_date)
+
+    print_result_sums(reports_xml, from_date, to_date)
+    if "with-tables" in args.script:
+        print_result_tables(gmp, reports_xml)
 
 
 if __name__ == '__gmp__':
