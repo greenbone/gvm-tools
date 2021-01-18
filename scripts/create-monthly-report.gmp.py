@@ -16,24 +16,41 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
 from datetime import date, timedelta
-
 from argparse import ArgumentParser, RawTextHelpFormatter
+
+from gvmtools.helper import generate_uuid
+
+from lxml import etree as e
 
 HELP_TEXT = ""
 
 
 def get_last_reports_from_tasks(gmp, from_date, to_date):
+    """ Get the last reports from the tasks in the time period """
     task_filter = "rows=-1 and created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
     )
 
     tasks_xml = gmp.get_tasks(filter=task_filter)
+    reports = []
     for report in tasks_xml.xpath('task/last_report/report/@id'):
-        print(report)
+        reports.append(str(report))
+
+    print(reports)
+    return reports
 
 
-def combine_reports(gmp, args):
+def create_filter(gmp, filter_term, date):
+    filter_name = "Filter for Monthly Report ({})".format(date)
+
+    res = gmp.create_filter(term=filter_term, name=filter_name)
+    return res.xpath('//@id')[0]
+
+
+def combine_reports(gmp, reports: List, filter_term: str):
+    print("combine ...")
     new_uuid = generate_uuid()
     combined_report = e.Element(
         'report',
@@ -45,19 +62,20 @@ def combine_reports(gmp, args):
         },
     )
     report_elem = e.Element('report', {'id': new_uuid})
+    # filter_elem = e.Element('filter', {'id': filter_id})
+
+    # report_elem.append(filter_elem)
+    print("Meh")
     ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
     combined_report.append(report_elem)
     report_elem.append(results_elem)
 
-    if 'first_task' in args.script:
-        arg_len = args.script[1:-1]
-    else:
-        arg_len = args.script[1:]
-
     hosts = []
-    for argument in arg_len:
-        current_report = gmp.get_report(argument, details=True)[0]
+    for report in reports:
+        current_report = gmp.get_report(
+            report, filter=filter_term, details=True
+        )[0]
         for port in current_report.xpath('report/ports/port'):
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
@@ -66,6 +84,22 @@ def combine_reports(gmp, args):
             report_elem.append(host)
 
     return combined_report
+
+
+def send_report(gmp, combined_report, date):
+    task_name = "Monthly Report ({})".format(date)
+
+    res = gmp.create_container_task(
+        name=task_name, comment="Created with gvm-tools."
+    )
+
+    task_id = res.xpath('//@id')[0]
+
+    combined_report = e.tostring(combined_report)
+
+    res = gmp.import_report(combined_report, task_id=task_id)
+
+    return res.xpath('//@id')[0]
 
 
 def parse_args(args):  # pylint: disable=unused-argument
@@ -101,6 +135,15 @@ def parse_args(args):  # pylint: disable=unused-argument
         help="Filter the reports by given tag(s).",
     )
 
+    parser.add_argument(
+        "+f",
+        "++filter",
+        nargs='+',
+        type=str,
+        dest="filter",
+        help="Filter the reports by given filter(s).",
+    )
+
     script_args, _ = parser.parse_known_args()
     return script_args
 
@@ -119,7 +162,18 @@ def main(gmp, args):
     print(from_date)
     print(to_date)
 
-    get_last_reports_from_tasks(gmp, from_date, to_date)
+    filter_term = ""
+    if parsed_args.filter:
+        filter_term = ' '.join(parsed_args.filter)
+        # print(filter_term)
+        # filter_id = create_filter(gmp, filter_term, parsed_args.date)
+        # print(filter_id)
+
+    reports = get_last_reports_from_tasks(gmp, from_date, to_date)
+
+    combined_report = combine_reports(gmp, reports, filter_term)
+
+    send_report(gmp, combined_report, parsed_args.date)
 
 
 if __name__ == '__gmp__':
