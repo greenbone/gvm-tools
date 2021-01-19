@@ -18,16 +18,17 @@
 
 from uuid import UUID
 from typing import List
-from datetime import date, timedelta
+from datetime import date
 from argparse import ArgumentParser, RawTextHelpFormatter
+from lxml import etree as e
+from gvm.xml import pretty_print
 
 from gvmtools.helper import generate_uuid, error_and_exit
 
-from lxml import etree as e
-
-from gvm.xml import pretty_print
-
-HELP_TEXT = 'This script creates a consolidated report and imports it to the GSM. Usable with gvm-script (gvm-tools)'
+HELP_TEXT = (
+    'This script creates a consolidated report and imports it to the GSM.'
+    ' Usable with gvm-script (gvm-tools)'
+)
 
 
 def get_last_reports_from_tasks(gmp, period_start, period_end, tags: List):
@@ -93,7 +94,6 @@ def combine_reports(gmp, reports: List, filter_term: str):
     combined_report.append(report_elem)
     report_elem.append(results_elem)
 
-    hosts = []
     for report in reports:
         current_report = gmp.get_report(
             report, filter=filter_term, details=True
@@ -217,7 +217,10 @@ def parse_args(args):  # pylint: disable=unused-argument
         type=str,
         required=True,
         dest='period',
-        help='Choose a time period that is filtering the tasks. Use the date format YYYY/MM/DD.',
+        help=(
+            'Choose a time period that is filtering the tasks.\n'
+            'Use the date format YYYY/MM/DD.'
+        ),
     )
 
     parser.add_argument(
