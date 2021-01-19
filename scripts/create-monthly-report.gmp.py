@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from uuid import UUID
 from typing import List
 from datetime import date, timedelta
 from argparse import ArgumentParser, RawTextHelpFormatter
@@ -26,15 +27,27 @@ from lxml import etree as e
 
 from gvm.xml import pretty_print
 
-HELP_TEXT = ""
+HELP_TEXT = ''
 
 
-def get_last_reports_from_tasks(gmp, from_date, to_date):
+def get_last_reports_from_tasks(gmp, from_date, to_date, tags: List):
     """ Get the last reports from the tasks in the given time period """
 
-    task_filter = "rows=-1 and created>{0} and created<{1}".format(
+    task_filter = 'rows=-1 '
+    period_filter = 'created>{0} and created<{1}'.format(
         from_date.isoformat(), to_date.isoformat()
     )
+    filter_parts = []
+    if tags:
+        for tag in tags:
+            filter_parts.append('{} and {}'.format(period_filter, tag))
+
+        tags_filter = ' or '.join(filter_parts)
+        task_filter += tags_filter
+    else:
+        task_filter += period_filter
+
+    print('Filtering the task with the filter term [{}]'.format(task_filter))
 
     tasks_xml = gmp.get_tasks(filter=task_filter)
     reports = []
@@ -46,7 +59,7 @@ def get_last_reports_from_tasks(gmp, from_date, to_date):
 
 
 def create_filter(gmp, filter_term, date):
-    filter_name = "Filter for Monthly Report ({})".format(date)
+    filter_name = 'Filter for Monthly Report ({})'.format(date)
 
     res = gmp.create_filter(term=filter_term, name=filter_name)
     return res.xpath('//@id')[0]
@@ -90,10 +103,10 @@ def combine_reports(gmp, reports: List, filter_term: str):
 def send_report(gmp, combined_report, period_start, period_end):
     """ Creating a container task and sending the combined report to the GSM """
 
-    task_name = "Consolidated Report [{} - {}]".format(period_start, period_end)
+    task_name = 'Consolidated Report [{} - {}]'.format(period_start, period_end)
 
     res = gmp.create_container_task(
-        name=task_name, comment="Created with gvm-tools."
+        name=task_name, comment='Created with gvm-tools.'
     )
 
     task_id = res.xpath('//@id')[0]
@@ -105,13 +118,25 @@ def send_report(gmp, combined_report, period_start, period_end):
     return res.xpath('//@id')[0]
 
 
+def parse_tags(tags: List):
+    filter_tags = []
+    for tag in tags:
+        try:
+            UUID(tag, version=4)
+            filter_tags.append('tag_id="{}"'.format(tag))
+        except ValueError:
+            filter_tags.append('tag="{}"'.format(tag))
+
+    return filter_tags
+
+
 def parse_period(period: List):
     """ Parsing and validating the given time period """
     try:
         s_year, s_month, s_day = map(int, period[0].split('/'))
     except ValueError as e:
         error_and_exit(
-            "Start date [{}] is not a correct date format:\n{}".format(
+            'Start date [{}] is not a correct date format:\n{}'.format(
                 period[0], e.args[0]
             )
         )
@@ -119,7 +144,7 @@ def parse_period(period: List):
         e_year, e_month, e_day = map(int, period[1].split('/'))
     except ValueError as e:
         error_and_exit(
-            "End date [{}] is not a correct date format:\n{}".format(
+            'End date [{}] is not a correct date format:\n{}'.format(
                 period[1], e.args[0]
             )
         )
@@ -127,60 +152,65 @@ def parse_period(period: List):
     try:
         period_start = date(s_year, s_month, s_day)
     except ValueError as e:
-        error_and_exit("Start date: {}".format(e.args[0]))
+        error_and_exit('Start date: {}'.format(e.args[0]))
 
     try:
         period_end = date(e_year, e_month, e_day)
     except ValueError as e:
-        error_and_exit("End date: {}".format(e.args[0]))
+        error_and_exit('End date: {}'.format(e.args[0]))
 
     if period_end < period_start:
-        error_and_exit("The start date seems to after the end date.")
+        error_and_exit('The start date seems to after the end date.')
 
     return period_start, period_end
 
 
 def parse_args(args):  # pylint: disable=unused-argument
     parser = ArgumentParser(
-        prefix_chars="+",
+        prefix_chars='+',
         add_help=False,
         formatter_class=RawTextHelpFormatter,
         description=HELP_TEXT,
     )
 
     parser.add_argument(
-        "+h",
-        "++help",
-        action="help",
-        help="Show this help message and exit.",
+        '+h',
+        '++help',
+        action='help',
+        help='Show this help message and exit.',
     )
 
     parser.add_argument(
-        "+p",
-        "++period",
+        '+p',
+        '++period',
         nargs=2,
         type=str,
         required=True,
-        dest="period",
-        help="Choose a time period that is filtering the tasks. Use the date format YYYY/MM/DD.",
+        dest='period',
+        help='Choose a time period that is filtering the tasks. Use the date format YYYY/MM/DD.',
     )
 
     parser.add_argument(
-        "+t",
-        "++tags",
+        '+t',
+        '++tags',
         nargs='+',
         type=str,
-        dest="tags",
-        help="Filter the tasks by given tag(s).",
+        dest='tags',
+        help=(
+            'Filter the tasks by given tag(s).\n'
+            'If you pass more than on tag, they will be concatenated with '
+            or '\n'
+            'You can pass tag names, tag ids or tag name=value to this argument'
+        ),
     )
 
     parser.add_argument(
-        "+f",
-        "++filter",
+        '+f',
+        '++filter',
         nargs='+',
         type=str,
-        dest="filter",
-        help="Filter the results by given filter(s).",
+        dest='filter',
+        help='Filter the results by given filter(s).',
     )
 
     script_args, _ = parser.parse_known_args()
@@ -195,23 +225,29 @@ def main(gmp, args):
     period_start, period_end = parse_period(parsed_args.period)
 
     print(
-        "Combining reports from tasks within the time period [{}, {}]".format(
+        'Combining reports from tasks within the time period [{}, {}]'.format(
             period_start, period_end
         )
     )
 
-    filter_term = ""
+    filter_term = ''
     if parsed_args.filter:
         filter_term = ' '.join(parsed_args.filter)
         print(
-            "Filtering the results by the following filter term [{}]".format(
+            'Filtering the results by the following filter term [{}]'.format(
                 filter_term
             )
         )
     else:
-        print("No result filter given.")
+        print('No result filter given.')
 
-    reports = get_last_reports_from_tasks(gmp, period_start, period_end)
+    filter_tags = None
+    if parsed_args.tags:
+        filter_tags = parse_tags(parsed_args.tags)
+
+    reports = get_last_reports_from_tasks(
+        gmp, period_start, period_end, filter_tags
+    )
 
     combined_report = combine_reports(gmp, reports, filter_term)
 
