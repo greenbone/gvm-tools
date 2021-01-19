@@ -73,7 +73,6 @@ def combine_reports(gmp, args):
     else:
         arg_len = args.script[1:]
 
-    hosts = []
     for argument in arg_len:
         current_report = gmp.get_report(argument, details=True)[0]
         for port in current_report.xpath('report/ports/port'):
