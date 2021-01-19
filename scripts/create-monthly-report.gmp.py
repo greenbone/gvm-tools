@@ -54,7 +54,9 @@ def get_last_reports_from_tasks(gmp, from_date, to_date, tags: List):
     for report in tasks_xml.xpath('task/last_report/report/@id'):
         reports.append(str(report))
 
-    print(reports)
+    # remove duplicates ... just in case
+    reports = list(dict.fromkeys(reports))
+
     return reports
 
 
@@ -101,7 +103,13 @@ def combine_reports(gmp, reports: List, filter_term: str):
 
 
 def send_report(gmp, combined_report, period_start, period_end):
-    """ Creating a container task and sending the combined report to the GSM """
+    """Creating a container task and sending the combined report to the GSM
+
+    gmp: the GMP object
+    combined_report: the combined report xml object
+    period_start: the start date
+    period_end: the end date
+    """
 
     task_name = 'Consolidated Report [{} - {}]'.format(period_start, period_end)
 
@@ -119,6 +127,13 @@ def send_report(gmp, combined_report, period_start, period_end):
 
 
 def parse_tags(tags: List):
+    """Parsing and validating the given tags
+
+    tags (List): A list containing tags:
+                 name, tag-id, name=value
+
+    Returns a list containing tag="name", tag_id="id" ...
+    """
     filter_tags = []
     for tag in tags:
         try:
@@ -131,7 +146,13 @@ def parse_tags(tags: List):
 
 
 def parse_period(period: List):
-    """ Parsing and validating the given time period """
+    """Parsing and validating the given time period
+
+    period (List): A list with two entries containing
+                   dates in the format yyyy/mm/dd
+
+    Returns two date-objects containing the passed dates
+    """
     try:
         s_year, s_month, s_day = map(int, period[0].split('/'))
     except ValueError as e:
@@ -166,6 +187,8 @@ def parse_period(period: List):
 
 
 def parse_args(args):  # pylint: disable=unused-argument
+    """ Parsing args ... """
+
     parser = ArgumentParser(
         prefix_chars='+',
         add_help=False,
@@ -230,6 +253,16 @@ def main(gmp, args):
         )
     )
 
+    filter_tags = None
+    if parsed_args.tags:
+        filter_tags = parse_tags(parsed_args.tags)
+
+    reports = get_last_reports_from_tasks(
+        gmp, period_start, period_end, filter_tags
+    )
+
+    print("Combining {} found reports.".format(len(reports)))
+
     filter_term = ''
     if parsed_args.filter:
         filter_term = ' '.join(parsed_args.filter)
@@ -240,14 +273,6 @@ def main(gmp, args):
         )
     else:
         print('No result filter given.')
-
-    filter_tags = None
-    if parsed_args.tags:
-        filter_tags = parse_tags(parsed_args.tags)
-
-    reports = get_last_reports_from_tasks(
-        gmp, period_start, period_end, filter_tags
-    )
 
     combined_report = combine_reports(gmp, reports, filter_term)
 
