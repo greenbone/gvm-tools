@@ -31,108 +31,6 @@ HELP_TEXT = (
 )
 
 
-def get_last_reports_from_tasks(gmp, period_start, period_end, tags: List):
-    """Get the last reports from the tasks in the given time period
-
-    gmp: the GMP object
-    period_start: the start date
-    period_end: the end date
-    tags: list of tags for the filter
-
-    """
-
-    task_filter = 'rows=-1 '
-    period_filter = 'created>{0} and created<{1}'.format(
-        period_start.isoformat(), period_end.isoformat()
-    )
-    filter_parts = []
-    if tags:
-        for tag in tags:
-            filter_parts.append('{} and {}'.format(period_filter, tag))
-
-        tags_filter = ' or '.join(filter_parts)
-        task_filter += tags_filter
-    else:
-        task_filter += period_filter
-
-    print('Filtering the task with the filter term [{}]'.format(task_filter))
-
-    tasks_xml = gmp.get_tasks(filter=task_filter)
-    reports = []
-    for report in tasks_xml.xpath('task/last_report/report/@id'):
-        reports.append(str(report))
-
-    # remove duplicates ... just in case
-    reports = list(dict.fromkeys(reports))
-
-    return reports
-
-
-def combine_reports(gmp, reports: List, filter_term: str):
-    """Combining the filtered ports, results and hosts of the given
-    report ids into one new report.
-
-    gmp: the GMP object
-    reports (List): List of report_ids
-    filter_term (str): the result filter string
-    """
-
-    new_uuid = generate_uuid()
-    combined_report = e.Element(
-        'report',
-        {
-            'id': new_uuid,
-            'format_id': 'd5da9f67-8551-4e51-807b-b6a873d70e34',
-            'extension': 'xml',
-            'content_type': 'text/xml',
-        },
-    )
-    report_elem = e.Element('report', {'id': new_uuid})
-
-    ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
-    results_elem = e.Element('results', {'start': '1', 'max': '-1'})
-    combined_report.append(report_elem)
-    report_elem.append(results_elem)
-
-    for report in reports:
-        current_report = gmp.get_report(
-            report, filter=filter_term, details=True
-        )[0]
-        pretty_print(current_report.find('report').find('result_count'))
-        for port in current_report.xpath('report/ports/port'):
-            ports_elem.append(port)
-        for result in current_report.xpath('report/results/result'):
-            results_elem.append(result)
-        for host in current_report.xpath('report/host'):
-            report_elem.append(host)
-
-    return combined_report
-
-
-def send_report(gmp, combined_report, period_start, period_end):
-    """Creating a container task and sending the combined report to the GSM
-
-    gmp: the GMP object
-    combined_report: the combined report xml object
-    period_start: the start date
-    period_end: the end date
-    """
-
-    task_name = 'Consolidated Report [{} - {}]'.format(period_start, period_end)
-
-    res = gmp.create_container_task(
-        name=task_name, comment='Created with gvm-tools.'
-    )
-
-    task_id = res.xpath('//@id')[0]
-
-    combined_report = e.tostring(combined_report)
-
-    res = gmp.import_report(combined_report, task_id=task_id)
-
-    return res.xpath('//@id')[0]
-
-
 def parse_tags(tags: List):
     """Parsing and validating the given tags
 
@@ -250,6 +148,118 @@ def parse_args(args):  # pylint: disable=unused-argument
     return script_args
 
 
+def generate_task_filter(period_start, period_end, tags: List):
+    """Generate the tasks filter
+
+    period_start: the start date
+    period_end: the end date
+    tags: list of tags for the filter
+
+    Returns an task filter string
+    """
+    task_filter = 'rows=-1 '
+    period_filter = 'created>{0} and created<{1}'.format(
+        period_start.isoformat(), period_end.isoformat()
+    )
+    filter_parts = []
+    if tags:
+        for tag in tags:
+            filter_parts.append('{} and {}'.format(period_filter, tag))
+
+        tags_filter = ' or '.join(filter_parts)
+        task_filter += tags_filter
+    else:
+        task_filter += period_filter
+
+    return task_filter
+
+
+def get_last_reports_from_tasks(gmp, task_filter: str):
+    """Get the last reports from the tasks in the given time period
+
+    gmp: the GMP object
+    task_filter: task filter string
+
+    """
+
+    print('Filtering the task with the filter term [{}]'.format(task_filter))
+
+    tasks_xml = gmp.get_tasks(filter=task_filter)
+    reports = []
+    for report in tasks_xml.xpath('task/last_report/report/@id'):
+        reports.append(str(report))
+
+    # remove duplicates ... just in case
+    reports = list(dict.fromkeys(reports))
+
+    return reports
+
+
+def combine_reports(gmp, reports: List, filter_term: str):
+    """Combining the filtered ports, results and hosts of the given
+    report ids into one new report.
+
+    gmp: the GMP object
+    reports (List): List of report_ids
+    filter_term (str): the result filter string
+    """
+
+    new_uuid = generate_uuid()
+    combined_report = e.Element(
+        'report',
+        {
+            'id': new_uuid,
+            'format_id': 'd5da9f67-8551-4e51-807b-b6a873d70e34',
+            'extension': 'xml',
+            'content_type': 'text/xml',
+        },
+    )
+    report_elem = e.Element('report', {'id': new_uuid})
+
+    ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
+    results_elem = e.Element('results', {'start': '1', 'max': '-1'})
+    combined_report.append(report_elem)
+    report_elem.append(ports_elem)
+    report_elem.append(results_elem)
+
+    for report in reports:
+        current_report = gmp.get_report(
+            report, filter=filter_term, details=True
+        )[0]
+        for port in current_report.xpath('report/ports/port'):
+            ports_elem.append(port)
+        for result in current_report.xpath('report/results/result'):
+            results_elem.append(result)
+        for host in current_report.xpath('host'):
+            report_elem.append(host)
+
+    return combined_report
+
+
+def send_report(gmp, combined_report, period_start, period_end):
+    """Creating a container task and sending the combined report to the GSM
+
+    gmp: the GMP object
+    combined_report: the combined report xml object
+    period_start: the start date
+    period_end: the end date
+    """
+
+    task_name = 'Consolidated Report [{} - {}]'.format(period_start, period_end)
+
+    res = gmp.create_container_task(
+        name=task_name, comment='Created with gvm-tools.'
+    )
+
+    task_id = res.xpath('//@id')[0]
+
+    combined_report = e.tostring(combined_report)
+
+    res = gmp.import_report(combined_report, task_id=task_id)
+
+    return res.xpath('//@id')[0]
+
+
 def main(gmp, args):
     # pylint: disable=undefined-variable
 
@@ -267,12 +277,15 @@ def main(gmp, args):
     if parsed_args.tags:
         filter_tags = parse_tags(tags=parsed_args.tags)
 
-    reports = get_last_reports_from_tasks(
-        gmp=gmp,
+    # Generate Task Filter
+    task_filter = generate_task_filter(
         period_start=period_start,
         period_end=period_end,
         tags=filter_tags,
     )
+
+    # Find reports
+    reports = get_last_reports_from_tasks(gmp=gmp, task_filter=task_filter)
 
     print("Combining {} found reports.".format(len(reports)))
 
@@ -287,10 +300,12 @@ def main(gmp, args):
     else:
         print('No result filter given.')
 
+    # Combine the reports
     combined_report = combine_reports(
         gmp=gmp, reports=reports, filter_term=filter_term
     )
 
+    # Import the generated report to GSM
     send_report(
         gmp=gmp,
         combined_report=combined_report,
