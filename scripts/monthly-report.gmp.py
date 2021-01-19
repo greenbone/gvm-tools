@@ -44,6 +44,8 @@ def check_args(args):
 
 
 def get_reports_xml(gmp, from_date, to_date):
+    """ Getting the Reports in the defined time period """
+
     report_filter = "rows=-1 and created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
     )
@@ -52,6 +54,8 @@ def get_reports_xml(gmp, from_date, to_date):
 
 
 def print_result_sums(reports_xml, from_date, to_date):
+    print('Found {0} reports'.format(len(reports_xml.xpath('report'))))
+
     sum_high = reports_xml.xpath(
         'sum(report/report/result_count/hole/full/text())'
     )
@@ -75,7 +79,6 @@ def print_result_sums(reports_xml, from_date, to_date):
 
 
 def print_result_tables(gmp, reports_xml):
-
     report_list = reports_xml.xpath('report')
 
     for report in report_list:
@@ -111,13 +114,6 @@ def print_result_tables(gmp, reports_xml):
         res.clear()
 
 
-def get_report_list(gmp, args, from_date, to_date):
-    report_list = reports_xml.findall('report')
-
-    print('Found {0} reports'.format(len(report_list)))
-    return report_list
-
-
 def main(gmp, args):
     # pylint: disable=undefined-variable
 
@@ -130,7 +126,7 @@ def main(gmp, args):
     # To have the first day in month
     to_date = to_date.replace(day=1)
 
-    reports_xml = get_reports_xml(gmp, args, from_date, to_date)
+    reports_xml = get_reports_xml(gmp, from_date, to_date)
 
     print_result_sums(reports_xml, from_date, to_date)
     if "with-tables" in args.script:
