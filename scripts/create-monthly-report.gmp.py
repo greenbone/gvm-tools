@@ -60,13 +60,6 @@ def get_last_reports_from_tasks(gmp, from_date, to_date, tags: List):
     return reports
 
 
-def create_filter(gmp, filter_term, date):
-    filter_name = 'Filter for Monthly Report ({})'.format(date)
-
-    res = gmp.create_filter(term=filter_term, name=filter_name)
-    return res.xpath('//@id')[0]
-
-
 def combine_reports(gmp, reports: List, filter_term: str):
     """ Combining the filtered ports, results and hosts of the given report ids into one new report."""
     new_uuid = generate_uuid()
