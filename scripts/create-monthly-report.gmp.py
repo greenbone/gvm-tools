@@ -27,7 +27,7 @@ from lxml import etree as e
 
 from gvm.xml import pretty_print
 
-HELP_TEXT = ''
+HELP_TEXT = 'This script creates a consolidated report and imports it to the GSM. Usable with gvm-script (gvm-tools)'
 
 
 def get_last_reports_from_tasks(gmp, from_date, to_date, tags: List):
@@ -236,9 +236,9 @@ def parse_args(args):  # pylint: disable=unused-argument
 def main(gmp, args):
     # pylint: disable=undefined-variable
 
-    parsed_args = parse_args(args)
+    parsed_args = parse_args(args=args)
 
-    period_start, period_end = parse_period(parsed_args.period)
+    period_start, period_end = parse_period(period=parsed_args.period)
 
     print(
         'Combining reports from tasks within the time period [{}, {}]'.format(
@@ -248,10 +248,13 @@ def main(gmp, args):
 
     filter_tags = None
     if parsed_args.tags:
-        filter_tags = parse_tags(parsed_args.tags)
+        filter_tags = parse_tags(tags=parsed_args.tags)
 
     reports = get_last_reports_from_tasks(
-        gmp, period_start, period_end, filter_tags
+        gmp=gmp,
+        period_start=period_start,
+        period_end=period_end,
+        filter_tags=filter_tags,
     )
 
     print("Combining {} found reports.".format(len(reports)))
@@ -267,9 +270,16 @@ def main(gmp, args):
     else:
         print('No result filter given.')
 
-    combined_report = combine_reports(gmp, reports, filter_term)
+    combined_report = combine_reports(
+        gmp=gmp, reports=reports, filter_term=filter_term
+    )
 
-    send_report(gmp, combined_report, period_start, period_end)
+    send_report(
+        gmp=gmp,
+        combined_report=combined_report,
+        period_start=period_start,
+        period_end=period_end,
+    )
 
 
 if __name__ == '__gmp__':
