@@ -26,6 +26,7 @@ $ cd gvm-tools && git log
 * Adding useful script helper functions to the `helper.py` [#317](https://github.com/greenbone/gvm-tools/pull/317)
 * CI tests Python 3.9 now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
 * Added tests for `script/combine-reports.gmp.py` [#366](https://github.com/greenbone/gvm-tools/pull/366)
+* Added new script `script/create-consolidated-reports.gmp.py`, that consolidates the last reports of tasks filtered by time period and tags [#370](https://github.com/greenbone/gvm-tools/pull/370)
 
 ### Changed
 * The `script/start-alert-scan.gmp.py` has been reworked with argparser [#344](https://github.com/greenbone/gvm-tools/pull/344)
