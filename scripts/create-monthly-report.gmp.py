@@ -30,12 +30,19 @@ from gvm.xml import pretty_print
 HELP_TEXT = 'This script creates a consolidated report and imports it to the GSM. Usable with gvm-script (gvm-tools)'
 
 
-def get_last_reports_from_tasks(gmp, from_date, to_date, tags: List):
-    """ Get the last reports from the tasks in the given time period """
+def get_last_reports_from_tasks(gmp, period_start, period_end, tags: List):
+    """Get the last reports from the tasks in the given time period
+
+    gmp: the GMP object
+    period_start: the start date
+    period_end: the end date
+    tags: list of tags for the filter
+
+    """
 
     task_filter = 'rows=-1 '
     period_filter = 'created>{0} and created<{1}'.format(
-        from_date.isoformat(), to_date.isoformat()
+        period_start.isoformat(), period_end.isoformat()
     )
     filter_parts = []
     if tags:
@@ -61,7 +68,14 @@ def get_last_reports_from_tasks(gmp, from_date, to_date, tags: List):
 
 
 def combine_reports(gmp, reports: List, filter_term: str):
-    """ Combining the filtered ports, results and hosts of the given report ids into one new report."""
+    """Combining the filtered ports, results and hosts of the given
+    report ids into one new report.
+
+    gmp: the GMP object
+    reports (List): List of report_ids
+    filter_term (str): the result filter string
+    """
+
     new_uuid = generate_uuid()
     combined_report = e.Element(
         'report',
@@ -254,7 +268,7 @@ def main(gmp, args):
         gmp=gmp,
         period_start=period_start,
         period_end=period_end,
-        filter_tags=filter_tags,
+        tags=filter_tags,
     )
 
     print("Combining {} found reports.".format(len(reports)))
