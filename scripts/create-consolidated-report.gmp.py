@@ -21,7 +21,6 @@ from typing import List
 from datetime import date
 from argparse import ArgumentParser, RawTextHelpFormatter
 from lxml import etree as e
-from gvm.xml import pretty_print
 
 from gvmtools.helper import generate_uuid, error_and_exit
 
@@ -306,12 +305,14 @@ def main(gmp, args):
     )
 
     # Import the generated report to GSM
-    send_report(
+    report = send_report(
         gmp=gmp,
         combined_report=combined_report,
         period_start=period_start,
         period_end=period_end,
     )
+
+    print("Successfully imported new consolidated report [{}]".format(report))
 
 
 if __name__ == '__gmp__':
