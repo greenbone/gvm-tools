@@ -20,15 +20,18 @@ from typing import List
 from datetime import date, timedelta
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from gvmtools.helper import generate_uuid
+from gvmtools.helper import generate_uuid, error_and_exit
 
 from lxml import etree as e
+
+from gvm.xml import pretty_print
 
 HELP_TEXT = ""
 
 
 def get_last_reports_from_tasks(gmp, from_date, to_date):
-    """ Get the last reports from the tasks in the time period """
+    """ Get the last reports from the tasks in the given time period """
+
     task_filter = "rows=-1 and created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
     )
@@ -50,7 +53,7 @@ def create_filter(gmp, filter_term, date):
 
 
 def combine_reports(gmp, reports: List, filter_term: str):
-    print("combine ...")
+    """ Combining the filtered ports, results and hosts of the given report ids into one new report."""
     new_uuid = generate_uuid()
     combined_report = e.Element(
         'report',
@@ -62,10 +65,7 @@ def combine_reports(gmp, reports: List, filter_term: str):
         },
     )
     report_elem = e.Element('report', {'id': new_uuid})
-    # filter_elem = e.Element('filter', {'id': filter_id})
 
-    # report_elem.append(filter_elem)
-    print("Meh")
     ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
     combined_report.append(report_elem)
@@ -76,6 +76,7 @@ def combine_reports(gmp, reports: List, filter_term: str):
         current_report = gmp.get_report(
             report, filter=filter_term, details=True
         )[0]
+        pretty_print(current_report.find('report').find('result_count'))
         for port in current_report.xpath('report/ports/port'):
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
@@ -86,8 +87,10 @@ def combine_reports(gmp, reports: List, filter_term: str):
     return combined_report
 
 
-def send_report(gmp, combined_report, date):
-    task_name = "Monthly Report ({})".format(date)
+def send_report(gmp, combined_report, period_start, period_end):
+    """ Creating a container task and sending the combined report to the GSM """
+
+    task_name = "Consolidated Report [{} - {}]".format(period_start, period_end)
 
     res = gmp.create_container_task(
         name=task_name, comment="Created with gvm-tools."
@@ -100,6 +103,41 @@ def send_report(gmp, combined_report, date):
     res = gmp.import_report(combined_report, task_id=task_id)
 
     return res.xpath('//@id')[0]
+
+
+def parse_period(period: List):
+    """ Parsing and validating the given time period """
+    try:
+        s_year, s_month, s_day = map(int, period[0].split('/'))
+    except ValueError as e:
+        error_and_exit(
+            "Start date [{}] is not a correct date format:\n{}".format(
+                period[0], e.args[0]
+            )
+        )
+    try:
+        e_year, e_month, e_day = map(int, period[1].split('/'))
+    except ValueError as e:
+        error_and_exit(
+            "End date [{}] is not a correct date format:\n{}".format(
+                period[1], e.args[0]
+            )
+        )
+
+    try:
+        period_start = date(s_year, s_month, s_day)
+    except ValueError as e:
+        error_and_exit("Start date: {}".format(e.args[0]))
+
+    try:
+        period_end = date(e_year, e_month, e_day)
+    except ValueError as e:
+        error_and_exit("End date: {}".format(e.args[0]))
+
+    if period_end < period_start:
+        error_and_exit("The start date seems to after the end date.")
+
+    return period_start, period_end
 
 
 def parse_args(args):  # pylint: disable=unused-argument
@@ -118,12 +156,13 @@ def parse_args(args):  # pylint: disable=unused-argument
     )
 
     parser.add_argument(
-        "+d",
-        "++date",
+        "+p",
+        "++period",
+        nargs=2,
         type=str,
         required=True,
-        dest="date",
-        help="The month and year to collect reports from: (mm/yyyy)",
+        dest="period",
+        help="Choose a time period that is filtering the tasks. Use the date format YYYY/MM/DD.",
     )
 
     parser.add_argument(
@@ -132,7 +171,7 @@ def parse_args(args):  # pylint: disable=unused-argument
         nargs='+',
         type=str,
         dest="tags",
-        help="Filter the reports by given tag(s).",
+        help="Filter the tasks by given tag(s).",
     )
 
     parser.add_argument(
@@ -141,7 +180,7 @@ def parse_args(args):  # pylint: disable=unused-argument
         nargs='+',
         type=str,
         dest="filter",
-        help="Filter the reports by given filter(s).",
+        help="Filter the results by given filter(s).",
     )
 
     script_args, _ = parser.parse_known_args()
@@ -153,27 +192,30 @@ def main(gmp, args):
 
     parsed_args = parse_args(args)
 
-    month, year = parsed_args.date.split('/')
-    from_date = date(int(year), int(month), 1)
-    to_date = from_date + timedelta(days=31)
-    # To have the first day in month
-    to_date = to_date.replace(day=1)
+    period_start, period_end = parse_period(parsed_args.period)
 
-    print(from_date)
-    print(to_date)
+    print(
+        "Combining reports from tasks within the time period [{}, {}]".format(
+            period_start, period_end
+        )
+    )
 
     filter_term = ""
     if parsed_args.filter:
         filter_term = ' '.join(parsed_args.filter)
-        # print(filter_term)
-        # filter_id = create_filter(gmp, filter_term, parsed_args.date)
-        # print(filter_id)
+        print(
+            "Filtering the results by the following filter term [{}]".format(
+                filter_term
+            )
+        )
+    else:
+        print("No result filter given.")
 
-    reports = get_last_reports_from_tasks(gmp, from_date, to_date)
+    reports = get_last_reports_from_tasks(gmp, period_start, period_end)
 
     combined_report = combine_reports(gmp, reports, filter_term)
 
-    send_report(gmp, combined_report, parsed_args.date)
+    send_report(gmp, combined_report, period_start, period_end)
 
 
 if __name__ == '__gmp__':
