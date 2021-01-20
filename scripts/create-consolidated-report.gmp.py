@@ -16,12 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from argparse import Namespace
 from gvm.protocols.gmp import Gmp
 from uuid import UUID
 from typing import List, Tuple
 from datetime import date
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from lxml import etree as e
 
 from gvmtools.helper import generate_uuid, error_and_exit
