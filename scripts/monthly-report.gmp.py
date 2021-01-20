@@ -18,9 +18,9 @@
 
 import sys
 from argparse import Namespace
-from gvm.protocols.gmp import Gmp
 from datetime import date, timedelta
 from lxml import etree as e
+from gvm.protocols.gmp import Gmp
 
 from terminaltables import AsciiTable
 

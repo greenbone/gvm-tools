@@ -19,9 +19,9 @@
 import time
 import sys
 
-from gvm.protocols.gmp import Gmp
 from argparse import Namespace
 from lxml import etree as e
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import generate_uuid
 
