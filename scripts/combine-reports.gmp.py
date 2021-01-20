@@ -19,12 +19,14 @@
 import time
 import sys
 
+from gvm.protocols.gmp import Gmp
+from argparse import Namespace
 from lxml import etree as e
 
 from gvmtools.helper import generate_uuid
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
         message = """
@@ -51,7 +53,7 @@ def check_args(args):
         sys.exit()
 
 
-def combine_reports(gmp, args):
+def combine_reports(gmp: Gmp, args: Namespace) -> e.Element:
     new_uuid = generate_uuid()
     combined_report = e.Element(
         'report',
@@ -85,7 +87,7 @@ def combine_reports(gmp, args):
     return combined_report
 
 
-def send_report(gmp, args, combined_report):
+def send_report(gmp: Gmp, args: Namespace, combined_report: e.Element) -> str:
     if 'first_task' in args.script:
         main_report = gmp.get_report(args.script[1])[0]
         task_id = main_report.xpath('//task/@id')[0]
@@ -107,7 +109,7 @@ def send_report(gmp, args, combined_report):
     return res.xpath('//@id')[0]
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
