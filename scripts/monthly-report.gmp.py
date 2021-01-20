@@ -17,12 +17,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 from datetime import date, timedelta
+from lxml import etree as e
 
 from terminaltables import AsciiTable
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
         message = """
@@ -43,7 +46,7 @@ def check_args(args):
         sys.exit()
 
 
-def get_reports_xml(gmp, from_date, to_date):
+def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> e.Element:
     """ Getting the Reports in the defined time period """
 
     report_filter = "rows=-1 created>{0} and created<{1}".format(
@@ -53,7 +56,9 @@ def get_reports_xml(gmp, from_date, to_date):
     return gmp.get_reports(filter=report_filter)
 
 
-def print_result_sums(reports_xml, from_date, to_date):
+def print_result_sums(
+    reports_xml: e.Element, from_date: date, to_date: date
+) -> None:
     print('Found {0} reports'.format(len(reports_xml.xpath('report'))))
 
     sum_high = reports_xml.xpath(
@@ -78,7 +83,7 @@ def print_result_sums(reports_xml, from_date, to_date):
     )
 
 
-def print_result_tables(gmp, reports_xml):
+def print_result_tables(gmp: Gmp, reports_xml: e.Element) -> None:
     report_list = reports_xml.xpath('report')
 
     for report in report_list:
@@ -106,15 +111,12 @@ def print_result_tables(gmp, reports_xml):
             low = host.xpath('result_count/info/page/text()')[0]
 
             table_data.append([hostname, ip, name, high, medium, low])
-            host.clear()
-            del host
 
         table = AsciiTable(table_data)
         print(table.table + '\n')
-        res.clear()
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
