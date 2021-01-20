@@ -14,7 +14,7 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
-## [Unreleased]
+## [21.1.0] - 2021-01-20
 ### Added
 * Added `pretty_print` to `pyshell` by default, so it does not need to be manually imported [#305](https://github.com/greenbone/gvm-tools/pull/305)
 * Added tests for `helper` module [#310](https://github.com/greenbone/gvm-tools/pull/310)
@@ -34,15 +34,12 @@ $ cd gvm-tools && git log
 ### Deprecated
 * Dropped Python 3.5 and Python 3.6 support. Python 3.7+ is required now. [#353](https://github.com/greenbone/gvm-tools/pull/353)
 
-### Removed
 ### Fixed
 * Fixed the `send-targets.gmp.py` script. [#313](https://github.com/greenbone/gvm-tools/pull/313)
 * Fixed the `pdf-report.gmp.py` script when an empty report is downloaded [#328](https://github.com/greenbone/gvm-tools/pull/328)
 * Fixed the `combine-reports.gmp.py` script, the `import_report()` command changed since v9.0. [#366](https://github.com/greenbone/gvm-tools/pull/366)
 
-
-[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...HEAD
-
+[21.1.0]: https://github.com/greenbone/gvm-tools/compare/v20.10.1...v21.1.0
 
 ## [20.10.1] - 2020-10-06
 ### Fixed
