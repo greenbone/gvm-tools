@@ -50,7 +50,7 @@ def parse_tags(tags: List[str]) -> List[str]:
     return filter_tags
 
 
-def parse_period(period: List[str]) -> Tuple(date, date):
+def parse_period(period: List[str]) -> Tuple[date, date]:
     """Parsing and validating the given time period
 
     period (List): A list with two entries containing
