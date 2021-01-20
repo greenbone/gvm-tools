@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 from uuid import UUID
-from typing import List
+from typing import List, Tuple
 from datetime import date
 from argparse import ArgumentParser, RawTextHelpFormatter
 from lxml import etree as e
@@ -30,7 +32,7 @@ HELP_TEXT = (
 )
 
 
-def parse_tags(tags: List):
+def parse_tags(tags: List[str]) -> List[str]:
     """Parsing and validating the given tags
 
     tags (List): A list containing tags:
@@ -49,7 +51,7 @@ def parse_tags(tags: List):
     return filter_tags
 
 
-def parse_period(period: List):
+def parse_period(period: List[str]) -> Tuple(date, date):
     """Parsing and validating the given time period
 
     period (List): A list with two entries containing
@@ -90,7 +92,7 @@ def parse_period(period: List):
     return period_start, period_end
 
 
-def parse_args(args):  # pylint: disable=unused-argument
+def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     """ Parsing args ... """
 
     parser = ArgumentParser(
@@ -147,7 +149,9 @@ def parse_args(args):  # pylint: disable=unused-argument
     return script_args
 
 
-def generate_task_filter(period_start, period_end, tags: List):
+def generate_task_filter(
+    period_start: date, period_end: date, tags: List[str]
+) -> str:
     """Generate the tasks filter
 
     period_start: the start date
@@ -173,7 +177,7 @@ def generate_task_filter(period_start, period_end, tags: List):
     return task_filter
 
 
-def get_last_reports_from_tasks(gmp, task_filter: str):
+def get_last_reports_from_tasks(gmp: Gmp, task_filter: str) -> List[str]:
     """Get the last reports from the tasks in the given time period
 
     gmp: the GMP object
@@ -194,7 +198,9 @@ def get_last_reports_from_tasks(gmp, task_filter: str):
     return reports
 
 
-def combine_reports(gmp, reports: List, filter_term: str):
+def combine_reports(
+    gmp: Gmp, reports: List[str], filter_term: str
+) -> e.Element:
     """Combining the filtered ports, results and hosts of the given
     report ids into one new report.
 
@@ -235,7 +241,9 @@ def combine_reports(gmp, reports: List, filter_term: str):
     return combined_report
 
 
-def send_report(gmp, combined_report, period_start, period_end):
+def send_report(
+    gmp: Gmp, combined_report: e.Element, period_start: date, period_end: date
+) -> str:
     """Creating a container task and sending the combined report to the GSM
 
     gmp: the GMP object
@@ -259,7 +267,7 @@ def send_report(gmp, combined_report, period_start, period_end):
     return res.xpath('//@id')[0]
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     parsed_args = parse_args(args=args)
