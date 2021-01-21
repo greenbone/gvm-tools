@@ -238,14 +238,17 @@ def combine_reports(
     report_elem.append(results_elem)
 
     for report in reports:
-        if filter_id:
-            current_report = gmp.get_report(
-                report, filter_id=filter_id, details=True
-            )[0]
-        else:
-            current_report = gmp.get_report(
-                report, filter=filter_term, details=True
-            )[0]
+        try:
+            if filter_id:
+                current_report = gmp.get_report(
+                    report, filter_id=filter_id, details=True
+                ).find('report')
+            else:
+                current_report = gmp.get_report(
+                    report, filter=filter_term, details=True
+                ).find('report')
+        except GvmError:
+            print("Could not find the report [{}]".format(report))
         for port in current_report.xpath('report/ports/port'):
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
@@ -321,7 +324,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
         )
     elif parsed_args.filter_id:
         try:
-            filter_xml = gmp.get_filter(filter_id=parsed_args.filter_id)[0]
+            filter_xml = gmp.get_filter(filter_id=parsed_args.filter_id).find(
+                'filter'
+            )
             print(
                 'Filtering the results by the following filter term '
                 '[{}]'.format(filter_xml.find('term').text)
