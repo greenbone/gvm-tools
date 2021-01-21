@@ -28,7 +28,11 @@ from gvmtools.helper import generate_uuid, error_and_exit
 
 HELP_TEXT = (
     'This script creates a consolidated report and imports it to the GSM.'
-    ' Usable with gvm-script (gvm-tools)'
+    'You are able to set a time period. Within this period the last report'
+    'of a all tasks will be consolidated. You can additionally filter the'
+    'tasks by one or more tags and the results with a filter id or filter '
+    'term.\n'
+    ' Usable with gvm-script (gvm-tools). Help: gvm-script -h'
 )
 
 
