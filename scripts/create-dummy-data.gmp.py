@@ -25,7 +25,7 @@ from gvmtools.helper import generate_id
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args != 1:
         message = """
         This script will create random data in the given GVM database
 

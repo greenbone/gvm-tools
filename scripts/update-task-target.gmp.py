@@ -78,7 +78,7 @@ def copy_send_target(gmp, hosts_file, old_target_id):
     objects = ('reverse_lookup_only', 'reverse_lookup_unify', 'name')
     for obj in objects:
         var = old_target.xpath('{}/text()'.format(obj))[0]
-        if var is '0':
+        if var == '0':
             var = ''
         keywords['{}'.format(obj)] = var
 

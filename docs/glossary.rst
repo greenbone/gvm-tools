@@ -84,6 +84,11 @@ Glossary
     `Version 11 <https://community.greenbone.net/t/gvm-11-stable-initial-release-2019-10-14/3674>`_ of the
     :term:`GVM` framework. Used in :term:`GOS 6 <GOS>`.
 
+  GVM20.08
+    `Version 20.08 <https://community.greenbone.net/t/gvm-20-08-stable-initial-release-2020-08-12/6312>`_ of the
+    :term:`GVM` framework. Used in :term:`GOS 20.08 <GOS>`. First version of GVM and GOS using
+    `Calendar Versioning <https://calver.org/>`_
+
   GSE
     The `Greenbone Source Edition (GSE)
     <https://community.greenbone.net/t/about-the-greenbone-source-edition-gse-category/176>`_
@@ -92,3 +97,32 @@ Glossary
     The source edition is adopted by external third parties, e.g., if the
     :term:`GVM` stack is provided by a Linux distribution, it is build from
     the Greenbone Source Edition.
+
+  GPE
+    The `Greenbone Professional Edition (GPE)
+    <https://community.greenbone.net/t/about-the-greenbone-professional-edition-category/146>`_
+    is the Greenbone product line for on-premises solutions.
+    Included are virtual or physical :term:`Greenbone Security Manager (GSM) <GSM>`
+    appliances with the :term:`Greenbone Operating System (GOS)<GOS>`,
+    the :term:`Greenbone Vulnerability Management (GVM) framework <GVM>`, and
+    the :term:`Greenbone Security Feed (GSF) <GSF>`.
+
+  GCE
+    The Greenbone Community Edition was a virtual machine derived from the
+    virtual :term:`GSM One <GSM>` appliance for testing purposes using the
+    :term:`Greenbone Community Feed <GCF>`. To make this purpose more obvious it
+    was renamed to `GSM Trial <https://www.greenbone.net/en/testnow/>`_.
+
+  GCF
+    The Greenbone Community Feed (GCF) is the freely available feed for vulnerability
+    information licensed as open source. It contains basic scan configs,
+    report formats, port lists and most important vulnerability tests. The
+    provided data is updated on a daily basis with no warranty or promises for
+    fixes or completeness.
+
+  GSF
+    The Greenbone Security Feed (GSF) is the commercial feed provided by
+    Greenbone containing additional enterprise features like policy and
+    compliance checks, extensive reports formats and special scan configs.
+    The feed comes with a service level agreement ensuring support, quality
+    assurance and availability.

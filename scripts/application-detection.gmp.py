@@ -21,7 +21,7 @@ import sys
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args != 1:
         message = """
         This script will display all hosts with the searched applications!
 
@@ -43,7 +43,7 @@ def print_assets(gmp, appname):
     for host in hosts:
         ip = host.xpath('ip/text()')
         hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
-        if len(hostname) is 0:
+        if len(hostname) == 0:
             hostname = ""
         else:
             hostname = hostname[0]
