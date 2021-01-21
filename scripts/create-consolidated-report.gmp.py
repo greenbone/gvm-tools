@@ -253,7 +253,7 @@ def combine_reports(
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
-        for host in current_report.xpath('host'):
+        for host in current_report.xpath('report/host'):
             report_elem.append(host)
 
     return combined_report

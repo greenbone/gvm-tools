@@ -218,7 +218,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
                 '<result id="00000001-0000-0000-0000-000000000003">'
                 '</result></results>'
                 '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report><host><ip>127.0.0.0</ip></host>'
+                '<host><ip>127.0.0.0</ip></host></report>'
                 '</report></get_reports_response>',
                 '<get_reports_response status="200" status_text="OK">'
                 '<report id="00000000-0000-0000-0000-000000000002">'
@@ -236,7 +236,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
                 '<result id="00000001-0000-0000-0000-000000000004">'
                 '</result></results>'
                 '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report><host><ip>127.0.0.1</ip></host>'
+                '<host><ip>127.0.0.1</ip></host></report>'
                 '</report></get_reports_response>',
             ],
         )
@@ -327,7 +327,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
                 '<result id="00000001-0000-0000-0000-000000000003">'
                 '</result></results>'
                 '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report><host><ip>127.0.0.0</ip></host>'
+                '<host><ip>127.0.0.0</ip></host></report>'
                 '</report></get_reports_response>',
                 '<get_reports_response status="200" status_text="OK">'
                 '<report id="00000000-0000-0000-0000-000000000002">'
@@ -345,7 +345,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
                 '<result id="00000001-0000-0000-0000-000000000004">'
                 '</result></results>'
                 '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report><host><ip>127.0.0.1</ip></host>'
+                '<host><ip>127.0.0.1</ip></host></report>'
                 '</report></get_reports_response>',
             ],
         )
