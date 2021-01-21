@@ -32,7 +32,7 @@ from email.utils import formatdate
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 0:
+    if len_args != 0:
         message = """
         This script, once started, will continuously send delta
         reports via email for selected tasks.

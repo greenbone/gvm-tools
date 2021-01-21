@@ -895,7 +895,7 @@ def print_nvt_data(
         nvts (obj): Object holding all nvts
     """
     for key, nvt_data in nvts.items():
-        if key is "log" and not show_log:
+        if key == "log" and not show_log:
             continue
         for nvt in nvt_data:
             print_without_pipe("NVT: %s (%s) %s" % (nvt[0], key, nvt[1]))
