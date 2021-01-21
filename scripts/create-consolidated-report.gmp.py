@@ -323,9 +323,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
         try:
             filter_xml = gmp.get_filter(filter_id=parsed_args.filter_id)[0]
             print(
-                'Filtering the results by the following filter term [{}]'.format(
-                    filter_xml.find('term').text
-                )
+                'Filtering the results by the following filter term '
+                '[{}]'.format(filter_xml.find('term').text)
             )
         except GvmError:
             print(
