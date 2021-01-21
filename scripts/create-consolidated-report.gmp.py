@@ -22,6 +22,7 @@ from datetime import date
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from lxml import etree as e
 from gvm.protocols.gmp import Gmp
+from gvm.errors import GvmError
 
 from gvmtools.helper import generate_uuid, error_and_exit
 
@@ -135,13 +136,21 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
         ),
     )
 
-    parser.add_argument(
-        '+f',
-        '++filter',
+    filter_args = parser.add_mutually_exclusive_group()
+
+    filter_args.add_argument(
+        '++filter-terms',
         nargs='+',
         type=str,
-        dest='filter',
-        help='Filter the results by given filter(s).',
+        dest='filter_term',
+        help='Filter the results by given filter terms.',
+    )
+
+    filter_args.add_argument(
+        '++filter-id',
+        type=str,
+        dest='filter_id',
+        help='Filter the results by given filter id.',
     )
 
     script_args, _ = parser.parse_known_args()
@@ -160,7 +169,9 @@ def generate_task_filter(
     Returns an task filter string
     """
     task_filter = 'rows=-1 '
-    period_filter = 'created>{0} and created<{1}'.format(
+
+    # last is for the timestamp of the last report in that task
+    period_filter = 'last>{0} and last<{1}'.format(
         period_start.isoformat(), period_end.isoformat()
     )
     filter_parts = []
@@ -198,7 +209,7 @@ def get_last_reports_from_tasks(gmp: Gmp, task_filter: str) -> List[str]:
 
 
 def combine_reports(
-    gmp: Gmp, reports: List[str], filter_term: str
+    gmp: Gmp, reports: List[str], filter_term: str, filter_id: str
 ) -> e.Element:
     """Combining the filtered ports, results and hosts of the given
     report ids into one new report.
@@ -227,9 +238,14 @@ def combine_reports(
     report_elem.append(results_elem)
 
     for report in reports:
-        current_report = gmp.get_report(
-            report, filter=filter_term, details=True
-        )[0]
+        if filter_id:
+            current_report = gmp.get_report(
+                report, filter_id=filter_id, details=True
+            )[0]
+        else:
+            current_report = gmp.get_report(
+                report, filter=filter_term, details=True
+            )[0]
         for port in current_report.xpath('report/ports/port'):
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
@@ -279,11 +295,11 @@ def main(gmp: Gmp, args: Namespace) -> None:
         )
     )
 
+    # Generate Task Filter
     filter_tags = None
     if parsed_args.tags:
         filter_tags = parse_tags(tags=parsed_args.tags)
 
-    # Generate Task Filter
     task_filter = generate_task_filter(
         period_start=period_start,
         period_end=period_end,
@@ -296,19 +312,36 @@ def main(gmp: Gmp, args: Namespace) -> None:
     print("Combining {} found reports.".format(len(reports)))
 
     filter_term = ''
-    if parsed_args.filter:
-        filter_term = ' '.join(parsed_args.filter)
+    if parsed_args.filter_term:
+        filter_term = ' '.join(parsed_args.filter_term)
         print(
             'Filtering the results by the following filter term [{}]'.format(
                 filter_term
             )
         )
+    elif parsed_args.filter_id:
+        try:
+            filter_xml = gmp.get_filter(filter_id=parsed_args.filter_id)[0]
+            print(
+                'Filtering the results by the following filter term [{}]'.format(
+                    filter_xml.find('term').text
+                )
+            )
+        except GvmError:
+            print(
+                "Filter with the ID [{}] is not existing.".format(
+                    parsed_args.filter_id
+                )
+            )
     else:
-        print('No result filter given.')
+        print('No results filter given.')
 
     # Combine the reports
     combined_report = combine_reports(
-        gmp=gmp, reports=reports, filter_term=filter_term
+        gmp=gmp,
+        reports=reports,
+        filter_term=filter_term,
+        filter_id=parsed_args.filter_id,
     )
 
     # Import the generated report to GSM

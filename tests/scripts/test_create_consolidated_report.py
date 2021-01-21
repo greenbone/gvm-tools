@@ -93,7 +93,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
 
     def test_generate_task_filter(self):
         asserted_task_filter = (
-            'rows=-1 created>2020-01-01 and created<2020-02-01 and tag="blah"'
+            'rows=-1 last>2020-01-01 and last<2020-02-01 and tag="blah"'
         )
         period_start = date(2020, 1, 1)
         period_end = date(2020, 2, 1)
@@ -106,8 +106,8 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         self.assertEqual(task_filter, asserted_task_filter)
 
         asserted_task_filter = (
-            'rows=-1 created>2020-01-01 and created<2020-02-01 and '
-            'tag="blah" or created>2020-01-01 and created<2020-02-01'
+            'rows=-1 last>2020-01-01 and last<2020-02-01 and '
+            'tag="blah" or last>2020-01-01 and last<2020-02-01'
             ' and tag="blah2"'
         )
         tags = ['tag="blah"', 'tag="blah2"']
@@ -154,8 +154,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         reports = self.create_consolidated_report.get_last_reports_from_tasks(
             mock_gmp.gmp_protocol,
             task_filter=(
-                'rows=-1 created>2020-01-01 and '
-                'created<2020-02-01 and tag="blah"'
+                'rows=-1 last>2020-01-01 and ' 'last<2020-02-01 and tag="blah"'
             ),
         )
 
@@ -167,7 +166,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         self.assertEqual(reports, asserted_reports)
 
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
-    def test_combine_reports(self, mock_gmp: GmpMockFactory):
+    def test_combine_reports_with_term(self, mock_gmp: GmpMockFactory):
         reports = [
             '00000000-0000-0000-0000-000000000000',
             '00000000-0000-0000-0000-000000000001',
@@ -243,7 +242,116 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         )
 
         combined_report = self.create_consolidated_report.combine_reports(
-            mock_gmp.gmp_protocol, reports, filter_term="foo"
+            mock_gmp.gmp_protocol, reports, filter_term="foo", filter_id=None
+        )
+
+        ports = combined_report.find('report').find('ports').findall('port')
+        i = 0
+        for port in ports:
+            self.assertEqual(port.text, f'{str(i)}')
+            i += 1
+
+        self.assertEqual(i, 4)
+
+        results = (
+            combined_report.find('report').find('results').findall('result')
+        )
+        i = 0
+        for result in results:
+            self.assertEqual(
+                result.get('id'), f'00000001-0000-0000-0000-00000000000{str(i)}'
+            )
+            i += 1
+
+        self.assertEqual(i, 5)
+
+        hosts = combined_report.find('report').findall('host')
+
+        i = 0
+        for host in hosts:
+            self.assertEqual(host.find('ip').text, f'127.0.0.{str(i)}')
+            i += 1
+
+        self.assertEqual(i, 2)
+
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_combine_reports_with_id(self, mock_gmp: GmpMockFactory):
+        reports = [
+            '00000000-0000-0000-0000-000000000000',
+            '00000000-0000-0000-0000-000000000001',
+            '00000000-0000-0000-0000-000000000002',
+        ]
+
+        mock_gmp.mock_responses(
+            'get_report',
+            [
+                '<get_reports_response status="200" status_text="OK">'
+                '<report id="00000000-0000-0000-0000-000000000000">'
+                '<name>2020-11-13T14:47:28Z</name>'
+                '<creation_time>2020-11-13T14:47:28Z</creation_time>'
+                '<modification_time>2020-11-13T14:47:28Z</modification_time>'
+                '<task id="00000000-0000-0000-0001-000000000000">'
+                '<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>'
+                '</task>'
+                '<report id="00000000-0000-0000-0000-000000000000">'
+                '<scan_run_status>Done</scan_run_status>'
+                '<timestamp>2020-11-13T14:47:48Z</timestamp>'
+                '<scan_start>2020-11-13T14:47:28Z</scan_start>'
+                '<ports max="-1" start="1">'
+                '<port>0<host>127.0.0.0</host></port>'
+                '<port>1<host>127.0.0.1</host></port></ports>'
+                '<results start="1" max="100">'
+                '<result id="00000001-0000-0000-0000-000000000000">'
+                '</result>'
+                '<result id="00000001-0000-0000-0000-000000000001">'
+                '</result></results>'
+                '<scan_end>2020-11-13T14:47:28Z</scan_end>'
+                '</report></report></get_reports_response>',
+                '<get_reports_response status="200" status_text="OK">'
+                '<report id="00000000-0000-0000-0000-000000000001">'
+                '<name>2020-11-13T14:47:28Z</name>'
+                '<creation_time>2020-11-13T14:47:28Z</creation_time>'
+                '<modification_time>2020-11-13T14:47:28Z</modification_time>'
+                '<task id="00000000-0000-0000-0002-000000000000">'
+                '<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>'
+                '</task>'
+                '<report id="00000000-0000-0000-0000-000000000001">'
+                '<scan_run_status>Done</scan_run_status>'
+                '<timestamp>2020-11-13T14:47:48Z</timestamp>'
+                '<scan_start>2020-11-13T14:47:28Z</scan_start>'
+                '<ports max="-1" start="1">'
+                '<port>2<host>127.0.0.2</host></port>'
+                '<port>3<host>127.0.0.3</host></port></ports>'
+                '<results start="1" max="100">'
+                '<result id="00000001-0000-0000-0000-000000000002"></result>'
+                '<result id="00000001-0000-0000-0000-000000000003">'
+                '</result></results>'
+                '<scan_end>2020-11-13T14:47:28Z</scan_end>'
+                '</report><host><ip>127.0.0.0</ip></host>'
+                '</report></get_reports_response>',
+                '<get_reports_response status="200" status_text="OK">'
+                '<report id="00000000-0000-0000-0000-000000000002">'
+                '<name>2020-11-13T14:47:28Z</name>'
+                '<creation_time>2020-11-13T14:47:28Z</creation_time>'
+                '<modification_time>2020-11-13T14:47:28Z</modification_time>'
+                '<task id="00000000-0000-0000-0003-000000000000">'
+                '<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>'
+                '</task>'
+                '<report id="00000000-0000-0000-0000-000000000002">'
+                '<scan_run_status>Done</scan_run_status>'
+                '<timestamp>2020-11-13T14:47:48Z</timestamp>'
+                '<scan_start>2020-11-13T14:47:28Z</scan_start>'
+                '<results start="1" max="100">'
+                '<result id="00000001-0000-0000-0000-000000000004">'
+                '</result></results>'
+                '<scan_end>2020-11-13T14:47:28Z</scan_end>'
+                '</report><host><ip>127.0.0.1</ip></host>'
+                '</report></get_reports_response>',
+            ],
+        )
+
+        combined_report = self.create_consolidated_report.combine_reports(
+            mock_gmp.gmp_protocol, reports, filter_term="", filter_id='123'
         )
 
         ports = combined_report.find('report').find('ports').findall('port')
