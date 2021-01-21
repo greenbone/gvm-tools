@@ -118,7 +118,7 @@ Glossary
     information licensed as open source. It contains basic scan configs,
     report formats, port lists and most important vulnerability tests. The
     provided data is updated on a daily basis with no warranty or promises for
-    fixes.
+    fixes or completeness.
 
   GSF
     The Greenbone Security Feed (GSF) is the commercial feed provided by
