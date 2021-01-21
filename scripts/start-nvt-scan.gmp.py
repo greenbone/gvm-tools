@@ -72,7 +72,7 @@ def get_config(gmp, nvt_oid):
             config_id = res.xpath('@id')[0]
 
             # Modify the config with an nvt oid
-            if len(nvt_oid) is 0:
+            if len(nvt_oid) == 0:
                 nvt_oid = input('NVT OID: ')
 
             nvt = gmp.get_nvt(nvt_oid=nvt_oid)
@@ -122,7 +122,7 @@ def get_target(gmp, hosts):
             chosen_target = 'n'
 
         if chosen_target == 'n':
-            if len(hosts) is 0:
+            if len(hosts) == 0:
                 hosts = input('Target hosts (comma separated): ')
 
             name = input('Name of target: ')

@@ -23,7 +23,7 @@ from gvm.errors import GvmError
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args is not 1:
+    if len_args != 1:
         message = """
         This script creates a new scan config with nvts from a given CERT-Bund!
         It needs one parameter after the script name.
