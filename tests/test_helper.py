@@ -56,31 +56,6 @@ class TableTestCase(unittest.TestCase):
             heading=self.heading, rows=self.rows, divider=self.divider
         )
 
-    def test_generate_uuid(self):
-        random_uuid = generate_uuid()
-        try:
-            uuid.UUID(random_uuid, version=4)
-        except (ValueError, TypeError, AttributeError):
-            self.fail("No valid UUID.")
-
-    def test_generate_id(self):
-        random_id = generate_id(size=1, chars="a")
-        self.assertEqual(random_id, 'a')
-
-        random_id = generate_id(size=10)
-        self.assertEqual(len(random_id), 10)
-        self.assertTrue(random_id.isalnum())
-
-    def test_generate_random_ips(self):
-        random_ip = generate_random_ips(1)
-        ip_addr = ipaddress.ip_address(random_ip[0])
-        self.assertEqual(ip_addr.version, 4)
-        self.assertEqual(str(ip_addr), random_ip[0])
-
-        num = 10
-        random_ips = generate_random_ips(num)
-        self.assertEqual(len(random_ips), num)
-
     def test_init_no_args(self):
         table = Table()
 
@@ -276,3 +251,28 @@ class ScriptUtilsTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             with self.assertRaises(etree.Error):
                 create_xml_tree(BytesIO(b'<foo><baz/><bar>glurp<bar></foo>'))
+
+    def test_generate_uuid(self):
+        random_uuid = generate_uuid()
+        try:
+            uuid.UUID(random_uuid, version=4)
+        except (ValueError, TypeError, AttributeError):
+            self.fail("No valid UUID.")
+
+    def test_generate_id(self):
+        random_id = generate_id(size=1, chars="a")
+        self.assertEqual(random_id, 'a')
+
+        random_id = generate_id(size=10)
+        self.assertEqual(len(random_id), 10)
+        self.assertTrue(random_id.isalnum())
+
+    def test_generate_random_ips(self):
+        random_ip = generate_random_ips(1)
+        ip_addr = ipaddress.ip_address(random_ip[0])
+        self.assertEqual(ip_addr.version, 4)
+        self.assertEqual(str(ip_addr), random_ip[0])
+
+        num = 10
+        random_ips = generate_random_ips(num)
+        self.assertEqual(len(random_ips), num)

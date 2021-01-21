@@ -16,6 +16,8 @@ $ cd gvm-tools && git log
 
 ## [Unreleased]
 ### Added
+* Added new script `script/create-consolidated-reports.gmp.py`, that consolidates the last reports of tasks filtered by time period and tags [#370](https://github.com/greenbone/gvm-tools/pull/370)
+
 ### Changed
 ### Deprecated
 ### Removed

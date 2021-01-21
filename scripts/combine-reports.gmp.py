@@ -19,12 +19,14 @@
 import time
 import sys
 
+from argparse import Namespace
 from lxml import etree as e
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import generate_uuid
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
         message = """
@@ -51,7 +53,7 @@ def check_args(args):
         sys.exit()
 
 
-def combine_reports(gmp, args):
+def combine_reports(gmp: Gmp, args: Namespace) -> e.Element:
     new_uuid = generate_uuid()
     combined_report = e.Element(
         'report',
@@ -63,6 +65,7 @@ def combine_reports(gmp, args):
         },
     )
     report_elem = e.Element('report', {'id': new_uuid})
+    ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
     results_elem = e.Element('results', {'start': '1', 'max': '-1'})
     combined_report.append(report_elem)
     report_elem.append(results_elem)
@@ -74,13 +77,17 @@ def combine_reports(gmp, args):
 
     for argument in arg_len:
         current_report = gmp.get_report(argument, details=True)[0]
+        for port in current_report.xpath('report/ports/port'):
+            ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
+        for host in current_report.xpath('report/host'):
+            report_elem.append(host)
 
     return combined_report
 
 
-def send_report(gmp, args, combined_report):
+def send_report(gmp: Gmp, args: Namespace, combined_report: e.Element) -> str:
     if 'first_task' in args.script:
         main_report = gmp.get_report(args.script[1])[0]
         task_id = main_report.xpath('//task/@id')[0]
@@ -102,13 +109,13 @@ def send_report(gmp, args, combined_report):
     return res.xpath('//@id')[0]
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
 
     combined_report = combine_reports(gmp, args)
-    send_repot(gmp, args, combined_report)
+    send_report(gmp, args, combined_report)
 
 
 if __name__ == '__gmp__':

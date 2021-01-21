@@ -17,12 +17,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from argparse import Namespace
 from datetime import date, timedelta
+from lxml import etree as e
+from gvm.protocols.gmp import Gmp
 
 from terminaltables import AsciiTable
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
         message = """
@@ -43,61 +46,30 @@ def check_args(args):
         sys.exit()
 
 
-def print_reports(gmp, args, from_date, to_date):
-    report_filter = "rows=-1 and created>{0} and created<{1}".format(
+def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> e.Element:
+    """ Getting the Reports in the defined time period """
+
+    report_filter = "rows=-1 created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
     )
 
-    reports_xml = gmp.get_reports(filter=report_filter)
-    report_list = reports_xml.xpath('report')
+    return gmp.get_reports(filter=report_filter)
+
+
+def print_result_sums(
+    reports_xml: e.Element, from_date: date, to_date: date
+) -> None:
+    print('Found {0} reports'.format(len(reports_xml.xpath('report'))))
 
     sum_high = reports_xml.xpath(
-        'sum(report/report/result_count/hole/full/' 'text())'
+        'sum(report/report/result_count/hole/full/text())'
     )
     sum_medium = reports_xml.xpath(
-        'sum(report/report/result_count/warning/' 'full/text())'
+        'sum(report/report/result_count/warning/full/text())'
     )
     sum_low = reports_xml.xpath(
-        'sum(report/report/result_count/info/full/' 'text())'
+        'sum(report/report/result_count/info/full/text())'
     )
-
-    print('Found {0} reports'.format(len(report_list)))
-
-    if 'with-tables' in args.script:
-        for report in report_list:
-            report_id = report.xpath('report/@id')[0]
-            name = report.xpath('name/text()')[0]
-
-            res = gmp.get_report(report_id)
-
-            print('\nReport: {0}'.format(report_id))
-
-            table_data = [
-                ['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']
-            ]
-
-            for host in res.xpath('report/report/host'):
-                hostname = host.xpath(
-                    'detail/name[text()="hostname"]/../' 'value/text()'
-                )
-                if len(hostname) > 0:
-                    hostname = str(hostname[0])
-                else:
-                    hostname = ""
-
-                ip = host.xpath('ip/text()')[0]
-                high = host.xpath('result_count/hole/page/text()')[0]
-                medium = host.xpath('result_count/warning/page/text()')[0]
-                low = host.xpath('result_count/info/page/text()')[0]
-
-                table_data.append([hostname, ip, name, high, medium, low])
-                host.clear()
-                del host
-
-            table = AsciiTable(table_data)
-            print(table.table + '\n')
-            res.clear()
-            del res
 
     print(
         'Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}\nLow: '
@@ -111,7 +83,40 @@ def print_reports(gmp, args, from_date, to_date):
     )
 
 
-def main(gmp, args):
+def print_result_tables(gmp: Gmp, reports_xml: e.Element) -> None:
+    report_list = reports_xml.xpath('report')
+
+    for report in report_list:
+        report_id = report.xpath('report/@id')[0]
+        name = report.xpath('name/text()')[0]
+
+        res = gmp.get_report(report_id)
+
+        print('\nReport: {0}'.format(report_id))
+
+        table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
+
+        for host in res.xpath('report/report/host'):
+            hostname = host.xpath(
+                'detail/name[text()="hostname"]/../' 'value/text()'
+            )
+            if len(hostname) > 0:
+                hostname = str(hostname[0])
+            else:
+                hostname = ""
+
+            ip = host.xpath('ip/text()')[0]
+            high = host.xpath('result_count/hole/page/text()')[0]
+            medium = host.xpath('result_count/warning/page/text()')[0]
+            low = host.xpath('result_count/info/page/text()')[0]
+
+            table_data.append([hostname, ip, name, high, medium, low])
+
+        table = AsciiTable(table_data)
+        print(table.table + '\n')
+
+
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -123,7 +128,11 @@ def main(gmp, args):
     # To have the first day in month
     to_date = to_date.replace(day=1)
 
-    print_reports(gmp, args, from_date, to_date)
+    reports_xml = get_reports_xml(gmp, from_date, to_date)
+
+    print_result_sums(reports_xml, from_date, to_date)
+    if "with-tables" in args.script:
+        print_result_tables(gmp, reports_xml)
 
 
 if __name__ == '__gmp__':
