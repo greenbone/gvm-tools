@@ -27,8 +27,12 @@ from gvm.errors import GvmError
 from gvmtools.helper import generate_uuid, error_and_exit
 
 HELP_TEXT = (
-    'This script creates a consolidated report and imports it to the GSM.'
-    ' Usable with gvm-script (gvm-tools)'
+    'This script creates a consolidated report and imports it to the GSM. '
+    'You are able to set a time period. Within this period the last report'
+    'of all tasks will be consolidated. You can additionally filter the '
+    'tasks by one or more tags and the results with a filter id or filter '
+    'term.\n'
+    ' Usable with gvm-script (gvm-tools). Help: gvm-script -h'
 )
 
 
@@ -253,7 +257,7 @@ def combine_reports(
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):
             results_elem.append(result)
-        for host in current_report.xpath('host'):
+        for host in current_report.xpath('report/host'):
             report_elem.append(host)
 
     return combined_report
