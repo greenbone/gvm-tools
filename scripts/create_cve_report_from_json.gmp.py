@@ -164,7 +164,7 @@ class Results:
 
         self.gmp = gmp
 
-    def add_results(self, ip, hostname, cpes: Dict, cpeo, os):
+    def add_results(self, ip, hostname, cpes: Dict, cpeo, os, date_time):
         print("ADDING RESULTS")
         results = []
         host_elem = e.Element('host')
@@ -196,26 +196,31 @@ class Results:
             )
         )
 
+        date_format = '%Y-%m-%dT%H:%M:%S'
+        date_time = f'{date_time.strftime(date_format)}+01:00'
         print("SO FAR")
 
         for cpe, cves in cpes.items():
-            print("UNPACKED CPES")
+            print(f"UNPACKED CPE: {str(cpe)}:")
+            print(cves)
             if cves:
                 for cve, cvss in cves.items():
-                    print("UNPACKED CPES")
+                    print("UNPACKED CVES")
                     result_id = generate_uuid()
                     result = e.Element('result', {'id': result_id})
+                    print("RESULT")
                     e.SubElement(result, 'name').text = f'Result for host {ip}'
                     e.SubElement(
                         result, 'comment'
                     ).text = 'Imported with gvm-tools'
-                    e.SubElement(result, 'modification_time').text = date[0]
-                    e.SubElement(result, 'creation_time').text = date[1]
+                    e.SubElement(result, 'modification_time').text = date_time
+                    e.SubElement(result, 'creation_time').text = date_time
                     detect_elem = e.Element('detection')
                     detect_result_elem = e.SubElement(
                         detect_elem, 'result', {'id': result_id}
                     )
                     details_elem = e.SubElement(detect_result_elem, 'details')
+                    print("HOST")
 
                     host_elem = e.Element('host')
                     host_elem.text = ip
@@ -224,16 +229,18 @@ class Results:
                     ).text = ''
                     e.SubElement(host_elem, 'hostname').text = hostname
                     result.append(host_elem)
+                    print("NVT")
 
                     nvt_elem = e.Element('nvt', {'oid': cve})
-                    nvt_elem.SubElement('type').text('cve')
-                    nvt_elem.SubElement('name').text(cve)
-                    nvt_elem.SubElement('cvss_base').text(cvss)
-                    nvt_elem.SubElement('cve').text(cve)
+                    e.SubElement(nvt_elem, 'type').text = 'cve'
+                    e.SubElement(nvt_elem, 'name').text = cve
+                    e.SubElement(nvt_elem, 'cvss_base').text = str(cvss)
+                    e.SubElement(nvt_elem, 'cve').text = cve
 
                     result.append(nvt_elem)
 
-                    e.SubElement(result, 'severity').text = cvss
+                    print('SEVERITY')
+                    e.SubElement(result, 'severity').text = str(cvss)
 
                     host_elem.append(
                         generate_host_detail_elem(
@@ -245,8 +252,10 @@ class Results:
                         )
                     )
 
+                    print(
+                        e.tostring(result, pretty_print=True, with_tail=False)
+                    )
                     results.append(result)
-        pretty_print(results)
         return host_id, cvss
 
 
@@ -364,6 +373,7 @@ def parse_json(gmp, hosts_dump, cpe_list):
     hosts = Hosts()
 
     entries = []
+    date_time = datetime.datetime.now()
 
     for entry in hosts_dump:
         if entry[3] is None:
@@ -385,13 +395,19 @@ def parse_json(gmp, hosts_dump, cpe_list):
             if isinstance(entry[7], str):
                 cpes.extend(get_cpe(gmp, entry[7]))
             else:
+                print(f'Entry CPEs {str(len(entry[7]))}')
+                i = 0
                 for cpe in entry[7]:
+                    print(f'Entry {str(i)}: {cpe}')
                     if cpe:
                         cpes.extend(get_cpe(gmp, cpe))
+                    i = i + 1
 
         vulns = cpe_list.get_cves(cpes)
         if vulns:
             print("WE GOT CPES")
+            if isinstance(ips, str):
+                ips = [ips]
             for ip in ips:
                 results.add_results(
                     ip=ip,
@@ -399,6 +415,7 @@ def parse_json(gmp, hosts_dump, cpe_list):
                     cpes=vulns,
                     cpeo=os_cpe,
                     os=os,
+                    date_time=date_time,
                 )
 
     return entries
