@@ -22,6 +22,7 @@ from cpe import CPE
 from typing import List, Dict, Tuple
 from datetime import date
 import datetime
+import time
 from argparse import ArgumentParser, RawTextHelpFormatter
 from lxml import etree as e
 from gvm.protocols.latest import InfoType
@@ -157,20 +158,69 @@ def generate_host_detail_elem(
     return host_detail_elem
 
 
-class Results:
+class Report:
     def __init__(self, gmp):
-        self.results = e.Element('results')
+        self.results = e.Element('results', {'start': '1', 'max': '-1'})
         self.hosts = []
+        self.report = None
 
         self.gmp = gmp
 
+    def finish_report(self):
+        report_format_id = 'd5da9f67-8551-4e51-807b-b6a873d70e34'
+        self.report_id = generate_uuid()
+        self.report = e.Element(
+            'report',
+            {
+                'id': self.report_id,
+                'format_id': report_format_id,
+                'extension': 'xml',
+                'content_type': 'text/xml',
+            },
+        )
+        owner_elem = e.SubElement(self.report, 'owner')
+        e.SubElement(owner_elem, 'name').text = ''
+        e.SubElement(
+            self.report, 'name'
+        ).text = f'Report created from JSON-File'
+
+        inner_report = e.SubElement(
+            self.report, 'report', {'id': self.report_id}
+        )
+        ports_elem = e.SubElement(
+            inner_report, 'ports', {'start': '1', 'max': '-1'}
+        )
+
+        inner_report.append(ports_elem)
+        inner_report.append(self.results)
+        for host in self.hosts:
+            pretty_print(host)
+            inner_report.append(host)
+        self.report.append(inner_report)
+
+    def send_report(self) -> str:
+        the_time = time.strftime("%Y/%m/%d-%H:%M:%S")
+        task_id = ''
+        task_name = "CVE_Scan_Report_{}".format(the_time)
+
+        res = self.gmp.create_container_task(
+            name=task_name, comment="Created with gvm-tools."
+        )
+
+        task_id = res.xpath('//@id')[0]
+
+        report = e.tostring(self.report)
+
+        res = self.gmp.import_report(report, task_id=task_id, in_assets=True)
+
+        return res.xpath('//@id')[0]
+
     def add_results(self, ip, hostname, cpes: Dict, cpeo, os, date_time):
         print("ADDING RESULTS")
-        results = []
         host_elem = e.Element('host')
         host_id = generate_uuid()
         e.SubElement(host_elem, 'ip').text = ip
-        e.SubElement(host_elem, 'asset', {'asset_id': host_id}).text = ''
+        # e.SubElement(host_elem, 'asset', {'asset_id': host_id}).text = ''
 
         source_name = 'gvm-tools'
         print("ADDED HOST ELEM")
@@ -220,16 +270,14 @@ class Results:
                         detect_elem, 'result', {'id': result_id}
                     )
                     details_elem = e.SubElement(detect_result_elem, 'details')
-                    print("HOST")
 
-                    host_elem = e.Element('host')
-                    host_elem.text = ip
-                    e.SubElement(
-                        host_elem, 'asset', {'asset_id': host_id}
-                    ).text = ''
-                    e.SubElement(host_elem, 'hostname').text = hostname
-                    result.append(host_elem)
-                    print("NVT")
+                    result_host_elem = e.Element('host')
+                    result_host_elem.text = ip
+                    # e.SubElement(
+                    #    host_elem, 'asset', {'asset_id': host_id}
+                    # ).text = ''
+                    e.SubElement(result_host_elem, 'hostname').text = hostname
+                    result.append(result_host_elem)
 
                     nvt_elem = e.Element('nvt', {'oid': cve})
                     e.SubElement(nvt_elem, 'type').text = 'cve'
@@ -239,7 +287,6 @@ class Results:
 
                     result.append(nvt_elem)
 
-                    print('SEVERITY')
                     e.SubElement(result, 'severity').text = str(cvss)
 
                     host_elem.append(
@@ -255,8 +302,9 @@ class Results:
                     print(
                         e.tostring(result, pretty_print=True, with_tail=False)
                     )
-                    results.append(result)
-        return host_id, cvss
+                    self.results.append(result)
+
+        self.hosts.append(host_elem)
 
 
 class Hosts:
@@ -369,8 +417,7 @@ def parse_json(gmp, hosts_dump, cpe_list):
         hosts:       The host list
     """
 
-    results = Results(gmp=gmp)
-    hosts = Hosts()
+    report = Report(gmp=gmp)
 
     entries = []
     date_time = datetime.datetime.now()
@@ -409,7 +456,7 @@ def parse_json(gmp, hosts_dump, cpe_list):
             if isinstance(ips, str):
                 ips = [ips]
             for ip in ips:
-                results.add_results(
+                report.add_results(
                     ip=ip,
                     hostname=name,
                     cpes=vulns,
@@ -418,7 +465,9 @@ def parse_json(gmp, hosts_dump, cpe_list):
                     date_time=date_time,
                 )
 
-    return entries
+    report.finish_report()
+    report_id = report.send_report()
+    print(f"Sent report {report_id}.")
 
 
 def main(gmp, args):
