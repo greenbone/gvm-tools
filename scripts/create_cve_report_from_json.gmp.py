@@ -16,34 +16,69 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from uuid import UUID
-from cpe import CPE
-
-from typing import List, Dict, Tuple
-from datetime import date
-import datetime
-import time
-from argparse import ArgumentParser, RawTextHelpFormatter
-from lxml import etree as e
-from gvm.protocols.latest import InfoType
-from gvm.errors import GvmResponseError, GvmError
-from gvm.xml import pretty_print
-from gvmtools.helper import generate_uuid, error_and_exit
 import json
 import csv
+import datetime
+import time
+
 from pathlib import Path
+from typing import Dict, Tuple
+from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
+from lxml import etree as e
+from cpe import CPE
+from gvm.protocols.gmp import Gmp
+from gvm.protocols.latest import InfoType
+from gvm.xml import pretty_print
+from gvmtools.helper import generate_uuid, error_and_exit
 
 
 HELP_TEXT = (
-    'This script creates a cve report from a JSON document.'
-    ' Usable with gvm-script (gvm-tools)'
+    'This script creates a cve report from a JSON document.\n'
+    'The JSON document needs to be formatted like this: '
+    '['
+    '    {'
+    '        "headings": ['
+    '            "name",'
+    '            "IP Address",'
+    '            "IP range",'
+    '            "Operating System",'
+    '            "CPE String 23",'
+    '            "Name",'
+    '            "Full Version (version)",'
+    '            "CPE String 23"'
+    '        ],'
+    '        ...,'
+    '        "results": ['
+    '            ['
+    '                "foo",'
+    '                "127.0.0.1",'
+    '                "127.0.0.1/32",'
+    '                "Some Windows",'
+    '                "cpe:2.3:o:microsoft:some_windows:-:*:*:*:*:*:*:*",'
+    '                ['
+    '                    "Some Microsoftware",'
+    '                    .'
+    '                ],'
+    '                ['
+    '                    "0.1",'
+    '                    ...'
+    '                ],'
+    '                ['
+    '                    "cpe:2.3:a:microsoft:microsoftware:0.1:*:*:*:*:*:*:*",'
+    '                    ...'
+    '                ]'
+    '            ],'
+    '        ]'
+    '    }'
+    ']'
+    ' Usable with gvm-script (gvm-tools). Help: gvm-script -h'
 )
 
 
 class CPELookup:
     """Class handles the CPEs"""
 
-    def __init__(self, filename):
+    def __init__(self, filename: Path):
         try:
             self.file = open(filename, 'r')
             self.reader = csv.reader(self.file)
@@ -56,7 +91,7 @@ class CPELookup:
             )
 
     def get_cves(self, cpes):
-        """Get CVEs for the CPEs"""
+        """Get CVEs for the CPEs from the CSV List"""
         d1 = datetime.datetime.now()
         print(f'Serching CVEs for {str(len(cpes))}:', end=None)
         vulns = {}
@@ -80,20 +115,30 @@ class CPELookup:
 
 class ListGenerator:
     """
-    Creating the initial lists for this script.
+    Creating the CPE to CVE list used for the report generation
+    in this this script.
     """
 
-    def __init__(self, gmp, filename="cpes.csv"):
+    def __init__(self, gmp: Gmp, filename: Path, recreate: bool):
         self.gmp = gmp
+        if filename.exists():
+            if recreate:
+                filename.unlink()
+            else:
+                error_and_exit(
+                    f'The file "{filename}" already exists. '
+                    'If you want to delete the old list and '
+                    'recreate the list run with "++create-list '
+                    f'recreate +f {filename}"'
+                )
         self.file = open(filename, 'w')
 
-    def get_cve_from_cpe_id(self, cpe_id):
-        cves = []
-        return cves
-
-    def cpe_to_cve(self, resp):
+    def _cpe_to_cve(self, resp):
+        """ Write the CPEs and CVEs to the list """
         cve_tags = resp.findall('info')
-        for cve_tag in cve_tags[:-1]:
+        for cve_tag in cve_tags[
+            :-1
+        ]:  # -1 because the last info tag is a wrongy. :D
             cve = None
             cpes = None
             if 'id' in cve_tag.attrib:
@@ -108,15 +153,28 @@ class ListGenerator:
                             end='\n',
                         )
 
-    def create_cve_list(self, step=1000):
+    def create_cve_list(self, step: int = 3000):
+        """Creates a CPE to CVE list in a CSV format:
+        'cpe', 'cve', 'cvss'
+        The CPE's have a 1-to-1-relation to the CVE's
+        so CPE's can appear more then once in this
+        list
+
+        step(int): How many CVEs will be requested from the GSM
+                   in one request. Be careful with higher values.
+                   You will need to set the default timeout in
+                   gvm-tools higher if you set step >3000. A higher
+                   step will make the list generation faster.
+        """
         resp = self.gmp.get_info_list(info_type=InfoType.CVE, filter='rows=1')
         count = resp.find('info_count').text
 
-        counter = int(count)
-        print(f'Found {count} CVEs.')
+        print(f'Creating CPE to CVE list. Found {count} CVE\'s.')
 
         first = 0
+        counter = int(count)
         d1 = datetime.datetime.now()
+        print(f'[{" " * 50}] | ({str(first)}/{count})', flush=True, end='')
         while counter > step:
             resp = self.gmp.get_info_list(
                 info_type=InfoType.CVE, filter=f'rows={step} first={first}'
@@ -125,37 +183,23 @@ class ListGenerator:
             counter = counter - step
             first = first + step
 
-            self.cpe_to_cve(resp)
+            self._cpe_to_cve(resp)
+            points = int(((first / int(count)) * 100) / 2)
+            percent = str("." * points + " " * (50 - points))
             print(
-                f'CVEs left: {str(counter)}/{count} TIME CONSUMED: {str(datetime.datetime.now() - d1)}'
+                f'\r[{percent}] | ({str(first)}/{count}) '
+                f'TIME CONSUMED: {str(datetime.datetime.now() - d1)}',
+                flush=True,
+                end='',
             )
 
         # find the rest
         resp = self.gmp.get_info_list(
             info_type=InfoType.CVE, filter=f'rows={counter} first={first}'
         )
-        self.cpe_to_cve(resp)
+        self._cpe_to_cve(resp)
 
-    def finish_list(self):
         self.file.close()
-
-
-def generate_host_detail_elem(
-    name, value, source_name=None, source_description=None, source_type=None
-):
-    host_detail_elem = e.Element('detail')
-    e.SubElement(host_detail_elem, 'name').text = name
-    e.SubElement(host_detail_elem, 'value').text = value
-
-    if source_name:
-        source_elem = e.SubElement(host_detail_elem, 'source')
-        e.SubElement(source_elem, 'name').text = source_name
-        if source_type:
-            e.SubElement(source_elem, 'type').text = source_type
-        if source_description:
-            e.SubElement(source_elem, 'description').text = source_description
-
-    return host_detail_elem
 
 
 class Report:
@@ -180,9 +224,7 @@ class Report:
         )
         owner_elem = e.SubElement(self.report, 'owner')
         e.SubElement(owner_elem, 'name').text = ''
-        e.SubElement(
-            self.report, 'name'
-        ).text = f'Report created from JSON-File'
+        e.SubElement(self.report, 'name').text = 'Report created from JSON-File'
 
         inner_report = e.SubElement(
             self.report, 'report', {'id': self.report_id}
@@ -215,22 +257,45 @@ class Report:
 
         return res.xpath('//@id')[0]
 
+    def generate_host_detail(
+        self,
+        name,
+        value,
+        source_name=None,
+        source_description=None,
+        source_type=None,
+    ):
+        """ Generating a host details xml element """
+        host_detail_elem = e.Element('detail')
+        e.SubElement(host_detail_elem, 'name').text = name
+        e.SubElement(host_detail_elem, 'value').text = value
+
+        if source_name:
+            source_elem = e.SubElement(host_detail_elem, 'source')
+            e.SubElement(source_elem, 'name').text = source_name
+            if source_type:
+                e.SubElement(source_elem, 'type').text = source_type
+            if source_description:
+                e.SubElement(
+                    source_elem, 'description'
+                ).text = source_description
+
+        return host_detail_elem
+
     def add_results(self, ip, hostname, cpes: Dict, cpeo, os, date_time):
-        print("ADDING RESULTS")
         host_elem = e.Element('host')
         host_id = generate_uuid()
         e.SubElement(host_elem, 'ip').text = ip
-        # e.SubElement(host_elem, 'asset', {'asset_id': host_id}).text = ''
+        e.SubElement(host_elem, 'asset', {'asset_id': host_id})
 
         source_name = 'gvm-tools'
-        print("ADDED HOST ELEM")
         host_elem.append(
-            generate_host_detail_elem(
+            self.generate_host_detail(
                 name='hostname', value=hostname, source_name=source_name
             )
         )
         host_elem.append(
-            generate_host_detail_elem(
+            self.generate_host_detail(
                 name='best_os_txt',
                 value=os,
                 source_name=source_name,
@@ -238,7 +303,7 @@ class Report:
             )
         )
         host_elem.append(
-            generate_host_detail_elem(
+            self.generate_host_detail(
                 name='best_os_cpe',
                 value=cpeo,
                 source_name=source_name,
@@ -248,17 +313,12 @@ class Report:
 
         date_format = '%Y-%m-%dT%H:%M:%S'
         date_time = f'{date_time.strftime(date_format)}+01:00'
-        print("SO FAR")
 
         for cpe, cves in cpes.items():
-            print(f"UNPACKED CPE: {str(cpe)}:")
-            print(cves)
             if cves:
                 for cve, cvss in cves.items():
-                    print("UNPACKED CVES")
                     result_id = generate_uuid()
                     result = e.Element('result', {'id': result_id})
-                    print("RESULT")
                     e.SubElement(result, 'name').text = f'Result for host {ip}'
                     e.SubElement(
                         result, 'comment'
@@ -270,12 +330,13 @@ class Report:
                         detect_elem, 'result', {'id': result_id}
                     )
                     details_elem = e.SubElement(detect_result_elem, 'details')
+                    # We need to add the detection details here
+                    # but actually they are not imported to GSM anyways ...
+                    e.SubElement(details_elem, 'detail')
 
                     result_host_elem = e.Element('host')
                     result_host_elem.text = ip
-                    # e.SubElement(
-                    #    host_elem, 'asset', {'asset_id': host_id}
-                    # ).text = ''
+                    e.SubElement(host_elem, 'asset', {'asset_id': host_id})
                     e.SubElement(result_host_elem, 'hostname').text = hostname
                     result.append(result_host_elem)
 
@@ -290,7 +351,7 @@ class Report:
                     e.SubElement(result, 'severity').text = str(cvss)
 
                     host_elem.append(
-                        generate_host_detail_elem(
+                        self.generate_host_detail(
                             name='App',
                             value=cpe,
                             source_type='cve',
@@ -299,9 +360,6 @@ class Report:
                         )
                     )
 
-                    print(
-                        e.tostring(result, pretty_print=True, with_tail=False)
-                    )
                     self.results.append(result)
 
         self.hosts.append(host_elem)
@@ -317,7 +375,7 @@ class Hosts:
         pass
 
 
-def convert_cpe23_to_cpe22(cpe):
+def convert_cpe23_to_cpe22(cpe: str) -> Tuple[str, bool]:
     """Convert a CPE v2.3 to a CPE v2.2
     returns the CPE v2.2 and True if no product
     version is given
@@ -333,7 +391,7 @@ def convert_cpe23_to_cpe22(cpe):
     )
 
 
-def parse_args(args):  # pylint: disable=unused-argument
+def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     """ Parsing args ... """
 
     parser = ArgumentParser(
@@ -352,7 +410,11 @@ def parse_args(args):  # pylint: disable=unused-argument
 
     parser.add_argument(
         '++create-list',
-        action='store_true',
+        nargs='?',
+        type=str,
+        choices=('no_creation', 'recreate', 'create'),
+        const='create',
+        default='no_creation',
         dest="create_list",
         help="Create the CPE to CVE helper list",
     )
@@ -362,6 +424,7 @@ def parse_args(args):  # pylint: disable=unused-argument
         '++list',
         type=str,
         dest="list",
+        required=True,
         help="Create the CPE to CVE helper list",
     )
 
@@ -378,32 +441,24 @@ def parse_args(args):  # pylint: disable=unused-argument
     return args
 
 
-def add_cpe_dict(cpe: e.Element) -> Dict:
-    cves = []
-    for cve in cpe.find('cpe').find('cves').findall('cve'):
-        cves.append(cve.find('*').get('id'))
-    return {cpe: [cves]}
-
-
 def get_cpe(gmp, cpe):
-    # print("GET")
+    """Parse and return the CPE's from the JSON.
+    Convert the CPEs to v2.2 and check if they have a
+    version part. If not get this CPE in all versions
+    from the GSM and return them. This may result in
+    a lot of false positives or false negatives.
+    """
     cpe = convert_cpe23_to_cpe22(cpe)
-    # print(cpe)
     if cpe[1] is False:
-        print(f'Found 1 CPE with version.')
         return [cpe[0]]
 
     cpes = []
-    d2 = datetime.datetime.now()
-    # print("Jo2")
     cpe_xml = gmp.get_info_list(
         info_type=InfoType.CPE, filter='rows=-1 uuid~"{}:"'.format(cpe[0])
     )
     infos = cpe_xml.findall('info')
-    for cpe in infos[:-1]:
+    for cpe in infos[:-1]:  # -1 because the last info tag is a wrongy. :D
         cpes.append(cpe.get('id'))
-    d3 = datetime.datetime.now()
-    print(f'Found {str(len(infos[:-1]))} CPEs without version: {str(d3 - d2)}.')
     return cpes
 
 
@@ -411,50 +466,40 @@ def parse_json(gmp, hosts_dump, cpe_list):
     """Loads an JSON file and extracts host informations:
 
     Args:
-        host_dump
-
-    Returns:
-        hosts:       The host list
+        host_dump: the dumped json results, containing a hostname,
+                   host_ip, host_ip_range, host_operating_system,
+                   host_os_cpe, arrays of found_app, app_version,
+                   app_cpe
     """
 
     report = Report(gmp=gmp)
 
-    entries = []
     date_time = datetime.datetime.now()
 
     for entry in hosts_dump:
         if entry[3] is None:
             error_and_exit("The JSON format is not correct.")
         name = entry[0]
-        print(f"Host {name}")
+        print(f"Creating Results for the host {name}")
         ips = entry[1]
-        ip_range = entry[2]
+        if isinstance(ips, str):
+            ips = [ips]
         os = entry[3]
         os_cpe = convert_cpe23_to_cpe22(entry[4])[0]
 
-        objs = []
-        # adding the app/apps in the host object (if there are any ...)
-        # I hope this is not all to bad performing ...
         cpes = []
-        # entry[7] should be cpes ...
+        # entry[7] should be the CPEs ...
         if entry[7] is not None:
-            # print(entry[7])
             if isinstance(entry[7], str):
                 cpes.extend(get_cpe(gmp, entry[7]))
             else:
-                print(f'Entry CPEs {str(len(entry[7]))}')
-                i = 0
                 for cpe in entry[7]:
-                    print(f'Entry {str(i)}: {cpe}')
                     if cpe:
                         cpes.extend(get_cpe(gmp, cpe))
-                    i = i + 1
 
         vulns = cpe_list.get_cves(cpes)
         if vulns:
-            print("WE GOT CPES")
-            if isinstance(ips, str):
-                ips = [ips]
+            print("Found CVEs!")
             for ip in ips:
                 report.add_results(
                     ip=ip,
@@ -467,7 +512,7 @@ def parse_json(gmp, hosts_dump, cpe_list):
 
     report.finish_report()
     report_id = report.send_report()
-    print(f"Sent report {report_id}.")
+    print(f"New CVE Scanner Report {report_id} imported.")
 
 
 def main(gmp, args):
@@ -475,19 +520,21 @@ def main(gmp, args):
 
     parsed_args = parse_args(args=args)
 
-    if parsed_args.create_list:
-        print("Generating CVE to CPE list")
+    recreate = False
+    if parsed_args.create_list == 'recreate':
+        recreate = True
+    if parsed_args.create_list != 'no_creation':
+        print("Generating CVE to CPE list.")
         list_generator = ListGenerator(
-            gmp, filename=Path(parsed_args.list).absolute()
+            gmp, filename=Path(parsed_args.list).absolute(), recreate=recreate
         )
         list_generator.create_cve_list()
-        list_generator.finish_list()
-        print("Done.")
+        print("Generation of CVE to CPE list done.")
     if parsed_args.json_file:
         cpe_list = CPELookup(parsed_args.list)
         print("Looking up hosts ...")
         with open(parsed_args.json_file, 'r') as fp:
-            hosts = parse_json(gmp, json.load(fp)[0]['results'], cpe_list)
+            parse_json(gmp, json.load(fp)[0]['results'], cpe_list)
 
 
 if __name__ == '__gmp__':
