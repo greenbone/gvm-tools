@@ -236,7 +236,6 @@ class Report:
         inner_report.append(ports_elem)
         inner_report.append(self.results)
         for host in self.hosts:
-            pretty_print(host)
             inner_report.append(host)
         self.report.append(inner_report)
 
@@ -283,12 +282,17 @@ class Report:
         return host_detail_elem
 
     def add_results(self, ip, hostname, cpes: Dict, cpeo, os, date_time):
-        host_elem = e.Element('host')
         host_id = generate_uuid()
+        source_name = 'gvm-tools'
+        date_format = '%Y-%m-%dT%H:%M:%S'
+        date_time = f'{date_time.strftime(date_format)}Z'
+
+        host_elem = e.Element('host')
         e.SubElement(host_elem, 'ip').text = ip
         e.SubElement(host_elem, 'asset', {'asset_id': host_id})
-
-        source_name = 'gvm-tools'
+        e.SubElement(host_elem, 'start').text = date_time
+        e.SubElement(host_elem, 'end').text = date_time
+        host_result_count_elem = e.SubElement(host_elem, 'result_count')
         host_elem.append(
             self.generate_host_detail(
                 name='hostname', value=hostname, source_name=source_name
@@ -311,9 +315,7 @@ class Report:
             )
         )
 
-        date_format = '%Y-%m-%dT%H:%M:%S'
-        date_time = f'{date_time.strftime(date_format)}+01:00'
-
+        host_details = 0
         for cpe, cves in cpes.items():
             if cves:
                 for cve, cvss in cves.items():
@@ -336,7 +338,9 @@ class Report:
 
                     result_host_elem = e.Element('host')
                     result_host_elem.text = ip
-                    e.SubElement(host_elem, 'asset', {'asset_id': host_id})
+                    e.SubElement(
+                        result_host_elem, 'asset', {'asset_id': host_id}
+                    )
                     e.SubElement(result_host_elem, 'hostname').text = hostname
                     result.append(result_host_elem)
 
@@ -359,9 +363,10 @@ class Report:
                             source_description='CVE Scanner',
                         )
                     )
+                    host_details = host_details + 1
 
                     self.results.append(result)
-
+        e.SubElement(host_result_count_elem, 'page').text = str(host_details)
         self.hosts.append(host_elem)
 
 
