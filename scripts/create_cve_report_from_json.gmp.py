@@ -75,42 +75,49 @@ HELP_TEXT = (
 )
 
 
-class CPELookup:
-    """Class handles the CPEs"""
+class ProgressBar:
+    def __init__(self, length: int, count: int, pl_name: str):
+        self.length = length
+        self.count = count
+        self.current = 0
+        self.start_time = datetime.datetime.now()
+        self.entities = pl_name
 
-    def __init__(self, filename: Path):
-        try:
-            self.file = open(filename, 'r')
-            self.reader = csv.reader(self.file)
-        except FileNotFoundError:
-            error_and_exit(
-                f'There is no file "{filename}". '
-                'Maybe you need to create a list first. Run with '
-                f'argument "++create-list +f {filename}", to create '
-                'a new list, or pass the correct location of an existing list.'
-            )
+        self.eta = '???'
+        self.seq = ''
+        self.end = ''
 
-    def get_cves(self, cpes):
-        """Get CVEs for the CPEs from the CSV List"""
-        d1 = datetime.datetime.now()
-        print(f'Serching CVEs for {str(len(cpes))}:', end=None)
-        vulns = {}
-        i = 0
-        for cpe in cpes:
-            vulns[cpe] = {}
-        for row in self.reader:  # O(n)
-            for cpe in cpes:
-                if cpe in row[0]:
-                    vulns[cpe][row[1].strip("'")] = float(row[2].strip("'"))
-                    i = i + 1
-        self.file.seek(0)
-        d2 = datetime.datetime.now()
-        print(f'Found {str(i)} CVEs. Time consumed: {str(d2 - d1)}')
+        self._print()
+        self.seq = '\r'
 
-        return vulns
+    def _leading_zeros(self) -> str:
+        return (len(str(self.count)) - len(str(self.current))) * ' '
 
-    def finish_lookup(self):
-        self.file.close()
+    def _bar(self):
+        points = int(self.length * (self.current / self.count))
+        return str("·" * points + " " * (self.length - points))
+
+    def _print(self):
+        print(
+            f'{self.seq}[{self._bar()}] | '
+            f'{self._leading_zeros()}{str(self.current)}/{str(self.count)} '
+            f'{self.entities} processed. | '
+            f'ETA: {self.eta}',
+            flush=True,
+            end=self.end,
+        )
+
+    def update(self, progressed):
+        self.current = progressed
+        elapsed = datetime.datetime.now() - self.start_time
+        self.eta = str(elapsed / self.current * (self.count - self.current))
+        self._print()
+
+    def done(self):
+        self.current = self.count
+        self.eta = 'Done!         '
+        self.end = '\n'
+        self._print()
 
 
 class ListGenerator:
@@ -169,13 +176,12 @@ class ListGenerator:
         resp = self.gmp.get_info_list(info_type=InfoType.CVE, filter='rows=1')
         count = resp.find('info_count').text
 
-        print(f'Creating CPE to CVE list. Found {count} CVE\'s.')
-
         first = 0
-        counter = int(count)
-        d1 = datetime.datetime.now()
+        count = int(count)
+        print(f'Creating CPE to CVE list. Found {count} CVE\'s.')
+        progress_bar = ProgressBar(length=100, count=count, pl_name='CVEs')
         print(f'[{" " * 50}] | ({str(first)}/{count})', flush=True, end='')
-        while counter > step:
+        while (first + step) < count:
             resp = self.gmp.get_info_list(
                 info_type=InfoType.CVE, filter=f'rows={step} first={first}'
             )
@@ -184,20 +190,15 @@ class ListGenerator:
             first = first + step
 
             self._cpe_to_cve(resp)
-            points = int(((first / int(count)) * 100) / 2)
-            percent = str("." * points + " " * (50 - points))
-            print(
-                f'\r[{percent}] | ({str(first)}/{count}) '
-                f'TIME CONSUMED: {str(datetime.datetime.now() - d1)}',
-                flush=True,
-                end='',
-            )
+            progress_bar.update(progressed=first)
 
         # find the rest
         resp = self.gmp.get_info_list(
-            info_type=InfoType.CVE, filter=f'rows={counter} first={first}'
+            info_type=InfoType.CVE,
+            filter=f'rows={counter - first} first={first}',
         )
         self._cpe_to_cve(resp)
+        progress_bar.done()
 
         self.file.close()
 
@@ -235,8 +236,7 @@ class Report:
 
         inner_report.append(ports_elem)
         inner_report.append(self.results)
-        for host in self.hosts:
-            inner_report.append(host)
+        inner_report.extend(self.hosts)
         self.report.append(inner_report)
 
     def send_report(self) -> str:
@@ -370,14 +370,130 @@ class Report:
         self.hosts.append(host_elem)
 
 
-class Hosts:
-    """Class to store the host elements"""
+class Parser:
+    """Class handles the Parsing from JSON to a Report"""
 
-    def __init__(self):
-        self.hosts = []
+    def __init__(self, gmp: Gmp, json_file: Path, cpe_list: Path) -> None:
+        try:
+            self.cpe_list = open(cpe_list, 'r')
+            self.reader = csv.reader(self.cpe_list)
+        except FileNotFoundError:
+            error_and_exit(
+                f'There is no file "{cpe_list}". '
+                'Maybe you need to create a list first. Run with '
+                f'argument "++create-list +f {cpe_list}", to create '
+                'a new list, or pass the correct location of an existing list.'
+            )
+        self.gmp = gmp
+        try:
+            self.json_fp = open(json_file)
+            self.json_dump = json.load(self.json_fp)[0]['results']
+        except FileNotFoundError:
+            error_and_exit(f'There is no file "{json_file}".')
+        except json.JSONDecodeError as e:
+            error_and_exit(f'The JSON seems to be invalid: {e.args[0]}')
 
-    def add_host(self):
-        pass
+    def parse(self) -> Report:
+        """Loads an JSON file and extracts host informations:
+
+        Args:
+            host_dump: the dumped json results, containing a hostname,
+                    host_ip, host_ip_range, host_operating_system,
+                    host_os_cpe, arrays of found_app, app_version,
+                    app_cpe
+        """
+
+        report = Report(gmp=gmp)
+
+        date_time = datetime.datetime.now()
+
+        count = len(self.json_dump)
+        progressed = 0
+        print(f'Found {str(count)} hosts:')
+
+        progressbar = ProgressBar(length=100, count=count, pl_name="Hosts")
+
+        for entry in self.json_dump:
+            if entry[3] is None:
+                error_and_exit("The JSON format is not correct.")
+            name = entry[0]
+            # print(f"Creating Results for the host {name}")
+            ips = entry[1]
+            if isinstance(ips, str):
+                ips = [ips]
+            os = entry[3]
+            os_cpe = convert_cpe23_to_cpe22(entry[4])[0]
+
+            cpes = []
+            # entry[7] should be the CPEs ...
+            if entry[7] is not None:
+                if isinstance(entry[7], str):
+                    cpes.extend(self._get_cpes(entry[7]))
+                else:
+                    for cpe in entry[7]:
+                        if cpe:
+                            cpes.extend(self._get_cpes(cpe))
+
+            vulns = self._get_cves(cpes)
+            if vulns:
+                for ip in ips:
+                    report.add_results(
+                        ip=ip,
+                        hostname=name,
+                        cpes=vulns,
+                        cpeo=os_cpe,
+                        os=os,
+                        date_time=date_time,
+                    )
+
+            progressed += 1
+            progressbar.update(progressed=progressed)
+
+        progressbar.done()
+        print("Nice ...")
+        print(report.results)
+        return report
+
+    def _get_cpes(self, cpe):
+        """Parse and return the CPE's from the JSON.
+        Convert the CPEs to v2.2 and check if they have a
+        version part. If not get this CPE in all versions
+        from the GSM and return them. This may result in
+        a lot of false positives or false negatives.
+        """
+        cpe = convert_cpe23_to_cpe22(cpe)
+        if cpe[1] is False:
+            return [cpe[0]]
+
+        cpes = []
+        cpe_xml = self.gmp.get_info_list(
+            info_type=InfoType.CPE, filter='rows=-1 uuid~"{}:"'.format(cpe[0])
+        )
+        infos = cpe_xml.findall('info')
+        for cpe in infos[:-1]:  # -1 because the last info tag is a wrongy. :D
+            cpes.append(cpe.get('id'))
+        return cpes
+
+    def _get_cves(self, cpes):
+        """Get CVEs for the CPEs from the CSV List"""
+        d1 = datetime.datetime.now()
+        # print(f'Serching CVEs for {str(len(cpes))}:', end=None)
+        vulns = {}
+        i = 0
+        for row in self.reader:  # O(n)
+            for cpe in cpes:
+                vulns[cpe] = {}
+                if cpe in row[0]:
+                    vulns[cpe][row[1].strip("'")] = float(row[2].strip("'"))
+                    i = i + 1
+        self.cpe_list.seek(0)
+        d2 = datetime.datetime.now()
+        # print(f'Found {str(i)} CVEs. Time consumed: {str(d2 - d1)}')
+
+        return vulns
+
+    def finish_lookup(self):
+        self.file.close()
 
 
 def convert_cpe23_to_cpe22(cpe: str) -> Tuple[str, bool]:
@@ -446,80 +562,6 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     return args
 
 
-def get_cpe(gmp, cpe):
-    """Parse and return the CPE's from the JSON.
-    Convert the CPEs to v2.2 and check if they have a
-    version part. If not get this CPE in all versions
-    from the GSM and return them. This may result in
-    a lot of false positives or false negatives.
-    """
-    cpe = convert_cpe23_to_cpe22(cpe)
-    if cpe[1] is False:
-        return [cpe[0]]
-
-    cpes = []
-    cpe_xml = gmp.get_info_list(
-        info_type=InfoType.CPE, filter='rows=-1 uuid~"{}:"'.format(cpe[0])
-    )
-    infos = cpe_xml.findall('info')
-    for cpe in infos[:-1]:  # -1 because the last info tag is a wrongy. :D
-        cpes.append(cpe.get('id'))
-    return cpes
-
-
-def parse_json(gmp, hosts_dump, cpe_list):
-    """Loads an JSON file and extracts host informations:
-
-    Args:
-        host_dump: the dumped json results, containing a hostname,
-                   host_ip, host_ip_range, host_operating_system,
-                   host_os_cpe, arrays of found_app, app_version,
-                   app_cpe
-    """
-
-    report = Report(gmp=gmp)
-
-    date_time = datetime.datetime.now()
-
-    for entry in hosts_dump:
-        if entry[3] is None:
-            error_and_exit("The JSON format is not correct.")
-        name = entry[0]
-        print(f"Creating Results for the host {name}")
-        ips = entry[1]
-        if isinstance(ips, str):
-            ips = [ips]
-        os = entry[3]
-        os_cpe = convert_cpe23_to_cpe22(entry[4])[0]
-
-        cpes = []
-        # entry[7] should be the CPEs ...
-        if entry[7] is not None:
-            if isinstance(entry[7], str):
-                cpes.extend(get_cpe(gmp, entry[7]))
-            else:
-                for cpe in entry[7]:
-                    if cpe:
-                        cpes.extend(get_cpe(gmp, cpe))
-
-        vulns = cpe_list.get_cves(cpes)
-        if vulns:
-            print("Found CVEs!")
-            for ip in ips:
-                report.add_results(
-                    ip=ip,
-                    hostname=name,
-                    cpes=vulns,
-                    cpeo=os_cpe,
-                    os=os,
-                    date_time=date_time,
-                )
-
-    report.finish_report()
-    report_id = report.send_report()
-    print(f"New CVE Scanner Report {report_id} imported.")
-
-
 def main(gmp, args):
     # pylint: disable=undefined-variable
 
@@ -536,10 +578,13 @@ def main(gmp, args):
         list_generator.create_cve_list()
         print("Generation of CVE to CPE list done.")
     if parsed_args.json_file:
-        cpe_list = CPELookup(parsed_args.list)
-        print("Looking up hosts ...")
-        with open(parsed_args.json_file, 'r') as fp:
-            parse_json(gmp, json.load(fp)[0]['results'], cpe_list)
+        report = Parser(
+            gmp=gmp, json_file=parsed_args.json_file, cpe_list=parsed_args.list
+        ).parse()
+
+        report.finish_report()
+        report_id = report.send_report()
+        print(f"Imported Report [{report_id}]")
 
 
 if __name__ == '__gmp__':
