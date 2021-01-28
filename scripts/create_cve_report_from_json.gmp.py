@@ -20,15 +20,14 @@ import json
 import csv
 import datetime
 import time
-
 from pathlib import Path
+
 from typing import Dict, Tuple
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 from lxml import etree as e
 from cpe import CPE
 from gvm.protocols.gmp import Gmp
 from gvm.protocols.latest import InfoType
-from gvm.xml import pretty_print
 from gvmtools.helper import generate_uuid, error_and_exit
 
 
@@ -185,11 +184,8 @@ class ListGenerator:
             resp = self.gmp.get_info_list(
                 info_type=InfoType.CVE, filter=f'rows={step} first={first}'
             )
-            # refresh the counters
-            counter = counter - step
-            first = first + step
-
             self._cpe_to_cve(resp)
+            first = first + step
             progress_bar.update(progressed=first)
 
         # find the rest
@@ -476,8 +472,6 @@ class Parser:
 
     def _get_cves(self, cpes):
         """Get CVEs for the CPEs from the CSV List"""
-        d1 = datetime.datetime.now()
-        # print(f'Serching CVEs for {str(len(cpes))}:', end=None)
         vulns = {}
         i = 0
         for row in self.reader:  # O(n)
@@ -487,13 +481,12 @@ class Parser:
                     vulns[cpe][row[1].strip("'")] = float(row[2].strip("'"))
                     i = i + 1
         self.cpe_list.seek(0)
-        d2 = datetime.datetime.now()
-        # print(f'Found {str(i)} CVEs. Time consumed: {str(d2 - d1)}')
 
         return vulns
 
     def finish_lookup(self):
-        self.file.close()
+        self.json_fp.close()
+        self.cve_list.close()
 
 
 def convert_cpe23_to_cpe22(cpe: str) -> Tuple[str, bool]:
