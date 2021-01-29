@@ -1,15 +1,21 @@
 # Release instructions
 
 Before creating a new release please do a careful consideration about the
-version number for the new release. We are following [Semantic Versioning](https://semver.org/)
+version number for the new release. We are following [Calendar Versioning](https://calver.org)
 and [PEP440](https://www.python.org/dev/peps/pep-0440/).
 
 ## Preparing the Required Python Packages
 
-* Install twine for pypi package uploads and update poetry
+* Install development dependencies
 
   ```sh
-  python3 -m pip install --user --upgrade twine poetry
+  poetry install
+  ```
+
+* Install twine for pypi package uploads
+
+  ```sh
+  python3 -m pip install --user --upgrade twine
   ```
 
 ## Configuring the Access to the Python Package Index (PyPI)
@@ -36,14 +42,32 @@ first time.
   [testpypi]
   repository = https://test.pypi.org/legacy/
   username = <username>
+  ```
 
-## Prepare testing the Release
+## Create a GitHub Token for uploading the release files
 
-* Fetch upstream changes and create release branch
+This step is only necessary if the token has to be created for the first time or
+if it has been lost.
+
+* Open Github Settings at https://github.com/settings/tokens
+* Create a new token
+* Copy token and store it carefully
+* Export token and GitHub user name in your current shell
 
   ```sh
+  export GITHUB_TOKEN=<token>
+  export GITHUB_USER=<name>
+  ```
+
+
+## Prepare testing the to be released version
+
+* Fetch upstream changes
+
+  ```sh
+  git remote add upstream git@github.com:greenbone/gvm-tools.git
   git fetch upstream
-  git checkout -b create-new-release upstream/master
+  git rebase update/master
   ```
 
 * Get the current version number
@@ -52,10 +76,10 @@ first time.
   poetry run python -m pontos.version show
   ```
 
-* Update the version number to some alpha version e.g.
+* Update the version number to some dev version e.g.
 
   ```sh
-  poetry run python -m pontos.version update 1.2.3a1
+  poetry run python -m pontos.version update 20.8.2dev1
   ```
 
 ## Uploading to the PyPI Test Instance
@@ -63,7 +87,7 @@ first time.
 * Create a source and wheel distribution:
 
   ```sh
-  rm -rf dist build gvm_tools.egg-info
+  rm -rf dist build python_gvm.egg-info
   poetry build
   ```
 
@@ -91,7 +115,7 @@ first time.
 * Check install version with a Python script:
 
   ```sh
-  python3 -c "from gvmtools.__version__ import __version__; print(__version__)"
+  python3 -c "from gvm import __version__; print(__version__)"
   ```
 
 * Remove test environment:
@@ -104,67 +128,37 @@ first time.
 
 ## Prepare the Release
 
-* Determine new release version number
-
-  If the output is something like  `1.2.3.dev1` or `1.2.3a1`, the new version
-  should be `1.2.3`.
-
-* Update to new version number (`<new-version>` must be replaced by the version
-  from the last step)
+* Run pontos-release prepare
 
   ```sh
-  cd path/to/git/clone/of/gvm-tools
-  poetry run python -m pontos.version update <new-version>
+  poetry run pontos-release --release-version <version> --next-release-version <dev-version> --project gvm-tools --space greenbone --git-signing-key <your-public-gpg-key> --git-remote-name upstream prepare
   ```
 
-* Update the `CHANGELOG.md` file:
-  * Change `[unreleased]` to new release version.
-  * Add a release date.
-  * Update reference to Github diff.
-  * Remove empty sub sections like *Deprecated*.
+* Check git log and tag
 
-* Create a git commit
+  ```
+  git log -p
+
+  # is the changelog correct?
+  # does the version look right?
+  # does the tag point to the correct commit?
+  ```
+
+* If something did go wrong delete the tag, revert the commits and remove the
+  temporary file for the release changelog
+
+  ```
+  git tag -d v<version>
+  git reset <last-commit-id-before-running-pontos-release> --hard
+  rm .release.txt.md
+  ```
+
+## Create the Release
+
+* Run pontos-release release
 
   ```sh
-  git add .
-  git commit -m "Prepare release <version>"
-  ```
-
-## Performing the Release on GitHub
-
-* Create a pull request (PR) for the earlier commit:
-
-  ```sh
-  git push origin
-  ```
-  Open GitHub and create a PR against <https://github.com/greenbone/gvm-tools>.
-
-* Ask another developer/maintainer to review and merge the PR.
-
-* Once the PR is merged, update the local `master` branch:
-
-  ```sh
-  git fetch upstream
-  git rebase upstream/master master
-  ```
-
-* Create a git tag:
-
-  ```sh
-  git tag v<version>
-  ```
-
-  Or even a tag signed with a personal GPG key:
-
-  ```sh
-  git tag --sign --message "Tagging the <version> release" v<version>
-  ```
-
-* Push changes and tag to Github:
-
-  ```sh
-  git push --tags upstream
-  ```
+  poetry run pontos-release --release-version <version> --next-release-version <dev-version> --project gvm-tools --space greenbone --git-signing-key <your-public-gpg-key> --git-remote-name upstream release
 
 ## Uploading to the 'real' PyPI
 
@@ -172,30 +166,8 @@ first time.
 
 * Check if new version is available at <https://pypi.org/project/gvm-tools>.
 
-## Bumping `master` Branch to the Next Version
+## Check the Release
 
+* Check the Github release:
 
-  * Update to a Development Version
-
-  The next version should contain an incremented minor version and a dev suffix
-  e.g. `2.3.0.dev1`. For example, if the released version was  `1.2.3`, it
-  should be changed to
-  `1.3.0.dev1`.
-
-  ```sh
-  poetry run python -m pontos.version update <next-dev-version>
-  ```
-
-* Create a commit for the version bump:
-
-  ```sh
-  git add .
-  git commit -m "Update version after <version> release"
-  git push upstream
-  ```
-
-## Announcing the Release
-
-* Create a Github release:
-
-  See https://help.github.com/articles/creating-releases/
+  See https://github.com/greenbone/gvm-tools/releases
