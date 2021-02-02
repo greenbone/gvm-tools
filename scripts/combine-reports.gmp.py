@@ -104,7 +104,7 @@ def send_report(gmp: Gmp, args: Namespace, combined_report: e.Element) -> str:
 
     combined_report = e.tostring(combined_report)
 
-    res = gmp.import_report(combined_report, task_id=task_id)
+    res = gmp.import_report(combined_report, task_id=task_id, in_assets=True)
 
     return res.xpath('//@id')[0]
 
