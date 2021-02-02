@@ -1,2 +1,4 @@
 # required for monthly-report and monthly-report2
 terminaltables
+# required for create-cve-report-from-json
+cpe
