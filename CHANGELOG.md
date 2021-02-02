@@ -20,6 +20,8 @@ $ cd gvm-tools && git log
 * Added new script `script/create-cve-report-from-json.gmp.py` that generates an CVE Report from an correctly formatted JSON. [#376](https://github.com/greenbone/gvm-tools/pull/376)
 
 ### Changed
+* Added `in_asset` argument to `import_report()` to `script/combine-reports.gmp.py` [#383](https://github.com/greenbone/gvm-tools/pull/383)
+
 ### Deprecated
 ### Removed
 ### Fixed
