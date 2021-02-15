@@ -343,7 +343,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "pontos"
-version = "0.3.1"
+version = "21.2.0"
 description = "Common utilities and tools maintained by Greenbone Networks"
 category = "dev"
 optional = false
@@ -661,7 +661,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "1bf2e66012de4bf20779a1f829b84f9f1d164d02a860957e959c02e79933d7b2"
+content-hash = "9e8c7362d11f5640913f4ee5d31b87d587934b9572d34a67d1b605acd1a24ddb"
 
 [metadata.files]
 alabaster = [
@@ -984,8 +984,8 @@ pathspec = [
     {file = "pathspec-0.8.1.tar.gz", hash = "sha256:86379d6b86d75816baba717e64b1a3a3469deb93bb76d613c9ce79edc5cb68fd"},
 ]
 pontos = [
-    {file = "pontos-0.3.1-py3-none-any.whl", hash = "sha256:b210fbada72003326537f0e7ebd105614b6a9c5d3cc0aee0d3f2e8b4da00322f"},
-    {file = "pontos-0.3.1.tar.gz", hash = "sha256:7a9e0f5abbc0de0ee973e9b23c70385dd6b9833a74a4c16193141ebeae76e198"},
+    {file = "pontos-21.2.0-py3-none-any.whl", hash = "sha256:31905c09aff4cefa19c50333f27adc2ad68ce11b7bcf3ab5221877c09da6de58"},
+    {file = "pontos-21.2.0.tar.gz", hash = "sha256:380792fdec2893aff28f7bc440b2213016ac863ce34f7cc62acb6b969ee8725b"},
 ]
 pycparser = [
     {file = "pycparser-2.20-py2.py3-none-any.whl", hash = "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"},
