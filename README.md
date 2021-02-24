@@ -10,7 +10,7 @@
 The Greenbone Vulnerability Management Tools `gvm-tools`
 are a collection of tools that help with remote controlling a
 Greenbone Security Manager (GSM) appliance and its underlying Greenbone
-Vulnerability Manager (GVM). The tools aid in accessing the
+Vulnerability Management (GVM) framework. The tools aid in accessing the
 communication protocols GMP (Greenbone Management Protocol) and OSP
 (Open Scanner Protocol).
 
