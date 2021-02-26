@@ -76,7 +76,9 @@ def combine_reports(gmp: Gmp, args: Namespace) -> e.Element:
         arg_len = args.script[1:]
 
     for argument in arg_len:
-        current_report = gmp.get_report(argument, details=True)[0]
+        current_report = gmp.get_report(
+            argument, details=True, ignore_pagination=True
+        )[0]
         for port in current_report.xpath('report/ports/port'):
             ports_elem.append(port)
         for result in current_report.xpath('report/results/result'):

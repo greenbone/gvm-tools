@@ -245,11 +245,17 @@ def combine_reports(
         try:
             if filter_id:
                 current_report = gmp.get_report(
-                    report, filter_id=filter_id, details=True
+                    report,
+                    filter_id=filter_id,
+                    details=True,
+                    ignore_pagination=True,
                 ).find('report')
             else:
                 current_report = gmp.get_report(
-                    report, filter=filter_term, details=True
+                    report,
+                    filter=filter_term,
+                    details=True,
+                    ignore_pagination=True,
                 ).find('report')
         except GvmError:
             print("Could not find the report [{}]".format(report))
