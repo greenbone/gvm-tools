@@ -25,6 +25,7 @@ $ cd gvm-tools && git log
 ### Deprecated
 ### Removed
 ### Fixed
+* Add ignore_pagination to get_report calls in `script/create-consolidated-reports.gmp.py` and `script/combine-reports.gmp.py [#399]https://github.com/greenbone/gvm-tools/pull/399)
 
 [Unreleased]: https://github.com/greenbone/gvm-tools/compare/v21.1.0...HEAD
 
