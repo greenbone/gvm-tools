@@ -43,13 +43,13 @@ python-gvm = ">=20.0,<22.0"
 [tool.poetry.dev-dependencies]
 autohooks = "^2.2.0"
 autohooks-plugin-pylint = "^1.2.0"
-sphinx = "^3.4.3"
+sphinx = "^3.5.1"
 pylint = "^2.5.3"
 coverage = "^5.3"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
 black = {version = "20.8b1", python = "^3.6"}
 rope = "^0.18.0"
-pontos = "^0.3.1"
+pontos = "^21.2.0"
 
 [tool.black]
 line-length = 80
