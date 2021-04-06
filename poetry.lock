@@ -371,14 +371,14 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "pylint"
-version = "2.7.2"
+version = "2.7.4"
 description = "python code static checker"
 category = "dev"
 optional = false
 python-versions = "~=3.6"
 
 [package.dependencies]
-astroid = ">=2.5.1,<2.6"
+astroid = ">=2.5.2,<2.7"
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 isort = ">=4.2.5,<6"
 mccabe = ">=0.6,<0.7"
@@ -643,7 +643,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "db6178f0ed8e3ad9a5f5a1e2a5054d08cc8828e3a42a598a803dda827aa1b0d5"
+content-hash = "9a3894d970b4f6a66bb7a8a9f1a5f2f4767b9b1921c583dd95f20f3633c0afff"
 
 [metadata.files]
 alabaster = [
@@ -986,8 +986,8 @@ pygments = [
     {file = "Pygments-2.8.1.tar.gz", hash = "sha256:2656e1a6edcdabf4275f9a3640db59fd5de107d88e8663c5d4e9a0fa62f77f94"},
 ]
 pylint = [
-    {file = "pylint-2.7.2-py3-none-any.whl", hash = "sha256:d09b0b07ba06bcdff463958f53f23df25e740ecd81895f7d2699ec04bbd8dc3b"},
-    {file = "pylint-2.7.2.tar.gz", hash = "sha256:0e21d3b80b96740909d77206d741aa3ce0b06b41be375d92e1f3244a274c1f8a"},
+    {file = "pylint-2.7.4-py3-none-any.whl", hash = "sha256:209d712ec870a0182df034ae19f347e725c1e615b2269519ab58a35b3fcbbe7a"},
+    {file = "pylint-2.7.4.tar.gz", hash = "sha256:bd38914c7731cdc518634a8d3c5585951302b6e2b6de60fbb3f7a0220e21eeee"},
 ]
 pynacl = [
     {file = "PyNaCl-1.4.0-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:ea6841bc3a76fa4942ce00f3bda7d436fda21e2d91602b9e21b7ca9ecab8f3ff"},
