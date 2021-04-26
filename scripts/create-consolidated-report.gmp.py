@@ -97,7 +97,7 @@ def parse_period(period: List[str]) -> Tuple[date, date]:
 
 
 def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
-    """ Parsing args ... """
+    """Parsing args ..."""
 
     parser = ArgumentParser(
         prefix_chars='+',

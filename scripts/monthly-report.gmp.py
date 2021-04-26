@@ -47,7 +47,7 @@ def check_args(args: Namespace) -> None:
 
 
 def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> e.Element:
-    """ Getting the Reports in the defined time period """
+    """Getting the Reports in the defined time period"""
 
     report_filter = "rows=-1 created>{0} and created<{1}".format(
         from_date.isoformat(), to_date.isoformat()
