@@ -102,7 +102,7 @@ gvm-cli --gmp-username foo --gmp-password bar socket --xml "<get_tasks/>"
 Read a file with GMP commands and return the result:
 
 ```
-gvm-cli --gmp-username foo --gmp-password bar socket < myfile.xml
+gvm-cli --gmp-username foo --gmp-password bar socket myfile.xml
 ```
 
 Note that `gvm-cli` will by default print an error message and exit with a
