@@ -18,6 +18,7 @@ $ cd gvm-tools && git log
 ### Added
 * Added new script `script/create-consolidated-reports.gmp.py`, that consolidates the last reports of tasks filtered by time period and tags [#370](https://github.com/greenbone/gvm-tools/pull/370)
 * Added new script `script/create-cve-report-from-json.gmp.py` that generates an CVE Report from an correctly formatted JSON. [#376](https://github.com/greenbone/gvm-tools/pull/376)
+* Added script bulk-modify-schedules.gmp.py [#445](https://github.com/greenbone/gvm-tools/pull/445)
 
 ### Changed
 * Added `in_asset` argument to `import_report()` to `script/combine-reports.gmp.py` [#383](https://github.com/greenbone/gvm-tools/pull/383)
