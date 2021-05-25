@@ -88,3 +88,17 @@ jobs:
         uses: greenbone/actions/poetry@v1
       - name: Calculate and upload coverage to codecov.io
         uses: greenbone/actions/coverage-python@v1
+
+  build-docs:
+    name: Build the documentation
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install poetry and dependencies
+        uses: greenbone/actions/poetry@v1
+      - name: Build docs
+        run: cd docs && poetry run make html
