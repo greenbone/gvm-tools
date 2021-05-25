@@ -5,7 +5,7 @@
 [![PyPI release](https://img.shields.io/pypi/v/gvm-tools.svg)](https://pypi.org/project/gvm-tools/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/gvm-tools/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/gvm-tools/?branch=master)
 [![code test coverage](https://codecov.io/gh/greenbone/gvm-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/greenbone/gvm-tools)
-[![CircleCI](https://circleci.com/gh/greenbone/gvm-tools/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-tools/tree/master)
+[![Build and test](https://github.com/greenbone/gvm-tools/actions/workflows/ci-python.yml/badge.svg)](https://github.com/greenbone/gvm-tools/actions/workflows/ci-python.yml)
 
 The Greenbone Vulnerability Management Tools `gvm-tools`
 are a collection of tools that help with remote controlling a
