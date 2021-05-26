@@ -18,12 +18,12 @@
 
 import sys
 from datetime import date, timedelta
-from terminaltables import AsciiTable
 from argparse import Namespace
+from terminaltables import AsciiTable
 from gvm.protocols.gmp import Gmp
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
         message = """
@@ -45,24 +45,23 @@ def check_args(args):
         sys.exit()
 
 
-def print_reports(gmp, from_date, to_date):
-    asset_filter = "rows=-1 and modified>{0} and modified<{1}".format(
-        from_date.isoformat(), to_date.isoformat()
+def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
+    host_filter = (
+        f'rows=-1 and modified>{from_date.isoformat()} '
+        f'and modified<{to_date.isoformat()}'
     )
 
-    assets_xml = gmp.get_assets(
-        asset_type=gmp.types.AssetType.HOST, filter=asset_filter
-    )
+    hosts_xml = gmp.get_hosts(filter_string=host_filter)
 
     sum_high = 0
     sum_medium = 0
     sum_low = 0
     table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
 
-    for asset in assets_xml.xpath('asset'):
-        ip = asset.xpath('name/text()')[0]
+    for host in hosts_xml.xpath('asset'):
+        ip = host.xpath('name/text()')[0]
 
-        hostnames = asset.xpath(
+        hostnames = host.xpath(
             'identifiers/identifier/name[text()="hostname"]/../value/text()'
         )
 
@@ -84,7 +83,7 @@ def print_reports(gmp, from_date, to_date):
         high = int(results.xpath('count(//result/threat[text()="High"])'))
         sum_high += high
 
-        best_os_cpe_report_id = asset.xpath(
+        best_os_cpe_report_id = host.xpath(
             'host/detail/name[text()="best_os_cpe"]/../source/@id'
         )[0]
 
@@ -93,17 +92,14 @@ def print_reports(gmp, from_date, to_date):
         )
 
     table = AsciiTable(table_data)
-    print(table.table + '\n')
+    print(f'{table.table}\n')
     print(
-        'Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}'
-        '\nLow: {2}\n\n'.format(
-            int(sum_high),
-            int(sum_medium),
-            int(sum_low),
-            from_date.isoformat(),
-            to_date.isoformat(),
-        )
+        f'Summary of results from {from_date.isoformat()} '
+        f'to {to_date.isoformat()}'
     )
+    print(f'High: {int(sum_high)}')
+    print(f'Medium: {int(sum_medium)}')
+    print(f'Low: {int(sum_low)}\n\n')
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
