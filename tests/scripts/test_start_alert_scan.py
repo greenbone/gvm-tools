@@ -32,43 +32,43 @@ class StartAlertScanTestCase(unittest.TestCase):
         )
 
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
-    def test_get_config(self, mock_gmp: GmpMockFactory):
+    def test_get_scan_config(self, mock_gmp: GmpMockFactory):
         configs_file = CWD / 'get_configs.xml'
         configs = configs_file.read_text()
-        mock_gmp.mock_response('get_configs', configs)
+        mock_gmp.mock_response('get_scan_configs', configs)
 
         # Full and Fast
-        config_id = self.start_alert_scan.get_config(
+        config_id = self.start_alert_scan.get_scan_config(
             gmp=mock_gmp.gmp_protocol, config=0
         )
         self.assertEqual(config_id, 'daba56c8-73ec-11df-a475-002264764cea')
 
         # Full and Fast ultimate
-        config_id = self.start_alert_scan.get_config(
+        config_id = self.start_alert_scan.get_scan_config(
             gmp=mock_gmp.gmp_protocol, config=1
         )
         self.assertEqual(config_id, '698f691e-7489-11df-9d8c-002264764cea')
 
         # Full and Fast deep
-        config_id = self.start_alert_scan.get_config(
+        config_id = self.start_alert_scan.get_scan_config(
             gmp=mock_gmp.gmp_protocol, config=2
         )
         self.assertEqual(config_id, '708f25c4-7489-11df-8094-002264764cea')
 
         # Full and Fast deep ultimate
-        config_id = self.start_alert_scan.get_config(
+        config_id = self.start_alert_scan.get_scan_config(
             gmp=mock_gmp.gmp_protocol, config=3
         )
         self.assertEqual(config_id, '74db13d6-7489-11df-91b9-002264764cea')
 
         # System Discovery
-        config_id = self.start_alert_scan.get_config(
+        config_id = self.start_alert_scan.get_scan_config(
             gmp=mock_gmp.gmp_protocol, config=4
         )
         self.assertEqual(config_id, 'bbca7412-a950-11e3-9109-406186ea4fc5')
 
         with self.assertRaises(ValueError):
-            config_id = self.start_alert_scan.get_config(
+            config_id = self.start_alert_scan.get_scan_config(
                 gmp=mock_gmp.gmp_protocol, config=-1
             )
 
