@@ -16,49 +16,58 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
-def clean_sensor(gmp):
+
+def clean_sensor(gmp: Gmp) -> None:
     tasks = gmp.get_tasks(
-        filter="rows=-1 not status=Running and "
+        filter_string="rows=-1 not status=Running and "
         "not status=Requested and not "
         "status=&quot;Stop Requested&quot;"
     )
 
-    for tid in tasks.xpath('task/@id'):
-        print('Removing task %s ... ' % tid)
-        status_text = gmp.delete_task(tid, ultimate=True).xpath('@status_text')[
-            0
-        ]
-        print(status_text)
-
-    targets = gmp.get_targets(filter="rows=-1 not _owner=&quot;&quot;")
-    for tid in targets.xpath('target/@id'):
-        print('Removing target %s ... ' % tid)
-        status_text = gmp.delete_target(tid, ultimate=True).xpath(
+    for task_id in tasks.xpath('task/@id'):
+        print(f'Removing task {task_id} ... ')
+        status_text = gmp.delete_task(task_id, ultimate=True).xpath(
             '@status_text'
         )[0]
         print(status_text)
 
-    configs = gmp.get_configs(filter="rows=-1 not _owner=&quot;&quot;")
-    for cid in configs.xpath('config/@id'):
-        print('Removing config %s ... ' % cid)
-        status_text = gmp.delete_config(cid, ultimate=True).xpath(
+    targets = gmp.get_targets(filter_string="rows=-1 not _owner=&quot;&quot;")
+    for target_id in targets.xpath('target/@id'):
+        print(f'Removing target {target_id} ... ')
+        status_text = gmp.delete_target(target_id, ultimate=True).xpath(
             '@status_text'
         )[0]
         print(status_text)
 
-    port_lists = gmp.get_port_lists(filter="rows=-1 not _owner=&quot;&quot;")
-    for pid in port_lists.xpath('port_list/@id'):
-        print('Removing port_list %s ... ' % pid)
-        status_text = gmp.delete_port_list(pid, ultimate=True).xpath(
+    configs = gmp.get_scan_configs(
+        filter_string="rows=-1 not _owner=&quot;&quot;"
+    )
+    for config_id in configs.xpath('config/@id'):
+        print(f'Removing config {config_id} ... ')
+        status_text = gmp.delete_config(config_id, ultimate=True).xpath(
             '@status_text'
         )[0]
         print(status_text)
 
-    credentials = gmp.get_credentials(filter="rows=-1 not _owner=&quot;&quot;")
-    for cid in credentials.xpath('credential/@id'):
-        print('Removing credential %s ... ' % cid)
-        status_text = gmp.delete_credential(cid, ultimate=True).xpath(
+    port_lists = gmp.get_port_lists(
+        filter_string="rows=-1 not _owner=&quot;&quot;"
+    )
+    for port_list_id in port_lists.xpath('port_list/@id'):
+        print(f'Removing port_list {port_list_id} ... ')
+        status_text = gmp.delete_port_list(port_list_id, ultimate=True).xpath(
+            '@status_text'
+        )[0]
+        print(status_text)
+
+    credentials = gmp.get_credentials(
+        filter_string="rows=-1 not _owner=&quot;&quot;"
+    )
+    for config_id in credentials.xpath('credential/@id'):
+        print(f'Removing credential {config_id} ... ')
+        status_text = gmp.delete_credential(config_id, ultimate=True).xpath(
             '@status_text'
         )[0]
         print(status_text)
@@ -71,11 +80,9 @@ def clean_sensor(gmp):
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    message = """
-    This script removes all resources from a sensor, except active tasks.
-
-    """
-    print(message)
+    print(
+        'This script removes all resources from a sensor, except active tasks.'
+    )
 
     clean_sensor(gmp)
 
