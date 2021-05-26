@@ -61,7 +61,9 @@ def create_data(gmp, count):
 
     for _ in range(0, count):
         name = generate_id()
-        res = gmp.create_config('085569ce-73ed-11df-83c3-002264764cea', name)
+        res = gmp.create_scan_config(
+            '085569ce-73ed-11df-83c3-002264764cea', name
+        )
         config_ids.append(res.xpath('@id')[0])
     print(str(count) + ' random scan configs generated.')
 

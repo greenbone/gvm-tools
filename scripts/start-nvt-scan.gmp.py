@@ -39,7 +39,7 @@ ssh --hostname <gsm> scripts/start-nvt-scan.gmp.py \
         sys.exit()
 
 
-def get_config(gmp, nvt_oid):
+def get_scan_config(gmp, nvt_oid):
     # Choose from existing config, which to copy or create new config
     res = gmp.get_scan_configs()
 
@@ -186,7 +186,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     task_name = input('Task name: ')
     task_comment = input('Task comment: ')
 
-    config_id = get_config(gmp, nvt_oid)
+    config_id = get_scan_config(gmp, nvt_oid)
     target_id = get_target(gmp, hosts)
     scanner_id = get_scanner(gmp)
 

@@ -41,7 +41,7 @@ def check_args(args):
         sys.exit()
 
 
-def create_config(gmp, nvt_oid) -> str:
+def create_scan_config(gmp, nvt_oid) -> str:
     # Create new config
     copy_id = '085569ce-73ed-11df-83c3-002264764cea'
     config_name = nvt_oid
@@ -113,7 +113,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     nvt_oid = args.script[1]
     target_name = args.script[2]
 
-    config_id = create_config(gmp, nvt_oid)
+    config_id = create_scan_config(gmp, nvt_oid)
     target_id = create_target(gmp, target_name)
 
     create_and_start_task(gmp, target_name, nvt_oid, config_id, target_id)

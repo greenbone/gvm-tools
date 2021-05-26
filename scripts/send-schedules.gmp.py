@@ -42,7 +42,7 @@ def check_args(gmp: Gmp, args: Namespace) -> None:
         print(message)
         sys.exit()
     major, minor = gmp.get_protocol_version()
-    if major < 20 and minor < 5:
+    if major < 21 and minor < 5:
         print(f"This script requires GMP version {major}.{minor}")
         sys.exit()
 
@@ -67,7 +67,7 @@ def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
-    check_args(args=args)
+    check_args(gmp=gmp, args=args)
 
     xml_doc = args.script[1]
 

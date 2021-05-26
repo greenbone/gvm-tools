@@ -18,12 +18,13 @@
 
 import sys
 from argparse import Namespace
+from lxml.etree import Element
 from gvm.protocols.gmp import Gmp
 from gvm.protocols.latest import get_alive_test_from_string
 from gvmtools.helper import create_xml_tree, yes_or_no
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args != 1:
         message = """
@@ -41,7 +42,7 @@ def check_args(args):
         sys.exit()
 
 
-def parse_send_xml_tree(gmp, xml_tree):
+def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
     credential_options = [
         'ssh_credential',
         'smb_credential',
@@ -73,10 +74,8 @@ def parse_send_xml_tree(gmp, xml_tree):
                 continue
             if cred_id not in credentials:
                 response = yes_or_no(
-                    "\nThe credential '{}' for 'target {}' could not be "
-                    "located...\nWould you like to continue?".format(
-                        credential, counter
-                    )
+                    f"\nThe credential '{credential}' for 'target {counter}' "
+                    "could not be located...\nWould you like to continue?"
                 )
 
                 if response is False:
@@ -90,7 +89,7 @@ def parse_send_xml_tree(gmp, xml_tree):
             elem_path = target.find(credential)
             port = elem_path.find('port')
             if port is not None and port.text is not None:
-                port_key = '{}_port'.format(credential)
+                port_key = f'{credential}_port'
                 keywords[port_key] = elem_path.find('port').text
 
         alive_test = get_alive_test_from_string(target.find('alive_tests').text)

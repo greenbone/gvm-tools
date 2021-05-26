@@ -50,7 +50,7 @@ def get_port_list_names(gmp) -> List[str]:
     return port_names_list
 
 
-def get_config(gmp, debug=False):
+def get_scan_config(gmp, debug=False):
     # get all configs of the openvas instance
     res = gmp.get_scan_configs()
 
@@ -278,7 +278,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     sender_email = args.script[1]
     recipient_email = args.script[2]
 
-    config_id = get_config(gmp)
+    config_id = get_scan_config(gmp)
     target_id = get_target(gmp)
     alerts = get_alerts(gmp, sender_email, recipient_email)
     scanner_id = get_scanner(gmp)

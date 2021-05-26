@@ -186,7 +186,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     print(f'MTA Address:   {mta_address}')
     print(f'MTA Port:      {str(mta_port)}')
     print(f'MTA User:      {mta_user}')
-    print(f'MTA Password:  <will not be printed here>')
+    print('MTA Password:  <will not be printed here>')
     print()
 
     print(f'Entering loop with interval {str(interval)} minutes ...')

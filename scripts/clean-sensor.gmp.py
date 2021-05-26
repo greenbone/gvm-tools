@@ -47,7 +47,7 @@ def clean_sensor(gmp: Gmp) -> None:
     )
     for config_id in configs.xpath('config/@id'):
         print(f'Removing config {config_id} ... ')
-        status_text = gmp.delete_config(config_id, ultimate=True).xpath(
+        status_text = gmp.delete_scan_config(config_id, ultimate=True).xpath(
             '@status_text'
         )[0]
         print(status_text)
