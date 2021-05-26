@@ -60,7 +60,7 @@ def create_config(gmp, cert_bund_name):
             oid = nvt.xpath('@oid')[0]
 
             # We need the nvt family to modify scan config
-            nvt_data = gmp.get_nvt(oid)
+            nvt_data = gmp.get_scan_config_nvt(oid)
             family = nvt_data.xpath('nvt/family/text()')[0]
 
             # Create key value map

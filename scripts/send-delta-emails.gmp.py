@@ -82,7 +82,7 @@ def execute_send_delta_emails(sc, **kwargs):
         )
 
         reports = gmp.get_reports(
-            filter='task_id={0} and status=Done '
+            filter_string='task_id={0} and status=Done '
             'sort-reverse=date'.format(task_id)
         ).xpath('report')
         print('  Found %d report(s).' % len(reports))
@@ -104,7 +104,7 @@ def execute_send_delta_emails(sc, **kwargs):
         delta_report = gmp.get_report(
             report_id=reports[0].xpath('@id')[0],
             delta_report_id=reports[1].xpath('@id')[0],
-            filter='delta_states=n',
+            filter_string='delta_states=n',
             format_id='c1645568-627a-11e3-a660-406186ea4fc5',
         )
 

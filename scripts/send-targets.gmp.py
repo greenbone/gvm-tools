@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from gvm.protocols.gmpv9.types import get_alive_test_from_string
+from gvm.protocols.latest import get_alive_test_from_string
 from gvmtools.helper import create_xml_tree, yes_or_no
 
 

@@ -603,7 +603,7 @@ def status(gmp, im, script_args):
 
     if script_args.task:
         task = gmp.get_tasks(
-            filter="permission=any owner=any rows=1 "
+            filter_string="permission=any owner=any rows=1 "
             'name="%s"' % script_args.task
         )
         if script_args.trend:
@@ -651,7 +651,7 @@ def status(gmp, im, script_args):
 
                 full_report = gmp.get_report(
                     report_id=last_report_id,
-                    filter="sort-reverse=id result_hosts_only=1 "
+                    filter_string="sort-reverse=id result_hosts_only=1 "
                     "min_cvss_base= min_qod= levels=hmlgd autofp={} "
                     "notes=0 apply_overrides={} overrides={} first=1 rows=-1 "
                     "delta_states=cgns host={}".format(

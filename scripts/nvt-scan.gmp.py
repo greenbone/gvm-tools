@@ -51,7 +51,7 @@ def create_config(gmp, nvt_oid):
         config_id = res.xpath('@id')[0]
 
         # Modify the config with an nvt oid
-        nvt = gmp.get_nvt(nvt_oid)
+        nvt = gmp.get_scan_config_nvt(nvt_oid)
         family = nvt.xpath('nvt/family/text()')[0]
 
         gmp.modify_config(

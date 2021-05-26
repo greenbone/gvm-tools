@@ -39,7 +39,7 @@ ssh --hostname <gsm> scripts/start-nvt-scan.gmp.py \
 
 def get_config(gmp, nvt_oid):
     # Choose from existing config, which to copy or create new config
-    res = gmp.get_configs()
+    res = gmp.get_scan_configs()
 
     config_ids = res.xpath('config/@id')
 
@@ -67,7 +67,7 @@ def get_config(gmp, nvt_oid):
 
             copy_id = config_ids[chosen_copy_config]
 
-            res = gmp.clone_config(copy_id)
+            res = gmp.clone_scan_config(copy_id)
 
             config_id = res.xpath('@id')[0]
 
@@ -75,10 +75,10 @@ def get_config(gmp, nvt_oid):
             if len(nvt_oid) == 0:
                 nvt_oid = input('NVT OID: ')
 
-            nvt = gmp.get_nvt(nvt_oid=nvt_oid)
+            nvt = gmp.get_scan_config_nvt(nvt_oid=nvt_oid)
             family = nvt.xpath('nvt/family/text()')[0]
 
-            gmp.modify_config(
+            gmp.modify_scan_config(
                 config_id,
                 'nvt_selection',
                 name=config_name,
@@ -93,7 +93,7 @@ def get_config(gmp, nvt_oid):
                 '1.3.6.1.4.1.25623.1.0.100315',
             ]
 
-            gmp.modify_config(
+            gmp.modify_scan_config(
                 config_id, 'nvt_selection', nvt_oids=nvts, family=family
             )
             return config_id
@@ -160,7 +160,11 @@ def create_and_start_task(
     gmp, task_name, task_comment, config_id, target_id, scanner_id
 ):
     res = gmp.create_task(
-        task_name, config_id, target_id, scanner_id, comment=task_comment
+        name=task_name,
+        config_id=config_id,
+        target_id=target_id,
+        scanner_id=scanner_id,
+        comment=task_comment,
     )
 
     # Start the task
