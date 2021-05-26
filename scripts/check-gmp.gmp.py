@@ -25,11 +25,11 @@ import signal
 import sqlite3
 import sys
 import tempfile
-
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from pathlib import Path
+from gvm.protocols.gmp import Gmp
 
 from lxml import etree
 
@@ -1187,7 +1187,7 @@ def parse_date(datestring, default_timezone=UTC):
         raise ParseError(e) from None
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     tmp_path = "%s/check_gmp/" % tempfile.gettempdir()
     tmp_path_db = tmp_path + "reports.db"
 

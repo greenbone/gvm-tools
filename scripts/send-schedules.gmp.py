@@ -17,6 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
+
 from gvmtools.helper import create_xml_tree
 
 
@@ -59,7 +62,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         )
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

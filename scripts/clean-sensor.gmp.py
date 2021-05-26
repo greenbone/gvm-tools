@@ -68,7 +68,7 @@ def clean_sensor(gmp):
     print(status_text)
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
     message = """

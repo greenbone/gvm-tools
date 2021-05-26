@@ -17,7 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import create_xml_tree, error_and_exit, yes_or_no
 
@@ -137,7 +138,7 @@ def parse_send_xml_tree(gmp, xml_tree):
     return tasks
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable, unused-argument
 
     parser = ArgumentParser(

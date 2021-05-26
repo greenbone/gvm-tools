@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
+from argparse import Namespace
 from gvm.errors import GvmError
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
@@ -91,7 +92,7 @@ def create_config(gmp, cert_bund_name):
         print('Config exist')
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

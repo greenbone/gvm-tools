@@ -17,9 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gvmtools.helper import Table
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
     response_xml = gmp.get_tasks()

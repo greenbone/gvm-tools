@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
 from random import choice
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import generate_id
 
@@ -81,7 +82,7 @@ def create_data(gmp, count):
     print(str(count) + ' random tasks generated.')
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

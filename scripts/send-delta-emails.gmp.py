@@ -29,6 +29,9 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
 
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
+
 
 def check_args(args):
     len_args = len(args.script) - 1
@@ -159,7 +162,7 @@ def execute_send_delta_emails(sc, **kwargs):
     )
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

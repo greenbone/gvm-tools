@@ -18,6 +18,8 @@
 
 import sys
 from random import choice, gauss
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import generate_random_ips
 
@@ -58,7 +60,7 @@ def generate(gmp, args, n_targets, n_ips):
         gmp.create_target(name=name, make_unique=True, hosts=[host_ip])
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

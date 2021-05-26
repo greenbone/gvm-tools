@@ -18,6 +18,8 @@
 
 import time
 import sys
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
@@ -55,7 +57,7 @@ def delete_overrides(gmp, filter_value):
         time.sleep(60)
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

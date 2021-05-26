@@ -18,7 +18,8 @@
 
 import sys
 from datetime import datetime
-
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 from gvm.errors import GvmError
 
 
@@ -101,7 +102,7 @@ def create_and_start_task(gmp, name, nvt_oid, config_id, target_id):
     print('\nTask %s started' % task_id)
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

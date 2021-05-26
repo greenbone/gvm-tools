@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 from gvm.protocols.latest import get_alive_test_from_string
 from gvmtools.helper import create_xml_tree, yes_or_no
 
@@ -120,7 +122,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         counter += 1
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

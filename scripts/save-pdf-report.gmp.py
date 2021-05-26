@@ -20,6 +20,8 @@ import sys
 
 from base64 import b64decode
 from pathlib import Path
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
@@ -41,7 +43,7 @@ ssh --hostname <gsm> scripts/pdf-report.gmp.py <report_id> <pdf_file>
         sys.exit()
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # check if report id and PDF filename are provided to the script
     # argv[0] contains the script name
     check_args(args)

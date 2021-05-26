@@ -166,7 +166,7 @@ authenticated instance of a `Greenbone Management Protocol class
 
 .. code-block:: python3
 
-  def main(gmp, args):
+  def main(gmp: Gmp, args: Namespace) -> None:
     # check if IP address is provided to the script
     # argv[0] contains the script name
     if len(args.argv) <= 1:
@@ -255,7 +255,7 @@ can be used:
   from pathlib import Path
 
 
-  def main(gmp, args):
+  def main(gmp: Gmp, args: Namespace) -> None:
       # check if report id and PDF filename are provided to the script
       # argv[0] contains the script name
       if len(args.argv) <= 2:

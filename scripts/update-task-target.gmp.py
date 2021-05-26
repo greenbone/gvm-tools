@@ -19,6 +19,9 @@
 import sys
 import time
 
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
+
 from gvmtools.helper import error_and_exit
 
 
@@ -111,7 +114,7 @@ def check_to_delete(gmp, target_id):
         gmp.delete_target(target_id=target_id)
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

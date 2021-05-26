@@ -19,6 +19,8 @@
 
 import sys
 from typing import List
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
@@ -268,7 +270,7 @@ def create_and_start_task(
         print('Task stopped')
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

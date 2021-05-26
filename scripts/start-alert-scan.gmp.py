@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import List
-from argparse import ArgumentParser, RawTextHelpFormatter
-
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from gvm.protocols.gmp import Gmp
 
 HELP_TEXT = """
         This script makes an E-Mail alert scan.
@@ -355,7 +355,7 @@ def parse_args(args):  # pylint: disable=unused-argument
     return script_args
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable, unused-argument
 
     script_args = parse_args(args)

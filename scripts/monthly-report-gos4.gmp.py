@@ -19,6 +19,8 @@
 import sys
 from datetime import date, timedelta
 from terminaltables import AsciiTable
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
@@ -104,7 +106,7 @@ def print_reports(gmp, from_date, to_date):
     )
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
