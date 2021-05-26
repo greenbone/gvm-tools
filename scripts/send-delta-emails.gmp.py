@@ -33,7 +33,7 @@ from argparse import Namespace
 from gvm.protocols.gmp import Gmp
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args != 0:
         message = """
@@ -58,7 +58,7 @@ def check_args(args):
         sys.exit()
 
 
-def execute_send_delta_emails(sc, **kwargs):
+def execute_send_delta_emails(sc: sched.scheduler, **kwargs: dict) -> None:
     gmp = kwargs.get('gmp')
     task_tag = kwargs.get('task_tag')
     interval = kwargs.get('interval')
@@ -73,22 +73,20 @@ def execute_send_delta_emails(sc, **kwargs):
 
     print('Retrieving task list ...')
 
-    task_filter = 'tag=%s' % task_tag
-    tasks = gmp.get_tasks(filter=task_filter).xpath('task')
-    print('Found %d task(s) with tag "%s".' % (len(tasks), task_tag))
+    task_filter = f'tag={task_tag}'
+    tasks = gmp.get_tasks(filter_string=task_filter).xpath('task')
+    print(f'Found {str(len(tasks))} task(s) with tag "{task_tag}".')
 
     for task in tasks:
         task_id = task.xpath('@id')[0]
-        print(
-            'Processing task "%s" (%s)...'
-            % (task.xpath('name/text()')[0], task_id)
-        )
+        task_name = task.xpath('name/text()')[0]
+        print(f'Processing task "{task_name}" ({task_id})...')
 
         reports = gmp.get_reports(
             filter_string='task_id={0} and status=Done '
             'sort-reverse=date'.format(task_id)
         ).xpath('report')
-        print('  Found %d report(s).' % len(reports))
+        print(f'  Found {str(len(reports))} report(s).')
         if len(reports) < 2:
             print('  Delta-reporting requires at least 2 finished reports.')
             continue
@@ -152,7 +150,7 @@ def execute_send_delta_emails(sc, **kwargs):
             # raise # in case an error should stop the script
             continue  # ignore the problem for the time being
 
-    print("\nCheck will be repeated in {} minutes...\n".format(interval))
+    print(f"\nCheck will be repeated in {str(interval)} minutes...\n")
     sc.enter(
         interval * 60,
         1,
@@ -179,19 +177,19 @@ def main(gmp: Gmp, args: Namespace) -> None:
     mta_password = 'mysecret'
 
     print('send_delta_alerts starting up with following settings:')
-    print('User:          %s' % args.username)
-    print('Interval:      %d minutes' % interval)
-    print('Task tag:      %s' % task_tag)
-    print('Email subject: %s' % email_subject)
-    print('From Address:  %s' % from_address)
-    print('To Addresses:  %s' % to_addresses)
-    print('MTA Address:   %s' % mta_address)
-    print('MTA Port:      %s' % mta_port)
-    print('MTA User:      %s' % mta_user)
-    print('MTA Password:  <will not be printed here>')
+    print(f'User:          {args.username}')
+    print(f'Interval:      {str(interval)} minutes')
+    print(f'Task tag:      {task_tag}')
+    print(f'Email subject: {email_subject}')
+    print(f'From Address:  {from_address}')
+    print(f'To Addresses:  {to_addresses}')
+    print(f'MTA Address:   {mta_address}')
+    print(f'MTA Port:      {str(mta_port)}')
+    print(f'MTA User:      {mta_user}')
+    print(f'MTA Password:  <will not be printed here>')
     print()
 
-    print('Entering loop with interval %s minutes ...' % interval)
+    print(f'Entering loop with interval {str(interval)} minutes ...')
 
     schedule = sched.scheduler(time.time, time.sleep)
 
