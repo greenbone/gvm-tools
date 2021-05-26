@@ -33,7 +33,7 @@ class StartAlertScanTestCase(unittest.TestCase):
 
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_get_scan_config(self, mock_gmp: GmpMockFactory):
-        configs_file = CWD / 'get_configs.xml'
+        configs_file = CWD / 'get_scan_configs.xml'
         configs = configs_file.read_text()
         mock_gmp.mock_response('get_scan_configs', configs)
 

@@ -46,7 +46,7 @@ def numerical_option(statement, list_range):
 
 def interactive_options(gmp, task, keywords):
     options_dict = {}
-    options_dict['config'] = gmp.get_configs()
+    options_dict['config'] = gmp.get_scan_configs()
     options_dict['scanner'] = gmp.get_scanners()
     options_dict['target'] = gmp.get_targets()
 
