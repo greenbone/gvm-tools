@@ -336,9 +336,9 @@ def generate_data(gmp, n_tasks, **kwargs):
 
         gmp.create_container_task(task_name)
 
-        task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
-            '//@id'
-        )[0]
+        task_id = gmp.get_tasks(
+            filter_string='name={}'.format(task_name)
+        ).xpath('//@id')[0]
 
         reports = generate_reports(task=(task_id, task_name), **kwargs)
 
