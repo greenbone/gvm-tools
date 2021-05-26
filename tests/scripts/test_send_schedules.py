@@ -52,12 +52,13 @@ class SendSchedulesTestCase(unittest.TestCase):
 
         self.send_schedules.parse_send_xml_tree(mock_gmp.gmp_protocol, schedule)
 
-    def test_args(self):
+    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    def test_args(self, mock_gmp: GmpMockFactory):
         args = Namespace(script=['foo'])
         with self.assertRaises(SystemExit):
-            self.send_schedules.check_args(args)
+            self.send_schedules.check_args(gmp=mock_gmp, args=args)
 
         args2 = Namespace(script=['foo', 'bar', 'baz'])
 
         with self.assertRaises(SystemExit):
-            self.send_schedules.check_args(args2)
+            self.send_schedules.check_args(gmp=mock_gmp, args=args2)
