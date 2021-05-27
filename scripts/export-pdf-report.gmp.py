@@ -28,8 +28,8 @@ def check_args(args):
     len_args = len(args.script) - 1
     if len_args < 1:
         message = """
-        This script requests the given report and saves it as a pdf file locally.
-        It needs one parameters after the script name.
+        This script requests the given report and exports it as a pdf 
+        file locally. It requires one parameters after the script name.
 
         1. <report_id>     -- ID of the report
         
@@ -37,7 +37,7 @@ def check_args(args):
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/pdf-report.gmp.py <report_id> <pdf_file>
+ssh --hostname <gsm> scripts/export-pdf-report.gmp.py <report_id> <pdf_file>
         """
         print(message)
         sys.exit()
