@@ -17,10 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from argparse import Namespace
+from lxml.etree import Element
+from gvm.protocols.gmp import Gmp
+
 from gvmtools.helper import create_xml_tree
 
 
-def check_args(args):
+def check_args(gmp: Gmp, args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args != 1:
         message = """
@@ -37,12 +41,13 @@ def check_args(args):
         """
         print(message)
         sys.exit()
-    if int(gmp.get_protocol_version()[0]) < 8:
-        print("This script requires GMP version 8")
+    major, minor = gmp.get_protocol_version()
+    if major < 21 and minor < 5:
+        print(f"This script requires GMP version {major}.{minor}")
         sys.exit()
 
 
-def parse_send_xml_tree(gmp, xml_tree):
+def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
     for schedule in xml_tree.xpath('schedule'):
         name = schedule.find('name').text
 
@@ -59,10 +64,10 @@ def parse_send_xml_tree(gmp, xml_tree):
         )
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
-    check_args(args)
+    check_args(gmp=gmp, args=args)
 
     xml_doc = args.script[1]
 

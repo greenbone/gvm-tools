@@ -19,7 +19,7 @@
 import sys
 from argparse import Namespace
 from datetime import date, timedelta
-from lxml import etree as e
+from lxml.etree import Element
 from gvm.protocols.gmp import Gmp
 
 from terminaltables import AsciiTable
@@ -46,20 +46,22 @@ def check_args(args: Namespace) -> None:
         sys.exit()
 
 
-def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> e.Element:
+def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> Element:
     """Getting the Reports in the defined time period"""
 
-    report_filter = "rows=-1 created>{0} and created<{1}".format(
-        from_date.isoformat(), to_date.isoformat()
+    report_filter = (
+        f'rows=-1 created>{from_date.isoformat()} and '
+        f'created<{to_date.isoformat()}'
     )
 
-    return gmp.get_reports(filter=report_filter)
+    return gmp.get_reports(filter_string=report_filter)
 
 
 def print_result_sums(
-    reports_xml: e.Element, from_date: date, to_date: date
+    reports_xml: Element, from_date: date, to_date: date
 ) -> None:
-    print('Found {0} reports'.format(len(reports_xml.xpath('report'))))
+    report_count = len(reports_xml.xpath('report'))
+    print(f'Found {report_count} reports')
 
     sum_high = reports_xml.xpath(
         'sum(report/report/result_count/hole/full/text())'
@@ -72,18 +74,15 @@ def print_result_sums(
     )
 
     print(
-        'Summary of results from {3} to {4}\nHigh: {0}\nMedium: {1}\nLow: '
-        '{2}\n\n'.format(
-            int(sum_high),
-            int(sum_medium),
-            int(sum_low),
-            from_date.isoformat(),
-            to_date.isoformat(),
-        )
+        f'Summary of results from {from_date.isoformat()} '
+        f'to {to_date.isoformat()}'
     )
+    print(f'High: {int(sum_high)}')
+    print(f'Medium: {int(sum_medium)}')
+    print(f'Low: {int(sum_low)}')
 
 
-def print_result_tables(gmp: Gmp, reports_xml: e.Element) -> None:
+def print_result_tables(gmp: Gmp, reports_xml: Element) -> None:
     report_list = reports_xml.xpath('report')
 
     for report in report_list:
@@ -92,7 +91,7 @@ def print_result_tables(gmp: Gmp, reports_xml: e.Element) -> None:
 
         res = gmp.get_report(report_id)
 
-        print('\nReport: {0}'.format(report_id))
+        print(f'\nReport: {report_id}')
 
         table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
 

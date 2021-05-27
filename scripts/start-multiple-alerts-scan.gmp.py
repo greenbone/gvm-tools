@@ -18,6 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from typing import List
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
@@ -39,7 +42,7 @@ ssh --hostname <gsm> scripts/start-multiple-alert-scan.gmp.py <sender_email> <re
 
 
 # returns a list containing all port_list names
-def get_port_list_names(gmp):
+def get_port_list_names(gmp) -> List[str]:
     res = gmp.get_port_lists()
     port_names_list = [""]
     for name in res.findall("port_list/name"):
@@ -47,9 +50,9 @@ def get_port_list_names(gmp):
     return port_names_list
 
 
-def get_config(gmp, debug=False):
+def get_scan_config(gmp, debug=False):
     # get all configs of the openvas instance
-    res = gmp.get_configs()
+    res = gmp.get_scan_configs()
 
     # configurable template
     template = "fast"
@@ -135,16 +138,18 @@ def get_target(gmp, debug=False):
     hosts = ["localhost"]
 
     # integrate port list id into create_target
-    res = gmp.create_target(target_name, hosts=hosts, port_list_id=portlist_id)
+    res = gmp.create_target(
+        name=target_name, hosts=hosts, port_list_id=portlist_id
+    )
     return res.xpath('@id')[0]
 
 
-def get_alerts(gmp, sender_email, recipient_email, debug=False):
+def get_alerts(gmp, sender_email, recipient_email, debug=False) -> List[str]:
     # configurable alert name
     alert_name = recipient_email
 
     # create alert if necessary
-    alert_object = gmp.get_alerts(filter='name=%s' % alert_name)
+    alert_object = gmp.get_alerts(filter=f'name={alert_name}')
     alert_id = None
     alert = alert_object.xpath('alert')
     if len(alert) == 0:
@@ -177,19 +182,19 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
-        alert_object = gmp.get_alerts(filter='name=%s' % recipient_email)
+        alert_object = gmp.get_alerts(filter=f'name={recipient_email}')
         alert = alert_object.xpath('alert')
         alert_id = alert[0].get('id', 'no id found')
     else:
         alert_id = alert[0].get('id', 'no id found')
         if debug:
-            print("alert_id: %s" % str(alert_id))
+            print(f"alert_id: {str(alert_id)}")
 
     # second configurable alert name
-    alert_name2 = "%s-2" % recipient_email
+    alert_name2 = f"{recipient_email}-2"
 
     # create second alert if necessary
-    alert_object2 = gmp.get_alerts(filter='name=%s' % alert_name2)
+    alert_object2 = gmp.get_alerts(filter=f'name={alert_name2}')
     alert_id2 = None
     alert2 = alert_object2.xpath('alert')
     if len(alert2) == 0:
@@ -221,15 +226,15 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
-        alert_object2 = gmp.get_alerts(filter='name=%s' % recipient_email)
+        alert_object2 = gmp.get_alerts(filter=f'name={recipient_email}')
         alert2 = alert_object2.xpath('alert')
         alert_id2 = alert2[0].get('id', 'no id found')
     else:
         alert_id2 = alert2[0].get('id', 'no id found')
         if debug:
-            print("alert_id2: %s" % str(alert_id2))
+            print(f"alert_id2: {str(alert_id2)}")
 
-    return (alert_id, alert_id2)
+    return [alert_id, alert_id2]
 
 
 def get_scanner(gmp):
@@ -243,13 +248,13 @@ def create_and_start_task(
 ):
     # Create the task
     tasks = gmp.get_tasks(filter="name~ScanDoneMultipleAlert")
-    task_name = "ScanDoneMultipleAlert{0}".format(len(tasks.xpath('tasks/@id')))
+    task_name = f"ScanDoneMultipleAlert{len(tasks.xpath('tasks/@id'))}"
     task_comment = "test comment"
     res = gmp.create_task(
-        task_name,
-        config_id,
-        target_id,
-        scanner_id,
+        name=task_name,
+        config_id=config_id,
+        target_id=target_id,
+        scanner_id=scanner_id,
         alert_ids=alerts,
         comment=task_comment,
     )
@@ -265,7 +270,7 @@ def create_and_start_task(
         print('Task stopped')
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
@@ -273,7 +278,7 @@ def main(gmp, args):
     sender_email = args.script[1]
     recipient_email = args.script[2]
 
-    config_id = get_config(gmp)
+    config_id = get_scan_config(gmp)
     target_id = get_target(gmp)
     alerts = get_alerts(gmp, sender_email, recipient_email)
     scanner_id = get_scanner(gmp)

@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import List
-from argparse import ArgumentParser, RawTextHelpFormatter
-
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from gvm.protocols.gmp import Gmp
 
 HELP_TEXT = """
         This script makes an E-Mail alert scan.
@@ -35,10 +35,10 @@ HELP_TEXT = """
     """
 
 
-def get_config(gmp, config, debug=False):
+def get_scan_config(gmp: Gmp, config: int, debug: bool = False):
     # get all configs of the openvas instance
     # filter for all rows!
-    res = gmp.get_configs(filter="rows=-1")
+    res = gmp.get_scan_configs(filter_string="rows=-1")
 
     if config < 0 or config > 4:
         raise ValueError("Wrong config identifier. Choose between [0,4].")
@@ -79,11 +79,11 @@ def get_target(
     ports: str = None,
     port_list_name: str = None,
     port_list_id: str = None,
-    debug: bool = True,
+    debug: bool = False,
 ):
     if target_name is None:
         target_name = "target"
-    targets = gmp.get_targets(filter=target_name)
+    targets = gmp.get_targets(filter_string=target_name)
     existing_targets = [""]
     for target in targets.findall("target"):
         existing_targets.append(str(target.find('name').text))
@@ -99,7 +99,7 @@ def get_target(
                 break
 
     if debug:
-        print("target name: {}".format(target_name))
+        print(f"target name: {target_name}")
 
     if not port_list_id:
         existing_port_lists = [""]
@@ -122,35 +122,35 @@ def get_target(
                     port_list_name = tmp_name
                     break
 
-        port_list = gmp.create_port_list(port_list_name, ports)
+        port_list = gmp.create_port_list(name=port_list_name, port_range=ports)
         # create port list
         port_list_id = port_list.xpath('@id')[0]
         if debug:
-            print("New Portlist-name:\t{}".format(str(port_list_name)))
-            print("New Portlist-id:\t{}".format(str(port_list_id)))
+            print(f"New Portlist-name:\t{port_list_name}")
+            print(f"New Portlist-id:  \t{str(port_list_id)}")
 
     # integrate port list id into create_target
     res = gmp.create_target(target_name, hosts=hosts, port_list_id=port_list_id)
-    print("New target '{}' created.".format(target_name))
+    print(f"New target '{target_name}' created.")
     return res.xpath('@id')[0]
 
 
 def get_alert(
-    gmp,
+    gmp: Gmp,
     sender_email: str,
     recipient_email: str,
     alert_name: str = None,
-    debug=False,
+    debug: bool = False,
 ):
 
     # create alert if necessary
-    alert_object = gmp.get_alerts(filter='name={}'.format(alert_name))
+    alert_object = gmp.get_alerts(filter_string=f'name={alert_name}')
     alert = alert_object.xpath('alert')
 
     if len(alert) == 0:
         print("creating new alert {}".format(alert_name))
         gmp.create_alert(
-            alert_name,
+            name=alert_name,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
             event_data={"status": "Done"},
             condition=gmp.types.AlertCondition.ALWAYS,
@@ -179,47 +179,44 @@ should not have received it.
             },
         )
 
-        alert_object = gmp.get_alerts(filter='name={}'.format(recipient_email))
+        alert_object = gmp.get_alerts(filter_string='name={recipient_email}')
         alert = alert_object.xpath('alert')
 
     alert_id = alert[0].get('id', 'no id found')
     if debug:
-        print("alert_id: {}".format(str(alert_id)))
+        print(f"alert_id: {str(alert_id)}")
 
     return alert_id
 
 
-def get_scanner(gmp):
+def get_scanner(gmp: Gmp):
     res = gmp.get_scanners()
     scanner_ids = res.xpath('scanner/@id')
     return scanner_ids[1]  # "default scanner"
 
 
 def create_and_start_task(
-    gmp,
+    gmp: Gmp,
     config_id: str,
     target_id: str,
     scanner_id: str,
     alert_id: str,
     alert_name: str,
     debug: bool = False,
-):
+) -> str:
     # Create the task
-    task_name = "Alert Scan for Alert {}".format(alert_name)
-    tasks = gmp.get_tasks(filter='name="{}"'.format(task_name))
-    task_objects = tasks.findall('task')
-    print(task_objects)
-    if task_objects:
-        task_name = "Alert Scan for Alert {} ({})".format(
-            alert_name, len(task_objects)
-        )
-
+    task_name = f"Alert Scan for Alert {alert_name}"
+    tasks = gmp.get_tasks(filter_string='name="{task_name}"')
+    existing_tasks = tasks.findall('task')
+    print(existing_tasks)
+    if existing_tasks:
+        task_name = f"Alert Scan for Alert {alert_name} ({len(existing_tasks)})"
     task_comment = "Alert Scan"
     res = gmp.create_task(
-        task_name,
-        config_id,
-        target_id,
-        scanner_id,
+        name=task_name,
+        config_id=config_id,
+        target_id=target_id,
+        scanner_id=scanner_id,
         alert_ids=[alert_id],
         comment=task_comment,
     )
@@ -230,13 +227,13 @@ def create_and_start_task(
 
     if debug:
         # Stop the task (for performance reasons)
-        gmp.stop_task(task_id)
+        gmp.stop_task(task_id=task_id)
         print('Task stopped')
 
     return task_name
 
 
-def parse_args(args):  # pylint: disable=unused-argument
+def parse_args(args: Namespace):  # pylint: disable=unused-argument
     parser = ArgumentParser(
         prefix_chars="+",
         add_help=False,
@@ -355,7 +352,7 @@ def parse_args(args):  # pylint: disable=unused-argument
     return script_args
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable, unused-argument
 
     script_args = parse_args(args)
@@ -367,7 +364,7 @@ def main(gmp, args):
 
     # use existing config from argument
     if not script_args.scan_config_id:
-        config_id = get_config(gmp, script_args.config)
+        config_id = get_scan_config(gmp, script_args.config)
     else:
         config_id = script_args.scan_config_id
 
@@ -398,9 +395,8 @@ def main(gmp, args):
         gmp, config_id, target_id, scanner_id, alert_id, script_args.alert_name
     )
 
-    print('Task started: ' + task_name)
-
-    print("\nScript finished\n")
+    print(f'Task started: {task_name}\n')
+    print("Script finished\n")
 
 
 if __name__ == '__gmp__':

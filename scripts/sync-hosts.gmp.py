@@ -18,58 +18,57 @@
 
 import csv
 import sys
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 
 def check_args(args):
     len_args = len(args.script) - 1
     if len_args != 1:
         message = """
-        This script reads asset data from a csv file and sync it with the gsm.
+        This script reads host data from a csv file and sync it with the gsm.
         It needs one parameters after the script name.
 
         1. <csv_file> - should contain a table of IP-addresses with an optional a comment
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/sync-assets.gmp.py <csv_file>
+    ssh --hostname <gsm> scripts/sync-hosts.gmp.py <csv_file>
         """
         print(message)
         sys.exit()
 
 
-def sync_assets(gmp, filename):
+def sync_hosts(gmp, filename):
     with open(filename, newline='') as f:
         reader = csv.reader(f, delimiter=',', quotechar='|')
         for row in reader:
             if len(row) == 2:
                 ip = row[0]
                 comment = row[1]
-                # print('%s %s %s %s' % (host, ip, contact, location))
 
-                # check if asset is already there
-                ret = gmp.get_assets(
-                    asset_type=gmp.types.AssetType.HOST, filter='ip=%s' % ip
-                )
-                if ret.xpath('asset'):
-                    print('\nAsset with IP %s exist' % ip)
-                    asset_id = ret.xpath('asset/@id')[0]
-                    gmp.delete_asset(asset_id=asset_id)
+                # check if host exists
+                ret = gmp.get_hosts(filter_string=f'ip={ip}')
+                if ret.xpath('host'):
+                    print(f'\nAsset with IP {ip} exist')
+                    host_id = ret.xpath('host/@id')[0]
+                    gmp.delete_host(host_id=host_id)
                 else:
-                    print('Asset with ip %s does not exist. Sync...' % ip)
+                    print(f'Asset with ip {ip} does not exist. Sync...')
                     ret = gmp.create_host(name=ip, comment=comment)
 
                     if 'OK' in ret.xpath('@status_text')[0]:
                         print('Asset synced')
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)
 
     file = args.script[1]
 
-    sync_assets(gmp, file)
+    sync_hosts(gmp, file)
 
 
 if __name__ == '__gmp__':

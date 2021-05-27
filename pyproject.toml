@@ -38,7 +38,7 @@ gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
 python = "^3.7.0"
-python-gvm = ">=20.0,<22.0"
+python-gvm = ">=21.5,<22.0"
 
 [tool.poetry.dev-dependencies]
 autohooks = "^21.3.0"

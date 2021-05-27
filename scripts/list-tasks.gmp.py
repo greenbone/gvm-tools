@@ -16,10 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 from gvmtools.helper import Table
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
     response_xml = gmp.get_tasks()

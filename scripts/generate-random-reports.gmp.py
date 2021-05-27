@@ -23,9 +23,9 @@ import textwrap
 import json
 
 from random import randrange, choice, gauss, seed
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from pathlib import Path
-
+from gvm.protocols.gmp import Gmp
 from lxml import etree as e
 
 from gvmtools.helper import (
@@ -336,9 +336,9 @@ def generate_data(gmp, n_tasks, **kwargs):
 
         gmp.create_container_task(task_name)
 
-        task_id = gmp.get_tasks(filter='name={}'.format(task_name)).xpath(
-            '//@id'
-        )[0]
+        task_id = gmp.get_tasks(
+            filter_string='name={}'.format(task_name)
+        ).xpath('//@id')[0]
 
         reports = generate_reports(task=(task_id, task_name), **kwargs)
 
@@ -346,7 +346,7 @@ def generate_data(gmp, n_tasks, **kwargs):
             gmp.import_report(report, task_id=task_id, in_assets=True)
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable, line-too-long
 
     parser = ArgumentParser(

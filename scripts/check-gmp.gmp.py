@@ -25,11 +25,11 @@ import signal
 import sqlite3
 import sys
 import tempfile
-
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from pathlib import Path
+from gvm.protocols.gmp import Gmp
 
 from lxml import etree
 
@@ -577,14 +577,14 @@ def status(gmp, im, script_args):
     """Returns the current status of a host
 
     This functions return the current state of a host.
-    Either directly over the asset management or within a task.
+    Either directly over the host management or within a task.
 
     For a task you can explicitly ask for the trend.
     Otherwise the last report of the task will be filtered.
 
-    In the asset management the report id in the details is taken
+    In the host management the report id in the details is taken
     as report for the filter.
-    If the asset information contains any vulnerabilities, then will the
+    If the host information contains any vulnerabilities, then will the
     report be filtered too. With additional parameters it is possible to add
     more information about the vulnerabilities.
 
@@ -603,7 +603,7 @@ def status(gmp, im, script_args):
 
     if script_args.task:
         task = gmp.get_tasks(
-            filter="permission=any owner=any rows=1 "
+            filter_string="permission=any owner=any rows=1 "
             'name="%s"' % script_args.task
         )
         if script_args.trend:
@@ -651,7 +651,7 @@ def status(gmp, im, script_args):
 
                 full_report = gmp.get_report(
                     report_id=last_report_id,
-                    filter="sort-reverse=id result_hosts_only=1 "
+                    filter_string="sort-reverse=id result_hosts_only=1 "
                     "min_cvss_base= min_qod= levels=hmlgd autofp={} "
                     "notes=0 apply_overrides={} overrides={} first=1 rows=-1 "
                     "delta_states=cgns host={}".format(
@@ -1187,7 +1187,7 @@ def parse_date(datestring, default_timezone=UTC):
         raise ParseError(e) from None
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     tmp_path = "%s/check_gmp/" % tempfile.gettempdir()
     tmp_path_db = tmp_path + "reports.db"
 

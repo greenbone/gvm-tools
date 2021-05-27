@@ -18,6 +18,8 @@
 
 import sys
 import time
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import error_and_exit
 
@@ -68,7 +70,7 @@ def send_targets(gmp, host_name, host_file, host_list):
         gmp.create_target(name=name, comment=comment, hosts=hosts)
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

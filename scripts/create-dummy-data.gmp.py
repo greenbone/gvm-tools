@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
 from random import choice
+from argparse import Namespace
+from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import generate_id
 
@@ -60,7 +61,9 @@ def create_data(gmp, count):
 
     for _ in range(0, count):
         name = generate_id()
-        res = gmp.create_config('085569ce-73ed-11df-83c3-002264764cea', name)
+        res = gmp.create_scan_config(
+            '085569ce-73ed-11df-83c3-002264764cea', name
+        )
         config_ids.append(res.xpath('@id')[0])
     print(str(count) + ' random scan configs generated.')
 
@@ -81,7 +84,7 @@ def create_data(gmp, count):
     print(str(count) + ' random tasks generated.')
 
 
-def main(gmp, args):
+def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
 
     check_args(args)

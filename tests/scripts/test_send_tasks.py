@@ -40,9 +40,9 @@ class SendTasksTestCase(unittest.TestCase):
 
         self.send_tasks.numerical_option = MagicMock(return_value=1)
 
-        configs_file = CWD / 'get_configs.xml'
+        configs_file = CWD / 'get_scan_configs.xml'
         configs = configs_file.read_text()
-        mock_gmp.mock_response('get_configs', configs)
+        mock_gmp.mock_response('get_scan_configs', configs)
 
         mock_gmp.mock_response(
             'get_scanners',
