@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import getpass
 import logging
 import sys
 import time
@@ -27,12 +26,11 @@ from gvm.protocols.gmp import Gmp
 from gvm.transforms import CheckCommandTransform
 from gvm.xml import validate_xml_string, pretty_print
 
-from gvmtools.helper import do_not_run_as_root
+from gvmtools.helper import authenticate, do_not_run_as_root
 from gvmtools.parser import (
     create_parser,
     create_connection,
     PROTOCOL_OSP,
-    PROTOCOL_GMP,
 )
 
 logger = logging.getLogger(__name__)
@@ -125,15 +123,10 @@ def main():
     try:
         with protocol_class(connection, transform=transform) as protocol:
 
-            if args.protocol == PROTOCOL_GMP:
-                # Ask for password if none are given
-                if args.gmp_username and not args.gmp_password:
-                    args.gmp_password = getpass.getpass(
-                        'Enter password for ' + args.gmp_username + ': '
-                    )
-
+            if isinstance(protocol, Gmp):
                 if args.gmp_username:
-                    protocol.authenticate(args.gmp_username, args.gmp_password)
+                    # Ask for password if none are given
+                    authenticate(protocol, args.gmp_username, args.gmp_password)
 
             if args.duration:
                 starttime = time.time()
@@ -142,14 +135,14 @@ def main():
 
             if args.duration:
                 duration = time.time() - starttime
-                print('Elapsed time: {} seconds'.format(duration))
+                print(f'Elapsed time: {duration} seconds')
             elif args.pretty:
                 pretty_print(result)
             else:
                 print(result)
 
     except Exception as e:  # pylint: disable=broad-except
-        print(e, file=sys.stderr)
+        logger.error(e)
         sys.exit(1)
     sys.exit(0)
 
