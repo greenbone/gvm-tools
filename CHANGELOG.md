@@ -14,7 +14,7 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
-## [Unreleased]
+## [21.6.0] - 2021-06-13
 ### Added
 * Added new script `script/create-consolidated-reports.gmp.py`, that consolidates the last reports of tasks filtered by time period and tags [#370](https://github.com/greenbone/gvm-tools/pull/370)
 * Added new script `script/create-cve-report-from-json.gmp.py` that generates an CVE Report from an correctly formatted JSON. [#376](https://github.com/greenbone/gvm-tools/pull/376)
@@ -23,14 +23,11 @@ $ cd gvm-tools && git log
 ### Changed
 * Added `in_asset` argument to `import_report()` to `script/combine-reports.gmp.py` [#383](https://github.com/greenbone/gvm-tools/pull/383)
 
-### Deprecated
-### Removed
 ### Fixed
 * Added ignore_pagination to get_report calls in `script/create-consolidated-reports.gmp.py` and `script/combine-reports.gmp.py` [#399]https://github.com/greenbone/gvm-tools/pull/399)
 * Fixed Python 3.8 SyntaxWarnings for scripts [#373](https://github.com/greenbone/gvm-tools/pull/373)
 
-[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v21.1.0...HEAD
-
+[21.6.0]: https://github.com/greenbone/gvm-tools/compare/v21.1.0...v21.6.0
 
 ## [21.1.0] - 2021-01-20
 ### Added
