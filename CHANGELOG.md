@@ -14,6 +14,16 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v21.6.0...HEAD
+
+
 ## [21.6.0] - 2021-06-13
 ### Added
 * Added new script `script/create-consolidated-reports.gmp.py`, that consolidates the last reports of tasks filtered by time period and tags [#370](https://github.com/greenbone/gvm-tools/pull/370)
