@@ -20,6 +20,7 @@ $ cd gvm-tools && git log
 ### Deprecated
 ### Removed
 ### Fixed
+* Fixed the GMP authentication for `gvm-cli`. [#472](https://github.com/greenbone/gvm-tools/pull/472)
 
 [Unreleased]: https://github.com/greenbone/gvm-tools/compare/v21.6.0...HEAD
 
