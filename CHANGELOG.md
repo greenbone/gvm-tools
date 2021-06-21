@@ -14,6 +14,16 @@ $ git clone https://github.com/greenbone/gvm-tools.git
 $ cd gvm-tools && git log
 ```
 
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/gvm-tools/compare/v21.6.1...HEAD
+
+
 ## [21.6.1] - 2021-06-21
 ### Fixed
 * Fixed the GMP authentication for `gvm-cli`. [#472](https://github.com/greenbone/gvm-tools/pull/472)
