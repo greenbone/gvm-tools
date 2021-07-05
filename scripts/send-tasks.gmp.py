@@ -50,29 +50,28 @@ def interactive_options(gmp, task, keywords):
     options_dict['scanner'] = gmp.get_scanners()
     options_dict['target'] = gmp.get_targets()
 
-    for option in options_dict:
+    for option_key, option_value in options_dict.items():
         object_dict, object_list = {}, []
-        object_id = task.find(option).get('id')
-        object_xml = options_dict[option]
+        object_id = task.find(option_key).get('id')
+        object_xml = option_value
 
-        for i in object_xml.findall(option):
+        for i in object_xml.findall(option_key):
             object_dict[i.find('name').text] = i.xpath('@id')[0]
             object_list.append(i.find('name').text)
 
         if object_id in object_dict.values():
-            keywords['{}_id'.format(option)] = object_id
+            keywords[f'{option_key}_id'] = object_id
         elif object_id not in object_dict.values() and len(object_dict) != 0:
             response = yes_or_no(
-                "\nRequired Field: failed to detect {}_id: {}... "
+                f"\nRequired Field: failed to detect {option_key}_id: "
+                f"{task.xpath(f'{option_key}/@id')[0]}... "
                 "\nWould you like to select from available options, or exit "
-                "the script?".format(
-                    option, task.xpath('{}/@id'.format(option))[0]
-                )
+                "the script?"
             )
 
             if response is True:
                 counter = 1
-                print("{} options:".format(option.capitalize()))
+                print("{} options:".format(option_key.capitalize()))
                 for j in object_list:
                     print("    {} - {}".format(counter, j))
                     counter += 1
@@ -80,7 +79,7 @@ def interactive_options(gmp, task, keywords):
                     "\nPlease enter the number of your choice.",
                     len(object_list),
                 )
-                keywords['{}_id'.format(option)] = object_dict[
+                keywords[f'{option_key}_id'] = object_dict[
                     object_list[answer - 1]
                 ]
             else:
@@ -88,9 +87,9 @@ def interactive_options(gmp, task, keywords):
                 sys.exit()
         else:
             error_and_exit(
-                "Failed to detect {}_id"
+                f"Failed to detect {option_key}_id"
                 "\nThis field is required therefore the script is unable to "
-                "continue.\n".format(option)
+                "continue.\n"
             )
 
 
