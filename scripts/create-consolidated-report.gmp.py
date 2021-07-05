@@ -65,28 +65,28 @@ def parse_period(period: List[str]) -> Tuple[date, date]:
     """
     try:
         s_year, s_month, s_day = map(int, period[0].split('/'))
-    except ValueError as e:
+    except ValueError as exc:
         error_and_exit(
             f'Start date [{period[0]}] is not a '
-            f'correct date format:\n{e.args[0]}.'
+            f'correct date format:\n{exc.args[0]}.'
         )
     try:
         e_year, e_month, e_day = map(int, period[1].split('/'))
-    except ValueError as e:
+    except ValueError as exc:
         error_and_exit(
             f'End date [{period[1]}] is not '
-            f'a correct date format:\n{e.args[0]}.'
+            f'a correct date format:\n{exc.args[0]}.'
         )
 
     try:
         period_start = date(s_year, s_month, s_day)
-    except ValueError as e:
-        error_and_exit(f'Start date: {e.args[0]}')
+    except ValueError as exc:
+        error_and_exit(f'Start date: {exc.args[0]}')
 
     try:
         period_end = date(e_year, e_month, e_day)
-    except ValueError as e:
-        error_and_exit(f'End date: {e.args[0]}')
+    except ValueError as exc:
+        error_and_exit(f'End date: {exc.args[0]}')
 
     if period_end < period_start:
         error_and_exit('The start date seems to after the end date.')
