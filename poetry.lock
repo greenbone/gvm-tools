@@ -43,15 +43,15 @@ tomlkit = ">=0.5.11"
 
 [[package]]
 name = "autohooks-plugin-black"
-version = "1.2.0"
-description = "Autohooks plugin for code formatting via black"
+version = "21.7.0"
+description = "An autohooks plugin for python code formatting via black"
 category = "dev"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6.2,<4.0"
 
 [package.dependencies]
-autohooks = ">=1.1"
-black = "*"
+autohooks = ">=2.2.0"
+black = {version = ">=20.8b1,<=21.6b0", markers = "python_version >= \"3.6\" and python_version < \"4.0\""}
 
 [[package]]
 name = "autohooks-plugin-pylint"
@@ -678,7 +678,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "9ce0175609501e993721485d41dbf9925bd49d3bd2851fa9aeb3cb3f8d9c02ba"
+content-hash = "56391ab567d2add2aa2fa475866fd6973f78231e727f9da3d6e700618f9e207a"
 
 [metadata.files]
 alabaster = [
@@ -698,8 +698,8 @@ autohooks = [
     {file = "autohooks-21.6.0.tar.gz", hash = "sha256:237d558eb57b599401a68def3a2e1217d16ea3dc1e520ce0f9947bb4a9cb656b"},
 ]
 autohooks-plugin-black = [
-    {file = "autohooks-plugin-black-1.2.0.tar.gz", hash = "sha256:e69a18209f3fd584da903e87faf0e3685caa4d51a9e870ddb3c2b1aef93387b8"},
-    {file = "autohooks_plugin_black-1.2.0-py3-none-any.whl", hash = "sha256:5099f620e01d3fcfd70195e63f101d003528b40475e921829a9ebde000f2c5ee"},
+    {file = "autohooks-plugin-black-21.7.0.tar.gz", hash = "sha256:22205b557d0077588d062c95091c438aba2802952b1c419ae69d9a4b32121580"},
+    {file = "autohooks_plugin_black-21.7.0-py3-none-any.whl", hash = "sha256:238a1f48bbe058991b3ba6ae7b36e348fd1dcbbc8ee89b418afc4499fa9a137f"},
 ]
 autohooks-plugin-pylint = [
     {file = "autohooks-plugin-pylint-21.6.0.tar.gz", hash = "sha256:6f1a486f19c8012618fecd9eaa985f5da3ef5c954b32d823323439547b947302"},
