@@ -40,7 +40,7 @@ def check_args(args):
 
 
 def sync_hosts(gmp, filename):
-    with open(filename, newline='') as f:
+    with open(filename, newline='', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=',', quotechar='|')
         for row in reader:
             if len(row) == 2:

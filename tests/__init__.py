@@ -28,7 +28,7 @@ class SuppressOutput:
         self.original_stderr = None
 
     def __enter__(self):
-        self.devnull = open(os.devnull, "w")
+        self.devnull = open(os.devnull, "w", encoding='utf-8')
 
         # Suppress streams
         if self.suppress_stdout:

@@ -214,7 +214,7 @@ def run_script(path, global_vars):
         vars (dict): Variables passed as globals to the script
     """
     try:
-        file = open(path, 'r', newline='').read()
+        file = open(path, 'r', encoding='utf-8', newline='').read()
     except FileNotFoundError:
         print('Script {path} does not exist'.format(path=path), file=sys.stderr)
         sys.exit(2)

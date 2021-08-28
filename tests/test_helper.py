@@ -196,13 +196,13 @@ class RunScriptTestCase(unittest.TestCase):
 
         run_script(path, global_vars)
 
-        mock_open.assert_called_with(path, 'r', newline='')
+        mock_open.assert_called_with(path, 'r', encoding='utf-8', newline='')
         mock_exec.assert_called_with('file content', global_vars)
 
     @patch('gvmtools.helper.open')
     @patch('gvmtools.helper.print')
     def test_run_script_file_not_found(self, mock_print, mock_open):
-        def my_open(path, mode, newline):
+        def my_open(path, mode, newline, encoding):
             raise FileNotFoundError
 
         mock_open.side_effect = my_open

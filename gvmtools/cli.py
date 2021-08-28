@@ -56,7 +56,7 @@ def _load_infile(filename=None):
     if not filename:
         return None
 
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
         return f.read()
 
 
