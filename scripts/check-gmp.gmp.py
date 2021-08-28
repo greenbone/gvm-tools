@@ -33,7 +33,7 @@ from gvm.protocols.gmp import Gmp
 
 from lxml import etree
 
-__version__ = "2.0.0"
+__version__ = "21.7.0"
 
 logger = logging.getLogger(__name__)
 
@@ -191,13 +191,16 @@ class InstanceManager:
             (self.host,),
         )
         db_entry = self.cursor.fetchone()
+        print(db_entry)
 
         logger.debug("%s %s", db_entry, last_scan_end)
 
         if not db_entry:
             return True
         else:
+            print(db_entry[0])
             old = parse_date(db_entry[0])
+            print(last_scan_end)
             new = parse_date(last_scan_end)
 
             logger.debug(
@@ -284,8 +287,8 @@ class InstanceManager:
         """
         logger.debug("Delete entries older than: %s days", days)
         self.cursor.execute(
-            "DELETE FROM Report WHERE scan_end <= "
-            'date("now", "-%s day")' % days
+            'DELETE FROM Report WHERE scan_end <= '
+            f'date("now", "-{days} day")'
         )
         self.cursor.execute("VACUUM")
 
@@ -594,17 +597,17 @@ def status(gmp, im, script_args):
     * Scanend
     * Overrides
     """
-    params_used = "task=%s autofp=%i overrides=%i apply_overrides=%i" % (
-        script_args.task,
-        script_args.autofp,
-        int(script_args.overrides),
-        int(script_args.apply_overrides),
+    params_used = (
+        f"task={script_args.task} autofp={script_args.autofp} "
+        f"overrides={script_args.overrides} "
+        f"apply_overrides={script_args.apply_overrides}"
     )
 
     if script_args.task:
         task = gmp.get_tasks(
-            filter_string="permission=any owner=any rows=1 "
-            'name="%s"' % script_args.task
+            filter_string=(
+                'permission=any owner=any rows=1 ' f'name="{script_args.task}"'
+            )
         )
         if script_args.trend:
             trend = task.xpath("task/trend/text()")
@@ -618,14 +621,14 @@ def status(gmp, im, script_args):
 
             if trend in ["up", "more"]:
                 end_session(
-                    im, "GMP CRITICAL: Trend is %s." % trend, NAGIOS_CRITICAL
+                    im, f"GMP CRITICAL: Trend is {trend}.", NAGIOS_CRITICAL
                 )
             elif trend in ["down", "same", "less"]:
-                end_session(im, "GMP OK: Trend is %s." % trend, NAGIOS_OK)
+                end_session(im, f"GMP OK: Trend is {trend}.", NAGIOS_OK)
             else:
                 end_session(
                     im,
-                    "GMP UNKNOWN: Trend is unknown: %s" % trend,
+                    f"GMP UNKNOWN: Trend is unknown: {trend}",
                     NAGIOS_UNKNOWN,
                 )
         else:
@@ -651,14 +654,13 @@ def status(gmp, im, script_args):
 
                 full_report = gmp.get_report(
                     report_id=last_report_id,
-                    filter_string="sort-reverse=id result_hosts_only=1 "
-                    "min_cvss_base= min_qod= levels=hmlgd autofp={} "
-                    "notes=0 apply_overrides={} overrides={} first=1 rows=-1 "
-                    "delta_states=cgns host={}".format(
-                        script_args.autofp,
-                        int(script_args.overrides),
-                        int(script_args.apply_overrides),
-                        host,
+                    filter_string=(
+                        "sort-reverse=id result_hosts_only=1 min_cvss_base= "
+                        f"min_qod= levels=hmlgd autofp={script_args.autofp} "
+                        "notes=0 "
+                        f"apply_overrides={script_args.apply_overrides} "
+                        f"overrides={script_args.overrides} first=1 rows=-1 "
+                        f"delta_states=cgns host={host}"
                     ),
                     details=True,
                 )
@@ -745,7 +747,7 @@ def filter_report(im, report, script_args):
         else:
             end_session(
                 im,
-                "GMP UNKNOWN: Unknown result threat: %s" % threat,
+                f"GMP UNKNOWN: Unknown result threat: {threat}",
                 NAGIOS_UNKNOWN,
             )
 
@@ -773,15 +775,10 @@ def filter_report(im, report, script_args):
         ret = NAGIOS_UNKNOWN
 
     print(
-        "GMP %s: %i vulnerabilities found - High: %i Medium: %i "
-        "Low: %i"
-        % (
-            NAGIOS_MSG[ret],
-            (high_count + medium_count + low_count),
-            high_count,
-            medium_count,
-            low_count,
-        )
+        f"GMP {NAGIOS_MSG[ret]}: "
+        f"{str((high_count + medium_count + low_count))} "
+        f"vulnerabilities found - High: {str(high_count)} "
+        f"Medium: {str(medium_count)} Low: {str(low_count)}"
     )
 
     if not all_results:
@@ -789,25 +786,23 @@ def filter_report(im, report, script_args):
 
     elif not any_found and script_args.hostaddress:
         print(
-            "Report did not contain vulnerabilities for IP %s"
-            % script_args.hostaddress
+            "Report did not contain vulnerabilities "
+            f"for IP {script_args.hostaddress}"
         )
 
     if int(error_count) > 0:
         if script_args.hostaddress:
             print_without_pipe(
-                "Report did contain %i errors for IP %s"
-                % (error_count, script_args.hostaddress)
+                f"Report did contain {str(error_count)} "
+                f"errors for IP {script_args.hostaddress}"
             )
         else:
-            print_without_pipe(
-                "Report did contain %i errors" % int(error_count)
-            )
+            print_without_pipe(f"Report did contain {error_count} errors")
 
     if script_args.report_link:
         print(
-            "https://%s/omp?cmd=get_report&report_id=%s"
-            % (script_args.hostname, report_id)
+            f"https://{script_args.hostname}/omp"
+            f"?cmd=get_report&report_id={report_id}"
         )
 
     if script_args.oid:
@@ -822,19 +817,21 @@ def filter_report(im, report, script_args):
     if script_args.scanend:
         end = report.xpath("//end/text()")
         end = end[0] if end else "Timestamp of scan end not given"
-        print("SCAN_END: %s" % end)
+        print(f"SCAN_END: {end}")
 
     if script_args.details:
         if script_args.hostname:
-            print("GSM_Host: %s:%d" % (script_args.hostname, script_args.port))
+            print(f"GSM_Host: {script_args.hostname}:{str(script_args.port)}")
         if script_args.gmp_username:
-            print("GMP_User: %s" % script_args.gmp_username)
+            print(f"GMP_User: {script_args.gmp_username}")
         if script_args.task:
-            print_without_pipe("Task: %s" % script_args.task)
+            print_without_pipe(f"Task: {script_args.task}")
 
     end_session(
         im,
-        "|High=%i Medium=%i Low=%i" % (high_count, medium_count, low_count),
+        f"|High={str(high_count)} "
+        f"Medium={str(medium_count)} "
+        f"Low={str(low_count)}",
         ret,
     )
 
@@ -898,16 +895,16 @@ def print_nvt_data(
         if key == "log" and not show_log:
             continue
         for nvt in nvt_data:
-            print_without_pipe("NVT: %s (%s) %s" % (nvt[0], key, nvt[1]))
+            print_without_pipe(f"NVT: {nvt[0]} ({key}) {nvt[1]}")
             if show_ports:
-                print_without_pipe("PORT: %s" % (nvt[3]))
+                print_without_pipe(f"PORT: {nvt[3]}")
             if descr:
-                print_without_pipe("DESCR: %s" % nvt[2])
+                print_without_pipe(f"DESCR: {nvt[2]}")
 
             if dfn and nvt[4]:
                 dfn_list = ", ".join(nvt[4])
                 if dfn_list:
-                    print_without_pipe("DFN-CERT: %s" % dfn_list)
+                    print_without_pipe(f"DFN-CERT: {dfn_list}")
 
 
 def end_session(im, msg, nagios_status):
@@ -972,9 +969,6 @@ def print_without_pipe(msg):
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 __all__ = ["parse_date", "ParseError", "UTC"]
-
-_basestring = str
-
 
 # Adapted from http://delete.me.uk/2005/03/iso8601.html
 ISO8601_REGEX = re.compile(
@@ -1102,7 +1096,7 @@ def to_int(
         return 0
     if value is None:
         if required:
-            raise ParseError("Unable to read %s from %s" % (key, source_dict))
+            raise ParseError(f"Unable to read {key} from {source_dict}")
         return value
     else:
         return int(value)
@@ -1121,7 +1115,7 @@ def parse_timezone(matches, default_timezone=UTC):
     sign = matches["tz_sign"]
     hours = to_int(matches, "tz_hour")
     minutes = to_int(matches, "tz_minute", default_to_zero=True)
-    description = "%s%02d:%02d" % (sign, hours, minutes)
+    description = f"{sign}{str(hours)}:{str(minutes)}"
     if sign == "-":
         hours = -1 * hours
         minutes = -1 * minutes
@@ -1148,20 +1142,21 @@ def parse_date(datestring, default_timezone=UTC):
         constructing the datetime instance.
 
     """
-    if not isinstance(datestring, _basestring):
-        raise ParseError("Expecting a string %r" % datestring)
+    if not isinstance(datestring, str):
+        raise ParseError(f"Expecting a string {datestring}")
+
+    print(datestring)
 
     match = ISO8601_REGEX.match(datestring)
     if not match:
-        raise ParseError("Unable to parse date string %r" % datestring)
+        raise ParseError(f"Unable to parse date string {datestring}")
 
     groups = match.groupdict()
 
     tz = parse_timezone(groups, default_timezone=default_timezone)
 
     groups["second_fraction"] = int(
-        Decimal("0.%s" % (groups["second_fraction"] or 0))
-        * Decimal("1000000.0")
+        Decimal(f"0.{groups['second_fraction'] or 0}") * Decimal("1000000.0")
     )
 
     try:
@@ -1188,11 +1183,13 @@ def parse_date(datestring, default_timezone=UTC):
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
-    tmp_path = "%s/check_gmp/" % tempfile.gettempdir()
+    tmp_path = f"{tempfile.gettempdir()}/check_gmp/"
     tmp_path_db = tmp_path + "reports.db"
 
+    prog = "check-gmp"
+
     parser = ArgumentParser(
-        prog="check-gmp",
+        prog=prog,
         prefix_chars="-",
         description=HELP_TEXT,
         formatter_class=RawTextHelpFormatter,
@@ -1211,7 +1208,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "-V",
         "--version",
         action="version",
-        version="%(prog)s {version}".format(version=__version__),
+        version=f"{prog} {__version__}",
         help="Show program's version number and exit",
     )
 
@@ -1219,7 +1216,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "--cache",
         nargs="?",
         default=tmp_path_db,
-        help="Path to cache file. Default: %s." % tmp_path_db,
+        help=f"Path to cache file. Default: {tmp_path_db}.",
     )
 
     parser.add_argument(
@@ -1396,7 +1393,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     try:
         gmp.get_version()
     except Exception as e:  # pylint: disable=broad-except
-        end_session(im, "GMP CRITICAL: %s" % str(e), NAGIOS_CRITICAL)
+        end_session(im, f"GMP CRITICAL: {str(e)}", NAGIOS_CRITICAL)
 
     if script_args.ping:
         ping(gmp, im)

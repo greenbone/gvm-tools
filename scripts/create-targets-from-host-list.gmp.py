@@ -46,7 +46,7 @@ ssh --hostname <gsm> scripts/create_targets_from_host_list.gmp \
 
 def load_host_list(host_file):
     try:
-        with open(host_file) as f:
+        with open(host_file, encoding='utf-8') as f:
             content = f.readlines()
         host_list = [x.strip() for x in content]
         host_list = list(filter(None, host_list))

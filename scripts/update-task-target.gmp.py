@@ -49,7 +49,7 @@ def load_host_file(filename):
     host_list = list()
 
     try:
-        f = open(filename)
+        f = open(filename, encoding='utf-8')
         for line in f:
             host = line.split(",")[0]
             host = host.strip()

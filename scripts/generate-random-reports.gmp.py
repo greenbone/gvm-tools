@@ -442,7 +442,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     else:
         seed(script_args.seed)
 
-    with open(str(script_args.datafile)) as file:
+    with open(str(script_args.datafile), encoding='utf-8') as file:
         data = json.load(file)
 
     print('\n  Generating randomized data(s)...\n')
