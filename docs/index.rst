@@ -10,7 +10,7 @@ Essentially, the tools aid accessing the communication protocols
 :term:`Greenbone Management Protocol (GMP) <GMP>`
 and :term:`Open Scanner Protocol (OSP) <OSP>`.
 
-.. note:: :program:`gvm-tools` requires at least Python 3.5. Python 2 is not
+.. note:: :program:`gvm-tools` requires at least Python 3.7. Python 2 is not
   supported.
 
 .. toctree::
