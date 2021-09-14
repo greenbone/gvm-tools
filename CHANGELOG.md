@@ -17,6 +17,8 @@ $ cd gvm-tools && git log
 ## [Unreleased]
 ### Added
 ### Changed
+* Switch to [`poetry-core`](https://github.com/python-poetry/poetry-core) as build backend
+
 ### Deprecated
 ### Removed
 ### Fixed
