@@ -36,12 +36,12 @@ class SendTasksTestCase(unittest.TestCase):
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_task(self, mock_gmp: GmpMockFactory):
         task_xml_path = CWD / 'example_task.xml'
-        task_xml_str = task_xml_path.read_text()
+        task_xml_str = task_xml_path.read_text(encoding='utf-8')
 
         self.send_tasks.numerical_option = MagicMock(return_value=1)
 
         configs_file = CWD / 'get_scan_configs.xml'
-        configs = configs_file.read_text()
+        configs = configs_file.read_text(encoding='utf-8')
         mock_gmp.mock_response('get_scan_configs', configs)
 
         mock_gmp.mock_response(

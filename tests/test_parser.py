@@ -429,7 +429,7 @@ class HelpFormattingParserTestCase(ParserTestCase):
         if not path.exists():
             path.write_text(output)
 
-        content = path.read_text()
+        content = path.read_text(encoding='utf-8')
 
         try:
             self.assertEqual(content, output, 'Snapshot differs from output')

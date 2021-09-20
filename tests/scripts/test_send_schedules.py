@@ -36,7 +36,7 @@ class SendSchedulesTestCase(unittest.TestCase):
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_schedule(self, mock_gmp: GmpMockFactory):
         schedule_xml_path = CWD / 'example_schedules.xml'
-        schedule_xml_str = schedule_xml_path.read_text()
+        schedule_xml_str = schedule_xml_path.read_text(encoding='utf-8')
 
         mock_gmp.mock_responses(
             'create_schedule',
