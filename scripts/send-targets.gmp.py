@@ -84,7 +84,7 @@ def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
                 else:
                     continue
 
-            key = '{}_id'.format(credential)
+            key = f'{credential}_id'
             keywords[key] = cred_id
             elem_path = target.find(credential)
             port = elem_path.find('port')

@@ -101,9 +101,7 @@ class CliParser:
             '-V',
             '--version',
             action='version',
-            version='%(prog)s {version} (API version {apiversion})'.format(
-                version=__version__, apiversion=__api_version__
-            ),
+            version=f'%(prog)s {__version__} (API version {__api_version__})',
             help='Show version information and exit',
         )
 
@@ -130,7 +128,7 @@ class CliParser:
         args, unkown_args = self.parse_known_args(args)
         if unkown_args:
             self._parser.error(
-                'unrecognized arguments {}'.format(' '.join(unkown_args))
+                f'unrecognized arguments {" ".join(unkown_args)}'
             )
         return args
 
@@ -189,8 +187,7 @@ class CliParser:
             logger.debug('Loaded config %s', configfile)
         except Exception as e:  # pylint: disable=broad-except
             raise RuntimeError(
-                'Error while parsing config file {config}. Error was '
-                '{message}'.format(config=configfile, message=e)
+                f'Error while parsing config file {configfile}. Error was {e}'
             ) from None
 
         return config

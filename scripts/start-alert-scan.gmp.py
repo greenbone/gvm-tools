@@ -91,7 +91,7 @@ def get_target(
     # iterate over existing targets and find a vacant targetName
     if target_name in existing_targets:
         while True:
-            tmp_name = "{} ({})".format(target_name, str(counter))
+            tmp_name = f"{target_name} ({str(counter)})"
             if tmp_name in existing_targets:
                 counter += 1
             else:
@@ -115,7 +115,7 @@ def get_target(
         if port_list_name in existing_port_lists:
             counter = 0
             while True:
-                tmp_name = "{} ({})".format(port_list_name, str(counter))
+                tmp_name = "{port_list_name} ({str(counter)})"
                 if tmp_name in existing_port_lists:
                     counter += 1
                 else:
@@ -148,7 +148,7 @@ def get_alert(
     alert = alert_object.xpath('alert')
 
     if len(alert) == 0:
-        print("creating new alert {}".format(alert_name))
+        print(f"creating new alert {alert_name}")
         gmp.create_alert(
             name=alert_name,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,

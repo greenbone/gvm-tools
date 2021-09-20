@@ -83,8 +83,8 @@ def execute_send_delta_emails(sc: sched.scheduler, **kwargs: dict) -> None:
         print(f'Processing task "{task_name}" ({task_id})...')
 
         reports = gmp.get_reports(
-            filter_string='task_id={0} and status=Done '
-            'sort-reverse=date'.format(task_id)
+            filter_string='task_id={task_id} and status=Done '
+            'sort-reverse=date'
         ).xpath('report')
         print(f'  Found {str(len(reports))} report(s).')
         if len(reports) < 2:

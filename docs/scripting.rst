@@ -200,9 +200,7 @@ start the task and print the corresponding report ID:
     report_id = start_task(gmp, task_id)
 
     print(
-        "Started scan of host {}. Corresponding report ID is {}".format(
-            ipaddress, report_id
-        )
+        f"Started scan of host {ipaddress}. Corresponding report ID is {report_id}"
     )
 
 For creating the target from an IP address (DNS name is also possible), the
@@ -215,7 +213,7 @@ ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm) is added:
       import datetime
 
       # create a unique name by adding the current datetime
-      name = "Suspect Host {} {}".format(ipaddress, str(datetime.datetime.now()))
+      name = f"Suspect Host {ipaddress} {str(datetime.datetime.now())}"
       response = gmp.create_target(name=name, hosts=[ipaddress])
       return response.get('id')
 
@@ -225,7 +223,7 @@ The function for creating the task is defined as:
 .. code-block:: python3
 
   def create_task(gmp, ipaddress, target_id, scan_config_id, scanner_id):
-      name = "Scan Suspect Host {}".format(ipaddress)
+      name = f"Scan Suspect Host {ipaddress}"
       response = gmp.create_task(
           name=name,
           config_id=scan_config_id,

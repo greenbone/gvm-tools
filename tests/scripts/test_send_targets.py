@@ -36,7 +36,7 @@ class SendTargetTestCase(unittest.TestCase):
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_target(self, mock_gmp: GmpMockFactory):
         target_xml_path = CWD / 'example_target.xml'
-        target_xml_str = target_xml_path.read_text()
+        target_xml_str = target_xml_path.read_text(encoding='utf-8')
 
         mock_gmp.mock_response(
             'get_credentials',
@@ -65,7 +65,7 @@ class SendTargetTestCase(unittest.TestCase):
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_sent_target_no_credential(self, mock_gmp: GmpMockFactory):
         target_xml_path = CWD / 'example_target.xml'
-        target_xml_str = target_xml_path.read_text()
+        target_xml_str = target_xml_path.read_text(encoding='utf-8')
 
         mock_gmp.mock_response(
             'get_credentials',

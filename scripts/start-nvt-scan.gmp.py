@@ -48,22 +48,17 @@ def get_scan_config(gmp, nvt_oid):
     for i, conf in enumerate(res.xpath('config')):
         config_id = conf.xpath('@id')[0]
         name = conf.xpath('name/text()')[0]
-        print('\n({0}) {1}: ({2})'.format(i, name, config_id))
+        print(f'\n({i}) {name}: ({config_id})')
 
     while True:
         chosen_config = input(
-            '\nChoose your config or create new one[0-{len} | n]: '.format(
-                len=len(config_ids) - 1
-            )
+            '\nChoose your config or create new one'
+            f'[0-{len(config_ids) - 1} | n]: '
         )
 
         if chosen_config == 'n':
             chosen_copy_config = int(
-                input(
-                    'Which config to copy? [0-{len}]: '.format(
-                        len=len(config_ids) - 1
-                    )
-                )
+                input(f'Which config to copy from? [0-{len(config_ids) - 1}]: ')
             )
             config_name = input('Enter new Name for config: ')
 
@@ -111,14 +106,13 @@ def get_target(gmp, hosts):
 
     for i, target in enumerate(targets.xpath('target')):
         name = target.xpath('name/text()')[0]
-        print('\n({0}) {1}'.format(i, name))
+        print(f'\n({i}) {name}')
 
     while True:
         if target_ids:
             chosen_target = input(
-                '\nChoose your target or create new one[0-{len} | n]: '.format(
-                    len=len(target_ids) - 1
-                )
+                '\nChoose your target or create new'
+                f' one[0-{len(target_ids) - 1} | n]: '
             )
         else:
             chosen_target = 'n'
@@ -144,15 +138,11 @@ def get_scanner(gmp):
         scanner_id = scanner.xpath('@id')[0]
         name = scanner.xpath('name/text()')[0]
         # configs[id] = name
-        print("\n({0})\n{1}: ({2})".format(i, name, scanner_id))
+        print(f"\n({i})\n{name}: ({scanner_id})")
 
     while True:
         chosen_scanner = int(
-            input(
-                '\nChoose your scanner [0-{len}]: '.format(
-                    len=len(scanner_ids) - 1
-                )
-            )
+            input(f'\nChoose your scanner [0-{len(scanner_ids) - 1}]: ')
         )
         if 0 <= chosen_scanner < len(scanner_ids):
             return scanner_ids[chosen_scanner]

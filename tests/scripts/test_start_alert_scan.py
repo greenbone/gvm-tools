@@ -34,7 +34,7 @@ class StartAlertScanTestCase(unittest.TestCase):
     @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
     def test_get_scan_config(self, mock_gmp: GmpMockFactory):
         configs_file = CWD / 'get_scan_configs.xml'
-        configs = configs_file.read_text()
+        configs = configs_file.read_text(encoding='utf-8')
         mock_gmp.mock_response('get_scan_configs', configs)
 
         # Full and Fast
@@ -80,7 +80,7 @@ class StartAlertScanTestCase(unittest.TestCase):
         alert_id = '3eefd4b9-59ec-48d6-b84d-f6a73bdb909f'
 
         alerts_file = CWD / 'get_alerts.xml'
-        alerts = alerts_file.read_text()
+        alerts = alerts_file.read_text(encoding='utf-8')
         mock_gmp.mock_response('get_alerts', alerts)
         mock_gmp.mock_response(
             'create_alert',
@@ -197,7 +197,7 @@ class StartAlertScanTestCase(unittest.TestCase):
             """,
         )
 
-        task_name = "Alert Scan for Alert {}".format(alert_name)
+        task_name = f"Alert Scan for Alert {alert_name}"
 
         returned_name = self.start_alert_scan.create_and_start_task(
             gmp=mock_gmp.gmp_protocol,

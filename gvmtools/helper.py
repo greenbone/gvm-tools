@@ -55,7 +55,7 @@ class Table:
         return column_sizes
 
     def _create_column(self, column, size):
-        return '{}{}'.format(column, ' ' * (size - len(column)))
+        return f'{column}{" " * (size - len(column))}'
 
     def _create_row(self, columns):
         return self.divider.join(columns)
@@ -112,7 +112,7 @@ def error_and_exit(msg):
     Arguments:
         msg (str): The error message, that will be printed
     """
-    print("\nError: {}\n".format(msg), file=sys.stderr)
+    print(f"\nError: {msg}\n", file=sys.stderr)
     sys.exit(1)
 
 
@@ -121,12 +121,8 @@ def generate_random_ips(count: int):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
     return [
-        '{}.{}.{}.{}'.format(
-            choice(exclude_127),
-            randrange(0, 256),
-            randrange(0, 256),
-            randrange(1, 255),
-        )
+        f'{choice(exclude_127)}.{randrange(0, 256)}.'
+        f'{randrange(0, 256)}.{randrange(1, 256)}'
         for i in range(count)
     ]
 
@@ -153,9 +149,9 @@ def create_xml_tree(xml_doc):
         xml_tree = etree.parse(xml_doc)
         xml_tree = xml_tree.getroot()
     except IOError as err:
-        error_and_exit("Failed to read xml_file: {} (exit)".format(str(err)))
+        error_and_exit(f"Failed to read xml_file: {str(err)} (exit)")
     except etree.Error as err:
-        error_and_exit("Failed to parse xml_file: {} (exit)".format(str(err)))
+        error_and_exit(f"Failed to parse xml_file: {str(err)} (exit)")
 
     if len(xml_tree) == 0:
         error_and_exit("XML file is empty (exit)")
@@ -196,7 +192,7 @@ def authenticate(gmp, username=None, password=None):
             username = input('Enter username: ')
 
     if not password:
-        password = getpass.getpass('Enter password for {0}: '.format(username))
+        password = getpass.getpass(f'Enter password for {username}: ')
 
     try:
         gmp.authenticate(username, password)
@@ -216,7 +212,7 @@ def run_script(path, global_vars):
     try:
         file = open(path, 'r', encoding='utf-8', newline='').read()
     except FileNotFoundError:
-        print('Script {path} does not exist'.format(path=path), file=sys.stderr)
+        print(f'Script {path} does not exist', file=sys.stderr)
         sys.exit(2)
 
     exec(file, global_vars)  # pylint: disable=exec-used
