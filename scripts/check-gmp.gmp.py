@@ -129,8 +129,8 @@ class InstanceManager:
 
         except PermissionError:
             parser.error(
-                f"The selected temporary database file {self.db} or the parent dir has"
-                " not the correct permissions."
+                f"The selected temporary database file {self.db} or the parent "
+                "dir has not the correct permissions."
             )
 
     @staticmethod
@@ -1074,7 +1074,7 @@ class FixedOffset(tzinfo):
         return ZERO
 
     def __repr__(self):
-        return "<FixedOffset %r %r>" % (self.__name, self.__offset)
+        return f"<FixedOffset {self.__name} {self.__offset}>"
 
 
 def to_int(

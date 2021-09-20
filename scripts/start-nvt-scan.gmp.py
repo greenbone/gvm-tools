@@ -52,7 +52,8 @@ def get_scan_config(gmp, nvt_oid):
 
     while True:
         chosen_config = input(
-            f'\nChoose your config or create new one[0-{len(config_ids) - 1} | n]: '
+            '\nChoose your config or create new one'
+            f'[0-{len(config_ids) - 1} | n]: '
         )
 
         if chosen_config == 'n':

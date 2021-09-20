@@ -43,10 +43,10 @@ def delete_overrides(gmp, filter_value):
     filters = gmp.get_overrides(filter=filter_value)
 
     if not filters.xpath('override'):
-        print('No overrides with filter: %s' % filter_value)
+        print(f'No overrides with filter: {filter_value}')
 
     for f_id in filters.xpath('override/@id'):
-        print('Delete override: %s' % f_id, end='')
+        print(f'Delete override: {f_id}', end='')
         res = gmp.delete_override(f_id)
 
         if 'OK' in res.xpath('@status_text')[0]:

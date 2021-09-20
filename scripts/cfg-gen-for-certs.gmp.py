@@ -72,7 +72,7 @@ def create_scan_config(gmp, cert_bund_name):
 
     # Create new config
     copy_id = '085569ce-73ed-11df-83c3-002264764cea'
-    config_name = 'scanconfig_for_%s' % cert_bund_name
+    config_name = f'scanconfig_for_{cert_bund_name}'
     config_id = ''
 
     try:

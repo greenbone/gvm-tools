@@ -61,7 +61,7 @@ def bulk_modify_schedules(gmp, filter_term, new_timezone, new_icalendar):
         else:
             icalendar = schedule.find("icalendar").text
 
-        print("- Modifying %s (%s)" % (name, uuid))
+        print(f"- Modifying {name} ({uuid})")
 
         gmp.modify_schedule(
             uuid,

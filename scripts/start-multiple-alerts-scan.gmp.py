@@ -81,13 +81,13 @@ def get_scan_config(gmp, debug=False):
         if template_abbreviation_mapper.get(template, "-") == name:
             config_id = cid
             if debug:
-                print("%s: %s" % (name, config_id))
+                print(f"{name}: {config_id}")
             break
     # check for existence of the desired config
     if config_id == "-":
         print(
-            "error: could not recognize template '%s'\n"
-            "valid template names are: %s\n" % (template, config_list)
+            f"error: could not recognize template '{template}'\n"
+            f"valid template names are: {config_list}\n"
         )
         exit()
 
@@ -104,7 +104,7 @@ def get_target(gmp, debug=False):
     # iterate over existing targets and find a vacant targetName
     while exists:
         exists = False
-        target_name = "targetName%s" % str(counter)
+        target_name = f"targetName{str(counter)}"
         for target in targets.xpath('target'):
             name = target.xpath('name/text()')[0]
             if name == target_name:
@@ -113,14 +113,14 @@ def get_target(gmp, debug=False):
         counter += 1
 
     if debug:
-        print("target name: %s" % target_name)
+        print(f"target name: {target_name}")
 
     # iterate over existing port lists and find a vacant name
     new_port_list_name = "portlistName"
     counter = 0
 
     while True:
-        portlist_name = '%s%s' % (new_port_list_name, str(counter))
+        portlist_name = f'{new_port_list_name}{str(counter)}'
         if portlist_name not in get_port_list_names(gmp):
             break
         counter += 1
@@ -131,8 +131,8 @@ def get_target(gmp, debug=False):
     portlist = gmp.create_port_list(portlist_name, port_string)
     portlist_id = portlist.xpath('@id')[0]
     if debug:
-        print("Portlist-name:\t%s" % str(portlist_name))
-        print("Portlist-id:\t%s" % str(portlist_id))
+        print(f"Portlist-name:\t{str(portlist_name)}")
+        print(f"Portlist-id:\t{str(portlist_id)}")
 
     # configurable hosts
     hosts = ["localhost"]
@@ -262,7 +262,7 @@ def create_and_start_task(
     task_id = res.xpath('@id')[0]
     gmp.start_task(task_id)
 
-    print('Task started: %s' % task_name)
+    print(f'Task started: {task_name}')
 
     if debug:
         # Stop the task (for performance reasons)
