@@ -197,7 +197,7 @@ class StartAlertScanTestCase(unittest.TestCase):
             """,
         )
 
-        task_name = "Alert Scan for Alert {alert_name}"
+        task_name = f"Alert Scan for Alert {alert_name}"
 
         returned_name = self.start_alert_scan.create_and_start_task(
             gmp=mock_gmp.gmp_protocol,
