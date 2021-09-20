@@ -50,10 +50,10 @@ def print_assets(gmp, appname):
         else:
             hostname = hostname[0]
 
-        print('{ip} ({hostname})'.format(ip=ip, hostname=hostname))
+        print(f'{ip} ({hostname})')
         apps = host.xpath(
             'detail/name[text() = "App"]/../value['
-            'contains(text(), "{0}")]/text()'.format(appname)
+            f'contains(text(), "{appname}")]/text()'
         )
         for app in apps:
             print('\t' + app)

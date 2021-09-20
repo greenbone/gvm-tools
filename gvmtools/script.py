@@ -86,7 +86,7 @@ def main():
     try:
         with protocol_class(connection, transform=transform) as protocol:
             global_vars[name] = protocol
-            global_vars['__name__'] = '__{}__'.format(name)
+            global_vars['__name__'] = f'__{name}__'
 
             if args.protocol == PROTOCOL_GMP:
                 if args.gmp_username:

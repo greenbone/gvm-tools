@@ -96,7 +96,7 @@ def send_report(gmp: Gmp, args: Namespace, combined_report: e.Element) -> str:
     else:
         the_time = time.strftime("%Y/%m/%d-%H:%M:%S")
         task_id = ''
-        task_name = "Combined_Report_{}".format(the_time)
+        task_name = f"Combined_Report_{the_time}"
 
         res = gmp.create_container_task(
             name=task_name, comment="Created with gvm-tools."

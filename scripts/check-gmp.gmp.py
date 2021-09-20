@@ -37,8 +37,8 @@ __version__ = "21.7.0"
 
 logger = logging.getLogger(__name__)
 
-HELP_TEXT = """
-    Check-GMP Nagios Command Plugin {version} (C) 2017-2021 Greenbone Networks GmbH
+HELP_TEXT = f"""
+    Check-GMP Nagios Command Plugin {__version__} (C) 2017-2021 Greenbone Networks GmbH
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,9 +52,7 @@ HELP_TEXT = """
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    """.format(
-    version=__version__
-)
+    """
 
 NAGIOS_OK = 0
 NAGIOS_WARNING = 1
@@ -131,8 +129,8 @@ class InstanceManager:
 
         except PermissionError:
             parser.error(
-                "The selected temporary database file {} or the parent dir has"
-                " not the correct permissions.".format(self.db)
+                f"The selected temporary database file {self.db} or the parent dir has"
+                " not the correct permissions."
             )
 
     @staticmethod

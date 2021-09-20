@@ -407,13 +407,13 @@ class HelpFormattingParserTestCase(ParserTestCase):
             os.environ['COLUMNS'] = self.columns
 
     def _snapshot_specific_path(self, name):
-        return __here__ / '{}.{}.snap'.format(name, self.python_version)
+        return __here__ / f'{name}.{self.python_version}.snap'
 
     def _snapshot_generic_path(self, name):
-        return __here__ / '{}.snap'.format(name)
+        return __here__ / f'{name}.snap'
 
     def _snapshot_failed_path(self, name):
-        return __here__ / '{}.{}-failed.snap'.format(name, self.python_version)
+        return __here__ / f'{name}.{self.python_version}-failed.snap'
 
     def _snapshot_path(self, name):
         snapshot_specific_path = self._snapshot_specific_path(name)

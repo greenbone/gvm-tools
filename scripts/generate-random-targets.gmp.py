@@ -54,8 +54,8 @@ def generate(gmp, args, n_targets, n_ips):
 
     for i in range(n_targets):
         host_ip = choice(ips)
-        index = '{{0:0>{}}}'.format(len(str(n_targets)))
-        name = 'Target_{}'.format(index.format(i + 1))
+        index = f'{{0:0>{len(str(n_targets))}}}'
+        name = f'Target_{index.format(i + 1)}'
 
         gmp.create_target(name=name, make_unique=True, hosts=[host_ip])
 

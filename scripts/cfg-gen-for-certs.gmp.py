@@ -103,7 +103,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     cert_bund_name = args.script[1]
 
-    print('Creating scan config for {0}'.format(cert_bund_name))
+    print(f'Creating scan config for {cert_bund_name}')
 
     create_scan_config(gmp, cert_bund_name)
 

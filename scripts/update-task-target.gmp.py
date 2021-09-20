@@ -58,7 +58,7 @@ def load_host_file(filename):
             host_list.append(host)
 
     except IOError as e:
-        error_and_exit("Failed to read host_file: {} (exit)".format(str(e)))
+        error_and_exit(f"Failed to read host_file: {str(e)} (exit)")
 
     if len(host_list) == 0:
         error_and_exit("Host file is empty (exit)")
@@ -72,18 +72,19 @@ def copy_send_target(gmp, hosts_file, old_target_id):
     hosts_string = load_host_file(hosts_file)
     keywords = {'hosts': hosts_string}
 
-    keywords['comment'] = 'This target was automatically modified: {}'.format(
-        time.strftime("%Y/%m/%d-%H:%M:%S")
+    keywords['comment'] = (
+        'This target was automatically '
+        f'modified: {time.strftime("%Y/%m/%d-%H:%M:%S")}'
     )
 
     old_target = gmp.get_target(target_id=old_target_id)[0]
 
     objects = ('reverse_lookup_only', 'reverse_lookup_unify', 'name')
     for obj in objects:
-        var = old_target.xpath('{}/text()'.format(obj))[0]
+        var = old_target.xpath(f'{obj}/text()')[0]
         if var == '0':
             var = ''
-        keywords['{}'.format(obj)] = var
+        keywords[f'{obj}'] = var
 
     port_list = {}
     port_list = old_target.xpath('port_list/@id')[0]
@@ -94,8 +95,8 @@ def copy_send_target(gmp, hosts_file, old_target_id):
     new_target_id = gmp.create_target(**keywords).xpath('@id')[0]
 
     print('\n  New target created!\n')
-    print('Target_id:   {}'.format(new_target_id))
-    print('Target_name: {}\n'.format(keywords['name']))
+    print(f'Target_id:   {new_target_id}')
+    print(f'Target_name: {keywords["name"]}\n')
 
     return new_target_id
 

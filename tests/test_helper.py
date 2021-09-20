@@ -214,7 +214,7 @@ class RunScriptTestCase(unittest.TestCase):
             run_script(path, global_vars)
 
         mock_print.assert_called_with(
-            'Script {path} does not exist'.format(path=path), file=sys.stderr
+            f'Script {path} does not exist', file=sys.stderr
         )
 
 

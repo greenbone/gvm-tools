@@ -39,7 +39,7 @@ def numerical_option(statement, list_range):
         return choice
     else:
         return numerical_option(
-            "Please enter valid number from {} to {}...".format(1, list_range),
+            f"Please enter valid number from 1 to {list_range}...",
             list_range,
         )
 
@@ -71,9 +71,9 @@ def interactive_options(gmp, task, keywords):
 
             if response is True:
                 counter = 1
-                print("{} options:".format(option_key.capitalize()))
+                print(f"{option_key.capitalize()} options:")
                 for j in object_list:
-                    print("    {} - {}".format(counter, j))
+                    print(f"    {counter} - {j}")
                     counter += 1
                 answer = numerical_option(
                     "\nPlease enter the number of your choice.",
@@ -87,9 +87,8 @@ def interactive_options(gmp, task, keywords):
                 sys.exit()
         else:
             error_and_exit(
-                f"Failed to detect {option_key}_id"
-                "\nThis field is required therefore the script is unable to "
-                "continue.\n"
+                f"Failed to detect {option_key}_id\nThis field is required "
+                "therefore the script is unable to continue.\n"
             )
 
 

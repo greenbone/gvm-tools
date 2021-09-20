@@ -51,7 +51,7 @@ def load_host_list(host_file):
         host_list = [x.strip() for x in content]
         host_list = list(filter(None, host_list))
     except IOError as e:
-        error_and_exit("Failed to read host_file: {} (exit)".format(str(e)))
+        error_and_exit(f"Failed to read host_file: {str(e)} (exit)")
 
     if len(host_list) == 0:
         error_and_exit("Host file is empty (exit)")
@@ -60,11 +60,11 @@ def load_host_list(host_file):
 
 
 def send_targets(gmp, host_name, host_file, host_list):
-    print('\nSending targets from {} to {}...'.format(host_file, host_name))
+    print(f'\nSending targets from {host_file} to {host_name}...')
 
     for host in host_list:
-        name = "Target for {}".format(host)
-        comment = "Created: {}".format(time.strftime("%Y/%m/%d-%H:%M:%S"))
+        name = f"Target for {host}"
+        comment = f"Created: {time.strftime('%Y/%m/%d-%H:%M:%S')}"
         hosts = [host]
 
         gmp.create_target(name=name, comment=comment, hosts=hosts)

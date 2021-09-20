@@ -36,8 +36,8 @@ from gvmtools.helper import (
 
 __version__ = "0.1.0"
 
-HELP_TEXT = """
-    Random Report Generation Script {version} (C) 2017-2021 Greenbone Networks GmbH
+HELP_TEXT = f"""
+    Random Report Generation Script {__version__} (C) 2017-2021 Greenbone Networks GmbH
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -53,9 +53,7 @@ HELP_TEXT = """
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     This script generates randomized report data.
-    """.format(
-    version=__version__
-)
+    """
 
 
 def generate_ports(n_ports):
@@ -331,14 +329,14 @@ def generate_reports(task, n_reports, with_gauss, **kwargs):
 
 def generate_data(gmp, n_tasks, **kwargs):
     for i in range(n_tasks):
-        index = '{{0:0>{}}}'.format(len(str(n_tasks)))
-        task_name = 'Task_for_GenReport:_{}'.format(index.format(i + 1))
+        index = f'{{0:0>{len(str(n_tasks))}}}'
+        task_name = f'Task_for_GenReport:_{index.format(i + 1)}'
 
         gmp.create_container_task(task_name)
 
-        task_id = gmp.get_tasks(
-            filter_string='name={}'.format(task_name)
-        ).xpath('//@id')[0]
+        task_id = gmp.get_tasks(filter_string=f'name={task_name}').xpath(
+            '//@id'
+        )[0]
 
         reports = generate_reports(task=(task_id, task_name), **kwargs)
 
