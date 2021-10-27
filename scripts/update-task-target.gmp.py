@@ -16,41 +16,80 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import time
 
-from argparse import Namespace
+from argparse import ArgumentParser, FileType, Namespace, RawTextHelpFormatter
+from typing import List
+
 from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import error_and_exit
 
 
-def check_args(args):
-    len_args = len(args.script) - 1
-    if len_args != 2:
-        message = """
-        This script will update target hosts information for a desired task.
-        Two parameters after the script name are required.
-
-        1. <hosts_file>  -- .csv file containing desired target hosts separated by ','
-        2. <task_uuid>   -- uuid of task to be modified
-
-        Example for starting up the routine:
-            $ gvm-script --gmp-username name --gmp-password pass \
-    ssh --hostname <gsm> scripts/update-task-target.gmp.py hosts_file.csv \
-    "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698"
-
-        """
-        print(message)
-        sys.exit()
+HELP_TEXT = (
+    'This script will update target hosts information for a desired task.\n'
+    'The given task needs to have the status "new".\n\n'
+    'Example for starting up the routine:\n'
+    '    $ gvm-script --gmp-username name --gmp-password pass '
+    'ssh --hostname <gsm> scripts/update-task-target.gmp.py +hf hosts_file.csv '
+    '+t 303fa0a6-aa9b-43c4-bac0-66ae0b2d1698'
+)
 
 
-def load_host_file(filename):
+def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
+    """Parsing args ..."""
+
+    parser = ArgumentParser(
+        prefix_chars='+',
+        add_help=False,
+        formatter_class=RawTextHelpFormatter,
+        description=HELP_TEXT,
+    )
+
+    parser.add_argument(
+        '+h',
+        '++help',
+        action='help',
+        help='Show this help message and exit.',
+    )
+
+    parser.add_argument(
+        '+t',
+        '++task-id',
+        type=str,
+        required=True,
+        dest='task_id',
+        help='UUID of task to be modified',
+    )
+
+    hosts_args = parser.add_mutually_exclusive_group()
+
+    hosts_args.add_argument(
+        '+hl',
+        '++host-list',
+        nargs='+',
+        type=str,
+        dest='host_list',
+        help='Use the given hosts (IPs) for the new target.',
+    )
+
+    hosts_args.add_argument(
+        '+hf',
+        '++host-file',
+        type=FileType('r'),
+        dest='host_file',
+        help=".csv file containing desired target hosts separated by ','",
+    )
+
+    script_args, _ = parser.parse_known_args()
+    return script_args
+
+
+def load_host_file(filename) -> List[str]:
     host_list = list()
 
     try:
-        f = open(filename, encoding='utf-8')
-        for line in f:
+        for line in filename.readlines():
             host = line.split(",")[0]
             host = host.strip()
             if len(host) == 0:
@@ -63,14 +102,11 @@ def load_host_file(filename):
     if len(host_list) == 0:
         error_and_exit("Host file is empty (exit)")
 
-    hosts_string = ', '.join(map(str, host_list))
-
-    return hosts_string
+    return host_list
 
 
-def copy_send_target(gmp, hosts_file, old_target_id):
-    hosts_string = load_host_file(hosts_file)
-    keywords = {'hosts': hosts_string}
+def copy_send_target(gmp, host_list, old_target_id):
+    keywords = {'hosts': host_list}
 
     keywords['comment'] = (
         'This target was automatically '
@@ -101,7 +137,7 @@ def copy_send_target(gmp, hosts_file, old_target_id):
     return new_target_id
 
 
-def create_target_hosts(gmp, host_file, task_id, old_target_id):
+def create_target_hosts(gmp: Gmp, host_file, task_id, old_target_id):
     new_target_id = copy_send_target(gmp, host_file, old_target_id)
 
     gmp.modify_task(task_id=task_id, target_id=new_target_id)
@@ -109,7 +145,7 @@ def create_target_hosts(gmp, host_file, task_id, old_target_id):
     print('  Task successfully modified!\n')
 
 
-def check_to_delete(gmp, target_id):
+def check_to_delete(gmp: Gmp, target_id: str) -> None:
     target = gmp.get_target(target_id=target_id)[0]
     if '0' in target.xpath("in_use/text()"):
         gmp.delete_target(target_id=target_id)
@@ -117,17 +153,21 @@ def check_to_delete(gmp, target_id):
 
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
+    parsed_args = parse_args(args=args)
 
-    check_args(args)
-
-    hosts_file = args.script[1]
-    task_id = args.script[2]
+    host_list = parsed_args.host_list
+    if parsed_args.host_file:
+        host_list = load_host_file(filename=parsed_args.host_file)
+    task_id = parsed_args.task_id
 
     task = gmp.get_task(task_id=task_id)[1]
     old_target_id = task.xpath('target/@id')[0]
 
-    create_target_hosts(gmp, hosts_file, task_id, old_target_id)
-    check_to_delete(gmp, old_target_id)
+    if old_target_id:
+        create_target_hosts(gmp, host_list, task_id, old_target_id)
+        check_to_delete(gmp, old_target_id)
+    else:
+        error_and_exit("The given task doesn't have an existing target.")
 
 
 if __name__ == '__gmp__':
