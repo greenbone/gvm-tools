@@ -1,8 +1,12 @@
 name: Release Python package with pontos
 
 on:
-  pull_request:
-    types: [closed]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch'
+        required: true
+        default: 'main'
 
 jobs:
   build-and-release:
@@ -14,8 +18,6 @@ jobs:
       GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
     name: Build and release with pontos
-    # If the label 'make release' is set. If PR is closed because of an merge
-    if: contains( github.event.pull_request.labels.*.name, 'make release') && github.event.pull_request.merged == true
     runs-on: 'ubuntu-latest'
     steps:
     - uses: actions/checkout@v2
@@ -23,6 +25,7 @@ jobs:
         # because we want the git log for conventional commits, we need to fetch deeper!
         fetch-depth: 0
         persist-credentials: false
+        branch: ${{ github.event.inputs.branch }}
     - name: Set up Python
       uses: actions/setup-python@v2
       with:

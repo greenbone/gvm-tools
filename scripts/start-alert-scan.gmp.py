@@ -107,8 +107,6 @@ def get_target(
         for plist in port_lists_tree.findall("port_list"):
             existing_port_lists.append(str(plist.find('name').text))
 
-        print(existing_port_lists)
-
         if port_list_name is None:
             port_list_name = "portlist"
 
@@ -208,7 +206,7 @@ def create_and_start_task(
     task_name = f"Alert Scan for Alert {alert_name}"
     tasks = gmp.get_tasks(filter_string='name="{task_name}"')
     existing_tasks = tasks.findall('task')
-    print(existing_tasks)
+
     if existing_tasks:
         task_name = f"Alert Scan for Alert {alert_name} ({len(existing_tasks)})"
     task_comment = "Alert Scan"
@@ -391,7 +389,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     else:
         scanner_id = script_args.scanner_id
 
-    create_and_start_task(
+    task_name = create_and_start_task(
         gmp, config_id, target_id, scanner_id, alert_id, script_args.alert_name
     )
 
