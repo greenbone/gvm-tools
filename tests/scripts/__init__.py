@@ -22,7 +22,6 @@ from pathlib import Path
 from importlib.util import spec_from_file_location, module_from_spec
 
 from lxml import etree
-from gvm.errors import GvmResponseError
 from gvm.protocols.latest import Gmp
 
 
@@ -44,6 +43,7 @@ class GmpMockFactory:
         self.gmp_protocol = gmp_protocol_mock
         self.gmp = MagicMock()
         self.gmp.is_authenticated = MagicMock(return_value=True)
+        self.gmp_protocol.types = MagicMock()
         self.gmp.__enter__.return_value = gmp_protocol_mock
 
     def __call__(self, *args, **kwargs):
