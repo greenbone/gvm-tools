@@ -2,4 +2,4 @@
 *                 @greenbone/python-gvm-maintainers
 
 # dev ops
-.github/*         @greenbone/devops
+.github/          @greenbone/devops
