@@ -21,7 +21,7 @@ jobs:
       - name: Check with black, pylint and pontos.version
         uses: greenbone/actions/lint-python@v1
         with:
-          packages: gvm tests
+          packages: gvmtools tests
           version: ${{ matrix.python-version }}
 
   test:
