@@ -25,29 +25,27 @@ jobs:
           version: ${{ matrix.python-version }}
 
   lint-scripts:
-     name: Lint all scripts
-     runs-on: 'ubuntu-latest'
-     strategy:
-         matrix:
-           python-version:
-             - 3.7
-             - 3.8
-             - 3.9
-     steps:
-       - uses: actions/checkout@v2
-       - name: Set up Python ${{ matrix.python-version }}
-         uses: actions/setup-python@v2
-         with:
-           python-version: ${{ matrix.python-version }}
-       - name: Install poetry and dependencies
-         uses: greenbone/actions/poetry@v1
-       - name: Install additional script dependencies
-         run: poetry run pip install -r scripts/requirements.txt
-       - name: Check with black
-         run: poetry run black --check scripts/*.gmp.py
-       - name: Run pylint
-         run: |
-           poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*.py
+    name: Lint all scripts
+    runs-on: 'ubuntu-latest'
+    strategy:
+        matrix:
+          python-version:
+            - 3.7
+            - 3.8
+            - 3.9
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: greenbone/actions/poetry@v1
+        with:
+          version: ${{ matrix.python-version }}
+      - name: Install additional script dependencies
+        run: poetry run pip install -r scripts/requirements.txt
+      - name: Check with black
+        run: poetry run black --check scripts/*.gmp.py
+      - name: Run pylint
+        run: |
+          poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*.py
 
   test:
     name: Unit tests
