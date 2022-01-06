@@ -46,8 +46,8 @@ autohooks-plugin-pylint = "^21.6.0"
 sphinx = "^4.3.2"
 pylint = "^2.12.2"
 coverage = "^6.2"
-autohooks-plugin-black = {version = "^21.7.1", python = "^3.6"}
-black = {version = "21.7b0", python = "^3.6"}
+autohooks-plugin-black = {version = "^21.12.0", python = "^3.6"}
+black = {version = "21.12b0", python = "^3.6"}
 rope = "^0.22.0"
 pontos = "^21.11.0"
 
