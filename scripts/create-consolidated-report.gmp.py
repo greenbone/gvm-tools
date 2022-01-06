@@ -319,7 +319,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     # Find reports
     reports = get_last_reports_from_tasks(gmp=gmp, task_filter=task_filter)
 
-    print("Combining {len(reports)} found reports.")
+    print(f'Combining {len(reports)} found reports.')
 
     filter_term = ''
     if parsed_args.filter_term:
