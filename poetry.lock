@@ -8,7 +8,7 @@ python-versions = "*"
 
 [[package]]
 name = "astroid"
-version = "2.9.1"
+version = "2.9.3"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -700,8 +700,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 astroid = [
-    {file = "astroid-2.9.1-py3-none-any.whl", hash = "sha256:bfd6c41149d1a368e9b7d3cc90470528e080efdd57fbc0c95426794e0be91c5b"},
-    {file = "astroid-2.9.1.tar.gz", hash = "sha256:f973b3622700431b6e8734ce66f6c18503922a13fb8eb8592e78bd4506823efb"},
+    {file = "astroid-2.9.3-py3-none-any.whl", hash = "sha256:506daabe5edffb7e696ad82483ad0228245a9742ed7d2d8c9cdb31537decf9f6"},
+    {file = "astroid-2.9.3.tar.gz", hash = "sha256:1efdf4e867d4d8ba4a9f6cf9ce07cd182c4c41de77f23814feb27ca93ca9d877"},
 ]
 autohooks = [
     {file = "autohooks-21.7.0-py3-none-any.whl", hash = "sha256:54bda89bbd5b19d83538a110bca0088b38378a4c0e1cf14581792f3e41a5a260"},
