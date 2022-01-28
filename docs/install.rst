@@ -47,22 +47,24 @@ dependencies elegantly.
 Please follow the `poetry documentation <https://python-poetry.org/docs/#installation>`_
 to install the tool.
 
-To install :program:`gvm-tools` into a virtual environment, the following
-commands need to be executed:
+To install :program:`gvm-tools` into a virtual environment, defaulting into
+the folder `.venv`, the following command need to be executed:
 
 .. code-block:: shell
 
-  mkdir path/to/venv/dir
-  cd path/to/venv/dir
-  poetry install gvm-tools
+  poetry install
 
 Afterwards, the environment containing the installed :program:`gvm-tools` can be
 activated by running:
 
 .. code-block:: shell
 
-  cd path/to/venv/dir
   poetry shell
+
+It is also possible to run single commands within the virtual environment:
+
+.. code-block:: shell
+  poetry run gvm-cli -h
 
 Getting the Source
 ------------------
@@ -70,16 +72,11 @@ Getting the Source
 The source code of **python-gvm** can be found at
 `GitHub <https://github.com/greenbone/python-gvm>`_.
 
-To clone the public repository run::
+To clone this public repository and install from source for the current user run
+the following commands:
 
-    git clone git://github.com/greenbone/gvm-tools
-
-Once there is a copy of the source, it can be installed into the current Python
-`environment <https://docs.python.org/3/library/venv.html#venv-def>`_:
-
-.. code-block:: shell
-
-    python3 -m pip install -e /path/to/gvm-tools
+    git clone git://github.com/greenbone/gvm-tools.git && cd gvm-tools
+    python3 -m pip install -e .
 
 .. _pip: https://pip.pypa.io/en/stable/
 .. _poetry: https://python-poetry.org/
