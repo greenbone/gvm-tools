@@ -49,7 +49,7 @@ coverage = "^6.3"
 autohooks-plugin-black = {version = "^21.12.0", python = "^3.6"}
 black = {version = "22.1.0", python = "^3.6"}
 rope = "^0.22.0"
-pontos = "^22.2.1"
+pontos = "^22.2.2"
 
 [tool.black]
 line-length = 80
