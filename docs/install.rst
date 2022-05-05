@@ -64,6 +64,7 @@ activated by running:
 It is also possible to run single commands within the virtual environment:
 
 .. code-block:: shell
+
   poetry run gvm-cli -h
 
 Getting the Source
