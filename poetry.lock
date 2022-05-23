@@ -461,7 +461,7 @@ diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "python-gvm"
-version = "21.11.0"
+version = "22.5.0"
 description = "Library to communicate with remote servers over GMP or OSP"
 category = "main"
 optional = false
@@ -696,7 +696,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "3223f9f68ce02edaa2881ee2a05283a70fe7cf9efec3a097062be4922fbaf24d"
+content-hash = "6273809a6cd2d79bb301a1597d4901cc9df9d17dd847e2182c203e53414ac6e2"
 
 [metadata.files]
 alabaster = [
@@ -1133,8 +1133,8 @@ pyparsing = [
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
 python-gvm = [
-    {file = "python-gvm-21.11.0.tar.gz", hash = "sha256:ffb972b554bb5ca3f42446f004e822c044e894fbe7da183f9dc2e9bf72c2b8c3"},
-    {file = "python_gvm-21.11.0-py3-none-any.whl", hash = "sha256:43391b424d47f458a74103066615b1229b5e222def9bd850a5fe769a58b59de9"},
+    {file = "python-gvm-22.5.0.tar.gz", hash = "sha256:253785db13db0be149bfb40c5ae514090825e00af4dd0eb459bb8b1acccdff87"},
+    {file = "python_gvm-22.5.0-py3-none-any.whl", hash = "sha256:493cf88aca20b653134d0c19750adca5f7cd783a2dbd2a41d6b4e7bfb2b77f2d"},
 ]
 pytz = [
     {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
