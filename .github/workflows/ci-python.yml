@@ -16,6 +16,7 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
+            - 3.10
     steps:
       - uses: actions/checkout@v2
       - name: Check with black, pylint and pontos.version
@@ -33,6 +34,7 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
+            - 3.10
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -56,6 +58,7 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
+            - 3.10
     steps:
       - uses: actions/checkout@v2
       - name: Install poetry and dependencies
@@ -74,7 +77,7 @@ jobs:
       - name: Calculate and upload coverage to codecov.io
         uses: greenbone/actions/coverage-python@v1
         with:
-          version: 3.8
+          version: 3.9
 
   build-docs:
     name: Build the documentation
@@ -84,7 +87,7 @@ jobs:
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v1
         with:
-          version: 3.8
+          version: 3.9
       - name: Build docs
         run: |
           cd docs
