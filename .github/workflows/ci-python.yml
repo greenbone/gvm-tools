@@ -16,7 +16,7 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
-            - 3.10
+            - "3.10"
     steps:
       - uses: actions/checkout@v2
       - name: Check with black, pylint and pontos.version
@@ -34,7 +34,7 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
-            - 3.10
+            - "3.10"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -58,7 +58,7 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
-            - 3.10
+            - "3.10"
     steps:
       - uses: actions/checkout@v2
       - name: Install poetry and dependencies
