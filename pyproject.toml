@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "gvm-tools"
-version = "22.6.0"
+version = "22.6.1.dev1"
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 description = "Tools to control a GSM/GVM over GMP or OSP"
 license = "GPL-3.0-or-later"
