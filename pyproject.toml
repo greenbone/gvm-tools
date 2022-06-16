@@ -22,6 +22,7 @@ classifiers=[
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
     'Operating System :: OS Independent',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
@@ -38,7 +39,7 @@ gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
 python = "^3.7.0"
-python-gvm = ">=21.5,<23.0"
+python-gvm = ">=21.5"
 
 [tool.poetry.dev-dependencies]
 autohooks = "^21.7.0"
@@ -46,14 +47,14 @@ autohooks-plugin-pylint = "^21.6.0"
 sphinx = "^5.0.1"
 pylint = "^2.13.9"
 coverage = "^6.4"
-autohooks-plugin-black = {version = "^21.12.0", python = "^3.6"}
-black = {version = "22.3.0", python = "^3.6"}
+autohooks-plugin-black = "^21.12.0"
+black = "^22.3.0"
 rope = "^1.1.1"
 pontos = "^22.5.0"
 
 [tool.black]
 line-length = 80
-target-version = ['py35', 'py36', 'py37', 'py38']
+target-version = ['py37', 'py38', 'py39', 'py310']
 skip-string-normalization = true
 exclude = '''
 /(

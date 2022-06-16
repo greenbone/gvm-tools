@@ -8,7 +8,7 @@ python-versions = "*"
 
 [[package]]
 name = "astroid"
-version = "2.11.5"
+version = "2.11.6"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -696,7 +696,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "81a0d4926eddf27d5da8d3cc4e887806bf2a7a1f4f31f8e0f418288209ea8bbc"
+content-hash = "500d74c3abad3f8ad45214c35b9f5b02bcd9a88fe5f840e19458c33edfed8d22"
 
 [metadata.files]
 alabaster = [
@@ -704,8 +704,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 astroid = [
-    {file = "astroid-2.11.5-py3-none-any.whl", hash = "sha256:14ffbb4f6aa2cf474a0834014005487f7ecd8924996083ab411e7fa0b508ce0b"},
-    {file = "astroid-2.11.5.tar.gz", hash = "sha256:f4e4ec5294c4b07ac38bab9ca5ddd3914d4bf46f9006eb5c0ae755755061044e"},
+    {file = "astroid-2.11.6-py3-none-any.whl", hash = "sha256:ba33a82a9a9c06a5ceed98180c5aab16e29c285b828d94696bf32d6015ea82a9"},
+    {file = "astroid-2.11.6.tar.gz", hash = "sha256:4f933d0bf5e408b03a6feb5d23793740c27e07340605f236496cd6ce552043d6"},
 ]
 autohooks = [
     {file = "autohooks-21.7.0-py3-none-any.whl", hash = "sha256:54bda89bbd5b19d83538a110bca0088b38378a4c0e1cf14581792f3e41a5a260"},

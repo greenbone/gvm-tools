@@ -315,7 +315,7 @@ def create_connection(
     cafile=None,
     ssh_username=None,
     ssh_password=None,
-    **kwargs  # pylint: disable=unused-argument
+    **kwargs,  # pylint: disable=unused-argument
 ):
     if 'socket' in connection_type:
         return UnixSocketConnection(timeout=timeout, path=socketpath)
