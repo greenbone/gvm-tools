@@ -461,7 +461,7 @@ diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "python-gvm"
-version = "22.6.0"
+version = "22.6.1"
 description = "Library to communicate with remote servers over GMP or OSP"
 category = "main"
 optional = false
@@ -1135,8 +1135,8 @@ pyparsing = [
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
 python-gvm = [
-    {file = "python-gvm-22.6.0.tar.gz", hash = "sha256:7021260070efaf0ffdec55ba3a37a8ea4410f65e0f5cbb726cbedb17f4c31182"},
-    {file = "python_gvm-22.6.0-py3-none-any.whl", hash = "sha256:bfb13f65d26e8e0ee8c760807e9a440af9a22a8f20986d1bbf05596d869b8acf"},
+    {file = "python-gvm-22.6.1.tar.gz", hash = "sha256:8e49fda651b785fba58f4081146de72f5d397697e3d6587560877d79edfb7e31"},
+    {file = "python_gvm-22.6.1-py3-none-any.whl", hash = "sha256:1238477a4c4e6f493d684da86afff5677f2bcc0a28eb4c530bbf9833c57c39b8"},
 ]
 pytz = [
     {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
