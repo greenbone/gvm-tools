@@ -50,7 +50,7 @@ coverage = "^6.4"
 autohooks-plugin-black = "^21.12.0"
 black = "^22.6.0"
 rope = "^1.1.1"
-pontos = "^22.5.0"
+pontos = "^22.7.2"
 
 [tool.black]
 line-length = 80
