@@ -42,7 +42,7 @@ python = "^3.7.0"
 python-gvm = ">=21.5"
 
 [tool.poetry.dev-dependencies]
-autohooks = "^21.7.0"
+autohooks = "^22.7.2"
 autohooks-plugin-pylint = "^21.6.0"
 sphinx = "^5.0.2"
 pylint = "^2.13.9"
