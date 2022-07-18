@@ -22,7 +22,7 @@ wrapt = ">=1.11,<2"
 
 [[package]]
 name = "autohooks"
-version = "21.7.0"
+version = "22.7.2"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
@@ -30,7 +30,7 @@ python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 colorful = ">=0.5.4,<0.6.0"
-packaging = ">=20.3,<21.0"
+pontos = ">=22.7.0,<23.0.0"
 tomlkit = ">=0.5.11"
 
 [[package]]
@@ -696,7 +696,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "46bcf409c3096e87e382bb8372e8e05e34c04450336ee7ddfe8ff19f76523437"
+content-hash = "43d3e3eb3b02a511e5314b96453f7e396b347a9c0a39ec487213caa86b0b0052"
 
 [metadata.files]
 alabaster = [
@@ -708,8 +708,8 @@ astroid = [
     {file = "astroid-2.11.7.tar.gz", hash = "sha256:bb24615c77f4837c707669d16907331374ae8a964650a66999da3f5ca68dc946"},
 ]
 autohooks = [
-    {file = "autohooks-21.7.0-py3-none-any.whl", hash = "sha256:54bda89bbd5b19d83538a110bca0088b38378a4c0e1cf14581792f3e41a5a260"},
-    {file = "autohooks-21.7.0.tar.gz", hash = "sha256:8d09ee52f67cedd5873578a9b4d97b6b80fd9db6dca6d1844621d02a197a12e2"},
+    {file = "autohooks-22.7.2-py3-none-any.whl", hash = "sha256:8fd967717ac60ac69f09ff5deb8cfdba6dd007fa293f49903e111ce9a06d626e"},
+    {file = "autohooks-22.7.2.tar.gz", hash = "sha256:7dc86b0d85a74968f72c27d7b817978ae6f8100706f730c63321e7b59b1c75b9"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-22.7.0.tar.gz", hash = "sha256:39193d8a85df4d0d80b920b1b8b5cf6d257ad502364d0c0bf5c7ff0717b14091"},
