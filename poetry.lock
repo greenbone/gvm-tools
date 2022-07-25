@@ -473,6 +473,25 @@ lxml = ">=4.5.0,<5.0.0"
 paramiko = ">=2.7.1,<3.0.0"
 
 [[package]]
+name = "pytoolconfig"
+version = "1.2.1"
+description = "Python tool configuration"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+packaging = ">=21.3"
+tomli = {version = ">=2.0", markers = "python_version < \"3.11\""}
+typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
+
+[package.extras]
+validation = ["pydantic (>=1.7.4)"]
+global = ["appdirs (>=1.4.4)"]
+gen_docs = ["pytoolconfig", "sphinx-rtd-theme (>=1.0.0)", "sphinx-autodoc-typehints (>=1.18.1)", "sphinx (>=4.5.0)"]
+doc = ["sphinx (>=4.5.0)", "tabulate (>=0.8.9)"]
+
+[[package]]
 name = "pytz"
 version = "2022.1"
 description = "World timezone definitions, modern and historical"
@@ -500,14 +519,18 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "rope"
-version = "1.1.1"
+version = "1.2.0"
 description = "a python refactoring library..."
 category = "dev"
 optional = false
-python-versions = ">=3"
+python-versions = ">=3.7"
+
+[package.dependencies]
+pytoolconfig = ">=1.1.2"
 
 [package.extras]
-dev = ["pytest-timeout", "pytest", "build"]
+doc = ["sphinx-rtd-theme (>=1.0.0)", "sphinx-autodoc-typehints (>=1.18.1)", "sphinx (>=4.5.0)", "pytoolconfig"]
+dev = ["build (>=0.7.0)", "pytest-timeout (>=2.1.0)", "pytest (>=7.0.1)"]
 
 [[package]]
 name = "six"
@@ -696,7 +719,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "43d3e3eb3b02a511e5314b96453f7e396b347a9c0a39ec487213caa86b0b0052"
+content-hash = "33a2e6ffdaf581932747d7f40b0aaaad8263b14d618274a5caf4806d7d10253b"
 
 [metadata.files]
 alabaster = [
@@ -1159,6 +1182,10 @@ python-gvm = [
     {file = "python-gvm-22.6.1.tar.gz", hash = "sha256:8e49fda651b785fba58f4081146de72f5d397697e3d6587560877d79edfb7e31"},
     {file = "python_gvm-22.6.1-py3-none-any.whl", hash = "sha256:1238477a4c4e6f493d684da86afff5677f2bcc0a28eb4c530bbf9833c57c39b8"},
 ]
+pytoolconfig = [
+    {file = "pytoolconfig-1.2.1-py3-none-any.whl", hash = "sha256:5f291567f0363a7314406be4f2381ece4e552a8608d2629544679e4d36d0df2b"},
+    {file = "pytoolconfig-1.2.1.tar.gz", hash = "sha256:5ac82f78d731531f9f82e5cc7f5ebae9473b1404c0e75aa5ac0b8b41cd99b510"},
+]
 pytz = [
     {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
     {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
@@ -1168,8 +1195,8 @@ requests = [
     {file = "requests-2.28.1.tar.gz", hash = "sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"},
 ]
 rope = [
-    {file = "rope-1.1.1-py3-none-any.whl", hash = "sha256:216390b6342bde8ef1f27a6663554de0ea0b1fdad7c421deb3d5a3f6c5fc01e7"},
-    {file = "rope-1.1.1.tar.gz", hash = "sha256:13048ff0245a0fa187f282697a55add46e4ccf083e7670f868bdf54ee9e47f2e"},
+    {file = "rope-1.2.0-py3-none-any.whl", hash = "sha256:14e2e9b74ff345d038988fd62b7ef4226351e4a1181123596abb3a147fea9019"},
+    {file = "rope-1.2.0.tar.gz", hash = "sha256:f762542c9cfe52124aa55d33822a269fc4b0da70fe3170c6086de2733ed52f22"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
