@@ -49,7 +49,7 @@ pylint = "^2.13.9"
 coverage = "^6.4"
 autohooks-plugin-black = "^22.7.0"
 black = "^22.6.0"
-rope = "^1.1.1"
+rope = "^1.2.0"
 pontos = "^22.7.2"
 
 [tool.black]
