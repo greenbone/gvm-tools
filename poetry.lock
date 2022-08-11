@@ -35,7 +35,7 @@ tomlkit = ">=0.5.11"
 
 [[package]]
 name = "autohooks-plugin-black"
-version = "22.7.0"
+version = "22.8.1"
 description = "An autohooks plugin for python code formatting via black"
 category = "dev"
 optional = false
@@ -719,7 +719,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "edaddb8babacd35a4a2e6d090203da1a55892b3695f0818d6a1c7d28f487128e"
+content-hash = "32569f4187c867db7c6bd338ed4ff975c44cf7ba207411e60872fb809d7e5e0c"
 
 [metadata.files]
 alabaster = [
@@ -735,8 +735,8 @@ autohooks = [
     {file = "autohooks-22.7.2.tar.gz", hash = "sha256:7dc86b0d85a74968f72c27d7b817978ae6f8100706f730c63321e7b59b1c75b9"},
 ]
 autohooks-plugin-black = [
-    {file = "autohooks-plugin-black-22.7.0.tar.gz", hash = "sha256:39193d8a85df4d0d80b920b1b8b5cf6d257ad502364d0c0bf5c7ff0717b14091"},
-    {file = "autohooks_plugin_black-22.7.0-py3-none-any.whl", hash = "sha256:a420e1e351346e4326aba5d68db2a8c953742ea859e07dd27df6d1957e4a879b"},
+    {file = "autohooks-plugin-black-22.8.1.tar.gz", hash = "sha256:cf48a1951b12f8eac9e697fb18edb05ab3519da8f29e7b31135bfc1cdb74b3f5"},
+    {file = "autohooks_plugin_black-22.8.1-py3-none-any.whl", hash = "sha256:f4b6b083be62fc13740705b1a1a897801c4f8222654f3f7d8c7e6635b7640444"},
 ]
 autohooks-plugin-pylint = [
     {file = "autohooks-plugin-pylint-22.8.1.tar.gz", hash = "sha256:d348a61b2b027ad51275dace830ec3643cf14416519eb68167a4bdadfe44ac7e"},
