@@ -40,15 +40,15 @@ wrapt = ">=1.11,<2"
 
 [[package]]
 name = "autohooks"
-version = "22.7.2"
+version = "22.8.0"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-colorful = ">=0.5.4,<0.6.0"
-pontos = ">=22.7.0,<23.0.0"
+pontos = ">=22.8.0"
+rich = ">=12.5.1,<13.0.0"
 tomlkit = ">=0.5.11"
 
 [[package]]
@@ -833,7 +833,7 @@ docs = ["jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "jaraco.packaging (>=9)
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "192d2b6415619ef099c6171a9e929ca688211644b833163363a6b079027f5cc5"
+content-hash = "d2384fd02fa150fd1d145ce025a88d5c6ff51163dc832f7e3acd2ac1f0594a02"
 
 [metadata.files]
 alabaster = [
@@ -849,8 +849,8 @@ astroid = [
     {file = "astroid-2.11.7.tar.gz", hash = "sha256:bb24615c77f4837c707669d16907331374ae8a964650a66999da3f5ca68dc946"},
 ]
 autohooks = [
-    {file = "autohooks-22.7.2-py3-none-any.whl", hash = "sha256:8fd967717ac60ac69f09ff5deb8cfdba6dd007fa293f49903e111ce9a06d626e"},
-    {file = "autohooks-22.7.2.tar.gz", hash = "sha256:7dc86b0d85a74968f72c27d7b817978ae6f8100706f730c63321e7b59b1c75b9"},
+    {file = "autohooks-22.8.0-py3-none-any.whl", hash = "sha256:3a9ff614c1336aa8e777d826367c47fd763df1e353d49dfeaeec7dae932459fa"},
+    {file = "autohooks-22.8.0.tar.gz", hash = "sha256:af718aafc680327b755cf7c7548342541e64c010d5d9aaafd61afc3c93df9928"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-22.8.1.tar.gz", hash = "sha256:cf48a1951b12f8eac9e697fb18edb05ab3519da8f29e7b31135bfc1cdb74b3f5"},
