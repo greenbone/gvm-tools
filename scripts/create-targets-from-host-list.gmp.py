@@ -16,11 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from pathlib import Path
 import sys
 import time
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from pathlib import Path
 from typing import List
+
 from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import error_and_exit
@@ -55,29 +56,29 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     """Parsing args ..."""
 
     parser = ArgumentParser(
-        prefix_chars='+',
+        prefix_chars="+",
         add_help=False,
         formatter_class=RawTextHelpFormatter,
         description=HELP_TEXT,
     )
 
     parser.add_argument(
-        '+h',
-        '++help',
-        action='help',
-        help='Show this help message and exit.',
+        "+h",
+        "++help",
+        action="help",
+        help="Show this help message and exit.",
     )
 
     parser.add_argument(
-        'hostname',
+        "hostname",
         type=str,
-        help='Host name to create targets for.',
+        help="Host name to create targets for.",
     )
 
     parser.add_argument(
-        'hosts_file',
+        "hosts_file",
         type=str,
-        help=('File containing host names / IPs'),
+        help=("File containing host names / IPs"),
     )
 
     ports = parser.add_mutually_exclusive_group()
@@ -108,7 +109,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
 
 def load_host_list(host_file):
     try:
-        with open(host_file, encoding='utf-8') as f:
+        with open(host_file, encoding="utf-8") as f:
             content = f.readlines()
         host_list = [x.strip() for x in content]
         host_list = list(filter(None, host_list))
@@ -128,7 +129,7 @@ def send_targets(
     host_list: List[str],
     port_list_id: str,
 ):
-    print(f'\nSending targets from {host_file} to {host_name}...')
+    print(f"\nSending targets from {host_file} to {host_name}...")
 
     for host in host_list:
         name = f"Target for {host}"
@@ -156,7 +157,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
             port_range=parsed_args.port_range,
             comment="Port List created by gvm-script",
         )
-        port_list_id = resp.xpath('//@id')[0]
+        port_list_id = resp.xpath("//@id")[0]
         print(f"Port list {port_list_id} created!\n")
     else:
         port_list_id = parsed_args.port_list_id
@@ -168,8 +169,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
         port_list_id,
     )
 
-    print('\n  Target(s) created!\n')
+    print("\n  Target(s) created!\n")
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

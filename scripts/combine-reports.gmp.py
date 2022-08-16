@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import sys
-
+import time
 from argparse import Namespace
-from lxml import etree as e
+
 from gvm.protocols.gmp import Gmp
+from lxml import etree as e
 
 from gvmtools.helper import generate_uuid
 
@@ -56,21 +56,21 @@ def check_args(args: Namespace) -> None:
 def combine_reports(gmp: Gmp, args: Namespace) -> e.Element:
     new_uuid = generate_uuid()
     combined_report = e.Element(
-        'report',
+        "report",
         {
-            'id': new_uuid,
-            'format_id': 'd5da9f67-8551-4e51-807b-b6a873d70e34',
-            'extension': 'xml',
-            'content_type': 'text/xml',
+            "id": new_uuid,
+            "format_id": "d5da9f67-8551-4e51-807b-b6a873d70e34",
+            "extension": "xml",
+            "content_type": "text/xml",
         },
     )
-    report_elem = e.Element('report', {'id': new_uuid})
-    ports_elem = e.Element('ports', {'start': '1', 'max': '-1'})
-    results_elem = e.Element('results', {'start': '1', 'max': '-1'})
+    report_elem = e.Element("report", {"id": new_uuid})
+    ports_elem = e.Element("ports", {"start": "1", "max": "-1"})
+    results_elem = e.Element("results", {"start": "1", "max": "-1"})
     combined_report.append(report_elem)
     report_elem.append(results_elem)
 
-    if 'first_task' in args.script:
+    if "first_task" in args.script:
         arg_len = args.script[1:-1]
     else:
         arg_len = args.script[1:]
@@ -79,36 +79,36 @@ def combine_reports(gmp: Gmp, args: Namespace) -> e.Element:
         current_report = gmp.get_report(
             argument, details=True, ignore_pagination=True
         )[0]
-        for port in current_report.xpath('report/ports/port'):
+        for port in current_report.xpath("report/ports/port"):
             ports_elem.append(port)
-        for result in current_report.xpath('report/results/result'):
+        for result in current_report.xpath("report/results/result"):
             results_elem.append(result)
-        for host in current_report.xpath('report/host'):
+        for host in current_report.xpath("report/host"):
             report_elem.append(host)
 
     return combined_report
 
 
 def send_report(gmp: Gmp, args: Namespace, combined_report: e.Element) -> str:
-    if 'first_task' in args.script:
+    if "first_task" in args.script:
         main_report = gmp.get_report(args.script[1])[0]
-        task_id = main_report.xpath('//task/@id')[0]
+        task_id = main_report.xpath("//task/@id")[0]
     else:
         the_time = time.strftime("%Y/%m/%d-%H:%M:%S")
-        task_id = ''
+        task_id = ""
         task_name = f"Combined_Report_{the_time}"
 
         res = gmp.create_container_task(
             name=task_name, comment="Created with gvm-tools."
         )
 
-        task_id = res.xpath('//@id')[0]
+        task_id = res.xpath("//@id")[0]
 
     combined_report = e.tostring(combined_report)
 
     res = gmp.import_report(combined_report, task_id=task_id, in_assets=True)
 
-    return res.xpath('//@id')[0]
+    return res.xpath("//@id")[0]
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -120,5 +120,5 @@ def main(gmp: Gmp, args: Namespace) -> None:
     send_report(gmp, args, combined_report)
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

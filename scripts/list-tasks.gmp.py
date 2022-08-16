@@ -17,7 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import Namespace
+
 from gvm.protocols.gmp import Gmp
+
 from gvmtools.helper import Table
 
 
@@ -25,21 +27,21 @@ def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
     response_xml = gmp.get_tasks()
-    tasks_xml = response_xml.xpath('task')
+    tasks_xml = response_xml.xpath("task")
 
-    heading = ['ID', 'Name', 'Severity']
+    heading = ["ID", "Name", "Severity"]
 
     rows = []
 
     for task in tasks_xml:
-        name = ''.join(task.xpath('name/text()'))
-        task_id = task.get('id')
-        severity = ''.join(task.xpath('last_report/report/severity/text()'))
+        name = "".join(task.xpath("name/text()"))
+        task_id = task.get("id")
+        severity = "".join(task.xpath("last_report/report/severity/text()"))
 
         rows.append([task_id, name, severity])
 
     print(Table(heading=heading, rows=rows))
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

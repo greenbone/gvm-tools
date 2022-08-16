@@ -18,8 +18,9 @@
 
 import sys
 from argparse import Namespace
-from lxml.etree import Element
+
 from gvm.protocols.gmp import Gmp
+from lxml.etree import Element
 
 from gvmtools.helper import create_xml_tree
 
@@ -48,16 +49,16 @@ def check_args(gmp: Gmp, args: Namespace) -> None:
 
 
 def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
-    for schedule in xml_tree.xpath('schedule'):
-        name = schedule.find('name').text
+    for schedule in xml_tree.xpath("schedule"):
+        name = schedule.find("name").text
 
-        comment = schedule.find('comment').text
+        comment = schedule.find("comment").text
         if comment is None:
-            comment = ''
+            comment = ""
 
-        ical = schedule.find('icalendar').text
+        ical = schedule.find("icalendar").text
 
-        timezone = schedule.find('timezone').text
+        timezone = schedule.find("timezone").text
 
         gmp.create_schedule(
             name=name, comment=comment, timezone=timezone, icalendar=ical
@@ -71,13 +72,13 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     xml_doc = args.script[1]
 
-    print('\nSending schedules...')
+    print("\nSending schedules...")
 
     xml_tree = create_xml_tree(xml_doc)
     parse_send_xml_tree(gmp, xml_tree)
 
-    print('\n  Schedule(s) created!\n')
+    print("\n  Schedule(s) created!\n")
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

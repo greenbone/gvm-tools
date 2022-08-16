@@ -19,9 +19,9 @@
 import sys
 from argparse import Namespace
 from datetime import date, timedelta
-from lxml.etree import Element
-from gvm.protocols.gmp import Gmp
 
+from gvm.protocols.gmp import Gmp
+from lxml.etree import Element
 from terminaltables import AsciiTable
 
 
@@ -50,8 +50,8 @@ def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> Element:
     """Getting the Reports in the defined time period"""
 
     report_filter = (
-        f'rows=-1 created>{from_date.isoformat()} and '
-        f'created<{to_date.isoformat()}'
+        f"rows=-1 created>{from_date.isoformat()} and "
+        f"created<{to_date.isoformat()}"
     )
 
     return gmp.get_reports(filter_string=report_filter)
@@ -60,59 +60,59 @@ def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> Element:
 def print_result_sums(
     reports_xml: Element, from_date: date, to_date: date
 ) -> None:
-    report_count = len(reports_xml.xpath('report'))
-    print(f'Found {report_count} reports')
+    report_count = len(reports_xml.xpath("report"))
+    print(f"Found {report_count} reports")
 
     sum_high = reports_xml.xpath(
-        'sum(report/report/result_count/hole/full/text())'
+        "sum(report/report/result_count/hole/full/text())"
     )
     sum_medium = reports_xml.xpath(
-        'sum(report/report/result_count/warning/full/text())'
+        "sum(report/report/result_count/warning/full/text())"
     )
     sum_low = reports_xml.xpath(
-        'sum(report/report/result_count/info/full/text())'
+        "sum(report/report/result_count/info/full/text())"
     )
 
     print(
-        f'Summary of results from {from_date.isoformat()} '
-        f'to {to_date.isoformat()}'
+        f"Summary of results from {from_date.isoformat()} "
+        f"to {to_date.isoformat()}"
     )
-    print(f'High: {int(sum_high)}')
-    print(f'Medium: {int(sum_medium)}')
-    print(f'Low: {int(sum_low)}')
+    print(f"High: {int(sum_high)}")
+    print(f"Medium: {int(sum_medium)}")
+    print(f"Low: {int(sum_low)}")
 
 
 def print_result_tables(gmp: Gmp, reports_xml: Element) -> None:
-    report_list = reports_xml.xpath('report')
+    report_list = reports_xml.xpath("report")
 
     for report in report_list:
-        report_id = report.xpath('report/@id')[0]
-        name = report.xpath('name/text()')[0]
+        report_id = report.xpath("report/@id")[0]
+        name = report.xpath("name/text()")[0]
 
         res = gmp.get_report(report_id)
 
-        print(f'\nReport: {report_id}')
+        print(f"\nReport: {report_id}")
 
-        table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
+        table_data = [["Hostname", "IP", "Bericht", "high", "medium", "low"]]
 
-        for host in res.xpath('report/report/host'):
+        for host in res.xpath("report/report/host"):
             hostname = host.xpath(
-                'detail/name[text()="hostname"]/../' 'value/text()'
+                'detail/name[text()="hostname"]/../' "value/text()"
             )
             if len(hostname) > 0:
                 hostname = str(hostname[0])
             else:
                 hostname = ""
 
-            ip = host.xpath('ip/text()')[0]
-            high = host.xpath('result_count/hole/page/text()')[0]
-            medium = host.xpath('result_count/warning/page/text()')[0]
-            low = host.xpath('result_count/info/page/text()')[0]
+            ip = host.xpath("ip/text()")[0]
+            high = host.xpath("result_count/hole/page/text()")[0]
+            medium = host.xpath("result_count/warning/page/text()")[0]
+            low = host.xpath("result_count/info/page/text()")[0]
 
             table_data.append([hostname, ip, name, high, medium, low])
 
         table = AsciiTable(table_data)
-        print(table.table + '\n')
+        print(table.table + "\n")
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -134,5 +134,5 @@ def main(gmp: Gmp, args: Namespace) -> None:
         print_result_tables(gmp, reports_xml)
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

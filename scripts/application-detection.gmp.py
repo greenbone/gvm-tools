@@ -18,6 +18,7 @@
 
 import sys
 from argparse import Namespace
+
 from gvm.protocols.gmp import Gmp
 
 
@@ -40,24 +41,24 @@ def check_args(args):
 def print_assets(gmp, appname):
     res = gmp.get_reports()
 
-    hosts = res.xpath('//host')
+    hosts = res.xpath("//host")
 
     for host in hosts:
-        ip = host.xpath('ip/text()')
+        ip = host.xpath("ip/text()")
         hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
         if len(hostname) == 0:
             hostname = ""
         else:
             hostname = hostname[0]
 
-        print(f'{ip} ({hostname})')
+        print(f"{ip} ({hostname})")
         apps = host.xpath(
             'detail/name[text() = "App"]/../value['
             f'contains(text(), "{appname}")]/text()'
         )
         for app in apps:
-            print('\t' + app)
-        print('\n')
+            print("\t" + app)
+        print("\n")
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -68,5 +69,5 @@ def main(gmp: Gmp, args: Namespace) -> None:
     print_assets(gmp, args.script[1])
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)
