@@ -9,20 +9,20 @@ XML Scripting
 -------------
 
 .. note:: XML scripting via :program:`gvm-cli` should only be considered for
-  simpler use cases. :ref:`Greenbone Management Protocol (GMP) or 
+  simpler use cases. :ref:`Greenbone Management Protocol (GMP) or
   Open Scanner Protocol (OSP) scripts <gvm_scripting>` are often more
   powerful and easier to write.
 
-Scripting via :program:`gvm-cli` is directly based on `GMP 
-<https://docs.greenbone.net/API/GMP/gmp.html>`_ and `OSP 
-<https://docs.greenbone.net/API/OSP/osp.html>`_. Both protocols make
+Scripting via :program:`gvm-cli` is directly based on `GMP
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html>`_ and `OSP
+<https://docs.greenbone.net/API/OSP/osp-22.04.html>`_. Both protocols make
 use of XML command requests and corresponding responses.
 
 A typical example for using GMP is the automatic scan of a new
-system. In the example below, it is assumed that an Intrusion Detection 
-System (IDS) that monitors the systems in the Demilitarized Zone (DMZ) and immediately 
-discovers new systems and unusual, new TCP ports is in use. If such an 
-event is being discovered, the IDS should automatically initiate a scan 
+system. In the example below, it is assumed that an Intrusion Detection
+System (IDS) that monitors the systems in the Demilitarized Zone (DMZ) and immediately
+discovers new systems and unusual, new TCP ports is in use. If such an
+event is being discovered, the IDS should automatically initiate a scan
 of the new system. This can be done with the help of a script.
 
 1. Starting point is the IP address of the new suspected system. For this IP
@@ -37,7 +37,7 @@ of the new system. This can be done with the help of a script.
   <create_target_response status="201" status_text="OK, resource created" id="e5adc10c-71d0-49fe-aacf-a442ee31d387"/>
 
 See :command:`create_target` command for all `details
-<https://docs.greenbone.net/API/OMP/omp.html#command_create_target>`__.
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html#command_create_target>`__.
 
 2. Create a task using the default *Full and Fast* scan configuration with
    UUID :token:`daba56c8-73ec-11df-a475-002264764cea` and the previously generated
@@ -49,7 +49,7 @@ See :command:`create_target` command for all `details
   <create_task_response status="201" status_text="OK, resource created" id="7249a07c-03e1-4197-99e4-a3a9ab5b7c3b"/>
 
 See :command:`create_task` command for all `details
-<https://docs.greenbone.net/API/OMP/omp.html#command_create_task>`__.
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html#command_create_task>`__.
 
 
 3. Start the task using the UUID return from the last response:
@@ -60,11 +60,11 @@ See :command:`create_task` command for all `details
   <start_task_response status="202" status_text="OK, request submitted"><report_id>0f9ea6ca-abf5-4139-a772-cb68937cdfbb</report_id></start_task_response>
 
 See :command:`start_task` command for all `details
-<https://docs.greenbone.net/API/OMP/omp.html#command_start_task>`__.
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html#command_start_task>`__.
 
 → The task is running. The response returns the UUID of the report which will
 contain the results of the scan.
-   
+
 4. Display the current status of the task:
 
 .. code-block:: shell
@@ -77,11 +77,11 @@ contain the results of the scan.
   <get_tasks_response/>
 
 See :command:`get_tasks` command for all `details
-<https://docs.greenbone.net/API/OMP/omp.html#command_get_tasks>`__.
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html#command_get_tasks>`__.
 
 → As soon as the scan is completed, the full report is available and can be
 displayed.
-   
+
 5. Display the full report:
 
 .. code-block:: shell
@@ -92,11 +92,11 @@ displayed.
   </get_reports_response>
 
 See :command:`get_reports` command for all `details
-<https://docs.greenbone.net/API/OMP/omp.html#command_get_reports>`__.
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html#command_get_reports>`__.
 
 6. Additionally, the report can be downloaded in a specific report format instead
-   of plain XML. 
-   
+   of plain XML.
+
    List all report formats:
 
 .. code-block:: shell
@@ -107,7 +107,7 @@ See :command:`get_reports` command for all `details
   </get_report_formats_response>
 
 See :command:`get_report_formats` command for all `details
-<https://docs.greenbone.net/API/OMP/omp.html#command_get_report_formats>`__.
+<https://docs.greenbone.net/API/GMP/gmp-22.04.html#command_get_report_formats>`__.
 
 7. Download the report in the desired format.
 
@@ -139,7 +139,7 @@ at `python-gvm`_ for further details about the API.
   ending :file:`.osp.py` are using :term:`OSP`. Technically both protocols could be
   used in one single script file.
 
-The following sections are using the same example as it was used in 
+The following sections are using the same example as it was used in
 :ref:`XML Scripting <xml_scripting>` where it was assumed that an Intrusion Detection
 System (IDS) that monitors the systems in the Demilitarized Zone (DMZ) and immediately discovers
 new systems and unusual, new TCP ports is in use. The IDS will provide the
@@ -160,7 +160,7 @@ user name and password for the GMP connection. The most important aspect about t
 script is that it contains the :dfn:`argv` property with the list of additional script
 specific arguments. The :dfn:`gmp` variable contains a connected and
 authenticated instance of a `Greenbone Management Protocol class
-<https://python-gvm.readthedocs.io/en/latest/api/gmpv9.html#protocol>`_.
+<https://python-gvm.readthedocs.io/en/latest/api/gmp.html#module-gvm.protocols.gmp>`_.
 
 2. The main function begins with the following code lines:
 
@@ -176,9 +176,9 @@ authenticated instance of a `Greenbone Management Protocol class
     ipaddress = args.argv[1]
 
 → The main function stores the first argument passed to the script as the :envvar:`ipaddress`
-variable. 
+variable.
 
-3. Add the logic to create a target, create a new scan task for the target, 
+3. Add the logic to create a target, create a new scan task for the target,
 start the task and print the corresponding report ID:
 
 .. code-block:: python3
@@ -295,4 +295,4 @@ Example Scripts
 ---------------
 
 All example scripts can be found at `GitHub
-<https://github.com/greenbone/gvm-tools/tree/master/scripts>`_.
+<https://github.com/greenbone/gvm-tools/tree/main/scripts>`_.

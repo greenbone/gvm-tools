@@ -21,7 +21,7 @@ The following command installs :program:`gvm-tools` system wide:
 
   python3 -m pip install gvm-tools
 
-A system wide installation usually requires admin permissions. Therefore, 
+A system wide installation usually requires admin permissions. Therefore,
 :program:`gvm-tools` may only be installed for the
 `current user <https://docs.python.org/3/library/site.html#site.USER_BASE>`_
 via:
@@ -75,6 +75,8 @@ The source code of **python-gvm** can be found at
 
 To clone this public repository and install from source for the current user run
 the following commands:
+
+.. code-block:: shell
 
     git clone git://github.com/greenbone/gvm-tools.git && cd gvm-tools
     python3 -m pip install -e .
