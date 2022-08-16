@@ -39,10 +39,10 @@ logger = logging.getLogger(__name__)
 __version__ = get_version()
 __api_version__ = get_gvm_version()
 
-DEFAULT_CONFIG_PATH = '~/.config/gvm-tools.conf'
+DEFAULT_CONFIG_PATH = "~/.config/gvm-tools.conf"
 
-PROTOCOL_OSP = 'OSP'
-PROTOCOL_GMP = 'GMP'
+PROTOCOL_OSP = "OSP"
+PROTOCOL_GMP = "GMP"
 DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 
@@ -59,59 +59,59 @@ class CliParser:
         )
 
         bootstrap_parser.add_argument(
-            '-c',
-            '--config',
-            nargs='?',
+            "-c",
+            "--config",
+            nargs="?",
             default=DEFAULT_CONFIG_PATH,
-            help='Configuration file path (default: %(default)s)',
+            help="Configuration file path (default: %(default)s)",
         )
 
-        choices = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+        choices = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
         bootstrap_parser.add_argument(
-            '--log',
-            nargs='?',
-            dest='loglevel',
-            const='INFO',
+            "--log",
+            nargs="?",
+            dest="loglevel",
+            const="INFO",
             type=lambda arg: {x.upper(): x for x in choices}[arg.upper()],
             choices=choices,
-            help='Activate logging (default level: %(default)s)',
+            help="Activate logging (default level: %(default)s)",
         )
 
         parser = argparse.ArgumentParser(prog=prog, parents=[bootstrap_parser])
 
         parser.add_argument(
-            '--timeout',
+            "--timeout",
             required=False,
             default=DEFAULT_TIMEOUT,
             type=int,
-            help='Response timeout in seconds, or -1 to wait '
-            'indefinitely (default: %(default)s)',
+            help="Response timeout in seconds, or -1 to wait "
+            "indefinitely (default: %(default)s)",
         )
         parser.add_argument(
-            '--gmp-username',
-            help='Username for GMP service (default: %(default)r)',
+            "--gmp-username",
+            help="Username for GMP service (default: %(default)r)",
         )
         parser.add_argument(
-            '--gmp-password',
-            help='Password for GMP service (default: %(default)r)',
+            "--gmp-password",
+            help="Password for GMP service (default: %(default)r)",
         )
         parser.add_argument(
-            '-V',
-            '--version',
-            action='version',
-            version=f'%(prog)s {__version__} (API version {__api_version__})',
-            help='Show version information and exit',
+            "-V",
+            "--version",
+            action="version",
+            version=f"%(prog)s {__version__} (API version {__api_version__})",
+            help="Show version information and exit",
         )
 
         subparsers = parser.add_subparsers(
-            metavar='CONNECTION_TYPE',
-            title='connections',
-            description='valid connection types',
+            metavar="CONNECTION_TYPE",
+            title="connections",
+            description="valid connection types",
             help="Connection type to use",
         )
         subparsers.required = True
-        subparsers.dest = 'connection_type'
+        subparsers.dest = "connection_type"
 
         self._subparsers = subparsers
 
@@ -146,7 +146,7 @@ class CliParser:
         if args.timeout == -1:
             args.timeout = None
 
-        logging.debug('Parsed arguments %r', args)
+        logging.debug("Parsed arguments %r", args)
 
         return args, unknown_args
 
@@ -157,11 +157,11 @@ class CliParser:
 
     def add_protocol_argument(self):
         self._parser.add_argument(
-            '--protocol',
+            "--protocol",
             required=False,
             default=DEFAULT_PROTOCOL,
             choices=[PROTOCOL_GMP, PROTOCOL_OSP],
-            help='Service protocol to use (default: %(default)s)',
+            help="Service protocol to use (default: %(default)s)",
         )
 
     def _load_config(self, configfile):
@@ -174,98 +174,98 @@ class CliParser:
 
         try:
             if not configpath.expanduser().resolve().exists():
-                logger.debug('Ignoring non existing config file %s', configfile)
+                logger.debug("Ignoring non existing config file %s", configfile)
                 return config
         except FileNotFoundError:
             # we are on python 3.5 and Path.resolve raised a FileNotFoundError
-            logger.debug('Ignoring non existing config file %s', configfile)
+            logger.debug("Ignoring non existing config file %s", configfile)
             return config
 
         try:
             config.load(configpath)
-            logger.debug('Loaded config %s', configfile)
+            logger.debug("Loaded config %s", configfile)
         except Exception as e:  # pylint: disable=broad-except
             raise RuntimeError(
-                f'Error while parsing config file {configfile}. Error was {e}'
+                f"Error while parsing config file {configfile}. Error was {e}"
             ) from None
 
         return config
 
     def _add_subparsers(self):
         parser_ssh = self._subparsers.add_parser(
-            'ssh', help='Use SSH to connect to service'
+            "ssh", help="Use SSH to connect to service"
         )
 
         parser_ssh.add_argument(
-            '--hostname', help='Hostname or IP address (default: %(default)s)'
+            "--hostname", help="Hostname or IP address (default: %(default)s)"
         )
         parser_ssh.add_argument(
-            '--port',
+            "--port",
             required=False,
-            help='SSH port (default: %(default)s)',
+            help="SSH port (default: %(default)s)",
             type=int,
         )
         parser_ssh.add_argument(
-            '--ssh-username', help='SSH username (default: %(default)r)'
+            "--ssh-username", help="SSH username (default: %(default)r)"
         )
         parser_ssh.add_argument(
-            '--ssh-password', help='SSH password (default: %(default)r)'
+            "--ssh-password", help="SSH password (default: %(default)r)"
         )
 
         parser_tls = self._subparsers.add_parser(
-            'tls', help='Use TLS secured connection to connect to service'
+            "tls", help="Use TLS secured connection to connect to service"
         )
         parser_tls.add_argument(
-            '--hostname', help='Hostname or IP address (default: %(default)s)'
+            "--hostname", help="Hostname or IP address (default: %(default)s)"
         )
         parser_tls.add_argument(
-            '--port',
+            "--port",
             required=False,
-            help='GMP/OSP port (default: %(default)s)',
+            help="GMP/OSP port (default: %(default)s)",
             type=int,
         )
         parser_tls.add_argument(
-            '--certfile',
+            "--certfile",
             required=False,
-            help='Path to the certificate file for client authentication. '
-            '(default: %(default)s)',
+            help="Path to the certificate file for client authentication. "
+            "(default: %(default)s)",
         )
         parser_tls.add_argument(
-            '--keyfile',
+            "--keyfile",
             required=False,
-            help='Path to key file for client authentication. '
-            '(default: %(default)s)',
+            help="Path to key file for client authentication. "
+            "(default: %(default)s)",
         )
         parser_tls.add_argument(
-            '--cafile',
+            "--cafile",
             required=False,
-            help='Path to CA certificate for server authentication. '
-            '(default: %(default)s)',
+            help="Path to CA certificate for server authentication. "
+            "(default: %(default)s)",
         )
         parser_tls.add_argument(
-            '--no-credentials',
+            "--no-credentials",
             required=False,
             default=False,
-            action='store_true',
-            help='Use only certificates for authentication',
+            action="store_true",
+            help="Use only certificates for authentication",
         )
 
         parser_socket = self._subparsers.add_parser(
-            'socket', help='Use UNIX Domain socket to connect to service'
+            "socket", help="Use UNIX Domain socket to connect to service"
         )
 
         socketpath_group = parser_socket.add_mutually_exclusive_group()
         socketpath_group.add_argument(
-            '--sockpath',
-            nargs='?',
+            "--sockpath",
+            nargs="?",
             default=None,
-            dest='socketpath',
-            help='Deprecated, use --socketpath instead',
+            dest="socketpath",
+            help="Deprecated, use --socketpath instead",
         )
         socketpath_group.add_argument(
-            '--socketpath',
-            nargs='?',
-            help='Path to UNIX Domain socket (default: %(default)s)',
+            "--socketpath",
+            nargs="?",
+            help="Path to UNIX Domain socket (default: %(default)s)",
         )
 
         self._parser_ssh = parser_ssh
@@ -276,26 +276,26 @@ class CliParser:
         self._config = self._load_config(configfilename)
 
         self._parser.set_defaults(
-            gmp_username=self._config.get('gmp', 'username'),
-            gmp_password=self._config.get('gmp', 'password'),
+            gmp_username=self._config.get("gmp", "username"),
+            gmp_password=self._config.get("gmp", "password"),
             **self._config.defaults(),
         )
 
         self._parser_ssh.set_defaults(
-            port=int(self._config.get('ssh', 'port')),
-            ssh_username=self._config.get('ssh', 'username'),
-            ssh_password=self._config.get('ssh', 'password'),
-            hostname=self._config.get('ssh', 'hostname'),
+            port=int(self._config.get("ssh", "port")),
+            ssh_username=self._config.get("ssh", "username"),
+            ssh_password=self._config.get("ssh", "password"),
+            hostname=self._config.get("ssh", "hostname"),
         )
         self._parser_tls.set_defaults(
-            port=int(self._config.get('tls', 'port')),
-            certfile=self._config.get('tls', 'certfile'),
-            keyfile=self._config.get('tls', 'keyfile'),
-            cafile=self._config.get('tls', 'cafile'),
-            hostname=self._config.get('tls', 'hostname'),
+            port=int(self._config.get("tls", "port")),
+            certfile=self._config.get("tls", "certfile"),
+            keyfile=self._config.get("tls", "keyfile"),
+            cafile=self._config.get("tls", "cafile"),
+            hostname=self._config.get("tls", "hostname"),
         )
         self._parser_socket.set_defaults(
-            socketpath=self._config.get('unixsocket', 'socketpath')
+            socketpath=self._config.get("unixsocket", "socketpath")
         )
 
 
@@ -316,10 +316,10 @@ def create_connection(
     ssh_password=None,
     **kwargs,  # pylint: disable=unused-argument
 ):
-    if 'socket' in connection_type:
+    if "socket" in connection_type:
         return UnixSocketConnection(timeout=timeout, path=socketpath)
 
-    if 'tls' in connection_type:
+    if "tls" in connection_type:
         return TLSConnection(
             timeout=timeout,
             hostname=hostname,

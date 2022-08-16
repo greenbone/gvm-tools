@@ -78,29 +78,29 @@ class Help(object):
 def main():
     do_not_run_as_root()
 
-    parser = create_parser(description=HELP_TEXT, logfilename='gvm-pyshell.log')
+    parser = create_parser(description=HELP_TEXT, logfilename="gvm-pyshell.log")
 
     parser.add_protocol_argument()
 
     parser.add_argument(
-        '-i',
-        '--interactive',
-        action='store_true',
+        "-i",
+        "--interactive",
+        action="store_true",
         default=False,
-        help='Start an interactive Python shell',
+        help="Start an interactive Python shell",
     )
 
     parser.add_argument(
-        'scriptname',
-        nargs='?',
+        "scriptname",
+        nargs="?",
         metavar="SCRIPT",
-        help='Path to script to be preloaded (example: myscript.gmp.py)',
+        help="Path to script to be preloaded (example: myscript.gmp.py)",
     )
     parser.add_argument(
-        'scriptargs',
-        nargs='*',
+        "scriptargs",
+        nargs="*",
         metavar="ARG",
-        help='Arguments for preloaded script',
+        help="Arguments for preloaded script",
     )
 
     args = parser.parse_args()
@@ -110,10 +110,10 @@ def main():
     transform = EtreeCheckCommandTransform()
 
     global_vars = {
-        'help': Help(),
-        'pretty_print': pretty_print,
-        '__version__': __version__,
-        '__api_version__': __api_version__,
+        "help": Help(),
+        "pretty_print": pretty_print,
+        "__version__": __version__,
+        "__api_version__": __api_version__,
     }
 
     username = None
@@ -121,14 +121,14 @@ def main():
 
     if args.protocol == PROTOCOL_OSP:
         protocol_class = Osp
-        name = 'osp'
+        name = "osp"
     else:
         protocol_class = Gmp
-        name = 'gmp'
+        name = "gmp"
 
     with protocol_class(connection, transform=transform) as protocol:
         global_vars[name] = protocol
-        global_vars['__name__'] = f'__{name}__'
+        global_vars["__name__"] = f"__{name}__"
 
         if args.protocol == PROTOCOL_GMP:
             if args.gmp_username:
@@ -140,7 +140,7 @@ def main():
 
         shell_args = Namespace(username=username, password=password)
 
-        global_vars['args'] = shell_args
+        global_vars["args"] = shell_args
 
         with_script = args.scriptname and len(args.scriptname) > 0
 
@@ -161,8 +161,8 @@ def main():
         if script_and_interactive or only_script:
             if only_script:
                 print(
-                    'Using gvm-pyshell for running scripts only is deprecated. '
-                    'Please use gvm-script instead',
+                    "Using gvm-pyshell for running scripts only is deprecated. "
+                    "Please use gvm-script instead",
                     file=sys.stderr,
                 )
 
@@ -175,11 +175,11 @@ def main():
 
 def enter_interactive_mode(global_vars):
     code.interact(
-        banner=f'GVM Interactive Console {__version__} API {__api_version__}.'
+        banner=f"GVM Interactive Console {__version__} API {__api_version__}."
         'Type "help" to get information about functionality.',
         local=dict(global_vars),
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

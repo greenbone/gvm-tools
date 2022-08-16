@@ -32,16 +32,16 @@ CWD = Path(__file__).absolute().parent
 class SendSchedulesTestCase(unittest.TestCase):
     def setUp(self):
         self.send_schedules = load_script(
-            (CWD.parent.parent / 'scripts'), 'send-schedules'
+            (CWD.parent.parent / "scripts"), "send-schedules"
         )
 
-    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_sent_schedule(self, mock_gmp: GmpMockFactory):
-        schedule_xml_path = CWD / 'example_schedules.xml'
-        schedule_xml_str = schedule_xml_path.read_text(encoding='utf-8')
+        schedule_xml_path = CWD / "example_schedules.xml"
+        schedule_xml_str = schedule_xml_path.read_text(encoding="utf-8")
 
         mock_gmp.mock_responses(
-            'create_schedule',
+            "create_schedule",
             [
                 '<create_schedule_response status="201" status_text="OK,'
                 'resource created" id="75be149a-0877-40f9-97c0-dfea31311e35"/>',
@@ -54,13 +54,13 @@ class SendSchedulesTestCase(unittest.TestCase):
 
         self.send_schedules.parse_send_xml_tree(mock_gmp.gmp_protocol, schedule)
 
-    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_args(self, mock_gmp: GmpMockFactory):
-        args = Namespace(script=['foo'])
+        args = Namespace(script=["foo"])
         with self.assertRaises(SystemExit):
             self.send_schedules.check_args(gmp=mock_gmp, args=args)
 
-        args2 = Namespace(script=['foo', 'bar', 'baz'])
+        args2 = Namespace(script=["foo", "bar", "baz"])
 
         with self.assertRaises(SystemExit):
             self.send_schedules.check_args(gmp=mock_gmp, args=args2)
