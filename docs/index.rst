@@ -20,11 +20,3 @@ and :term:`Open Scanner Protocol (OSP) <OSP>`.
   config
   scripting
   glossary
-  :maxdepth: 2
-
-Indices and Tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
