@@ -56,32 +56,32 @@ def _load_infile(filename=None):
     if not filename:
         return None
 
-    with open(filename, encoding='utf-8') as f:
+    with open(filename, encoding="utf-8") as f:
         return f.read()
 
 
 def main():
     do_not_run_as_root()
 
-    parser = create_parser(description=HELP_TEXT, logfilename='gvm-cli.log')
+    parser = create_parser(description=HELP_TEXT, logfilename="gvm-cli.log")
 
     parser.add_protocol_argument()
 
-    parser.add_argument('-X', '--xml', help='XML request to send')
+    parser.add_argument("-X", "--xml", help="XML request to send")
     parser.add_argument(
-        '-r', '--raw', help='Return raw XML', action='store_true', default=False
+        "-r", "--raw", help="Return raw XML", action="store_true", default=False
     )
     parser.add_argument(
-        '--pretty',
-        help='Pretty format the returned xml',
-        action='store_true',
+        "--pretty",
+        help="Pretty format the returned xml",
+        action="store_true",
         default=False,
     )
     parser.add_argument(
-        '--duration', action='store_true', help='Measure command execution time'
+        "--duration", action="store_true", help="Measure command execution time"
     )
     parser.add_argument(
-        'infile', nargs='?', help='File to read XML commands from.'
+        "infile", nargs="?", help="File to read XML commands from."
     )
 
     args = parser.parse_args()
@@ -135,7 +135,7 @@ def main():
 
             if args.duration:
                 duration = time.time() - starttime
-                print(f'Elapsed time: {duration} seconds')
+                print(f"Elapsed time: {duration} seconds")
             elif args.pretty:
                 pretty_print(result)
             else:
@@ -147,5 +147,5 @@ def main():
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

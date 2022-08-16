@@ -57,7 +57,6 @@ furo = "^2022.6.21"
 [tool.black]
 line-length = 80
 target-version = ['py37', 'py38', 'py39', 'py310']
-skip-string-normalization = true
 exclude = '''
 /(
     \.git

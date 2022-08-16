@@ -27,11 +27,11 @@ from gvm.errors import GvmError
 from gvm.xml import pretty_print
 from lxml import etree
 
-__all__ = ['authenticate', 'pretty_print', 'run_script']
+__all__ = ["authenticate", "pretty_print", "run_script"]
 
 
 class Table:
-    def __init__(self, heading=None, rows=None, divider=' | '):
+    def __init__(self, heading=None, rows=None, divider=" | "):
         self.heading = heading or []
         self.rows = rows or []
         self.divider = divider
@@ -71,7 +71,7 @@ class Table:
 
             heading_columns.append(self._create_column(column, column_size))
             heading_divider_columns.append(
-                self._create_column('-' * column_size, column_size)
+                self._create_column("-" * column_size, column_size)
             )
 
         row_strings.append(self._create_row(heading_columns))
@@ -95,10 +95,10 @@ def yes_or_no(question):
     Arguments:
         question (str): The condition the user should answer
     """
-    reply = str(input(question + ' (y/n): ')).lower().strip()
-    if reply[0] == ('y'):
+    reply = str(input(question + " (y/n): ")).lower().strip()
+    if reply[0] == ("y"):
         return True
-    if reply[0] == ('n'):
+    if reply[0] == ("n"):
         return False
     else:
         return yes_or_no("Please enter 'y' or 'n'")
@@ -119,8 +119,8 @@ def generate_random_ips(count: int):
     exclude_127 = [i for i in range(1, 256)]
     exclude_127.remove(127)
     return [
-        f'{choice(exclude_127)}.{randrange(0, 256)}.'
-        f'{randrange(0, 256)}.{randrange(1, 256)}'
+        f"{choice(exclude_127)}.{randrange(0, 256)}."
+        f"{randrange(0, 256)}.{randrange(1, 256)}"
         for i in range(count)
     ]
 
@@ -129,7 +129,7 @@ def generate_id(
     size: int = 12, chars: str = string.ascii_uppercase + string.digits
 ):
     """Generate a random ID"""
-    return ''.join(choice(chars) for _ in range(size))
+    return "".join(choice(chars) for _ in range(size))
 
 
 def generate_uuid():
@@ -158,8 +158,8 @@ def create_xml_tree(xml_doc):
 
 
 def do_not_run_as_root():
-    if hasattr(os, 'geteuid') and os.geteuid() == 0:
-        raise RuntimeError('This tool MUST NOT be run as root user.')
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        raise RuntimeError("This tool MUST NOT be run as root user.")
 
 
 def authenticate(gmp, username=None, password=None):
@@ -187,16 +187,16 @@ def authenticate(gmp, username=None, password=None):
     # Ask for login credentials if none are given.
     if not username:
         while username is None or len(username) == 0:
-            username = input('Enter username: ')
+            username = input("Enter username: ")
 
     if not password:
-        password = getpass.getpass(f'Enter password for {username}: ')
+        password = getpass.getpass(f"Enter password for {username}: ")
 
     try:
         gmp.authenticate(username, password)
         return (username, password)
     except GvmError as e:
-        print('Could not authenticate. Please check your credentials.')
+        print("Could not authenticate. Please check your credentials.")
         raise e
 
 
@@ -208,9 +208,9 @@ def run_script(path, global_vars):
         vars (dict): Variables passed as globals to the script
     """
     try:
-        file = open(path, 'r', encoding='utf-8', newline='').read()
+        file = open(path, "r", encoding="utf-8", newline="").read()
     except FileNotFoundError:
-        print(f'Script {path} does not exist', file=sys.stderr)
+        print(f"Script {path} does not exist", file=sys.stderr)
         sys.exit(2)
 
     exec(file, global_vars)  # pylint: disable=exec-used

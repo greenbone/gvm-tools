@@ -34,19 +34,19 @@ logger = logging.getLogger(__name__)
 
 class Config:
     def __init__(self):
-        self._config = configparser.ConfigParser(default_section='main')
+        self._config = configparser.ConfigParser(default_section="main")
 
         self._config = {}
 
-        self._config['gmp'] = dict(username='', password='')
-        self._config['ssh'] = dict(
-            username='gmp',
-            password='gmp',
+        self._config["gmp"] = dict(username="", password="")
+        self._config["ssh"] = dict(
+            username="gmp",
+            password="gmp",
             port=DEFAULT_SSH_PORT,
             hostname=DEFAULT_HOSTNAME,
         )
-        self._config['unixsocket'] = dict(socketpath=DEFAULT_UNIX_SOCKET_PATH)
-        self._config['tls'] = dict(
+        self._config["unixsocket"] = dict(socketpath=DEFAULT_UNIX_SOCKET_PATH)
+        self._config["tls"] = dict(
             port=DEFAULT_GVM_PORT, hostname=DEFAULT_HOSTNAME
         )
 
@@ -55,26 +55,26 @@ class Config:
     def load(self, filepath):
         path = filepath.expanduser()
 
-        config = configparser.ConfigParser(default_section='main')
+        config = configparser.ConfigParser(default_section="main")
 
         with path.open() as f:
             config.read_file(f)
 
-        if 'Auth' in config:
+        if "Auth" in config:
             logger.warning(
                 "Warning: Loaded config file %s contains deprecated 'Auth' "
                 "section. This section will be ignored in future.",
                 str(filepath),
             )
-            gmp_username = config.get('Auth', 'gmp_username', fallback='')
-            gmp_password = config.get('Auth', 'gmp_password', fallback='')
-            self._config['gmp']['username'] = gmp_username
-            self._config['gmp']['password'] = gmp_password
+            gmp_username = config.get("Auth", "gmp_username", fallback="")
+            gmp_password = config.get("Auth", "gmp_password", fallback="")
+            self._config["gmp"]["username"] = gmp_username
+            self._config["gmp"]["password"] = gmp_password
 
         self._defaults.update(config.defaults())
 
         for section in config.sections():
-            if section == 'Auth':
+            if section == "Auth":
                 continue
 
             for key, value in config.items(section):

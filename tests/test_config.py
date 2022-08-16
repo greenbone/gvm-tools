@@ -31,69 +31,69 @@ class ConfigTestCase(unittest.TestCase):
     def test_config_defaults(self):
         config = Config()
 
-        self.assertEqual(config.get('gmp', 'username'), '')
-        self.assertEqual(config.get('gmp', 'password'), '')
+        self.assertEqual(config.get("gmp", "username"), "")
+        self.assertEqual(config.get("gmp", "password"), "")
 
-        self.assertEqual(config.get('ssh', 'username'), 'gmp')
-        self.assertEqual(config.get('ssh', 'password'), 'gmp')
-        self.assertEqual(config.get('ssh', 'port'), DEFAULT_SSH_PORT)
+        self.assertEqual(config.get("ssh", "username"), "gmp")
+        self.assertEqual(config.get("ssh", "password"), "gmp")
+        self.assertEqual(config.get("ssh", "port"), DEFAULT_SSH_PORT)
 
         self.assertEqual(
-            config.get('unixsocket', 'socketpath'), DEFAULT_UNIX_SOCKET_PATH
+            config.get("unixsocket", "socketpath"), DEFAULT_UNIX_SOCKET_PATH
         )
 
-        self.assertEqual(config.get('tls', 'port'), DEFAULT_GVM_PORT)
+        self.assertEqual(config.get("tls", "port"), DEFAULT_GVM_PORT)
 
     def test_get_unknown_setting(self):
         config = Config()
-        self.assertIsNone(config.get('foo', 'bar'))
+        self.assertIsNone(config.get("foo", "bar"))
 
     def test_load(self):
-        test_config_path = __here__ / 'test.cfg'
+        test_config_path = __here__ / "test.cfg"
 
         self.assertTrue(test_config_path.is_file())
 
         config = Config()
         config.load(test_config_path)
 
-        self.assertEqual(config.get('gmp', 'username'), 'bar')
-        self.assertEqual(config.get('gmp', 'password'), 'bar')
+        self.assertEqual(config.get("gmp", "username"), "bar")
+        self.assertEqual(config.get("gmp", "password"), "bar")
 
-        self.assertEqual(config.get('ssh', 'username'), 'ipsum')
-        self.assertEqual(config.get('ssh', 'password'), 'lorem')
-        self.assertEqual(config.get('ssh', 'port'), '123')
+        self.assertEqual(config.get("ssh", "username"), "ipsum")
+        self.assertEqual(config.get("ssh", "password"), "lorem")
+        self.assertEqual(config.get("ssh", "port"), "123")
 
         self.assertEqual(
-            config.get('unixsocket', 'socketpath'), '/foo/bar.sock'
+            config.get("unixsocket", "socketpath"), "/foo/bar.sock"
         )
 
-        self.assertEqual(config.get('tls', 'port'), '123')
-        self.assertEqual(config.get('tls', 'certfile'), 'foo.cert')
-        self.assertEqual(config.get('tls', 'keyfile'), 'foo.key')
-        self.assertEqual(config.get('tls', 'cafile'), 'foo.ca')
+        self.assertEqual(config.get("tls", "port"), "123")
+        self.assertEqual(config.get("tls", "certfile"), "foo.cert")
+        self.assertEqual(config.get("tls", "keyfile"), "foo.key")
+        self.assertEqual(config.get("tls", "cafile"), "foo.ca")
 
         self.assertDictEqual(
-            config.defaults(), dict(timeout='1000', foo='bar', username='ipsum')
+            config.defaults(), dict(timeout="1000", foo="bar", username="ipsum")
         )
 
     def test_load_auth(self):
         root = logging.getLogger(name)
         root.disabled = True
 
-        test_config_path = __here__ / 'test_auth.cfg'
+        test_config_path = __here__ / "test_auth.cfg"
 
         self.assertTrue(test_config_path.is_file())
 
         config = Config()
         config.load(test_config_path)
 
-        self.assertEqual(config.get('gmp', 'username'), 'foo')
-        self.assertEqual(config.get('gmp', 'password'), 'bar')
+        self.assertEqual(config.get("gmp", "username"), "foo")
+        self.assertEqual(config.get("gmp", "password"), "bar")
 
         root.disabled = False
 
     def test_load_with_non_existing_configfile(self):
-        test_config_path = __here__ / 'foo.cfg'
+        test_config_path = __here__ / "foo.cfg"
 
         self.assertFalse(test_config_path.is_file())
 
