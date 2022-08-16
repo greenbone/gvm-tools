@@ -18,9 +18,11 @@
 
 
 import unittest
-from unittest.mock import patch, MagicMock
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 from lxml import etree
+
 from . import GmpMockFactory, load_script
 
 CWD = Path(__file__).absolute().parent

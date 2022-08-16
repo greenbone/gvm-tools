@@ -17,12 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 import unittest
-
 from pathlib import Path
 
-from gvm.connections import DEFAULT_UNIX_SOCKET_PATH, DEFAULT_GVM_PORT
+from gvm.connections import DEFAULT_GVM_PORT, DEFAULT_UNIX_SOCKET_PATH
 
-from gvmtools.config import Config, DEFAULT_SSH_PORT, __name__ as name
+from gvmtools.config import DEFAULT_SSH_PORT, Config
+from gvmtools.config import __name__ as name
 
 __here__ = Path(__file__).parent.resolve()
 

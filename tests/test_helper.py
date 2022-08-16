@@ -15,27 +15,27 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import sys
-import uuid
-import unittest
 import ipaddress
-from unittest.mock import patch, MagicMock
+import sys
+import unittest
+import uuid
 from io import BytesIO
 from pathlib import Path
-from lxml import etree
+from unittest.mock import MagicMock, patch
 
 from gvm.errors import GvmError
+from lxml import etree
 
 from gvmtools.helper import (
     Table,
-    do_not_run_as_root,
     authenticate,
-    run_script,
+    create_xml_tree,
+    do_not_run_as_root,
+    error_and_exit,
     generate_id,
     generate_random_ips,
     generate_uuid,
-    create_xml_tree,
-    error_and_exit,
+    run_script,
     yes_or_no,
 )
 

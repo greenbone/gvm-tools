@@ -21,17 +21,17 @@ import sys
 import time
 
 from gvm.errors import GvmError
-from gvm.protocols.latest import Osp
 from gvm.protocols.gmp import Gmp
+from gvm.protocols.latest import Osp
 from gvm.transforms import CheckCommandTransform
-from gvm.xml import validate_xml_string, pretty_print
+from gvm.xml import pretty_print, validate_xml_string
 
 from gvmtools.helper import authenticate, do_not_run_as_root
 from gvmtools.parser import (
-    create_parser,
-    create_connection,
-    PROTOCOL_OSP,
     PROTOCOL_GMP,
+    PROTOCOL_OSP,
+    create_connection,
+    create_parser,
 )
 
 logger = logging.getLogger(__name__)

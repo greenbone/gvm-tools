@@ -23,10 +23,10 @@ import configparser
 import logging
 
 from gvm.connections import (
-    DEFAULT_UNIX_SOCKET_PATH,
     DEFAULT_GVM_PORT,
-    DEFAULT_SSH_PORT,
     DEFAULT_HOSTNAME,
+    DEFAULT_SSH_PORT,
+    DEFAULT_UNIX_SOCKET_PATH,
 )
 
 logger = logging.getLogger(__name__)

@@ -18,10 +18,12 @@
 
 
 import unittest
-from unittest.mock import patch
-from pathlib import Path
 from argparse import Namespace
+from pathlib import Path
+from unittest.mock import patch
+
 from lxml import etree
+
 from . import GmpMockFactory, load_script
 
 CWD = Path(__file__).absolute().parent

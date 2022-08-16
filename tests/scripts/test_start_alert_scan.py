@@ -18,8 +18,9 @@
 
 
 import unittest
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
+
 from . import GmpMockFactory, load_script
 
 CWD = Path(__file__).absolute().parent

@@ -19,20 +19,19 @@
 import os
 import sys
 import unittest
-
-from unittest.mock import patch
-from pathlib import Path
-
 from argparse import Namespace
+from pathlib import Path
+from unittest.mock import patch
+
 from gvm.connections import (
-    DEFAULT_UNIX_SOCKET_PATH,
     DEFAULT_TIMEOUT,
-    UnixSocketConnection,
-    TLSConnection,
+    DEFAULT_UNIX_SOCKET_PATH,
     SSHConnection,
+    TLSConnection,
+    UnixSocketConnection,
 )
 
-from gvmtools.parser import CliParser, create_parser, create_connection
+from gvmtools.parser import CliParser, create_connection, create_parser
 
 from . import SuppressOutput
 

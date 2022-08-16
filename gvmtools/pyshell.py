@@ -20,22 +20,21 @@ import code
 import logging
 import os
 import sys
-
 from argparse import Namespace
 
 from gvm import get_version as get_gvm_version
-from gvm.xml import pretty_print
 from gvm.protocols.gmp import Gmp
 from gvm.protocols.latest import Osp
 from gvm.transforms import EtreeCheckCommandTransform
+from gvm.xml import pretty_print
 
 from gvmtools import get_version
-from gvmtools.helper import authenticate, run_script, do_not_run_as_root
+from gvmtools.helper import authenticate, do_not_run_as_root, run_script
 from gvmtools.parser import (
-    create_parser,
-    create_connection,
-    PROTOCOL_OSP,
     PROTOCOL_GMP,
+    PROTOCOL_OSP,
+    create_connection,
+    create_parser,
 )
 
 __version__ = get_version()
