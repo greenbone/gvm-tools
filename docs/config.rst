@@ -60,25 +60,25 @@ based communication.
 
 .. rubric:: Socket Section
 
-This section is only relevant if the :ref:`socket connection type 
+This section is only relevant if the :ref:`socket connection type
 <socket_connection_type>` is used.
 
 The socket section allows setting the default path to the Unix Domain socket of
 :term:`gvmd` or :term:`openvasmd` respectively. It must not be confused with the
-socket path to the redis server used by :term:`openvassd`. 
+socket path to the redis server used by :term:`openvassd`.
 
 .. code-block:: ini
 
   [unixsocket]
-  socketpath=/var/run/gvmd.sock
+  socketpath=/run/gvmd/gvmd.sock
 
 
 .. _tls_config_section:
 
 .. rubric:: TLS Section
 
-This section is only relevant if the :ref:`TLS connection type 
-<tls_connection_type>` is used (default for accessing :term:`openvasmd` 
+This section is only relevant if the :ref:`TLS connection type
+<tls_connection_type>` is used (default for accessing :term:`openvasmd`
 on :term:`GOS` 3.1).
 
 The TLS section allows setting the default port, TLS certificate file, TLS key
@@ -101,7 +101,7 @@ This section is only relevant if the :ref:`SSH connection type <ssh_connection_t
 is used (default for accessing :term:`openvasmd` on :term:`GOS` 4 and beyond).
 
 The SSH section allows setting the default SSH port, SSH user name and SSH
-password. 
+password.
 
 .. code-block:: ini
 
@@ -162,7 +162,7 @@ Full example configuration:
   password=choo4Gahdi2e
 
   [unixsocket]
-  socketpath=/var/run/gvmd.sock
+  socketpath=/run/gvmd/gvmd.sock
 
   [tls]
   port=1234

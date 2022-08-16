@@ -16,7 +16,7 @@ transport protocol:
 For the most common use case (querying :term:`openvasmd`/:term:`gvmd` via
 :term:`GMP` on the same host) the :ref:`socket connection
 <socket_connection_type>` should be chosen. The other connection types require
-some setup and possible adjustments at the server side, if no :term:`Greenbone OS <GOS>` 
+some setup and possible adjustments at the server side, if no :term:`Greenbone OS <GOS>`
 based system is used.
 
 
@@ -49,7 +49,7 @@ OSPd scanner implementation.
 
   Accessing a Unix Domain Socket requires sufficient Unix file permissions for
   the user running the :ref:`command line interface tool <tools>`.
-  
+
   Please do not start a tool as **root** user via :command:`sudo` or :command:`su` only to
   be able to access the socket path. Instead, adjust the
   socket file permissions, e.g. by setting the :command:`--listen-owner`,
