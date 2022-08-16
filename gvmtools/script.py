@@ -19,7 +19,6 @@
 import os
 import sys
 import traceback
-
 from argparse import Namespace
 
 from gvm import get_version as get_gvm_version
@@ -28,12 +27,12 @@ from gvm.protocols.latest import Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
-from gvmtools.helper import authenticate, run_script, do_not_run_as_root
+from gvmtools.helper import authenticate, do_not_run_as_root, run_script
 from gvmtools.parser import (
-    create_parser,
-    create_connection,
-    PROTOCOL_OSP,
     PROTOCOL_GMP,
+    PROTOCOL_OSP,
+    create_connection,
+    create_parser,
 )
 
 HELP_TEXT = """

@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import patch
-from pathlib import Path
 from argparse import Namespace
-from lxml import etree
-from . import GmpMockFactory, load_script
+from pathlib import Path
+from unittest.mock import patch
 
+from lxml import etree
+
+from . import GmpMockFactory, load_script
 
 CWD = Path(__file__).absolute().parent
 

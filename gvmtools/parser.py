@@ -21,7 +21,6 @@
 
 import argparse
 import logging
-
 from pathlib import Path
 
 from gvm import get_version as get_gvm_version

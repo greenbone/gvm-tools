@@ -18,16 +18,14 @@
 
 import getpass
 import os
+import string
 import sys
 import uuid
-import string
-
 from random import choice, randrange
-from lxml import etree
 
 from gvm.errors import GvmError
 from gvm.xml import pretty_print
-
+from lxml import etree
 
 __all__ = ['authenticate', 'pretty_print', 'run_script']
 
