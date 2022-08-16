@@ -19,6 +19,7 @@
 import csv
 import sys
 from argparse import Namespace
+
 from gvm.protocols.gmp import Gmp
 
 
@@ -40,25 +41,25 @@ def check_args(args):
 
 
 def sync_hosts(gmp, filename):
-    with open(filename, newline='', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter=',', quotechar='|')
+    with open(filename, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f, delimiter=",", quotechar="|")
         for row in reader:
             if len(row) == 2:
                 ip = row[0]
                 comment = row[1]
 
                 # check if host exists
-                ret = gmp.get_hosts(filter_string=f'ip={ip}')
-                if ret.xpath('host'):
-                    print(f'\nAsset with IP {ip} exist')
-                    host_id = ret.xpath('host/@id')[0]
+                ret = gmp.get_hosts(filter_string=f"ip={ip}")
+                if ret.xpath("host"):
+                    print(f"\nAsset with IP {ip} exist")
+                    host_id = ret.xpath("host/@id")[0]
                     gmp.delete_host(host_id=host_id)
                 else:
-                    print(f'Asset with ip {ip} does not exist. Sync...')
+                    print(f"Asset with ip {ip} does not exist. Sync...")
                     ret = gmp.create_host(name=ip, comment=comment)
 
-                    if 'OK' in ret.xpath('@status_text')[0]:
-                        print('Asset synced')
+                    if "OK" in ret.xpath("@status_text")[0]:
+                        print("Asset synced")
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -71,5 +72,5 @@ def main(gmp: Gmp, args: Namespace) -> None:
     sync_hosts(gmp, file)
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

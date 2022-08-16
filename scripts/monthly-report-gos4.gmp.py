@@ -17,10 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from datetime import date, timedelta
 from argparse import Namespace
-from terminaltables import AsciiTable
+from datetime import date, timedelta
+
 from gvm.protocols.gmp import Gmp
+from terminaltables import AsciiTable
 
 
 def check_args(args: Namespace) -> None:
@@ -47,8 +48,8 @@ def check_args(args: Namespace) -> None:
 
 def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
     host_filter = (
-        f'rows=-1 and modified>{from_date.isoformat()} '
-        f'and modified<{to_date.isoformat()}'
+        f"rows=-1 and modified>{from_date.isoformat()} "
+        f"and modified<{to_date.isoformat()}"
     )
 
     hosts_xml = gmp.get_hosts(filter_string=host_filter)
@@ -56,10 +57,10 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
     sum_high = 0
     sum_medium = 0
     sum_low = 0
-    table_data = [['Hostname', 'IP', 'Bericht', 'high', 'medium', 'low']]
+    table_data = [["Hostname", "IP", "Bericht", "high", "medium", "low"]]
 
-    for host in hosts_xml.xpath('asset'):
-        ip = host.xpath('name/text()')[0]
+    for host in hosts_xml.xpath("asset"):
+        ip = host.xpath("name/text()")[0]
 
         hostnames = host.xpath(
             'identifiers/identifier/name[text()="hostname"]/../value/text()'
@@ -71,7 +72,7 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         hostname = hostnames[0]
 
         results = gmp.get_results(
-            details=False, filter=f'host={ip} and severity>0.0'
+            details=False, filter=f"host={ip} and severity>0.0"
         )
 
         low = int(results.xpath('count(//result/threat[text()="Low"])'))
@@ -92,14 +93,14 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         )
 
     table = AsciiTable(table_data)
-    print(f'{table.table}\n')
+    print(f"{table.table}\n")
     print(
-        f'Summary of results from {from_date.isoformat()} '
-        f'to {to_date.isoformat()}'
+        f"Summary of results from {from_date.isoformat()} "
+        f"to {to_date.isoformat()}"
     )
-    print(f'High: {int(sum_high)}')
-    print(f'Medium: {int(sum_medium)}')
-    print(f'Low: {int(sum_low)}\n\n')
+    print(f"High: {int(sum_high)}")
+    print(f"Medium: {int(sum_medium)}")
+    print(f"Low: {int(sum_low)}\n\n")
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -117,5 +118,5 @@ def main(gmp: Gmp, args: Namespace) -> None:
     print_reports(gmp, from_date, to_date)
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

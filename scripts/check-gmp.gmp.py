@@ -29,8 +29,8 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from pathlib import Path
-from gvm.protocols.gmp import Gmp
 
+from gvm.protocols.gmp import Gmp
 from lxml import etree
 
 __version__ = "21.7.0"
@@ -136,7 +136,7 @@ class InstanceManager:
     @staticmethod
     def _to_sql_bool(pending):
         """Replace True/False with 1/0."""
-        return '1' if pending else '0'
+        return "1" if pending else "0"
 
     def connect_db(self):
         """Connect to the database
@@ -273,7 +273,7 @@ class InstanceManager:
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
         self.con_db.isolation_level = None
         self.cursor.execute("VACUUM")
-        self.con_db.isolation_level = ''  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long
+        self.con_db.isolation_level = ""  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long
         # Save the changes
         self.con_db.commit()
 
@@ -285,7 +285,7 @@ class InstanceManager:
         """
         logger.debug("Delete entries older than: %s days", days)
         self.cursor.execute(
-            'DELETE FROM Report WHERE scan_end <= '
+            "DELETE FROM Report WHERE scan_end <= "
             f'date("now", "-{days} day")'
         )
         self.cursor.execute("VACUUM")
@@ -604,7 +604,7 @@ def status(gmp, im, script_args):
     if script_args.task:
         task = gmp.get_tasks(
             filter_string=(
-                'permission=any owner=any rows=1 ' f'name="{script_args.task}"'
+                "permission=any owner=any rows=1 " f'name="{script_args.task}"'
             )
         )
         if script_args.trend:

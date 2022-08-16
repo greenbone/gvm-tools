@@ -19,6 +19,7 @@
 import datetime
 import sys
 from argparse import Namespace
+
 from gvm.protocols.gmp import Gmp
 
 
@@ -51,7 +52,7 @@ def create_target(gmp, ipaddress, port_list_id):
     response = gmp.create_target(
         name=name, hosts=[ipaddress], port_list_id=port_list_id
     )
-    return response.get('id')
+    return response.get("id")
 
 
 def create_task(gmp, ipaddress, target_id, scan_config_id, scanner_id):
@@ -62,7 +63,7 @@ def create_task(gmp, ipaddress, target_id, scan_config_id, scanner_id):
         target_id=target_id,
         scanner_id=scanner_id,
     )
-    return response.get('id')
+    return response.get("id")
 
 
 def start_task(gmp, task_id):
@@ -81,8 +82,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     target_id = create_target(gmp, ipaddress, port_list_id)
 
-    full_and_fast_scan_config_id = 'daba56c8-73ec-11df-a475-002264764cea'
-    openvas_scanner_id = '08b69003-5fc2-4037-a479-93b440211c73'
+    full_and_fast_scan_config_id = "daba56c8-73ec-11df-a475-002264764cea"
+    openvas_scanner_id = "08b69003-5fc2-4037-a479-93b440211c73"
     task_id = create_task(
         gmp,
         ipaddress,
@@ -99,6 +100,6 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     # pylint: disable=undefined-variable
     main(gmp, args)

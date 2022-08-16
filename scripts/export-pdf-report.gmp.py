@@ -17,10 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-
+from argparse import Namespace
 from base64 import b64decode
 from pathlib import Path
-from argparse import Namespace
+
 from gvm.protocols.gmp import Gmp
 
 
@@ -66,15 +66,15 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     if not content:
         print(
-            'Requested report is empty. Either the report does not contain any '
-            ' results or the necessary tools for creating the report are '
-            'not installed.',
+            "Requested report is empty. Either the report does not contain any "
+            " results or the necessary tools for creating the report are "
+            "not installed.",
             file=sys.stderr,
         )
         sys.exit(1)
 
     # convert content to 8-bit ASCII bytes
-    binary_base64_encoded_pdf = content.encode('ascii')
+    binary_base64_encoded_pdf = content.encode("ascii")
 
     # decode base64
     binary_pdf = b64decode(binary_base64_encoded_pdf)
@@ -84,8 +84,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     pdf_path.write_bytes(binary_pdf)
 
-    print('Done. PDF created: ' + str(pdf_path))
+    print("Done. PDF created: " + str(pdf_path))
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

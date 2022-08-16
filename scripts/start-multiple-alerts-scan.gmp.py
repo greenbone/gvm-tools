@@ -18,8 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from typing import List
 from argparse import Namespace
+from typing import List
+
 from gvm.protocols.gmp import Gmp
 
 
@@ -59,11 +60,11 @@ def get_scan_config(gmp, debug=False):
 
     # match the config abbreviation to accepted config names
     config_list = [
-        'Full and fast',
-        'Full and fast ultimate',
-        'Full and very deep',
-        'Full and very deep ultimate',
-        'System Discovery',
+        "Full and fast",
+        "Full and fast ultimate",
+        "Full and very deep",
+        "Full and very deep ultimate",
+        "System Discovery",
     ]
     template_abbreviation_mapper = {
         "fast": config_list[0],
@@ -73,9 +74,9 @@ def get_scan_config(gmp, debug=False):
         "discovery": config_list[4],
     }
     config_id = "-"
-    for conf in res.xpath('config'):
-        cid = conf.xpath('@id')[0]
-        name = conf.xpath('name/text()')[0]
+    for conf in res.xpath("config"):
+        cid = conf.xpath("@id")[0]
+        name = conf.xpath("name/text()")[0]
 
         # get the config id of the desired template
         if template_abbreviation_mapper.get(template, "-") == name:
@@ -105,8 +106,8 @@ def get_target(gmp, debug=False):
     while exists:
         exists = False
         target_name = f"targetName{str(counter)}"
-        for target in targets.xpath('target'):
-            name = target.xpath('name/text()')[0]
+        for target in targets.xpath("target"):
+            name = target.xpath("name/text()")[0]
             if name == target_name:
                 exists = True
                 break
@@ -120,7 +121,7 @@ def get_target(gmp, debug=False):
     counter = 0
 
     while True:
-        portlist_name = f'{new_port_list_name}{str(counter)}'
+        portlist_name = f"{new_port_list_name}{str(counter)}"
         if portlist_name not in get_port_list_names(gmp):
             break
         counter += 1
@@ -129,7 +130,7 @@ def get_target(gmp, debug=False):
     port_string = "T:80-80"
     # create port list
     portlist = gmp.create_port_list(portlist_name, port_string)
-    portlist_id = portlist.xpath('@id')[0]
+    portlist_id = portlist.xpath("@id")[0]
     if debug:
         print(f"Portlist-name:\t{str(portlist_name)}")
         print(f"Portlist-id:\t{str(portlist_id)}")
@@ -141,7 +142,7 @@ def get_target(gmp, debug=False):
     res = gmp.create_target(
         name=target_name, hosts=hosts, port_list_id=portlist_id
     )
-    return res.xpath('@id')[0]
+    return res.xpath("@id")[0]
 
 
 def get_alerts(gmp, sender_email, recipient_email, debug=False) -> List[str]:
@@ -149,14 +150,14 @@ def get_alerts(gmp, sender_email, recipient_email, debug=False) -> List[str]:
     alert_name = recipient_email
 
     # create alert if necessary
-    alert_object = gmp.get_alerts(filter=f'name={alert_name}')
+    alert_object = gmp.get_alerts(filter=f"name={alert_name}")
     alert_id = None
-    alert = alert_object.xpath('alert')
+    alert = alert_object.xpath("alert")
     if len(alert) == 0:
         gmp.create_alert(
             alert_name,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
-            event_data={'status': 'Done'},
+            event_data={"status": "Done"},
             condition=gmp.types.AlertCondition.ALWAYS,
             method=gmp.types.AlertMethod.EMAIL,
             method_data={
@@ -182,11 +183,11 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
-        alert_object = gmp.get_alerts(filter=f'name={recipient_email}')
-        alert = alert_object.xpath('alert')
-        alert_id = alert[0].get('id', 'no id found')
+        alert_object = gmp.get_alerts(filter=f"name={recipient_email}")
+        alert = alert_object.xpath("alert")
+        alert_id = alert[0].get("id", "no id found")
     else:
-        alert_id = alert[0].get('id', 'no id found')
+        alert_id = alert[0].get("id", "no id found")
         if debug:
             print(f"alert_id: {str(alert_id)}")
 
@@ -194,14 +195,14 @@ should not have received it.
     alert_name2 = f"{recipient_email}-2"
 
     # create second alert if necessary
-    alert_object2 = gmp.get_alerts(filter=f'name={alert_name2}')
+    alert_object2 = gmp.get_alerts(filter=f"name={alert_name2}")
     alert_id2 = None
-    alert2 = alert_object2.xpath('alert')
+    alert2 = alert_object2.xpath("alert")
     if len(alert2) == 0:
         gmp.create_alert(
             alert_name2,
             event=gmp.types.AlertEvent.TASK_RUN_STATUS_CHANGED,
-            event_data={'status': 'Done'},
+            event_data={"status": "Done"},
             condition=gmp.types.AlertCondition.ALWAYS,
             method=gmp.types.AlertMethod.EMAIL,
             method_data={
@@ -226,11 +227,11 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
-        alert_object2 = gmp.get_alerts(filter=f'name={recipient_email}')
-        alert2 = alert_object2.xpath('alert')
-        alert_id2 = alert2[0].get('id', 'no id found')
+        alert_object2 = gmp.get_alerts(filter=f"name={recipient_email}")
+        alert2 = alert_object2.xpath("alert")
+        alert_id2 = alert2[0].get("id", "no id found")
     else:
-        alert_id2 = alert2[0].get('id', 'no id found')
+        alert_id2 = alert2[0].get("id", "no id found")
         if debug:
             print(f"alert_id2: {str(alert_id2)}")
 
@@ -239,7 +240,7 @@ should not have received it.
 
 def get_scanner(gmp):
     res = gmp.get_scanners()
-    scanner_ids = res.xpath('scanner/@id')
+    scanner_ids = res.xpath("scanner/@id")
     return scanner_ids[1]  # default scanner
 
 
@@ -259,15 +260,15 @@ def create_and_start_task(
         comment=task_comment,
     )
     # Start the task
-    task_id = res.xpath('@id')[0]
+    task_id = res.xpath("@id")[0]
     gmp.start_task(task_id)
 
-    print(f'Task started: {task_name}')
+    print(f"Task started: {task_name}")
 
     if debug:
         # Stop the task (for performance reasons)
         gmp.stop_task(task_id)
-        print('Task stopped')
+        print("Task stopped")
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -288,5 +289,5 @@ def main(gmp: Gmp, args: Namespace) -> None:
     print("\nScript finished\n")
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

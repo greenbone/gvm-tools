@@ -18,6 +18,7 @@
 
 import sys
 from argparse import Namespace
+
 from gvm.errors import GvmError
 from gvm.protocols.gmp import Gmp
 
@@ -45,7 +46,7 @@ def create_scan_config(gmp, cert_bund_name):
     )
 
     list_cves = cert_bund_details.xpath(
-        'info/cert_bund_adv/raw_data/Advisory/CVEList/CVE/text()'
+        "info/cert_bund_adv/raw_data/Advisory/CVEList/CVE/text()"
     )
 
     nvt_dict = dict()
@@ -54,15 +55,15 @@ def create_scan_config(gmp, cert_bund_name):
     for cve in list_cves:
         # Get all nvts of this cve
         cve_info = gmp.get_info(info_id=cve, info_type=gmp.types.InfoType.CVE)
-        nvts = cve_info.xpath('info/cve/nvts/nvt')
+        nvts = cve_info.xpath("info/cve/nvts/nvt")
 
         for nvt in nvts:
             counter += 1
-            oid = nvt.xpath('@oid')[0]
+            oid = nvt.xpath("@oid")[0]
 
             # We need the nvt family to modify scan config
             nvt_data = gmp.get_scan_config_nvt(oid)
-            family = nvt_data.xpath('nvt/family/text()')[0]
+            family = nvt_data.xpath("nvt/family/text()")[0]
 
             # Create key value map
             if family in nvt_dict and oid not in nvt_dict[family]:
@@ -71,13 +72,13 @@ def create_scan_config(gmp, cert_bund_name):
                 nvt_dict[family] = [oid]
 
     # Create new config
-    copy_id = '085569ce-73ed-11df-83c3-002264764cea'
-    config_name = f'scanconfig_for_{cert_bund_name}'
-    config_id = ''
+    copy_id = "085569ce-73ed-11df-83c3-002264764cea"
+    config_name = f"scanconfig_for_{cert_bund_name}"
+    config_id = ""
 
     try:
         res = gmp.create_scan_config(copy_id, config_name)
-        config_id = res.xpath('@id')[0]
+        config_id = res.xpath("@id")[0]
 
         # Modify the config with the nvts oid
         for family, nvt_oid in nvt_dict.items():
@@ -86,14 +87,14 @@ def create_scan_config(gmp, cert_bund_name):
             )
 
         # This nvts must be present to work
-        family = 'Port scanners'
-        nvts = ['1.3.6.1.4.1.25623.1.0.14259', '1.3.6.1.4.1.25623.1.0.100315']
+        family = "Port scanners"
+        nvts = ["1.3.6.1.4.1.25623.1.0.14259", "1.3.6.1.4.1.25623.1.0.100315"]
         gmp.modify_scan_config(
             config_id=config_id, nvt_oids=nvts, family=family
         )
 
     except GvmError:
-        print('Config exist')
+        print("Config exist")
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -103,10 +104,10 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     cert_bund_name = args.script[1]
 
-    print(f'Creating scan config for {cert_bund_name}')
+    print(f"Creating scan config for {cert_bund_name}")
 
     create_scan_config(gmp, cert_bund_name)
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)
