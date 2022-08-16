@@ -45,6 +45,7 @@ python-gvm = ">=21.5"
 autohooks = ">=22.8.0"
 autohooks-plugin-pylint = ">=22.8.1"
 autohooks-plugin-black = ">=22.8.1"
+autohooks-plugin-isort = ">=22.8.0"
 pontos = ">=22.8.1"
 sphinx = "^5.1.1"
 pylint = "^2.13.9"
@@ -72,9 +73,13 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
+line_length = 80
+
 [tool.autohooks]
 mode = "poetry"
-pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint']
+pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint', 'autohooks.plugins.isort']
 
 [tool.pontos.version]
 version-module-file = "gvmtools/__version__.py"
