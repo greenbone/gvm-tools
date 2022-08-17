@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 readme = "README.md"
 homepage = "https://github.com/greenbone/gvm-tools/"
 repository = "https://github.com/greenbone/gvm-tools/"
-documentation = "https://gvm-tools.readthedocs.io/"
+documentation = "https://greenbone.github.io/gvm-tools/"
 classifiers=[
     # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
     'Development Status :: 5 - Production/Stable',
