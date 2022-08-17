@@ -64,8 +64,8 @@ This section is only relevant if the :ref:`socket connection type
 <socket_connection_type>` is used.
 
 The socket section allows setting the default path to the Unix Domain socket of
-:term:`gvmd` or :term:`openvasmd` respectively. It must not be confused with the
-socket path to the redis server used by :term:`openvassd`.
+:term:`gvmd`. It must not be confused with the socket path to the redis server
+used by :term:`openvas`.
 
 .. code-block:: ini
 
@@ -78,8 +78,7 @@ socket path to the redis server used by :term:`openvassd`.
 .. rubric:: TLS Section
 
 This section is only relevant if the :ref:`TLS connection type
-<tls_connection_type>` is used (default for accessing :term:`openvasmd`
-on :term:`GOS` 3.1).
+<tls_connection_type>` is used.
 
 The TLS section allows setting the default port, TLS certificate file, TLS key
 file and TLS certificate authority file.
@@ -98,7 +97,7 @@ file and TLS certificate authority file.
 .. rubric:: SSH Section
 
 This section is only relevant if the :ref:`SSH connection type <ssh_connection_type>`
-is used (default for accessing :term:`openvasmd` on :term:`GOS` 4 and beyond).
+is used.
 
 The SSH section allows setting the default SSH port, SSH user name and SSH
 password.

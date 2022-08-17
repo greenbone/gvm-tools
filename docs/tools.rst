@@ -26,8 +26,8 @@ for details about the possible settings and capabilities.
 gvm-cli
 -------
 
-:program:`gvm-cli` is a low level tool which offers sending and receiving 
-commands and responses for the XML-based :term:`GMP <GMP>` and :term:`OSP <OSP>` 
+:program:`gvm-cli` is a low level tool which offers sending and receiving
+commands and responses for the XML-based :term:`GMP <GMP>` and :term:`OSP <OSP>`
 directly via the command line. It is intended for :ref:`simple scripting <xml_scripting>`
 via shell.
 
@@ -87,8 +87,7 @@ gvm-script
 .. versionadded:: 2.0
 
 :program:`gvm-script` allows running :ref:`gvm scripts <gvm_scripting>`
-which are Python based scripts calling the `Python based GVM API
-<https://python-gvm.readthedocs.io/en/latest/>`_. Depending on the
+which are Python based scripts calling the `python-gvm API`_. Depending on the
 :command:`--protocol` argument a global gmp or osp object is passed to the
 script.
 
@@ -132,17 +131,16 @@ script.
 gvm-pyshell
 -----------
 
-:program:`gvm-pyshell` is a tool to use the `Python GVM API
-<https://python-gvm.readthedocs.io/en/latest/>`_ interactively. Running the tool
-will open a Python interpreter in the `interactive mode
+:program:`gvm-pyshell` is a tool to use the `python-gvm API`_ interactively.
+Running the tool will open a Python interpreter in the `interactive mode
 <https://docs.python.org/3/tutorial/interpreter.html#interactive-mode>`_
 providing a global gmp or osp object depending on the :command:`--protocol`
 argument.
 
 The interactive shell can be exited with:
 
-  * :kbd:`Ctrl + D` on Linux  or
-  * :kbd:`Ctrl + Z` on Windows
+* :kbd:`Ctrl+D` on Linux  or
+* :kbd:`Ctrl+Z` on Windows
 
 .. code-block:: shell
 
@@ -192,3 +190,5 @@ Example:
   '7.0'
   >>> [t.find('name').text for t in tasks.xpath('task')]
   ['Scan Task', 'Simple Scan', 'Host Discovery']
+
+.. _python-gvm API: https://greenbone.github.io/python-gvm/
