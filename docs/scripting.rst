@@ -26,7 +26,8 @@ event is being discovered, the IDS should automatically initiate a scan
 of the new system. This can be done with the help of a script.
 
 1. Starting point is the IP address of the new suspected system. For this IP
-   address, a target needs to be created on the :term:`GSM`.
+   address, a target needs to be created on the :term:`Greenbone Enterprise`
+   Appliance.
 
    If the IP address is saved in the environment variable :envvar:`IPADDRESS` by
    the IDS, the respective target can be created:

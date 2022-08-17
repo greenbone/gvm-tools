@@ -13,7 +13,7 @@ transport protocol:
   * :ref:`SSH – ssh <ssh_connection_type>`
   * :ref:`Unix Domain Socket – socket <socket_connection_type>`
 
-For the most common use case (querying :term:`openvasmd`/:term:`gvmd` via
+For the most common use case (querying :term:`gvmd` via
 :term:`GMP` on the same host) the :ref:`socket connection
 <socket_connection_type>` should be chosen. The other connection types require
 some setup and possible adjustments at the server side, if no :term:`Greenbone OS <GOS>`
@@ -26,17 +26,18 @@ Using a Unix Domain Socket
 --------------------------
 
 The Unix Domain Socket is the default connection type of :term:`gvmd` in the
-:term:`Greenbone Source Edition <GSE>`. It is only usable when running the
+:term:`Greenbone Community Edition`. It is only usable when running the
 client tool on the same host as the daemon.
 
-The location and name of the Unix Domain Socket provided by
-:term:`gvmd`/:term:`openvasmd` highly depends on the environment and
-:term:`GVM` installation. Additionally, its name changed from :file:`openvasmd.sock` in
-:term:`GVM 9 <GVM9>` to :file:`gvmd.sock` in :term:`GVM 10 <GVM10>`.
+The location and name of the Unix Domain Socket provided by :term:`gvmd` highly
+depends on the environment and :term:`Greenbone Community Edition` installation.
+
+For current releases of the Greenbone Community Edition 21.4 and 22.4 the
+socket should be found at :file:`/run/gvmd/gvmd.sock`.
 
 For :term:`GOS 4 <GOS>` the path is either :file:`/run/openvas/openvasmd.sock` or
 :file:`/usr/share/openvas/gsa/classic/openvasmd.sock` and for
-:term:`GOS 5 <GOS>` the path is either :file:`/run/gvm/gvmd.sock` or
+:term:`GOS 5 <GOS>` and later the path is either :file:`/run/gvm/gvmd.sock` or
 :file:`/usr/share/gvm/gsad/web/gvmd.sock`.
 
 :term:`OSPd based scanners <OSPd>` may be accessed via Unix Domain Sockets as well.
@@ -76,4 +77,4 @@ Using SSH
 Since :term:`GOS 4 <GOS>`, SSH is the default connection type for secure remote
 communication with the manager daemon via :term:`GMP`. The :term:`Greenbone
 Management Protocol <GMP>` is tunneled through SSH and forwarded to
-:term:`gvmd`/:term:`openvasmd`.
+:term:`gvmd`.
