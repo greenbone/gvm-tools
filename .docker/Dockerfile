@@ -12,9 +12,9 @@ RUN apt-get update && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install poetry && \
-    rm -rf dist/* && \
-    poetry build -f wheel
+RUN python3 -m pip install poetry
+
+RUN rm -rf dist && poetry build -f wheel
 
 FROM debian:stable-slim
 
