@@ -31,7 +31,7 @@ jobs:
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.documentation=https://greenbone.github.io/gvm-tools/
             org.opencontainers.image.base.name=debian/stable-slim
-          flavor: false # no latest container tag for git tags
+          flavor: latest=false # no latest container tag for git tags
           tags: |
             # create container tag for git tags
             type=ref,event=tag
