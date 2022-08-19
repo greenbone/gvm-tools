@@ -8,11 +8,13 @@ RUN apt-get update && \
     apt-get install --no-install-recommends --no-install-suggests -y \
     gosu \
     python3 \
+    python-is-python3 \
     python3-pip && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install poetry
+RUN python -m pip install --upgrade pip && \
+    python3 -m pip install poetry
 
 RUN rm -rf dist && poetry build -f wheel
 
