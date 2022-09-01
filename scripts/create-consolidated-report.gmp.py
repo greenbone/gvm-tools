@@ -174,8 +174,12 @@ def generate_task_filter(
     task_filter = "rows=-1 "
 
     # last is for the timestamp of the last report in that task
+    # period_filter = (
+    #     f"last>{period_start.isoformat()} " f"and last<{period_end.isoformat()}"
+    # )
     period_filter = (
-        f"last>{period_start.isoformat()} " f"and last<{period_end.isoformat()}"
+        f"last>{period_start.isoformat()} "
+        f"and created<{period_end.isoformat()}"
     )
     filter_parts = []
     if tags:
@@ -190,24 +194,31 @@ def generate_task_filter(
     return task_filter
 
 
-def get_last_reports_from_tasks(gmp: Gmp, task_filter: str) -> List[str]:
+def get_last_report_in_time_period(
+    gmp: Gmp, task_filter: str, period_end: date, period_start: date
+) -> List[str]:
     """Get the last reports from the tasks in the given time period
 
     gmp: the GMP object
     task_filter: task filter string
 
     """
-
     print(f"Filtering the task with the filter term [{task_filter}]")
+    print(f"Looking for the last report before {period_end.isoformat()}.")
 
     tasks_xml = gmp.get_tasks(filter_string=task_filter)
     reports = []
-    for report in tasks_xml.xpath("task/last_report/report/@id"):
-        reports.append(str(report))
-
-    # remove duplicates ... just in case
-    reports = list(dict.fromkeys(reports))
-
+    for task_id in tasks_xml.xpath("task/@id"):
+        # sort-reverse for getting the latest report ...
+        reports_xml = gmp.get_reports(
+            filter_string=(
+                f"rows=1 task_id={task_id} and "
+                f"created<{period_end.isoformat()} and "
+                f"created>{period_start.isoformat()} sort-reverse=created"
+            )
+        )
+        # should always be max 1 report
+        reports.append(reports_xml.xpath("report/@id")[0])
     return reports
 
 
@@ -318,7 +329,12 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     # Find reports
-    reports = get_last_reports_from_tasks(gmp=gmp, task_filter=task_filter)
+    reports = get_last_report_in_time_period(
+        gmp=gmp,
+        task_filter=task_filter,
+        period_end=period_end,
+        period_start=period_start,
+    )
 
     print(f"Combining {len(reports)} found reports.")
 

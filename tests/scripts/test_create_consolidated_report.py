@@ -94,7 +94,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
 
     def test_generate_task_filter(self):
         asserted_task_filter = (
-            'rows=-1 last>2020-01-01 and last<2020-02-01 and tag="blah"'
+            'rows=-1 last>2020-01-01 and created<2020-02-01 and tag="blah"'
         )
         period_start = date(2020, 1, 1)
         period_end = date(2020, 2, 1)
@@ -107,8 +107,8 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         self.assertEqual(task_filter, asserted_task_filter)
 
         asserted_task_filter = (
-            "rows=-1 last>2020-01-01 and last<2020-02-01 and "
-            'tag="blah" or last>2020-01-01 and last<2020-02-01'
+            "rows=-1 last>2020-01-01 and created<2020-02-01 and "
+            'tag="blah" or last>2020-01-01 and created<2020-02-01'
             ' and tag="blah2"'
         )
         tags = ['tag="blah"', 'tag="blah2"']
@@ -118,53 +118,6 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         )
 
         self.assertEqual(task_filter, asserted_task_filter)
-
-    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
-    def test_get_last_reports_from_tasks(self, mock_gmp: GmpMockFactory):
-        mock_gmp.mock_response(
-            "get_tasks",
-            '<get_tasks_response status="200" status_text="OK">'
-            "  <apply_overrides>0</apply_overrides>"
-            '  <task id="ef4469db-1cd7-4859-ba5f-45f72f49f09e">'
-            "    <last_report>"
-            '      <report id="4108fe11-91c8-4b7b-90da-854e3200af19">'
-            "      </report>"
-            "    </last_report>"
-            "  </task>"
-            '  <task id="bdd80dd6-9c7b-47b9-a87b-e2ca28fae2df">'
-            "    <last_report>"
-            '      <report id="55af942a-fa45-472c-aa50-f2af77d700a0">'
-            "      </report>"
-            "    </last_report>"
-            "  </task>"
-            '  <task id="6e5373cd-e69a-4008-afc3-a6d05e22507f">'
-            "    <last_report>"
-            '      <report id="52b67045-2c2c-4dbd-af58-ecf814d92f07">'
-            "      </report>"
-            "    </last_report>"
-            "  </task>"
-            '  <task id="bab515c2-156b-451f-9f1c-7af5b2c4b568">'
-            "    <last_report>"
-            '      <report id="52b67045-2c2c-4dbd-af58-ecf814d92f07">'
-            "      </report>"
-            "    </last_report>"
-            "  </task>"
-            "</get_tasks_response>",
-        )
-
-        reports = self.create_consolidated_report.get_last_reports_from_tasks(
-            mock_gmp.gmp_protocol,
-            task_filter=(
-                "rows=-1 last>2020-01-01 and " 'last<2020-02-01 and tag="blah"'
-            ),
-        )
-
-        asserted_reports = [
-            "4108fe11-91c8-4b7b-90da-854e3200af19",
-            "55af942a-fa45-472c-aa50-f2af77d700a0",
-            "52b67045-2c2c-4dbd-af58-ecf814d92f07",
-        ]
-        self.assertEqual(reports, asserted_reports)
 
     @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_combine_reports_with_term(self, mock_gmp: GmpMockFactory):
