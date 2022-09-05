@@ -174,9 +174,8 @@ def generate_task_filter(
     task_filter = "rows=-1 "
 
     # last is for the timestamp of the last report in that task
-    # period_filter = (
-    #     f"last>{period_start.isoformat()} " f"and last<{period_end.isoformat()}"
-    # )
+    # created is for the timestamp of when the task has been created
+    # Note: the "first" argument for tasks is currently not working
     period_filter = (
         f"last>{period_start.isoformat()} "
         f"and created<{period_end.isoformat()}"
@@ -195,16 +194,27 @@ def generate_task_filter(
 
 
 def get_last_report_in_time_period(
-    gmp: Gmp, task_filter: str, period_end: date, period_start: date
+    gmp: Gmp,
+    task_filter: str,
+    period_start: date,
+    period_end: date,
 ) -> List[str]:
     """Get the last reports from the tasks in the given time period
+    Therefore all tasks, that match the filter within the time period
+    will be looked up
+    Afterwards the reports from that tasks will be searched for the
+    last report in the timeperiod by sorting them reverse by creation
+    date
 
     gmp: the GMP object
     task_filter: task filter string
 
     """
-    print(f"Filtering the task with the filter term [{task_filter}]")
-    print(f"Looking for the last report before {period_end.isoformat()}.")
+    print(
+        f"Filtering the task with the filter term [{task_filter}]\n"
+        f"Looking for the last report before {period_end.isoformat()}, "
+        f"but after {period_start.isoformat()}."
+    )
 
     tasks_xml = gmp.get_tasks(filter_string=task_filter)
     reports = []
@@ -313,7 +323,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     period_start, period_end = parse_period(period=parsed_args.period)
 
     print(
-        "Combining reports from tasks within the "
+        "Combining last reports from tasks within the "
         f"time period [{period_start}, {period_end}]"
     )
 
@@ -332,8 +342,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
     reports = get_last_report_in_time_period(
         gmp=gmp,
         task_filter=task_filter,
-        period_end=period_end,
         period_start=period_start,
+        period_end=period_end,
     )
 
     print(f"Combining {len(reports)} found reports.")
