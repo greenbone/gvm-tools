@@ -174,8 +174,11 @@ def generate_task_filter(
     task_filter = "rows=-1 "
 
     # last is for the timestamp of the last report in that task
+    # created is for the timestamp of when the task has been created
+    # Note: the "first" argument for tasks is currently not working
     period_filter = (
-        f"last>{period_start.isoformat()} " f"and last<{period_end.isoformat()}"
+        f"last>{period_start.isoformat()} "
+        f"and created<{period_end.isoformat()}"
     )
     filter_parts = []
     if tags:
@@ -190,24 +193,42 @@ def generate_task_filter(
     return task_filter
 
 
-def get_last_reports_from_tasks(gmp: Gmp, task_filter: str) -> List[str]:
+def get_last_report_in_time_period(
+    gmp: Gmp,
+    task_filter: str,
+    period_start: date,
+    period_end: date,
+) -> List[str]:
     """Get the last reports from the tasks in the given time period
+    Therefore all tasks, that match the filter within the time period
+    will be looked up
+    Afterwards the reports from that tasks will be searched for the
+    last report in the timeperiod by sorting them reverse by creation
+    date
 
     gmp: the GMP object
     task_filter: task filter string
 
     """
-
-    print(f"Filtering the task with the filter term [{task_filter}]")
+    print(
+        f"Filtering the task with the filter term [{task_filter}]\n"
+        f"Looking for the last report before {period_end.isoformat()}, "
+        f"but after {period_start.isoformat()}."
+    )
 
     tasks_xml = gmp.get_tasks(filter_string=task_filter)
     reports = []
-    for report in tasks_xml.xpath("task/last_report/report/@id"):
-        reports.append(str(report))
-
-    # remove duplicates ... just in case
-    reports = list(dict.fromkeys(reports))
-
+    for task_id in tasks_xml.xpath("task/@id"):
+        # sort-reverse for getting the latest report ...
+        reports_xml = gmp.get_reports(
+            filter_string=(
+                f"rows=1 task_id={task_id} and "
+                f"created<{period_end.isoformat()} and "
+                f"created>{period_start.isoformat()} sort-reverse=created"
+            )
+        )
+        # should always be max 1 report
+        reports.append(reports_xml.xpath("report/@id")[0])
     return reports
 
 
@@ -302,7 +323,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     period_start, period_end = parse_period(period=parsed_args.period)
 
     print(
-        "Combining reports from tasks within the "
+        "Combining last reports from tasks within the "
         f"time period [{period_start}, {period_end}]"
     )
 
@@ -318,7 +339,12 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     # Find reports
-    reports = get_last_reports_from_tasks(gmp=gmp, task_filter=task_filter)
+    reports = get_last_report_in_time_period(
+        gmp=gmp,
+        task_filter=task_filter,
+        period_start=period_start,
+        period_end=period_end,
+    )
 
     print(f"Combining {len(reports)} found reports.")
 
