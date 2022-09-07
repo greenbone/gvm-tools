@@ -186,7 +186,7 @@ def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
 
 
 def generate_host_detail_elem(
-    name, value, source_name=None, source_description=None
+    name, value, source_name=None, source_description=None, source_type=None
 ):
     host_detail_elem = e.Element("detail")
     e.SubElement(host_detail_elem, "name").text = name
@@ -198,6 +198,9 @@ def generate_host_detail_elem(
 
         if source_description:
             e.SubElement(source_elem, "description").text = source_description
+
+        if source_type:
+            e.SubElement(source_elem, "type").text = source_type
 
     return host_detail_elem
 
@@ -222,6 +225,7 @@ def generate_additional_host_details(
                 details["value"],
                 source_name=details.get("source_name"),
                 source_description=details.get("source_description"),
+                source_type=details.get("source_type")
             )
         )
 
@@ -252,11 +256,19 @@ def generate_host_elem(
     os = choice(list(data["oss"]))
 
     host_elem.append(
-        generate_host_detail_elem("App", data["apps"].get(app), source_name=oid)
+        generate_host_detail_elem(
+            "App",
+            data["apps"].get(app),
+            source_name=oid,
+            source_type="nvt",
+        )
     )
     host_elem.append(
         generate_host_detail_elem(
-            data["apps"].get(app), "/usr/bin/foo", source_name=oid
+            data["apps"].get(app),
+            "/usr/bin/foo",
+            source_name=oid,
+            source_type="nvt",
         )
     )
     host_elem.append(
@@ -265,6 +277,7 @@ def generate_host_elem(
             host_name,
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
     host_elem.append(
@@ -273,6 +286,7 @@ def generate_host_elem(
             list(os)[0],
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
     host_elem.append(
@@ -281,6 +295,7 @@ def generate_host_elem(
             data["oss"].get(os),
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
 
