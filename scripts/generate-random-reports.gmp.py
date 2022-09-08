@@ -95,8 +95,9 @@ def generate_report_elem(task, **kwargs):
     return outer_report_elem
 
 
-def generate_inner_report(rep_id, n_results, n_hosts, data,
-                          with_descriptions=False, **kwargs):
+def generate_inner_report(
+    rep_id, n_results, n_hosts, data, with_descriptions=False, **kwargs
+):
     report_elem = e.Element("report", attrib={"id": rep_id})
     results_elem = e.SubElement(
         report_elem, "results", {"max": str(n_results), "start": "1"}
@@ -120,7 +121,7 @@ def generate_inner_report(rep_id, n_results, n_hosts, data,
             host_port,
             asset_dict[host_ip],
             host_names[host_ip],
-            with_descriptions=with_descriptions
+            with_descriptions=with_descriptions,
         )
         if float(severity) > max_sev:
             max_sev = float(severity)
@@ -153,8 +154,9 @@ def generate_inner_report(rep_id, n_results, n_hosts, data,
     return report_elem
 
 
-def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name,
-                         with_descriptions=False):
+def generate_result_elem(
+    vulns, host_ip, host_port, host_asset, host_name, with_descriptions=False
+):
     result_elem = e.Element("result", {"id": generate_uuid()})
 
     e.SubElement(result_elem, "name").text = "a_result" + generate_id()
@@ -191,7 +193,10 @@ def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name,
 
     if with_descriptions:
         description = "Generated result for VT %s on %s port %s\n%s" % (
-            nvt["oid"], host_ip, host_port, LOREM_IPSUM
+            nvt["oid"],
+            host_ip,
+            host_port,
+            LOREM_IPSUM,
         )
         e.SubElement(result_elem, "description").text = description
 
@@ -242,7 +247,7 @@ def generate_additional_host_details(
                 details["value"],
                 source_name=details.get("source_name"),
                 source_description=details.get("source_description"),
-                source_type=details.get("source_type")
+                source_type=details.get("source_type"),
             )
         )
 
@@ -457,7 +462,6 @@ def main(gmp: Gmp, args: Namespace) -> None:
         " and some dummy text.",
     )
 
-
     parser.add_argument(
         "--with-gauss",
         dest="with_gauss",
@@ -492,7 +496,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         n_not_vuln=script_args.not_vuln,
         data=data,
         with_gauss=script_args.with_gauss,
-        with_descriptions=script_args.with_descriptions
+        with_descriptions=script_args.with_descriptions,
     )
 
     print("\n  Generation done.\n")
