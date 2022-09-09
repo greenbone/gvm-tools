@@ -30,7 +30,7 @@ from lxml import etree as e
 
 from gvmtools.helper import generate_id, generate_random_ips, generate_uuid
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 HELP_TEXT = f"""
     Random Report Generation Script {__version__} (C) 2017-2021 Greenbone Networks GmbH
@@ -50,6 +50,14 @@ HELP_TEXT = f"""
 
     This script generates randomized report data.
     """
+
+LOREM_IPSUM = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut 
+aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+deserunt mollit anim id est laborum."""
 
 
 def generate_ports(n_ports):
@@ -87,7 +95,9 @@ def generate_report_elem(task, **kwargs):
     return outer_report_elem
 
 
-def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
+def generate_inner_report(
+    rep_id, n_results, n_hosts, data, with_descriptions=False, **kwargs
+):
     report_elem = e.Element("report", attrib={"id": rep_id})
     results_elem = e.SubElement(
         report_elem, "results", {"max": str(n_results), "start": "1"}
@@ -111,6 +121,7 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
             host_port,
             asset_dict[host_ip],
             host_names[host_ip],
+            with_descriptions=with_descriptions,
         )
         if float(severity) > max_sev:
             max_sev = float(severity)
@@ -143,7 +154,9 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
     return report_elem
 
 
-def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
+def generate_result_elem(
+    vulns, host_ip, host_port, host_asset, host_name, with_descriptions=False
+):
     result_elem = e.Element("result", {"id": generate_uuid()})
 
     e.SubElement(result_elem, "name").text = "a_result" + generate_id()
@@ -178,6 +191,14 @@ def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
     nvt_elem = e.Element("nvt", {"oid": nvt["oid"]})
     result_elem.append(nvt_elem)
 
+    if with_descriptions:
+        nvt_oid = nvt["oid"]
+        description = (
+            f"Generated result for VT {nvt_oid} on {host_ip}"
+            + f" port {host_port}\n{LOREM_IPSUM}"
+        )
+        e.SubElement(result_elem, "description").text = description
+
     e.SubElement(result_elem, "notes").text = "TestNotes"
 
     result_elem.append(elem)
@@ -186,7 +207,7 @@ def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
 
 
 def generate_host_detail_elem(
-    name, value, source_name=None, source_description=None
+    name, value, source_name=None, source_description=None, source_type=None
 ):
     host_detail_elem = e.Element("detail")
     e.SubElement(host_detail_elem, "name").text = name
@@ -198,6 +219,9 @@ def generate_host_detail_elem(
 
         if source_description:
             e.SubElement(source_elem, "description").text = source_description
+
+        if source_type:
+            e.SubElement(source_elem, "type").text = source_type
 
     return host_detail_elem
 
@@ -222,6 +246,7 @@ def generate_additional_host_details(
                 details["value"],
                 source_name=details.get("source_name"),
                 source_description=details.get("source_description"),
+                source_type=details.get("source_type"),
             )
         )
 
@@ -252,11 +277,19 @@ def generate_host_elem(
     os = choice(list(data["oss"]))
 
     host_elem.append(
-        generate_host_detail_elem("App", data["apps"].get(app), source_name=oid)
+        generate_host_detail_elem(
+            "App",
+            data["apps"].get(app),
+            source_name=oid,
+            source_type="nvt",
+        )
     )
     host_elem.append(
         generate_host_detail_elem(
-            data["apps"].get(app), "/usr/bin/foo", source_name=oid
+            data["apps"].get(app),
+            "/usr/bin/foo",
+            source_name=oid,
+            source_type="nvt",
         )
     )
     host_elem.append(
@@ -265,6 +298,7 @@ def generate_host_elem(
             host_name,
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
     host_elem.append(
@@ -273,6 +307,7 @@ def generate_host_elem(
             list(os)[0],
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
     host_elem.append(
@@ -281,6 +316,7 @@ def generate_host_elem(
             data["oss"].get(os),
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
 
@@ -418,6 +454,14 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     parser.add_argument(
+        "--with-descriptions",
+        dest="with_descriptions",
+        action="store_true",
+        help="Adds descriptions to results generated from other result fields"
+        " and some dummy text.",
+    )
+
+    parser.add_argument(
         "--with-gauss",
         dest="with_gauss",
         action="store_true",
@@ -451,6 +495,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         n_not_vuln=script_args.not_vuln,
         data=data,
         with_gauss=script_args.with_gauss,
+        with_descriptions=script_args.with_descriptions,
     )
 
     print("\n  Generation done.\n")
