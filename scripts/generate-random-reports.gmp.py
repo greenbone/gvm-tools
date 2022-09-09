@@ -30,7 +30,7 @@ from lxml import etree as e
 
 from gvmtools.helper import generate_id, generate_random_ips, generate_uuid
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 HELP_TEXT = f"""
     Random Report Generation Script {__version__} (C) 2017-2021 Greenbone Networks GmbH
@@ -192,11 +192,10 @@ def generate_result_elem(
     result_elem.append(nvt_elem)
 
     if with_descriptions:
-        description = "Generated result for VT %s on %s port %s\n%s" % (
-            nvt["oid"],
-            host_ip,
-            host_port,
-            LOREM_IPSUM,
+        nvt_oid = nvt["oid"]
+        description = (
+            f"Generated result for VT {nvt_oid} on {host_ip}"
+            + f" port {host_port}\n{LOREM_IPSUM}"
         )
         e.SubElement(result_elem, "description").text = description
 
