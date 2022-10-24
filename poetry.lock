@@ -669,14 +669,14 @@ jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 
 [[package]]
 name = "rope"
-version = "1.3.0"
+version = "1.4.0"
 description = "a python refactoring library..."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-pytoolconfig = ">=1.1.2"
+pytoolconfig = ">=1.2.2"
 
 [package.extras]
 dev = ["build (>=0.7.0)", "pytest (>=7.0.1)", "pytest-timeout (>=2.1.0)"]
@@ -912,7 +912,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "fe1b720b366bd75d450f8d1e96618edd4f8ceecd82c43c0620bd3671e5f679f6"
+content-hash = "33d559d111292fb4f2aa6563c27462b1290a08a9a979e4d19df2932767f04478"
 
 [metadata.files]
 alabaster = [
@@ -1449,8 +1449,8 @@ rich = [
     {file = "rich-12.6.0.tar.gz", hash = "sha256:ba3a3775974105c221d31141f2c116f4fd65c5ceb0698657a11e9f295ec93fd0"},
 ]
 rope = [
-    {file = "rope-1.3.0-py3-none-any.whl", hash = "sha256:f0c82bd7167c2926339c6f0d9ecf7c93d6866cbe380c78639fa1bc4ac037c097"},
-    {file = "rope-1.3.0.tar.gz", hash = "sha256:4e8ede637d8f43eb83847ef9ea7edbf4ceb9d641deea592ed38a8875cde64265"},
+    {file = "rope-1.4.0-py3-none-any.whl", hash = "sha256:27c122389fa5cdffa00c24aa6c63704e0933650dbc7d4d4002537947d6cfb7b7"},
+    {file = "rope-1.4.0.tar.gz", hash = "sha256:7d5a34235ff4a242b71f249b5617a9c54112e145ba4701a41e2f4f96942e5899"},
 ]
 setuptools = [
     {file = "setuptools-65.5.0-py3-none-any.whl", hash = "sha256:f62ea9da9ed6289bfe868cd6845968a2c854d1427f8548d52cae02a42b4f0356"},
