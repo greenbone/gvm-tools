@@ -41,7 +41,7 @@ wrapt = ">=1.11,<2"
 
 [[package]]
 name = "autohooks"
-version = "22.8.1"
+version = "22.11.1"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
@@ -480,7 +480,7 @@ invoke = ["invoke (>=1.3)"]
 
 [[package]]
 name = "pathspec"
-version = "0.10.1"
+version = "0.10.2"
 description = "Utility library for gitignore style pattern matching of file paths."
 category = "dev"
 optional = false
@@ -928,8 +928,8 @@ astroid = [
     {file = "astroid-2.11.7.tar.gz", hash = "sha256:bb24615c77f4837c707669d16907331374ae8a964650a66999da3f5ca68dc946"},
 ]
 autohooks = [
-    {file = "autohooks-22.8.1-py3-none-any.whl", hash = "sha256:3343c8f50e00c9f6d3fc5e69f23f938d32dcac9d86bfcf667213c9836e07560b"},
-    {file = "autohooks-22.8.1.tar.gz", hash = "sha256:4e68f8b615e32ea6da4b2576c2cfa459b81ee46ea98eaac80a05d59e0ffaa803"},
+    {file = "autohooks-22.11.1-py3-none-any.whl", hash = "sha256:6ce64207026e5120779321ee6df6789d78eba909df0c1a087f7d09094d392f00"},
+    {file = "autohooks-22.11.1.tar.gz", hash = "sha256:86a88ce410ca132bb4f9a5d265092be8fd90b2e563bcfe3dd420872b2afb9e57"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-22.8.1.tar.gz", hash = "sha256:cf48a1951b12f8eac9e697fb18edb05ab3519da8f29e7b31135bfc1cdb74b3f5"},
@@ -1367,8 +1367,8 @@ paramiko = [
     {file = "paramiko-2.12.0.tar.gz", hash = "sha256:376885c05c5d6aa6e1f4608aac2a6b5b0548b1add40274477324605903d9cd49"},
 ]
 pathspec = [
-    {file = "pathspec-0.10.1-py3-none-any.whl", hash = "sha256:46846318467efc4556ccfd27816e004270a9eeeeb4d062ce5e6fc7a87c573f93"},
-    {file = "pathspec-0.10.1.tar.gz", hash = "sha256:7ace6161b621d31e7902eb6b5ae148d12cfd23f4a249b9ffb6b9fee12084323d"},
+    {file = "pathspec-0.10.2-py3-none-any.whl", hash = "sha256:88c2606f2c1e818b978540f73ecc908e13999c6c3a383daf3705652ae79807a5"},
+    {file = "pathspec-0.10.2.tar.gz", hash = "sha256:8f6bf73e5758fd365ef5d58ce09ac7c27d2833a8d7da51712eac6e27e35141b0"},
 ]
 platformdirs = [
     {file = "platformdirs-2.5.4-py3-none-any.whl", hash = "sha256:af0276409f9a02373d540bf8480021a048711d572745aef4b7842dad245eba10"},
