@@ -12,7 +12,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
     - name: Release with release action
-      uses: greenbone/actions/release-python@v1
+      uses: greenbone/actions/release-python@v2
       with:
         version: 3.9
         conventional-commits: true

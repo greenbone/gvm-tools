@@ -29,7 +29,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
+        uses: greenbone/actions/poetry@v2
         with:
           version: "3.9"
       - name: Build Documentation
