@@ -41,7 +41,7 @@ wrapt = ">=1.11,<2"
 
 [[package]]
 name = "autohooks"
-version = "22.11.1"
+version = "22.11.2"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
@@ -931,8 +931,8 @@ astroid = [
     {file = "astroid-2.11.7.tar.gz", hash = "sha256:bb24615c77f4837c707669d16907331374ae8a964650a66999da3f5ca68dc946"},
 ]
 autohooks = [
-    {file = "autohooks-22.11.1-py3-none-any.whl", hash = "sha256:6ce64207026e5120779321ee6df6789d78eba909df0c1a087f7d09094d392f00"},
-    {file = "autohooks-22.11.1.tar.gz", hash = "sha256:86a88ce410ca132bb4f9a5d265092be8fd90b2e563bcfe3dd420872b2afb9e57"},
+    {file = "autohooks-22.11.2-py3-none-any.whl", hash = "sha256:57dcba586f0d3a57ed6c430cf6835a93f0cd74e70a8587e8bd382d6865363cda"},
+    {file = "autohooks-22.11.2.tar.gz", hash = "sha256:597f04f7dba69e42f76ff4195666bbadbaaa0cd5d14fb338e53d36025a92b66d"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks_plugin_black-22.11.0-py3-none-any.whl", hash = "sha256:e2fd93f1b8995c963356114dafa21ededbcb81f9f6273887a82f26bca5342fe7"},
