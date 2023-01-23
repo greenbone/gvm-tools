@@ -55,19 +55,19 @@ wrapt = ">=1.11,<2"
 
 [[package]]
 name = "autohooks"
-version = "22.11.2"
+version = "23.1.0"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "autohooks-22.11.2-py3-none-any.whl", hash = "sha256:57dcba586f0d3a57ed6c430cf6835a93f0cd74e70a8587e8bd382d6865363cda"},
-    {file = "autohooks-22.11.2.tar.gz", hash = "sha256:597f04f7dba69e42f76ff4195666bbadbaaa0cd5d14fb338e53d36025a92b66d"},
+    {file = "autohooks-23.1.0-py3-none-any.whl", hash = "sha256:bff89af36bc2a442a4d6198b7dbf4c6cc204b1b35c4a8d51e3c30e6bd12224bd"},
+    {file = "autohooks-23.1.0.tar.gz", hash = "sha256:bf9da5e9155676edde49c795b7ad4bf3b4322da3ee9c9358811a2b497eb811c7"},
 ]
 
 [package.dependencies]
 pontos = ">=22.8.0"
-rich = ">=12.5.1,<13.0.0"
+rich = ">=12.5.1"
 tomlkit = ">=0.5.11"
 
 [[package]]
