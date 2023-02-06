@@ -123,7 +123,6 @@ def main():
 
     try:
         with protocol_class(connection, transform=transform) as protocol:
-
             if args.protocol == PROTOCOL_GMP:
                 # Ask for password if none are given
                 authenticate(protocol, args.gmp_username, args.gmp_password)

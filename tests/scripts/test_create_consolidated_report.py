@@ -339,7 +339,6 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
 
     @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_send_report(self, mock_gmp: GmpMockFactory):
-
         combined_report = etree.fromstring(
             '<report id="20574712-c404-4a04-9c83-03144ae02dca" '
             'format_id="d5da9f67-8551-4e51-807b-b6a873d70e34" '

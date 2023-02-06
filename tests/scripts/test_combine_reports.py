@@ -134,7 +134,6 @@ class CombineReportsTestCase(unittest.TestCase):
 
     @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_send_report(self, mock_gmp: GmpMockFactory):
-
         args = Namespace(
             script=[
                 "foo",

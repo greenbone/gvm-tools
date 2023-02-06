@@ -74,7 +74,6 @@ def start_task(gmp, task_id):
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
-
     check_args(args)
 
     ipaddress = args.argv[1]

@@ -506,7 +506,6 @@ class InstanceManager:
             number_instances < MAX_RUNNING_INSTANCES
             and number_pending_instances > 0
         ):
-
             pending_entries = self.get_oldest_pending_entries(
                 MAX_RUNNING_INSTANCES - number_instances
             )
