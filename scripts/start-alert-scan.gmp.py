@@ -141,7 +141,6 @@ def get_alert(
     alert_name: str = None,
     debug: bool = False,
 ):
-
     # create alert if necessary
     alert_object = gmp.get_alerts(filter_string=f"name={alert_name}")
     alert = alert_object.xpath("alert")
