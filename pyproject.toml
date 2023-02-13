@@ -52,7 +52,7 @@ pylint = "^2.13.9"
 coverage = "^7.1"
 black = "^23.1.0"
 rope = "^1.7.0"
-furo = "^2022.9.29"
+furo = "^2022.12.7"
 
 [tool.black]
 line-length = 80
