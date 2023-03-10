@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018 Henning Häcker
-# Copyright (C) 2019-2021 Greenbone Networks GmbH
+# Copyright (C) 2019-2021 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #

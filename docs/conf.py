@@ -24,8 +24,8 @@ import gvmtools
 # -- Project information -----------------------------------------------------
 
 project = 'gvm-tools'
-copyright = '2018-2020, Greenbone Networks GmbH'
-author = 'Greenbone Networks GmbH'
+copyright = '2018-2020, Greenbone AG'
+author = 'Greenbone AG'
 
 version = gvmtools.get_version()
 release = version
@@ -164,7 +164,7 @@ latex_documents = [
         master_doc,
         'gvm-tools.tex',
         'gvm-tools Documentation',
-        'Greenbone Networks GmbH',
+        'Greenbone AG',
         'manual',
     )
 ]
