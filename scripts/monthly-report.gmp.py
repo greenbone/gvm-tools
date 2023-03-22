@@ -31,7 +31,7 @@ def check_args(args: Namespace) -> None:
         message = """
         This script will display all vulnerabilities from the hosts of the
         reports in a given month!
-        
+
         1. <month>  -- month of the monthly report
         2. <year>   -- year of the monthly report
 
@@ -97,7 +97,7 @@ def print_result_tables(gmp: Gmp, reports_xml: Element) -> None:
 
         for host in res.xpath("report/report/host"):
             hostname = host.xpath(
-                'detail/name[text()="hostname"]/../' "value/text()"
+                'detail/name[text()="hostname"]/../value/text()'
             )
             if len(hostname) > 0:
                 hostname = str(hostname[0])

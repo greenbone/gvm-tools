@@ -185,7 +185,7 @@ class InstanceManager:
 
         # Retrieve the scan_end value
         self.cursor.execute(
-            "SELECT scan_end, params_used FROM Report WHERE" " host=?",
+            "SELECT scan_end, params_used FROM Report WHERE host=?",
             (self.host,),
         )
         db_entry = self.cursor.fetchone()
@@ -202,7 +202,7 @@ class InstanceManager:
             new = parse_date(last_scan_end)
 
             logger.debug(
-                "Old time (from db): %s\n" "New time (from rp): %s", old, new
+                "Old time (from db): %s\nNew time (from rp): %s", old, new
             )
 
             if new <= old and params_used == db_entry[1]:
