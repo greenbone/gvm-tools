@@ -31,14 +31,15 @@ jobs:
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v2
         with:
-          version: "3.9"
+          poetry-version: "1.4.0"
+          cache: "true"
       - name: Build Documentation
         run: |
           cd docs && poetry run make html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'docs/build/html'
+          path: "docs/build/html"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1

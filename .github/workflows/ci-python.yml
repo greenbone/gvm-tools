@@ -2,21 +2,21 @@ name: Build and test Python package
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   linting:
     name: Linting
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     strategy:
-        matrix:
-          python-version:
-            - 3.7
-            - 3.8
-            - 3.9
-            - "3.10"
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
     steps:
       - uses: actions/checkout@v3
       - name: Check with black, pylint and pontos.version
@@ -24,23 +24,27 @@ jobs:
         with:
           packages: gvmtools tests
           version: ${{ matrix.python-version }}
+          poetry-version: "1.4.0"
+          cache: "true"
 
   lint-scripts:
     name: Lint all scripts
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     strategy:
-        matrix:
-          python-version:
-            - 3.7
-            - 3.8
-            - 3.9
-            - "3.10"
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: greenbone/actions/poetry@v2
         with:
           version: ${{ matrix.python-version }}
+          poetry-version: "1.4.0"
+          cache: "true"
       - name: Install additional script dependencies
         run: poetry run pip install -r scripts/requirements.txt
       - name: Check with black
@@ -51,43 +55,47 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     strategy:
-        matrix:
-          python-version:
-            - 3.7
-            - 3.8
-            - 3.9
-            - "3.10"
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v2
         with:
           version: ${{ matrix.python-version }}
+          poetry-version: "1.4.0"
+          cache: "true"
       - name: Run unit tests
         run: poetry run python -m unittest
 
   codecov:
     name: Upload coverage to codecov.io
     needs: test
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
       - name: Calculate and upload coverage to codecov.io
         uses: greenbone/actions/coverage-python@v2
         with:
-          version: 3.9
+          poetry-version: "1.4.0"
+          cache: "true"
 
   build-docs:
     name: Build the documentation
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v2
         with:
-          version: 3.9
+          poetry-version: "1.4.0"
+          cache: "true"
       - name: Build docs
         run: |
           cd docs
