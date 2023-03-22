@@ -39,7 +39,7 @@ gvm-cli = "gvmtools.cli:main"
 gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
-python = "^3.7.0"
+python = "^3.7.2"
 python-gvm = ">=22.9.0"
 
 [tool.poetry.dev-dependencies]
