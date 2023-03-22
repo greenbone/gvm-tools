@@ -112,7 +112,7 @@ class ConfigParserTestCase(unittest.TestCase):
     @patch("gvmtools.parser.Config")
     def test_config_load_raises_error(self, config_mock, path_mock):
         def config_load_error():
-            raise Exception
+            raise Exception  # pylint: disable=broad-exception-raised
 
         config = unittest.mock.MagicMock()
         config.load = unittest.mock.MagicMock(side_effect=config_load_error)

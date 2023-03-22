@@ -91,7 +91,7 @@ def execute_send_delta_emails(sc: sched.scheduler, **kwargs: dict) -> None:
             continue
 
         if reports[0].xpath(
-            "report/user_tags/tag/" 'name[text()="delta_alert_sent"]'
+            'report/user_tags/tag/name[text()="delta_alert_sent"]'
         ):
             print("  Delta report for latest finished report already sent")
             continue
