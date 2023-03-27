@@ -51,7 +51,7 @@ pontos = ">=22.8.1"
 sphinx = "^5.3.0"
 coverage = "^7.2"
 rope = "^1.7.0"
-furo = "^2022.12.7"
+furo = "^2023.3.27"
 
 [tool.black]
 line-length = 80
