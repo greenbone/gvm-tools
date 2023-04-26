@@ -89,7 +89,7 @@ class Table:
         return "\n".join(row_strings)
 
 
-def yes_or_no(question):
+def yes_or_no(question: str) -> bool:
     """Asks the user to proceed or not in a gvmtools script
 
     Arguments:
@@ -104,7 +104,7 @@ def yes_or_no(question):
         return yes_or_no("Please enter 'y' or 'n'")
 
 
-def error_and_exit(msg):
+def error_and_exit(msg: str) -> None:
     """Prints an error message and quits the gvmtools script
 
     Arguments:
@@ -200,7 +200,7 @@ def authenticate(gmp, username=None, password=None):
         raise e
 
 
-def run_script(path, global_vars):
+def run_script(path, global_vars) -> None:
     """Loads and executes a file as a python script
 
     Arguments:
