@@ -22,6 +22,7 @@
 import argparse
 import logging
 from pathlib import Path
+from typing import Optional
 
 from gvm import get_version as get_gvm_version
 from gvm.connections import (
@@ -48,7 +49,7 @@ DEFAULT_PROTOCOL = PROTOCOL_GMP
 
 class CliParser:
     def __init__(
-        self, description, logfilename, *, prog=None, ignore_config=False
+        self, description: str, logfilename, *, prog=None, ignore_config=False
     ):
         bootstrap_parser = argparse.ArgumentParser(
             prog=prog,
@@ -211,6 +212,12 @@ class CliParser:
         parser_ssh.add_argument(
             "--ssh-password", help="SSH password (default: %(default)r)"
         )
+        parser_ssh.add_argument(
+            "-A",
+            "--auto-accept-host",
+            action="store_true",
+            help="When executed in e.g. CI, auto accept SSH host addition",
+        )
 
         parser_tls = self._subparsers.add_parser(
             "tls", help="Use TLS secured connection to connect to service"
@@ -314,6 +321,7 @@ def create_connection(
     cafile=None,
     ssh_username=None,
     ssh_password=None,
+    auto_accept_host: Optional[bool] = None,
     **kwargs,  # pylint: disable=unused-argument
 ):
     if "socket" in connection_type:
@@ -335,4 +343,5 @@ def create_connection(
         port=port,
         username=ssh_username,
         password=ssh_password,
+        auto_accept_host=auto_accept_host,
     )
