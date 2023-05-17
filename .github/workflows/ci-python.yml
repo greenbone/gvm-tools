@@ -2,14 +2,13 @@ name: Build and test Python package
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
 
 jobs:
   linting:
     name: Linting
-    runs-on: "ubuntu-latest"
     strategy:
       matrix:
         python-version:
@@ -18,15 +17,10 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
-    steps:
-      - uses: actions/checkout@v3
-      - name: Check with black, pylint and pontos.version
-        uses: greenbone/actions/lint-python@v2
-        with:
-          packages: gvmtools tests
-          version: ${{ matrix.python-version }}
-          poetry-version: "1.4.0"
-          cache: "true"
+    uses: greenbone/workflows/.github/workflows/lint-python.yml@main
+    with:
+      lint-packages: gvmtools tests
+      python-version: ${{ matrix.python-version }}
 
   lint-scripts:
     name: Lint all scripts
@@ -44,8 +38,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: greenbone/actions/poetry@v2
         with:
-          version: ${{ matrix.python-version }}
-          poetry-version: "1.4.0"
+          python-version: ${{ matrix.python-version }}
           cache: "true"
       - name: Install additional script dependencies
         run: poetry run pip install -r scripts/requirements.txt
@@ -57,7 +50,6 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: "ubuntu-latest"
     strategy:
       matrix:
         python-version:
@@ -66,16 +58,9 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v2
-        with:
-          version: ${{ matrix.python-version }}
-          poetry-version: "1.4.0"
-          cache: "true"
-      - name: Run unit tests
-        run: poetry run python -m unittest
+    uses: greenbone/workflows/.github/workflows/test-python.yml@main
+    with:
+      python-version: ${{ matrix.python-version }}
 
   codecov:
     name: Upload coverage to codecov.io
@@ -103,3 +88,7 @@ jobs:
         run: |
           cd docs
           poetry run make html
+
+  versioning:
+    name: Check versioning
+    uses: greenbone/workflows/.github/workflows/check-version.yml@main
