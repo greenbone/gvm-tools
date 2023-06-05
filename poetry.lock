@@ -1268,14 +1268,14 @@ six = ">=1.5"
 
 [[package]]
 name = "python-gvm"
-version = "23.5.0"
+version = "23.5.1"
 description = "Library to communicate with remote servers over GMP or OSP"
 category = "main"
 optional = false
 python-versions = ">=3.7.2,<4.0.0"
 files = [
-    {file = "python_gvm-23.5.0-py3-none-any.whl", hash = "sha256:1673e104218cef4e931fdd420bb77ad5f4438b0f9f469d8f9364c8d2c22b0bb2"},
-    {file = "python_gvm-23.5.0.tar.gz", hash = "sha256:56b64ce625bebc257b226e43f8e4a4d54115b64cdf7a254cc557ec98b1e5a4d8"},
+    {file = "python_gvm-23.5.1-py3-none-any.whl", hash = "sha256:d9a4235c8a3b75222d851853b7dffaf4185c292c62ed0cbff20f79b4d4479e06"},
+    {file = "python_gvm-23.5.1.tar.gz", hash = "sha256:10744ea731146fce85bc5f5c1c987b98ffa4db19f68ba57dc5d81ec819a7f079"},
 ]
 
 [package.dependencies]
