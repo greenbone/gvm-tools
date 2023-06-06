@@ -26,16 +26,7 @@ import re
 import sys
 from argparse import ArgumentParser, Namespace
 from itertools import zip_longest
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    TypedDict,
-    TypeVar,
-    overload,
-)
+from typing import Dict, List, Optional, Sequence, Tuple, TypeVar, overload
 
 import ssv_csv
 from gvm.errors import GvmResponseError
@@ -46,7 +37,7 @@ from gvm.protocols.gmp import Gmp
 sys.path.append(os.path.dirname(args.argv[0]))  # type: ignore
 
 
-class _Row(TypedDict, total=False):
+class _Row(Dict, total=False):
     host: str
     port: str
     hostname: str
@@ -56,13 +47,13 @@ class _Row(TypedDict, total=False):
     cb: List[str]
 
 
-class _Host(TypedDict, total=False):
+class _Host(Dict, total=False):
     ip: str
     name: str
     operating_system: str
 
 
-class _CBund(TypedDict, total=False):
+class _CBund(Dict, total=False):
     severity: str
     title: str
 
