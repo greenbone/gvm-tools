@@ -34,16 +34,16 @@ from typing import (
     Tuple,
     TypedDict,
     TypeVar,
-    Union,
     overload,
 )
 
+import ssv_csv
 from gvm.errors import GvmResponseError
 from gvm.protocols.gmp import Gmp
-from gvm.xml import pretty_print
+
+# from gvm.xml import pretty_print
 
 sys.path.append(os.path.dirname(args.argv[0]))  # type: ignore
-import ssv_csv
 
 
 class _Row(TypedDict, total=False):
@@ -59,7 +59,7 @@ class _Row(TypedDict, total=False):
 class _Host(TypedDict, total=False):
     ip: str
     name: str
-    os: str
+    operating_system: str
 
 
 class _CBund(TypedDict, total=False):
@@ -114,16 +114,16 @@ def _assign(
             tgt[tgtfield] = srcval
 
 
-def _info(s: str) -> None:
-    print("I:", s, file=sys.stderr)
+def _info(string: str) -> None:
+    print("I:", string, file=sys.stderr)
 
 
-def _warn(s: str) -> None:
-    print("W:", s, file=sys.stderr)
+def _warn(string: str) -> None:
+    print("W:", string, file=sys.stderr)
 
 
-def _err(s: str) -> None:
-    print("E:", s, file=sys.stderr)
+def _err(string: str) -> None:
+    print("E:", string, file=sys.stderr)
 
 
 T = TypeVar("T")
@@ -144,36 +144,41 @@ _cb_id_match = re.compile("CB-K[0-9]+/[0-9]+")
 def _cb_fmt(cbid: str) -> str:
     if _cb_id_match.fullmatch(cbid) is not None:
         return "uuid=" + cbid
-    _warn("invalid CERT-BUND ID: " + cbid)
+    _warn(f"invalid CERT-BUND ID: {cbid}")
     return ""
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
     raw_args = [] + args.argv[1:] + args.script_args
-    p = ArgumentParser(
+    parser = ArgumentParser(
         prog="certbund-report.gmp.py",
         description="Displays CERT-Bund advisories for vulnerabilities.",
-        epilog="""
-        Usage: gvm-script [opts] connection_type certbund-report.gmp.py [Options] ID""",
+        epilog=(
+            "Usage: gvm-script [opts] connection_type "
+            "certbund-report.gmp.py [Options] ID"
+        ),
         add_help=False,
     )
-    g = p.add_argument_group("Options")
-    g.add_argument("-H", action="help", help="show this help message and exit")
-    g.add_argument(
+    ogroup = parser.add_argument_group("Options")
+    ogroup.add_argument(
+        "-H", action="help", help="show this help message and exit"
+    )
+    ogroup.add_argument(
         "-o",
+        "--output",
         metavar="outfile",
         help='write to this CSV file, "-" for stdout (default)',
         default="-",
     )
-    g.add_argument(
+    ogroup.add_argument(
         "-r",
         "--report",
         action="store_true",
         help="ID is a report ID, not a task ID",
     )
-    g = p.add_argument_group("Arguments")
-    g.add_argument("ID", help="task (or report) ID to analyse")
-    script_args = p.parse_args(raw_args)
+    agroup = parser.add_argument_group("Arguments")
+    agroup.add_argument("ID", help="task (or report) ID to analyse")
+    script_args = parser.parse_args(raw_args)
     if script_args.report:
         report_id = script_args.ID
     else:
@@ -184,7 +189,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         except GvmResponseError as e:
             if e.status != "404":
                 raise e
-            _err("task %s not found" % task_id)
+            _err(f"task {task_id} not found")
             sys.exit(1)
         try:
             task_report = task.xpath(
@@ -200,31 +205,33 @@ def main(gmp: Gmp, args: Namespace) -> None:
     except GvmResponseError as e:
         if e.status != "404":
             raise e
-        _err("report %s not found" % report_id)
+        _err(f"report {report_id} not found")
         sys.exit(1)
-    # with open("report.xml", "w") as rf:
+    # with open("report.xml", "w", encoding="utf-8") as rf:
     #    pretty_print(report, file=rf)
 
     ### gather data
+    # + host IP       hosts[row['host']]['ip']
+    # - vuln port     row['port']
+    # - host name     row.get('hostname',
+    #                     hosts[row['host']].get('name', 'N/A'))
+    # - host OS       hosts[row['host']].get('os', 'N/A')
+    # + vuln name     row['name']
+    # + vuln severity row['severity']
+    # + vuln CVEs     row['cves']
+    # + bund ID       row['cb'] : list(str)
+    # + bund severity cbund[…].get('severity', 'N/A')
+    # - bund title    cbund[…].get('title', 'N/A')
 
-    # + host IP         hosts[row['host']]['ip']
-    # - vuln port       row['port']
-    # - host name       row.get('hostname', hosts[row['host']].get('name', 'N/A'))
-    # - host OS         hosts[row['host']].get('os', 'N/A')
-    # + vuln name       row['name']
-    # + vuln severity   row['severity']
-    # + vuln CVEs       row['cves']
-    # + bund ID         row['cb'] : list(str)
-    # + bund severity   cbund[…].get('severity', 'N/A')
-    # - bund title      cbund[…].get('title', 'N/A')
     orows: List[_Row] = []
     hosts: Dict[str, _Host] = {}
     cbund: Dict[str, _CBund] = {}
     results = report.xpath(
-        '/get_reports_response/report/report/results/result[./nvt/refs/ref/@type="cert-bund"]'
+        "/get_reports_response/report/report/results/"
+        'result[./nvt/refs/ref/@type="cert-bund"]'
     )
     # pretty_print(results)
-    _info("processing %d results" % len(results))
+    _info(f"processing {len(results)} results")
     for result in results:
         orow: _Row = {}
         r_host = result.find("host")
@@ -251,7 +258,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         orows.append(orow)
     hostdatas = report.xpath("/get_reports_response/report/report/host")
     # pretty_print(hostdatas)
-    _info("processing %d/%d hosts" % (len(hosts), len(hostdatas)))
+    _info(f"processing {len(hosts)}/{len(hostdatas)} hosts")
     for hostdata in hostdatas:
         asset = hostdata.find("asset").attrib["asset_id"]
         if not asset in hosts:
@@ -271,12 +278,14 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     ### retrieve CERT-BUND Advisories
 
-    _info("retrieving %d CERT-BUND advisories" % len(cbund))
+    _info(f"retrieving {len(cbund)} CERT-BUND advisories")
     # one-by-one
     # cb_retrieve_problem = False
     # for id, cbdata in cbund.items():
     #    try:
-    #        cb = gmp.get_cert_bund_advisory(id).find('info').find('cert_bund_adv')
+    #        cb = gmp.get_cert_bund_advisory(id).find(
+    #            'info'
+    #        ).find('cert_bund_adv')
     #        cbdata['severity'] = _get_text(cb.find('severity'), 'N/A')
     #        cbdata['title'] = _get_text(cb.find('title'), 'N/A')
     #    except GvmResponseError as e:
@@ -312,10 +321,10 @@ def main(gmp: Gmp, args: Namespace) -> None:
     if script_args.o == "-":
         outfile = sys.stdout
     else:
-        outfile = open(script_args.o, "w")
-    w = ssv_csv.CSVWriter(outfile, sep=",")
-    w.writeln("sep=,")
-    w.write(
+        outfile = open(script_args.o, "w", encoding="utf-8")
+    writer = ssv_csv.CSVWriter(outfile, sep=",")
+    writer.writeln("sep=,")
+    writer.write(
         "IP",
         "Port",
         "Hostname",
@@ -331,7 +340,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         ip = hosts[row["host"]]["ip"]
         port = row["port"]
         hname = row.get("hostname", hosts[row["host"]].get("name", "N/A"))
-        os = hosts[row["host"]].get("os", "N/A")
+        operating_system = hosts[row["host"]].get("os", "N/A")
         vname = row["name"]
         vsev = row["severity"]
         cves = row["cves"]
@@ -343,10 +352,21 @@ def main(gmp: Gmp, args: Namespace) -> None:
                 cb_retrieve_problem[cb] = 1
                 cbsev = "N/A"
                 cbtitle = "N/A (could not be retrieved)"
-            w.write(ip, port, hname, os, vname, vsev, cves, cb, cbsev, cbtitle)
+            writer.write(
+                ip,
+                port,
+                hname,
+                operating_system,
+                vname,
+                vsev,
+                cves,
+                cb,
+                cbsev,
+                cbtitle,
+            )
     cb_nproblems = len(cb_retrieve_problem)
     if cb_nproblems > 0:
-        _warn("%d CERT-BUND advisories could not be obtained" % cb_nproblems)
+        _warn(f"{cb_nproblems} CERT-BUND advisories could not be obtained")
     else:
         _info("done")
 
