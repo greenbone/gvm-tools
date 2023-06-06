@@ -1,4 +1,4 @@
-# required for monthly-report and monthly-report2
+# required for monthly-report and monthly-report2 and certbund-report
 terminaltables
 # required for create-cve-report-from-json
 cpe
