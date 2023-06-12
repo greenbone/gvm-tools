@@ -9,14 +9,13 @@ RUN apt-get update && \
     gosu \
     python3 \
     python-is-python3 \
-    python3-pip && \
+    pipx && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python -m pip install --upgrade pip && \
-    python3 -m pip install poetry
+RUN pipx install poetry
 
-RUN rm -rf dist && poetry build -f wheel
+RUN rm -rf dist && /root/.local/bin/poetry build -f wheel
 
 FROM debian:stable-slim
 
@@ -40,7 +39,7 @@ RUN addgroup --gid 1001 --system gvm && \
 COPY --from=builder /source/dist/* /gvm-tools/
 COPY .docker/entrypoint.sh /usr/local/bin/entrypoint
 
-RUN python3 -m pip install /gvm-tools/*
+RUN python3 -m pip install --break-system-packages /gvm-tools/*
 
 RUN chown -R gvm:gvm /gvm-tools && \
     chmod 755 /usr/local/bin/entrypoint
