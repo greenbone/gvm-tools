@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: greenbone/actions/poetry@v2
+        uses: greenbone/actions/poetry@v3
         with:
           python-version: ${{ matrix.python-version }}
           cache: "true"
@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Calculate and upload coverage to codecov.io
-        uses: greenbone/actions/coverage-python@v2
+        uses: greenbone/actions/coverage-python@v3
         with:
           poetry-version: "1.4.0"
           cache: "true"
@@ -80,7 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v2
+        uses: greenbone/actions/poetry@v3
         with:
           poetry-version: "1.4.0"
           cache: "true"
