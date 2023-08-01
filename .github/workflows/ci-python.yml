@@ -39,7 +39,6 @@ jobs:
         uses: greenbone/actions/poetry@v3
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "true"
       - name: Install additional script dependencies
         run: poetry run pip install -r scripts/requirements.txt
       - name: Check with black
@@ -72,7 +71,6 @@ jobs:
         uses: greenbone/actions/coverage-python@v3
         with:
           poetry-version: "1.4.0"
-          cache: "true"
 
   build-docs:
     name: Build the documentation
@@ -83,7 +81,6 @@ jobs:
         uses: greenbone/actions/poetry@v3
         with:
           poetry-version: "1.4.0"
-          cache: "true"
       - name: Build docs
         run: |
           cd docs
