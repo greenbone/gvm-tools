@@ -51,6 +51,7 @@ coverage = ">=7.2"
 rope = ">=1.9.0"
 furo = ">=2023.3.27"
 sphinx-autobuild = ">=2021.3.14"
+myst-parser = ">=2.0.0"
 
 [tool.black]
 line-length = 80
