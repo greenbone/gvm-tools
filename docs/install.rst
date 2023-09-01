@@ -10,10 +10,40 @@ Installing the Latest Stable Release of gvm-tools
 -------------------------------------------------
 
 For installing the latest stable release of :program:`gvm-tools` from the
-`Python Package Index <https://pypi.org/>`_, `pip`_ or `poetry`_ can be used.
+`Python Package Index <https://pypi.org/>`_, `pipx`_, `pip`_ or `poetry`_ can be
+used.
+
+.. note::
+
+  Using pipx is the recommended installation method.
+
+
+.. _using-pipx:
+
+Using pipx
+^^^^^^^^^^
+
+You can install the latest release of **gvm-tools** using `pipx`_.
+
+.. code-block:: shell
+
+    python3 -m pipx install gvm-tools
+
+On Debian based Distributions like Ubuntu and Kali `pipx`_ itself can be
+installed via
+
+.. code-block:: shell
+
+    sudo apt install pipx
 
 Using pip
 ^^^^^^^^^
+
+.. note::
+
+  The :command:`pip install` command does no longer work out-of-the-box in newer
+  distributions like Ubuntu 23.04 or Debian 12 because of `PEP 668 <https://peps.python.org/pep-0668>`_.
+  Please use the :ref:`installation via pipx <using-pipx>` instead.
 
 The following command installs :program:`gvm-tools` system wide:
 
@@ -82,5 +112,6 @@ the following commands:
     python3 -m pip install -e .
 
 .. _pip: https://pip.pypa.io/en/stable/
+.. _pipx: https://pypa.github.io/pipx/
 .. _poetry: https://python-poetry.org/
 .. _pypi: https://pypi.org/

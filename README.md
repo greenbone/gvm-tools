@@ -21,9 +21,8 @@ Python.
 ## Table of Contents <!-- omit in toc -->
 - [Documentation](#documentation)
 - [Installation](#installation)
-  - [Version](#version)
   - [Requirements](#requirements)
-  - [Install using pip](#install-using-pip)
+  - [Version](#version)
 - [Usage](#usage)
   - [gvm-cli](#gvm-cli)
     - [Examples](#examples)
@@ -49,6 +48,10 @@ gives a short overview.
 See the [documentation](https://greenbone.github.io/gvm-tools/install.html)
 for all supported installation options.
 
+### Requirements
+
+Python 3.7 and later is supported.
+
 ### Version
 
 Please consider to always use the **newest** version of `gvm-tools` and `python-gvm`.
@@ -58,19 +61,6 @@ This is why installing `gvm-tools` using pip is recommended.
 **To use `gvm-tools` with an old GMP version (7, 8, 9) you must use a release version**
 **that is `<21.06`, combined with an `python-gvm` version `<21.05`.**
 **In the `21.06` release the support of these older versions has been dropped.**
-
-### Requirements
-
-Python 3.7 and later is supported.
-
-### Install using pip
-
-You can install the latest stable release of gvm-tools from the Python Package
-Index using [pip](https://pip.pypa.io/):
-
-```bash
-python3 -m pip install --user gvm-tools
-```
 
 ## Usage
 
