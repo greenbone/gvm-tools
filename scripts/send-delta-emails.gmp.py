@@ -82,7 +82,7 @@ def execute_send_delta_emails(sc: sched.scheduler, **kwargs: dict) -> None:
         print(f'Processing task "{task_name}" ({task_id})...')
 
         reports = gmp.get_reports(
-            filter_string="task_id={task_id} and status=Done "
+            filter_string=f"task_id={task_id} and status=Done "
             "sort-reverse=date"
         ).xpath("report")
         print(f"  Found {str(len(reports))} report(s).")
