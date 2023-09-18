@@ -25,7 +25,7 @@ from gvm.protocols.gmp import Gmp
 HELP_TEXT = """
         This script makes an E-Mail alert scan.
 
-        Usage examples: 
+        Usage examples:
             $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
             ... start-alert-scan.gmp.py +h
             ... start-alert-scan.gmp.py ++target-name ++hosts ++ports \
@@ -114,7 +114,7 @@ def get_target(
         if port_list_name in existing_port_lists:
             counter = 0
             while True:
-                tmp_name = "{port_list_name} ({str(counter)})"
+                tmp_name = f"{port_list_name} ({str(counter)})"
                 if tmp_name in existing_port_lists:
                     counter += 1
                 else:
@@ -177,7 +177,7 @@ should not have received it.
             },
         )
 
-        alert_object = gmp.get_alerts(filter_string="name={recipient_email}")
+        alert_object = gmp.get_alerts(filter_string=f"name={recipient_email}")
         alert = alert_object.xpath("alert")
 
     alert_id = alert[0].get("id", "no id found")
@@ -204,7 +204,7 @@ def create_and_start_task(
 ) -> str:
     # Create the task
     task_name = f"Alert Scan for Alert {alert_name}"
-    tasks = gmp.get_tasks(filter_string='name="{task_name}"')
+    tasks = gmp.get_tasks(filter_string=f'name="{task_name}"')
     existing_tasks = tasks.findall("task")
 
     if existing_tasks:
