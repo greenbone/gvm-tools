@@ -39,12 +39,17 @@ def check_args(args):
 
 
 def print_assets(gmp, appname):
-    res = gmp.get_reports()
+    res = gmp.get_reports(details=True)
 
-    hosts = res.xpath("//host")
+    hosts = res.xpath("/get_reports_response/report/report/host")
 
     for host in hosts:
         ip = host.xpath("ip/text()")
+        if len(ip) == 0:
+            continue
+        else:
+            ip = ip[0]
+
         hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
         if len(hostname) == 0:
             hostname = ""
