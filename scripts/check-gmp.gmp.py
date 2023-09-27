@@ -189,16 +189,13 @@ class InstanceManager:
             (self.host,),
         )
         db_entry = self.cursor.fetchone()
-        print(db_entry)
 
         logger.debug("%s %s", db_entry, last_scan_end)
 
         if not db_entry:
             return True
         else:
-            print(db_entry[0])
             old = parse_date(db_entry[0])
-            print(last_scan_end)
             new = parse_date(last_scan_end)
 
             logger.debug(
@@ -1141,8 +1138,6 @@ def parse_date(datestring, default_timezone=UTC):
     """
     if not isinstance(datestring, str):
         raise ParseError(f"Expecting a string {datestring}")
-
-    print(datestring)
 
     match = ISO8601_REGEX.match(datestring)
     if not match:
