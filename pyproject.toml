@@ -12,7 +12,7 @@ readme = "README.md"
 homepage = "https://github.com/greenbone/gvm-tools/"
 repository = "https://github.com/greenbone/gvm-tools/"
 documentation = "https://greenbone.github.io/gvm-tools/"
-classifiers=[
+classifiers = [
     # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
     'Development Status :: 5 - Production/Stable',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -42,7 +42,7 @@ python-gvm = ">=23.4.2"
 
 [tool.poetry.dev-dependencies]
 autohooks = ">=22.8.0"
-autohooks-plugin-pylint = ">=22.8.1"
+autohooks-plugin-ruff = ">=23.6.1"
 autohooks-plugin-black = ">=22.8.1"
 autohooks-plugin-isort = ">=22.8.0"
 pontos = ">=22.8.1"
@@ -75,7 +75,11 @@ line_length = 80
 
 [tool.autohooks]
 mode = "poetry"
-pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint', 'autohooks.plugins.isort']
+pre-commit = [
+    'autohooks.plugins.black',
+    'autohooks.plugins.ruff',
+    'autohooks.plugins.isort',
+]
 
 [tool.pontos.version]
 version-module-file = "gvmtools/__version__.py"

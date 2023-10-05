@@ -49,7 +49,7 @@ HELP_TEXT = """
       gvm-cli socket --gmp-username foo --gmp-password foo myfile.xml
 
     The protocol specifications for GMP and OSP are available at:
-      https://docs.greenbone.net/index.html#api_documentation"""
+      https://docs.greenbone.net/index.html#api_documentation"""  # noqa: E501
 
 
 def _load_infile(filename=None):

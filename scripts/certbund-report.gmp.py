@@ -252,7 +252,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     _info(f"processing {len(hosts)}/{len(hostdatas)} hosts")
     for hostdata in hostdatas:
         asset = hostdata.find("asset").attrib["asset_id"]
-        if not asset in hosts:
+        if asset not in hosts:
             continue
         details: Dict[str, Optional[str]] = {}
         details["ip"] = _get_text(hostdata.find("ip"))
@@ -295,7 +295,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
             # warn below
             continue
         for cbi in cbs.findall("info"):
-            if not "id" in cbi.attrib:
+            if "id" not in cbi.attrib:
                 # we have both <info id="CB-K14/1304"> (which we want)
                 # and, for some reason, <info start="1" max="10"/>
                 continue

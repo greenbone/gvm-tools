@@ -30,7 +30,8 @@ def check_args(args):
         This script reads host data from a csv file and sync it with the gsm.
         It needs one parameters after the script name.
 
-        1. <csv_file> - should contain a table of IP-addresses with an optional a comment
+        1. <csv_file> - should contain a table of IP-addresses with an
+                        optional a comment
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \

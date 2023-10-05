@@ -52,8 +52,8 @@ HELP_TEXT = f"""
     """
 
 LOREM_IPSUM = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut 
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
 aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
 voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
@@ -340,7 +340,7 @@ def generate_host_elem(
     return host_elem
 
 
-def generate_reports(task, n_reports, with_gauss, **kwargs):
+def generate_reports(task, n_reports, n_results, with_gauss, **kwargs):
     reports = []
 
     if with_gauss:
@@ -350,7 +350,7 @@ def generate_reports(task, n_reports, with_gauss, **kwargs):
 
     for _ in range(n_reports):
         if with_gauss:
-            n_results = abs(int(gauss(n_results, 2)))
+            abs(int(gauss(n_results, 2)))
 
         report_elem = generate_report_elem(task, **kwargs)
         report_elem = e.tostring(report_elem)
@@ -388,8 +388,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
         epilog=textwrap.dedent(
             """
         Example:
-            $ gvm-script --gmp-username name --gmp-password pass
-            ssh --hostname <gsm> scripts/gen-random-reports.gmp.py -T 5 -r 4 -R 3 --hosts 10
+            $ gvm-script --gmp-username name --gmp-password pass \
+              ssh --hostname <gsm> scripts/gen-random-reports.gmp.py \
+              -T 5 -r 4 -R 3 --hosts 10
         """
         ),
     )
