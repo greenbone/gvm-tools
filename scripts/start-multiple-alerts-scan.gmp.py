@@ -32,10 +32,11 @@ def check_args(args):
 
         1. <sender_email>     -- E-Mail of the sender
         2. <receiver_email>   -- E-Mail of the receiver
-        
+
                 Example:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/start-multiple-alert-scan.gmp.py <sender_email> <receiver_email>
+ssh --hostname <gsm> scripts/start-multiple-alert-scan.gmp.py \
+<sender_email> <receiver_email>
     """
     if len_args != 2:
         print(message)

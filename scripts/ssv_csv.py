@@ -54,7 +54,7 @@ __all__ = [
 
 import re
 import sys
-from typing import IO, AnyStr, List, Optional, Pattern, TextIO, Union
+from typing import IO, AnyStr, List, Optional, TextIO
 
 
 class CSVShapeError(Exception):

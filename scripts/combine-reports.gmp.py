@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# ruff: noqa: E501
+
 import sys
 import time
 from argparse import Namespace
@@ -43,7 +45,7 @@ def check_args(args: Namespace) -> None:
         n. <report_n_uuid> --uuid of report to be combined
 
         Example for starting up the routine:
-            $ gvm-script --gmp-username=namessh --gmp-password=pass ssh --hostname=hostname  \
+            $ gvm-script --gmp-username=namessh --gmp-password=pass ssh --hostname=hostname \
      scripts/combine-reports.gmp.py \
     "d15a337c-56f3-4208-a462-afeb79eb03b7" \
     "303fa0a6-aa9b-43c4-bac0-66ae0b2d1698" 'first_task'

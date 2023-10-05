@@ -270,7 +270,7 @@ class InstanceManager:
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
         self.con_db.isolation_level = None
         self.cursor.execute("VACUUM")
-        self.con_db.isolation_level = ""  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long
+        self.con_db.isolation_level = ""  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long # noqa: E501
         # Save the changes
         self.con_db.commit()
 

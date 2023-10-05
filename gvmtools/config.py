@@ -84,7 +84,7 @@ class Config:
         return self._defaults
 
     def get(self, section, name):
-        if not section in self._config:
+        if section not in self._config:
             return None
 
         return self._config[section].get(name)
