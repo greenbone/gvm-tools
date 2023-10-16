@@ -350,9 +350,9 @@ def generate_reports(task, n_reports, n_results, with_gauss, **kwargs):
 
     for _ in range(n_reports):
         if with_gauss:
-            abs(int(gauss(n_results, 2)))
+            n_results = abs(int(gauss(n_results, 2)))
 
-        report_elem = generate_report_elem(task, **kwargs)
+        report_elem = generate_report_elem(task, n_results=n_results, **kwargs)
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
 
