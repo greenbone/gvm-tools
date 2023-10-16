@@ -1090,13 +1090,13 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-co
 
 [[package]]
 name = "pontos"
-version = "23.10.0"
+version = "23.10.1"
 description = "Common utilities and tools maintained by Greenbone Networks"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pontos-23.10.0-py3-none-any.whl", hash = "sha256:48fbb5e911826ae4b7d330afcd9aba82af803ebeb83cb7bebcc044d2a8fdb315"},
-    {file = "pontos-23.10.0.tar.gz", hash = "sha256:153b4480bb4901725b790a41930904d09bd9979407e65298fef783266f3911c6"},
+    {file = "pontos-23.10.1-py3-none-any.whl", hash = "sha256:a65dd8470655bb9ac786dd712135ae161b4efe52d6e5d2ced5a7b76154d01a92"},
+    {file = "pontos-23.10.1.tar.gz", hash = "sha256:05fb220c68faf0c84d7a4332d40ea30574656acb71a6fffa1fe6eb27c41929e1"},
 ]
 
 [package.dependencies]
@@ -1176,29 +1176,29 @@ six = ">=1.5"
 
 [[package]]
 name = "python-gvm"
-version = "23.5.1"
+version = "23.10.0"
 description = "Library to communicate with remote servers over GMP or OSP"
 optional = false
-python-versions = ">=3.7.2,<4.0.0"
+python-versions = ">=3.9,<4.0"
 files = [
-    {file = "python_gvm-23.5.1-py3-none-any.whl", hash = "sha256:d9a4235c8a3b75222d851853b7dffaf4185c292c62ed0cbff20f79b4d4479e06"},
-    {file = "python_gvm-23.5.1.tar.gz", hash = "sha256:10744ea731146fce85bc5f5c1c987b98ffa4db19f68ba57dc5d81ec819a7f079"},
+    {file = "python_gvm-23.10.0-py3-none-any.whl", hash = "sha256:20d504c2887cbf336cff72d7b8be2865fb29c7b910935af58ee0fb3bcb479c12"},
+    {file = "python_gvm-23.10.0.tar.gz", hash = "sha256:d42a933b65f41ed0a55cf88e09ebbf3138879e2e30e622da0af36e04e7f8be15"},
 ]
 
 [package.dependencies]
-defusedxml = ">=0.6,<0.8"
-lxml = ">=4.5.0,<5.0.0"
-paramiko = ">=2.7.1,<4.0.0"
+defusedxml = ">=0.6"
+lxml = ">=4.5.0"
+paramiko = ">=2.7.1"
 
 [[package]]
 name = "pytoolconfig"
-version = "1.2.5"
+version = "1.2.6"
 description = "Python tool configuration"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytoolconfig-1.2.5-py3-none-any.whl", hash = "sha256:239ba9d3e537b91d0243275a497700ea39a5e259ddb80421c366e3b288bf30fe"},
-    {file = "pytoolconfig-1.2.5.tar.gz", hash = "sha256:a50f9dfe23b03a9d40414c1fdf902fefbeae12f2ac75a3c8f915944d6ffac279"},
+    {file = "pytoolconfig-1.2.6-py3-none-any.whl", hash = "sha256:e8b2e538f11dbabc4617884d45401e0105e2d7db920cb8ae6baa94d66126a8e3"},
+    {file = "pytoolconfig-1.2.6.tar.gz", hash = "sha256:f2d00ea4f8cbdffd3006780ba51016618c835b338f634e3f7f8b2715b1710889"},
 ]
 
 [package.dependencies]
@@ -1357,13 +1357,13 @@ files = [
 
 [[package]]
 name = "semver"
-version = "3.0.1"
+version = "3.0.2"
 description = "Python helper for Semantic Versioning (https://semver.org)"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "semver-3.0.1-py3-none-any.whl", hash = "sha256:2a23844ba1647362c7490fe3995a86e097bb590d16f0f32dfc383008f19e4cdf"},
-    {file = "semver-3.0.1.tar.gz", hash = "sha256:9ec78c5447883c67b97f98c3b6212796708191d22e4ad30f4570f840171cbce1"},
+    {file = "semver-3.0.2-py3-none-any.whl", hash = "sha256:b1ea4686fe70b981f85359eda33199d60c53964284e0cfb4977d243e37cf4bf4"},
+    {file = "semver-3.0.2.tar.gz", hash = "sha256:6253adb39c70f6e51afed2fa7152bcd414c411286088fb4b9effb133885ab4cc"},
 ]
 
 [[package]]
