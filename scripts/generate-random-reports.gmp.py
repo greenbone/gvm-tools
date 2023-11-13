@@ -30,7 +30,7 @@ from lxml import etree as e
 
 from gvmtools.helper import generate_id, generate_random_ips, generate_uuid
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 HELP_TEXT = f"""
     Random Report Generation Script {__version__} (C) 2017-2023 Greenbone AG
@@ -297,7 +297,7 @@ def generate_host_elem(
     host_elem.append(
         generate_host_detail_elem(
             "best_os_txt",
-            list(os)[0],
+            os,
             source_name=oid,
             source_description="Host Details",
             source_type="nvt",
