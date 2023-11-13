@@ -370,7 +370,7 @@ def generate_data(gmp, n_tasks, task_type, **kwargs):
         config_id = "085569ce-73ed-11df-83c3-002264764cea"
         generate_target()
         target_id = gmp.get_targets(
-            filter_string=f"Random_Report_Generation_Target_{calculate_timestamp(0)}"
+            filter_string=f"\"Random_Report_Generation_Target_{calculate_timestamp(0)}\""
         ).xpath("//@id")[0]
 
     for i in range(n_tasks):
