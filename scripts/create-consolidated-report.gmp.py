@@ -125,6 +125,28 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
         ),
     )
 
+    container_args = parser.add_mutually_exclusive_group()
+
+    container_args.add_argument(
+        "++container-id",
+        type=str,
+        dest="container_id",
+        help=(
+            "Add the consolidated report to the container task"
+            " with the given id instead of creating a new one."
+        ),
+    )
+
+    container_args.add_argument(
+        "++new-container-name",
+        type=str,
+        dest="new_container_name",
+        help=(
+            "Create a new container task with the given name instead"
+            " of using an automatically generated name."
+        ),
+    )
+
     parser.add_argument(
         "+t",
         "++tags",
@@ -289,8 +311,31 @@ def combine_reports(
     return combined_report
 
 
+def get_container_name(gmp: Gmp, container_id: str):
+    """
+    Gets the name of a task by id and checks if it is a container
+
+    gmp: the GMP object
+    container_id: Id of the task to check
+    """
+    res = gmp.get_task(container_id)
+
+    task_name = res.xpath("//task/name")[0].text
+    task_target_id = res.xpath("//task/target/@id")[0]
+
+    if task_target_id != "":
+        error_and_exit(f"Task [{container_id}] is not a container")
+
+    return task_name
+
+
 def send_report(
-    gmp: Gmp, combined_report: e.Element, period_start: date, period_end: date
+    gmp: Gmp,
+    combined_report: e.Element,
+    period_start: date,
+    period_end: date,
+    container_id: str,
+    new_container_name: str,
 ) -> str:
     """Creating a container task and sending the combined report to the GSM
 
@@ -300,13 +345,31 @@ def send_report(
     period_end: the end date
     """
 
-    task_name = f"Consolidated Report [{period_start} - {period_end}]"
+    task_id = None
+    task_name = None
 
-    res = gmp.create_container_task(
-        name=task_name, comment="Created with gvm-tools."
-    )
+    if container_id:
+        task_name = get_container_name(gmp, container_id)
+        task_id = container_id
+        print(
+            "Adding consolidated report to existing container task"
+            f" [{task_name}] with UUID [{task_id}]"
+        )
+    else:
+        if new_container_name:
+            task_name = new_container_name
+        else:
+            task_name = f"Consolidated Report [{period_start} - {period_end}]"
 
-    task_id = res.xpath("//@id")[0]
+        res = gmp.create_container_task(
+            name=task_name, comment="Created with gvm-tools."
+        )
+
+        task_id = res.xpath("//@id")[0]
+        print(
+            "Adding consolidated report to new container task"
+            f" [{task_name}] with UUID [{task_id}]"
+        )
 
     combined_report = e.tostring(combined_report)
 
@@ -386,6 +449,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
         combined_report=combined_report,
         period_start=period_start,
         period_end=period_end,
+        container_id=parsed_args.container_id,
+        new_container_name=parsed_args.new_container_name,
     )
 
     print(f"Successfully imported new consolidated report [{report}]")

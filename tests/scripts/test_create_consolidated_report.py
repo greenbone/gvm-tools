@@ -375,6 +375,109 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
             combined_report=combined_report,
             period_start=period_start,
             period_end=period_end,
+            container_id=None,
+            new_container_name=None,
         )
 
         self.assertEqual(report_id, created_report_id)
+
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
+    def test_send_report_with_container_id(self, mock_gmp: GmpMockFactory):
+        combined_report = etree.fromstring(
+            '<report id="20574712-c404-4a04-9c83-03144ae02dca" '
+            'format_id="d5da9f67-8551-4e51-807b-b6a873d70e34" '
+            'extension="xml" content_type="text/xml">'
+            '<report id="20574712-c404-4a04-9c83-03144ae02dca">'
+            '<results start="1" max="-1">'
+            '<result id="00000001-0000-0000-0000-000000000000"/>'
+            '<result id="00000001-0000-0000-0000-000000000001"/>'
+            '<result id="00000001-0000-0000-0000-000000000002"/>'
+            '<result id="00000001-0000-0000-0000-000000000003"/>'
+            '<result id="00000001-0000-0000-0000-000000000004"/>'
+            "</results></report></report>"
+        )
+
+        task_id = "c347836e-3c51-4045-872d-3cb12637f4cc"
+        report_id = "0e4d8fb2-47fa-494e-a242-d5327d3772f9"
+
+        mock_gmp.mock_response(
+            "import_report",
+            '<create_report_response status="201" status_text="OK, '
+            f'resource created" id="{report_id}"/>',
+        )
+
+        # Returns a container task without a target
+        mock_gmp.mock_response(
+            "get_task",
+            '<get_tasks_response status="200" status_text="OK">'
+            '<task id="c347836e-3c51-4045-872d-3cb12637f4cc">'
+            "<name>test</name>"
+            '<target id=""/>'
+            "</task>"
+            "</get_tasks_response>",
+        )
+
+        period_start = date(2020, 1, 1)
+        period_end = date(2020, 2, 1)
+
+        created_report_id = self.create_consolidated_report.send_report(
+            gmp=mock_gmp.gmp_protocol,
+            combined_report=combined_report,
+            period_start=period_start,
+            period_end=period_end,
+            container_id=task_id,
+            new_container_name="test",
+        )
+
+        self.assertEqual(report_id, created_report_id)
+
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
+    def test_send_report_with_container_id_failure(
+        self, mock_gmp: GmpMockFactory
+    ):
+        combined_report = etree.fromstring(
+            '<report id="20574712-c404-4a04-9c83-03144ae02dca" '
+            'format_id="d5da9f67-8551-4e51-807b-b6a873d70e34" '
+            'extension="xml" content_type="text/xml">'
+            '<report id="20574712-c404-4a04-9c83-03144ae02dca">'
+            '<results start="1" max="-1">'
+            '<result id="00000001-0000-0000-0000-000000000000"/>'
+            '<result id="00000001-0000-0000-0000-000000000001"/>'
+            '<result id="00000001-0000-0000-0000-000000000002"/>'
+            '<result id="00000001-0000-0000-0000-000000000003"/>'
+            '<result id="00000001-0000-0000-0000-000000000004"/>'
+            "</results></report></report>"
+        )
+
+        task_id = "c347836e-3c51-4045-872d-3cb12637f4cc"
+        report_id = "0e4d8fb2-47fa-494e-a242-d5327d3772f9"
+
+        mock_gmp.mock_response(
+            "import_report",
+            '<create_report_response status="201" status_text="OK, '
+            f'resource created" id="{report_id}"/>',
+        )
+
+        # Returns a non-container task with a target defined
+        mock_gmp.mock_response(
+            "get_task",
+            '<get_tasks_response status="200" status_text="OK">'
+            '<task id="c347836e-3c51-4045-872d-3cb12637f4cc">'
+            "<name>test</name>"
+            '<target id="35995ae0-2430-4f0d-97da-fcb93350abb4"/>'
+            "</task>"
+            "</get_tasks_response>",
+        )
+
+        period_start = date(2020, 1, 1)
+        period_end = date(2020, 2, 1)
+
+        with self.assertRaises(SystemExit):
+            self.create_consolidated_report.send_report(
+                gmp=mock_gmp.gmp_protocol,
+                combined_report=combined_report,
+                period_start=period_start,
+                period_end=period_end,
+                container_id=task_id,
+                new_container_name="test",
+            )
