@@ -15,6 +15,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     uses: greenbone/workflows/.github/workflows/lint-python.yml@main
     with:
       linter: ruff
@@ -30,6 +31,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -52,6 +54,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     uses: greenbone/workflows/.github/workflows/test-python.yml@main
     with:
       python-version: ${{ matrix.python-version }}
