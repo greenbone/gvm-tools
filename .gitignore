@@ -9,3 +9,6 @@ build
 .vscode
 .coverage
 .venv
+
+# ruff
+.ruff_cache/
