@@ -78,5 +78,9 @@ line-length = 80
 target-version = "py39"
 extend-select = ["I", "PLE", "PLW"]
 
+[tool.coverage.run]
+omit = ["tests/*"]
+source = ["gvmtools", "scripts"]
+
 [tool.pontos.version]
 version-module-file = "gvmtools/__version__.py"
