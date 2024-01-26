@@ -22,6 +22,7 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Operating System :: OS Independent',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
@@ -55,7 +56,7 @@ myst-parser = ">=2.0.0"
 
 [tool.black]
 line-length = 80
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39', 'py310', 'py311', 'py312']
 exclude = '''
 /(
     \.git
