@@ -24,7 +24,7 @@ import gvmtools
 # -- Project information -----------------------------------------------------
 
 project = "gvm-tools"
-copyright = "2018-2023, Greenbone AG"
+copyright = "2018-2024, Greenbone AG"
 author = "Greenbone AG"
 
 version = gvmtools.get_version()
