@@ -1,3 +1,0 @@
-# B410, B320: Use of defusedxml is recommended for any server code that parses untrusted XML data. We don't have server code here.
-skips: ['B410', 'B320']
-
