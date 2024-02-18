@@ -52,6 +52,7 @@ rope = ">=1.9.0"
 furo = ">=2023.3.27"
 sphinx-autobuild = ">=2021.3.14"
 myst-parser = ">=2.0.0"
+lxml = ">=4.5.0"
 
 [tool.black]
 line-length = 80
