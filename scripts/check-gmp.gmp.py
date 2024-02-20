@@ -1370,13 +1370,6 @@ def _parse_args(args: Namespace) -> Namespace:
         help="Set the maximum simultaneous processes of check-gmp. Default: 10",
     )
 
-    parser.add_argument(
-        "--hostname",
-        nargs="?",
-        required=False,
-        help="The appliance I guess ...",
-    )
-
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument(
         "--ping", action="store_true", help="Ping the gsm appliance."
@@ -1414,9 +1407,17 @@ def main(gmp: Gmp, args: Namespace) -> None:
         prefix_chars="-", formatter_class=RawTextHelpFormatter
     )
     aux_parser.add_argument("--hostname", nargs="?", required=False)
-    gvm_tool_args, _ = aux_parser.parse_known_args(sys.argv)
-    if "hostname" in gvm_tool_args:
-        script_args.hostname = gvm_tool_args.hostname
+    aux_parser.add_argument(
+        "--gmp-username",
+        help="Username for GMP service (default: %(default)r)",
+    )
+    aux_parser.add_argument(
+        "--gmp-password",
+        help="Password for GMP service (default: %(default)r)",
+    )
+    main_args, _ = aux_parser.parse_known_args(sys.argv)
+    if main_args.hostname:
+        script_args.hostname = main_args.hostname
 
     # Set the max running instances variable
     if script_args.max_running_instances:
