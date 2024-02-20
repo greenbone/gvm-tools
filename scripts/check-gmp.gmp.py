@@ -18,6 +18,7 @@
 
 # pylint: disable=too-many-lines
 
+from dataclasses import dataclass
 from enum import Enum
 import logging
 import os
@@ -30,7 +31,7 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple
 from xml.etree import ElementTree
 
 from gvm.protocols.gmp import Gmp
@@ -753,19 +754,21 @@ def filter_report(
         if threat in "High":
             high_count += 1
             if script_args.oid:
-                nvts["high"].append(retrieve_nvt_data(result))
+                nvts["high"].append(
+                    retrieve_nvt_data(result.as_tuple).as_tuple()
+                )
         elif threat in "Medium":
             medium_count += 1
             if script_args.oid:
-                nvts["medium"].append(retrieve_nvt_data(result))
+                nvts["medium"].append(retrieve_nvt_data(result).as_tuple())
         elif threat in "Low":
             low_count += 1
             if script_args.oid:
-                nvts["low"].append(retrieve_nvt_data(result))
+                nvts["low"].append(retrieve_nvt_data(result).as_tuple())
         elif threat in "Log":
             log_count += 1
             if script_args.oid:
-                nvts["log"].append(retrieve_nvt_data(result))
+                nvts["log"].append(retrieve_nvt_data(result).as_tuple())
         else:
             end_session(
                 report_manager,
@@ -858,54 +861,69 @@ def filter_report(
     )
 
 
-def retrieve_nvt_data(result: etree.ElementTree):
+@dataclass
+class NVTData:
+    oid: str = ""
+    name: str = ""
+    description: str = ""
+    port: str = ""
+    dfn_list: list[str] = []
+
+    def as_tuple(self) -> Tuple[str, str, str, str, list[str]]:
+        return (self.oid, self.name, self.desc, self.port, self.dfn_list)
+
+
+def retrieve_nvt_data(result: etree.Element) -> NVTData:
     """Retrieve the nvt data out of the result object
 
-    This function parse the xml tree to find the important nvt data.
+    This function parses the result xml to find the important nvt data.
 
     Arguments:
-        result (obj): Result as lxml ElementTree
+        result: Result as lxml Element
 
     Returns:
-        Tuple -- List with oid, name, desc, port and dfn
+        NVTData object containing oid, name, description, port and dfn-refs
     """
-    oid = result.xpath("nvt/@oid")
-    name = result.xpath("nvt/name/text()")
-    desc = result.xpath("description/text()")
-    port = result.xpath("port/text()")
+    nvt = result.find("nvd")
+    # oid = result.xpath("nvt/@oid")
+    oid = nvt.get("id")
+    # name = result.xpath("nvt/name/text()")
+    name = nvt.find("name").text
+    # desc = result.xpath("description/text()")
+    description = result.find("description").text
+    # port = result.xpath("port/text()")
+    port = result.find("port").text
 
-    if oid:
-        oid = oid[0]
-
-    if name:
-        name = name[0]
-
-    if desc:
-        desc = desc[0]
-    else:
-        desc = ""
-
-    if port:
-        port = port[0]
-    else:
-        port = ""
-
-    certs = result.xpath("nvt/cert/cert_ref")
+    # certs = result.xpath("nvt/cert/cert_ref")
+    certs = nvt.findall("cert/cert_ref")
 
     dfn_list = []
     for ref in certs:
-        ref_type = ref.xpath("@type")[0]
-        ref_id = ref.xpath("@id")[0]
+        # ref_type = ref.xpath("@type")[0]
+        # ref_id = ref.xpath("@id")[0]
 
-        if ref_type in "DFN-CERT":
-            dfn_list.append(ref_id)
+        # if ref_type in "DFN-CERT":
+        #     dfn_list.append(ref_id)
 
-    return (oid, name, desc, port, dfn_list)
+        if ref.get("type") == "DFN-CERT":
+            dfn_list.append(ref.get("id"))
+
+    return NVTData(
+        oid=oid,
+        name=name,
+        description=description,
+        port=port,
+        dfn_list=dfn_list,
+    )
 
 
 def print_nvt_data(
-    nvts, show_log=False, show_ports=False, descr=False, dfn=False
-):
+    nvts: dict,
+    show_log: bool = False,
+    show_ports: bool = False,
+    description: bool = False,
+    dfn: bool = False,
+) -> None:
     """Print nvt data
 
     Prints for each nvt found in the array the relevant data
@@ -920,7 +938,7 @@ def print_nvt_data(
             print_without_pipe(f"NVT: {nvt[0]} ({key}) {nvt[1]}")
             if show_ports:
                 print_without_pipe(f"PORT: {nvt[3]}")
-            if descr:
+            if description:
                 print_without_pipe(f"DESCR: {nvt[2]}")
 
             if dfn and nvt[4]:
