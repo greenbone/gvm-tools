@@ -2,3 +2,5 @@
 terminaltables
 # required for create-cve-report-from-json
 cpe
+# required for check-gmp
+lxml

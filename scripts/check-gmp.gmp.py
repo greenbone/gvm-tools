@@ -18,6 +18,8 @@
 
 # pylint: disable=too-many-lines
 
+from dataclasses import dataclass
+from enum import Enum
 import logging
 import os
 import re
@@ -29,6 +31,8 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
 from decimal import Decimal
 from pathlib import Path
+from typing import Any, Tuple
+from xml.etree import ElementTree
 
 from gvm.protocols.gmp import Gmp
 from lxml import etree
@@ -54,17 +58,30 @@ HELP_TEXT = f"""
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
 
-NAGIOS_OK = 0
-NAGIOS_WARNING = 1
-NAGIOS_CRITICAL = 2
-NAGIOS_UNKNOWN = 3
+
+class NagiosStatus(Enum):
+    NAGIOS_OK = 0
+    NAGIOS_WARNING = 1
+    NAGIOS_CRITICAL = 2
+    NAGIOS_UNKNOWN = 3
+
+
+class GmpError(Enum):
+    GMP_OK = "GMP OK"
+    GMP_CRITICAL = "GMP CRITICAL"
+    GMP_UNKNOWN = "GMP UNKNOWN"
+
 
 NAGIOS_MSG = ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
 
 MAX_RUNNING_INSTANCES = 10
 
 
-class InstanceManager:
+class ScriptError(Exception):
+    pass
+
+
+class ReportManager:
     """Class for managing instances of this plugin
 
     All new reports will be cached in a sqlite database.
@@ -78,7 +95,7 @@ class InstanceManager:
     and wait for continuation.
     """
 
-    def __init__(self, path, parser):
+    def __init__(self, path: str) -> None:
         """Initialise the sqlite database.
 
         Create it if it does not exist else connect to it.
@@ -87,21 +104,18 @@ class InstanceManager:
             path (string): Path to the database.
         """
         self.cursor = None
-        self.con_db = None
-        self.db = Path(path)
+        self.db = None
+        self.db_path = Path(path)
         self.pid = os.getpid()
 
         # Try to read file with information about cached reports
         # First check whether the file exist or not
         try:
-            exist = self.db.is_file()
-            logger.debug("DB file exist?: %s ", exist)
-
-            if not exist:
-                if not self.db.parent.is_dir():
-                    self.db.parent.mkdir(parents=True, exist_ok=True)
-                else:
-                    self.db.touch()
+            if not self.db_path.is_file():
+                logger.debug("DB is not existing. Creating ...")
+                # create if not existing
+                self.db_path.parent.mkdir(parents=True, exist_ok=True)
+                self.db_path.touch(exist_ok=True)
                 # Connect to db
                 self.connect_db()
 
@@ -111,16 +125,14 @@ class InstanceManager:
                     host text,
                     scan_end text,
                     params_used text,
-                    report text
-                )"""
+                    report text)"""
                 )
 
                 self.cursor.execute(
                     """CREATE TABLE Instance(
                     created_at text,
                     pid integer,
-                    pending integer default 0
-                )"""
+                    pending integer default 0)"""
                 )
 
                 logger.debug("Tables created")
@@ -128,42 +140,34 @@ class InstanceManager:
                 self.connect_db()
 
         except PermissionError:
-            parser.error(
-                f"The selected temporary database file {self.db} or the parent "
-                "dir has not the correct permissions."
+            raise ScriptError(
+                f"The selected temporary database file {self.db_path} or the"
+                " parent dir has not the correct permissions."
             )
 
     @staticmethod
-    def _to_sql_bool(pending):
+    def _to_sql_bool(pending: bool) -> str:
         """Replace True/False with 1/0."""
         return "1" if pending else "0"
 
-    def connect_db(self):
+    def connect_db(self) -> None:
         """Connect to the database
 
         Simply connect to the database at location <path>
         """
         try:
-            logger.debug("connect db: %s", self.db)
-            self.con_db = sqlite3.connect(str(self.db))
-            self.cursor = self.con_db.cursor()
+            logger.debug("Connect to DB: %s", self.db_path)
+            self.db = sqlite3.connect(str(self.db_path))
+            self.cursor: sqlite3.Cursor = self.db.cursor()
             logger.debug(sqlite3.sqlite_version)
         except Exception as e:  # pylint: disable=broad-except
             logger.debug(e)
 
-    def close_db(self):
+    def close_db(self) -> None:
         """Close database"""
-        self.con_db.close()
+        self.db.close()
 
-    def set_host(self, host):
-        """Sets the host variable
-
-        Arguments:
-            host (string): Given ip or hostname of target.
-        """
-        self.host = host
-
-    def is_old_report(self, last_scan_end, params_used):
+    def is_old_report(self, last_scan_end, params_used) -> bool:
         """Decide whether the current report is old or not
 
         At first the last scanend and the params that were used are fetched
@@ -210,7 +214,7 @@ class InstanceManager:
                 self.delete_report()
                 return True
 
-    def load_local_report(self):
+    def load_local_report(self) -> None:
         """Load report from local database
 
         Select the report from the database according due the hostname or ip.
@@ -228,7 +232,7 @@ class InstanceManager:
         else:
             logger.debug("Report from host %s is not in the db", self.host)
 
-    def add_report(self, scan_end, params_used, report):
+    def add_report(self, scan_end, params_used, report) -> None:
         """Create new entry with the lxml report
 
         Create a string from the lxml object and add it to the database.
@@ -251,16 +255,16 @@ class InstanceManager:
         )
 
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
-    def delete_report(self):
+    def delete_report(self) -> None:
         """Delete report from database"""
         self.cursor.execute("DELETE FROM Report WHERE host=?", (self.host,))
 
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
-    def delete_entry_with_ip(self, ip):
+    def delete_entry_with_ip(self, ip) -> None:
         """Delete report from database with given ip
 
         Arguments:
@@ -268,11 +272,11 @@ class InstanceManager:
         """
         logger.debug("Delete entry with ip: %s", ip)
         self.cursor.execute("DELETE FROM Report WHERE host=?", (ip,))
-        self.con_db.isolation_level = None
+        self.db.isolation_level = None
         self.cursor.execute("VACUUM")
-        self.con_db.isolation_level = ""  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long # noqa: E501
+        self.db.isolation_level = ""  # see: https://github.com/CxAalto/gtfspy/commit/8d05c3c94a6d4ca3ed675d88af93def7d5053bfe # pylint: disable=line-too-long # noqa: E501
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
     def delete_older_entries(self, days):
         """Delete reports from database older than given days
@@ -288,9 +292,9 @@ class InstanceManager:
         self.cursor.execute("VACUUM")
 
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
-    def has_entries(self, pending):
+    def has_entries(self, pending: bool) -> Any:
         """Return number of instance entries
         Arguments:
             pending (bool): True for pending instances. False for running
@@ -399,10 +403,10 @@ class InstanceManager:
         # Check if an pending entry is the same as this process
         # If hostname
         #    date = datetime.now()
-        #    end_session('GMP PENDING: since %s' % date, NAGIOS_OK)
-        #    end_session('GMP RUNNING: since', NAGIOS_OK)
+        #    end_session('GMP PENDING: since %s' % date, NagiosStatus.NAGIOS_OK)
+        #    end_session('GMP RUNNING: since', NagiosStatus.NAGIOS_OK)
 
-    def add_instance(self, pending):
+    def add_instance(self, pending) -> None:
         """Add new instance entry to database
 
         Retrieve the current time in ISO 8601 format. Create a new entry with
@@ -420,9 +424,9 @@ class InstanceManager:
         )
 
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
-    def get_oldest_pending_entries(self, number):
+    def get_oldest_pending_entries(self, number) -> list[Any]:
         """Return the oldest last entries of pending entries from database
 
         Return:
@@ -436,7 +440,7 @@ class InstanceManager:
         )
         return self.cursor.fetchall()
 
-    def update_pending_status(self, date, pending):
+    def update_pending_status(self, date, pending) -> None:
         """Update pending status of instance
 
         The date variable works as a primary key for the instance table.
@@ -452,9 +456,9 @@ class InstanceManager:
         )
 
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
-    def delete_instance(self, pid=None):
+    def delete_instance(self, pid=None) -> None:
         """Delete instance from database
 
         If a pid different from zero is given, then delete the entry with
@@ -471,13 +475,13 @@ class InstanceManager:
         self.cursor.execute("DELETE FROM Instance WHERE pid=?", (pid,))
 
         # Save the changes
-        self.con_db.commit()
+        self.db.commit()
 
-    def clean_orphaned_instances(self):
+    def clean_orphaned_instances(self) -> None:
         """Delete non existing instance entries
 
-        This method check whether a pid exist on the os and if not then delete
-        the orphaned entry from database.
+        This method checks whether a pid exists on the os and if not then
+        delete the orphaned entry from database.
         """
         self.cursor.execute("SELECT pid FROM Instance")
 
@@ -487,7 +491,7 @@ class InstanceManager:
             if not self.check_pid(pid[0]):
                 self.delete_instance(pid[0])
 
-    def wake_instance(self):
+    def wake_instance(self) -> None:
         """Wake up a pending instance
 
         This method is called at the end of any session from check_gmp.
@@ -520,7 +524,7 @@ class InstanceManager:
                 self.update_pending_status(created_at, False)
                 self.start_process(pid)
 
-    def start_process(self, pid):
+    def start_process(self, pid: int) -> None:
         """Continue a stopped process
 
         Send a continue signal to the process with given pid
@@ -531,7 +535,7 @@ class InstanceManager:
         logger.debug("Continue pid: %i", pid)
         os.kill(pid, signal.SIGCONT)
 
-    def stop_process(self, pid):
+    def stop_process(self, pid: int) -> None:
         """Stop a running process
 
         Send a stop signal to the process with given pid
@@ -541,7 +545,7 @@ class InstanceManager:
         """
         os.kill(pid, signal.SIGSTOP)
 
-    def check_pid(self, pid):
+    def check_pid(self, pid: int) -> bool:
         """Check for the existence of a process.
 
         Arguments:
@@ -555,7 +559,7 @@ class InstanceManager:
             return True
 
 
-def ping(gmp, im):
+def ping(gmp: Gmp, report_manager: ReportManager):
     """Checks for connectivity
 
     This function sends the get_version command and checks whether the status
@@ -565,12 +569,20 @@ def ping(gmp, im):
     version_status = version.xpath("@status")
 
     if "200" in version_status:
-        end_session(im, "GMP OK: Ping successful", NAGIOS_OK)
+        end_session(
+            report_manager,
+            f"{GmpError.GMP_OK.value}: Ping successful",
+            NagiosStatus.NAGIOS_OK,
+        )
     else:
-        end_session(im, "GMP CRITICAL: Machine dead?", NAGIOS_CRITICAL)
+        end_session(
+            report_manager,
+            f"{GmpError.GMP_CRITICAL.value}: Machine dead?",
+            NagiosStatus.NAGIOS_CRITICAL,
+        )
 
 
-def status(gmp, im, script_args):
+def status(gmp: Gmp, report_manager: ReportManager, script_args: Namespace):
     """Returns the current status of a host
 
     This functions return the current state of a host.
@@ -596,45 +608,53 @@ def status(gmp, im, script_args):
         f"overrides={script_args.overrides} "
         f"apply_overrides={script_args.apply_overrides}"
     )
+    filter_string = f'permission=any owner=any rows=1 name="{script_args.task}"'
+    print("Getting task with filter_string='{filter_string}'")
 
     if script_args.task:
-        task = gmp.get_tasks(
-            filter_string=(
-                "permission=any owner=any rows=1 " f'name="{script_args.task}"'
-            )
-        )
+        task: str = gmp.get_tasks(filter_string=filter_string)
         if script_args.trend:
             trend = task.xpath("task/trend/text()")
 
             if not trend:
                 end_session(
-                    im, "GMP UNKNOWN: Trend is not available.", NAGIOS_UNKNOWN
+                    report_manager,
+                    f"{GmpError.GMP_OK.value}: Trend is not available.",
+                    NagiosStatus.NAGIOS_UNKNOWN,
                 )
 
             trend = trend[0]
 
             if trend in ["up", "more"]:
                 end_session(
-                    im, f"GMP CRITICAL: Trend is {trend}.", NAGIOS_CRITICAL
+                    report_manager,
+                    f"{GmpError.GMP_CRITICAL.value}: Trend is {trend}.",
+                    NagiosStatus.NAGIOS_CRITICAL,
                 )
             elif trend in ["down", "same", "less"]:
-                end_session(im, f"GMP OK: Trend is {trend}.", NAGIOS_OK)
+                end_session(
+                    report_manager,
+                    f"{GmpError.GMP_OK.value}: Trend is {trend}.",
+                    NagiosStatus.NAGIOS_OK,
+                )
             else:
                 end_session(
-                    im,
-                    f"GMP UNKNOWN: Trend is unknown: {trend}",
-                    NAGIOS_UNKNOWN,
+                    report_manager,
+                    f"{GmpError.GMP_OK.value}: Trend is unknown: {trend}",
+                    NagiosStatus.NAGIOS_UNKNOWN,
                 )
         else:
-            last_report_id = task.xpath("task/last_report/report/@id")
+            last_report_id: str = task.xpath("task/last_report/report/@id")
 
             if not last_report_id:
                 end_session(
-                    im, "GMP UNKNOWN: Report is not available", NAGIOS_UNKNOWN
+                    report_manager,
+                    f"{GmpError.GMP_OK.value}: Report is not available",
+                    NagiosStatus.NAGIOS_UNKNOWN,
                 )
 
             last_report_id = last_report_id[0]
-            last_scan_end = task.xpath(
+            last_scan_end: str = task.xpath(
                 "task/last_report/report/scan_end/text()"
             )
 
@@ -643,7 +663,7 @@ def status(gmp, im, script_args):
             else:
                 last_scan_end = ""
 
-            if im.is_old_report(last_scan_end, params_used):
+            if report_manager.is_old_report(last_scan_end, params_used):
                 host = script_args.hostaddress
 
                 full_report = gmp.get_report(
@@ -659,17 +679,23 @@ def status(gmp, im, script_args):
                     details=True,
                 )
 
-                im.add_report(last_scan_end, params_used, full_report)
+                report_manager.add_report(
+                    last_scan_end, params_used, full_report
+                )
                 logger.debug("Report added to db")
             else:
-                full_report = im.load_local_report()
+                full_report = report_manager.load_local_report()
 
             filter_report(
-                im, full_report.xpath("report/report")[0], script_args
+                report_manager,
+                full_report.xpath("report/report")[0],
+                script_args,
             )
 
 
-def filter_report(im, report, script_args):
+def filter_report(
+    report_manager: ReportManager, report: ElementTree, script_args
+):
     """Filter out the information in a report
 
     This function filters the results of a given report.
@@ -683,11 +709,14 @@ def filter_report(im, report, script_args):
     results = report.xpath("//results")
     if not results:
         end_session(
-            im, "GMP UNKNOWN: Failed to get results list", NAGIOS_UNKNOWN
+            report_manager,
+            f"{GmpError.GMP_OK.value}: Failed to get results list",
+            NagiosStatus.NAGIOS_UNKNOWN,
         )
 
     results = results[0]
     # Init variables
+    ## make this an class NVTs()?
     any_found = False
     high_count = 0
     medium_count = 0
@@ -704,9 +733,9 @@ def filter_report(im, report, script_args):
             host = result.xpath("host/text()")
             if not host:
                 end_session(
-                    im,
-                    "GMP UNKNOWN: Failed to parse result host",
-                    NAGIOS_UNKNOWN,
+                    report_manager,
+                    f"{GmpError.GMP_OK.value}: Failed to parse result host",
+                    NagiosStatus.NAGIOS_UNKNOWN,
                 )
 
             if script_args.hostaddress != host[0]:
@@ -716,33 +745,35 @@ def filter_report(im, report, script_args):
         threat = result.xpath("threat/text()")
         if not threat:
             end_session(
-                im,
-                "GMP UNKNOWN: Failed to parse result threat.",
-                NAGIOS_UNKNOWN,
+                report_manager,
+                f"{GmpError.GMP_OK.value}: Failed to parse result threat.",
+                NagiosStatus.NAGIOS_UNKNOWN,
             )
 
         threat = threat[0]
         if threat in "High":
             high_count += 1
             if script_args.oid:
-                nvts["high"].append(retrieve_nvt_data(result))
+                nvts["high"].append(
+                    retrieve_nvt_data(result.as_tuple).as_tuple()
+                )
         elif threat in "Medium":
             medium_count += 1
             if script_args.oid:
-                nvts["medium"].append(retrieve_nvt_data(result))
+                nvts["medium"].append(retrieve_nvt_data(result).as_tuple())
         elif threat in "Low":
             low_count += 1
             if script_args.oid:
-                nvts["low"].append(retrieve_nvt_data(result))
+                nvts["low"].append(retrieve_nvt_data(result).as_tuple())
         elif threat in "Log":
             log_count += 1
             if script_args.oid:
-                nvts["log"].append(retrieve_nvt_data(result))
+                nvts["log"].append(retrieve_nvt_data(result).as_tuple())
         else:
             end_session(
-                im,
-                f"GMP UNKNOWN: Unknown result threat: {threat}",
-                NAGIOS_UNKNOWN,
+                report_manager,
+                f"{GmpError.GMP_OK.value}: Unknown result threat: {threat}",
+                NagiosStatus.NAGIOS_UNKNOWN,
             )
 
     errors = report.xpath("errors")
@@ -759,14 +790,14 @@ def filter_report(im, report, script_args):
 
     ret = 0
     if high_count > 0:
-        ret = NAGIOS_CRITICAL
+        ret = NagiosStatus.NAGIOS_CRITICAL.value
     elif medium_count > 0:
-        ret = NAGIOS_WARNING
+        ret = NagiosStatus.NAGIOS_WARNING.value
 
     if script_args.empty_as_unknown and (
         not all_results or (not any_found and script_args.hostaddress)
     ):
-        ret = NAGIOS_UNKNOWN
+        ret = NagiosStatus.NAGIOS_UNKNOWN.value
 
     print(
         f"GMP {NAGIOS_MSG[ret]}: "
@@ -822,7 +853,7 @@ def filter_report(im, report, script_args):
             print_without_pipe(f"Task: {script_args.task}")
 
     end_session(
-        im,
+        report_manager,
         f"|High={str(high_count)} "
         f"Medium={str(medium_count)} "
         f"Low={str(low_count)}",
@@ -830,54 +861,69 @@ def filter_report(im, report, script_args):
     )
 
 
-def retrieve_nvt_data(result):
+@dataclass
+class NVTData:
+    oid: str = ""
+    name: str = ""
+    description: str = ""
+    port: str = ""
+    dfn_list: list[str] = []
+
+    def as_tuple(self) -> Tuple[str, str, str, str, list[str]]:
+        return (self.oid, self.name, self.desc, self.port, self.dfn_list)
+
+
+def retrieve_nvt_data(result: etree.Element) -> NVTData:
     """Retrieve the nvt data out of the result object
 
-    This function parse the xml tree to find the important nvt data.
+    This function parses the result xml to find the important nvt data.
 
     Arguments:
-        result (obj): Result as lxml ElementTree
+        result: Result as lxml Element
 
     Returns:
-        Tuple -- List with oid, name, desc, port and dfn
+        NVTData object containing oid, name, description, port and dfn-refs
     """
-    oid = result.xpath("nvt/@oid")
-    name = result.xpath("nvt/name/text()")
-    desc = result.xpath("description/text()")
-    port = result.xpath("port/text()")
+    nvt = result.find("nvd")
+    # oid = result.xpath("nvt/@oid")
+    oid = nvt.get("id")
+    # name = result.xpath("nvt/name/text()")
+    name = nvt.find("name").text
+    # desc = result.xpath("description/text()")
+    description = result.find("description").text
+    # port = result.xpath("port/text()")
+    port = result.find("port").text
 
-    if oid:
-        oid = oid[0]
-
-    if name:
-        name = name[0]
-
-    if desc:
-        desc = desc[0]
-    else:
-        desc = ""
-
-    if port:
-        port = port[0]
-    else:
-        port = ""
-
-    certs = result.xpath("nvt/cert/cert_ref")
+    # certs = result.xpath("nvt/cert/cert_ref")
+    certs = nvt.findall("cert/cert_ref")
 
     dfn_list = []
     for ref in certs:
-        ref_type = ref.xpath("@type")[0]
-        ref_id = ref.xpath("@id")[0]
+        # ref_type = ref.xpath("@type")[0]
+        # ref_id = ref.xpath("@id")[0]
 
-        if ref_type in "DFN-CERT":
-            dfn_list.append(ref_id)
+        # if ref_type in "DFN-CERT":
+        #     dfn_list.append(ref_id)
 
-    return (oid, name, desc, port, dfn_list)
+        if ref.get("type") == "DFN-CERT":
+            dfn_list.append(ref.get("id"))
+
+    return NVTData(
+        oid=oid,
+        name=name,
+        description=description,
+        port=port,
+        dfn_list=dfn_list,
+    )
 
 
 def print_nvt_data(
-    nvts, show_log=False, show_ports=False, descr=False, dfn=False
-):
+    nvts: dict,
+    show_log: bool = False,
+    show_ports: bool = False,
+    description: bool = False,
+    dfn: bool = False,
+) -> None:
     """Print nvt data
 
     Prints for each nvt found in the array the relevant data
@@ -892,7 +938,7 @@ def print_nvt_data(
             print_without_pipe(f"NVT: {nvt[0]} ({key}) {nvt[1]}")
             if show_ports:
                 print_without_pipe(f"PORT: {nvt[3]}")
-            if descr:
+            if description:
                 print_without_pipe(f"DESCR: {nvt[2]}")
 
             if dfn and nvt[4]:
@@ -901,7 +947,9 @@ def print_nvt_data(
                     print_without_pipe(f"DFN-CERT: {dfn_list}")
 
 
-def end_session(im, msg, nagios_status):
+def end_session(
+    report_manager: ReportManager, msg: str, nagios_status: NagiosStatus
+):
     """End the session
 
     Close the socket if open and print the last msg
@@ -913,13 +961,13 @@ def end_session(im, msg, nagios_status):
     print(msg)
 
     # Delete this instance
-    im.delete_instance()
+    report_manager.delete_instance()
 
     # Activate some waiting instances if possible
-    im.wake_instance()
+    report_manager.wake_instance()
 
     # Close the connection to database
-    im.close_db()
+    report_manager.close_db()
 
     sys.exit(nagios_status)
 
@@ -1174,11 +1222,10 @@ def parse_date(datestring, default_timezone=UTC):
         raise ParseError(e) from None
 
 
-def main(gmp: Gmp, args: Namespace) -> None:
-    tmp_path = f"{tempfile.gettempdir()}/check_gmp/"
-    tmp_path_db = tmp_path + "reports.db"
-
+def _parse_args(args: Namespace) -> Namespace:
     prog = "check-gmp"
+
+    tmp_db = Path(tempfile.gettempdir()) / "check_gmp" / "reports.db"
 
     parser = ArgumentParser(
         prog=prog,
@@ -1207,12 +1254,14 @@ def main(gmp: Gmp, args: Namespace) -> None:
     parser.add_argument(
         "--cache",
         nargs="?",
-        default=tmp_path_db,
-        help=f"Path to cache file. Default: {tmp_path_db}.",
+        default=tmp_db,
+        help=f"Path to cache file. Default: {tmp_db}.",
     )
 
     parser.add_argument(
-        "--clean", action="store_true", help="Activate to clean the database."
+        "--clean",
+        action="store_true",
+        help="Activate to clean the database. Default: False",
     )
 
     parser.add_argument(
@@ -1236,59 +1285,65 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     parser.add_argument(
-        "--apply-overrides", action="store_true", help="Apply overrides."
+        "--apply-overrides",
+        action="store_true",
+        help="Apply overrides. Default: False",
     )
 
     parser.add_argument(
-        "--overrides", action="store_true", help="Include overrides."
+        "--overrides",
+        action="store_true",
+        help="Include overrides. Default: False",
     )
 
     parser.add_argument(
         "-d",
         "--details",
         action="store_true",
-        help="Include connection details in output.",
+        help="Include connection details in output. Default: False",
     )
 
     parser.add_argument(
         "-l",
         "--report-link",
         action="store_true",
-        help="Include URL of report in output.",
+        help="Include URL of report in output. Default: False",
     )
 
     parser.add_argument(
         "--dfn",
         action="store_true",
-        help="Include DFN-CERT IDs on vulnerabilities in output.",
+        help="Include DFN-CERT IDs on vulnerabilities in output. Default: False",
     )
 
     parser.add_argument(
         "--oid",
         action="store_true",
-        help="Include OIDs of NVTs finding vulnerabilities in output.",
+        help="Include OIDs of NVTs finding vulnerabilities in output. Default: False",
     )
 
     parser.add_argument(
         "--descr",
         action="store_true",
-        help="Include descriptions of NVTs finding vulnerabilities in output.",
+        help="Include descriptions of NVTs finding vulnerabilities in output. Default: False",
     )
 
     parser.add_argument(
-        "--showlog", action="store_true", help="Include log messages in output."
+        "--showlog",
+        action="store_true",
+        help="Include log messages in output. Default: False",
     )
 
     parser.add_argument(
         "--show-ports",
         action="store_true",
-        help="Include port of given vulnerable nvt in output.",
+        help="Include port of given vulnerable nvt in output. Default: False",
     )
 
     parser.add_argument(
         "--scanend",
         action="store_true",
-        help="Include timestamp of scan end in output.",
+        help="Include timestamp of scan end in output. Default: False",
     )
 
     parser.add_argument(
@@ -1304,7 +1359,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "-e",
         "--empty-as-unknown",
         action="store_true",
-        help="Respond with UNKNOWN on empty results.",
+        help="Respond with UNKNOWN on empty results. Default: False",
     )
 
     parser.add_argument(
@@ -1312,10 +1367,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "--max-running-instances",
         default=10,
         type=int,
-        help="Set the maximum simultaneous processes of check-gmp",
+        help="Set the maximum simultaneous processes of check-gmp. Default: 10",
     )
-
-    parser.add_argument("--hostname", nargs="?", required=False)
 
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument(
@@ -1330,7 +1383,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     group.add_argument(
         "--days",
         type=int,
-        help="Delete database entries that are older than" " given days.",
+        help="Delete database entries that are older than given days.",
     )
     group.add_argument("--ip", help="Delete database entry for given ip.")
 
@@ -1344,15 +1397,27 @@ def main(gmp: Gmp, args: Namespace) -> None:
         help="Report status by last report.",
     )
 
-    script_args = parser.parse_args(args.script_args)
+    return parser.parse_args(args.script_args)
+
+
+def main(gmp: Gmp, args: Namespace) -> None:
+    script_args = _parse_args(args=args)
 
     aux_parser = ArgumentParser(
         prefix_chars="-", formatter_class=RawTextHelpFormatter
     )
     aux_parser.add_argument("--hostname", nargs="?", required=False)
-    gvm_tool_args, _ = aux_parser.parse_known_args(sys.argv)
-    if "hostname" in gvm_tool_args:
-        script_args.hostname = gvm_tool_args.hostname
+    aux_parser.add_argument(
+        "--gmp-username",
+        help="Username for GMP service (default: %(default)r)",
+    )
+    aux_parser.add_argument(
+        "--gmp-password",
+        help="Password for GMP service (default: %(default)r)",
+    )
+    main_args, _ = aux_parser.parse_known_args(sys.argv)
+    if main_args.hostname:
+        script_args.hostname = main_args.hostname
 
     # Set the max running instances variable
     if script_args.max_running_instances:
@@ -1362,36 +1427,38 @@ def main(gmp: Gmp, args: Namespace) -> None:
         MAX_RUNNING_INSTANCES = script_args.max_running_instances
 
     # Set the report manager
-    if script_args.cache:
-        tmp_path_db = script_args.cache
-    im = InstanceManager(tmp_path_db, parser)
+    report_manager = ReportManager(script_args.cache)
 
     # Check if command holds clean command
     if script_args.clean:
         if script_args.ip:
             logger.info("Delete entry with ip %s", script_args.ip)
-            im.delete_entry_with_ip(script_args.ip)
+            report_manager.delete_entry_with_ip(script_args.ip)
         elif script_args.days:
             logger.info("Delete entries older than %s days", script_args.days)
-            im.delete_older_entries(script_args.days)
+            report_manager.delete_older_entries(script_args.days)
         sys.exit(1)
 
     # Set the host
-    im.set_host(script_args.hostaddress)
+    report_manager.host = script_args.hostaddress
 
     # Check if no more than 10 instances of check-gmp runs simultaneously
-    im.check_instances()
+    report_manager.check_instances()
 
     try:
         gmp.get_version()
     except Exception as e:  # pylint: disable=broad-except
-        end_session(im, f"GMP CRITICAL: {str(e)}", NAGIOS_CRITICAL)
+        end_session(
+            report_manager,
+            f"{GmpError.GMP_CRITICAL.value}: {str(e)}",
+            NagiosStatus.NAGIOS_CRITICAL,
+        )
 
     if script_args.ping:
-        ping(gmp, im)
+        ping(gmp, report_manager)
 
     if "status" in script_args:
-        status(gmp, im, script_args)
+        status(gmp, report_manager, script_args)
 
 
 if __name__ == "__gmp__":
