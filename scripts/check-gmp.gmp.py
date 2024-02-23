@@ -22,14 +22,12 @@ from dataclasses import dataclass
 from enum import Enum
 import logging
 import os
-import re
 import signal
 import sqlite3
 import sys
 import tempfile
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
-from decimal import Decimal
 from pathlib import Path
 from typing import Any, Tuple
 from xml.etree import ElementTree
@@ -192,21 +190,23 @@ class ReportManager:
             "SELECT scan_end, params_used FROM Report WHERE host=?",
             (self.host,),
         )
-        db_entry = self.cursor.fetchone()
+        (scan_end, old_params_used) = self.cursor.fetchone()
 
-        logger.debug("%s %s", db_entry, last_scan_end)
+        logger.debug(
+            "DB last report: %s | New report: %s", scan_end, last_scan_end
+        )
 
-        if not db_entry:
+        if not scan_end:
             return True
         else:
-            old = parse_date(db_entry[0])
+            old = parse_date(scan_end)
             new = parse_date(last_scan_end)
 
             logger.debug(
                 "Old time (from db): %s\nNew time (from rp): %s", old, new
             )
 
-            if new <= old and params_used == db_entry[1]:
+            if new <= old and params_used == old_params_used:
                 return False
             else:
                 # Report is newer. Delete old entry.
@@ -225,10 +225,10 @@ class ReportManager:
         self.cursor.execute(
             "SELECT report FROM Report WHERE host=?", (self.host,)
         )
-        db_entry = self.cursor.fetchone()
+        last_report = self.cursor.fetchone()
 
-        if db_entry:
-            return etree.fromstring(db_entry[0])
+        if last_report:
+            return etree.fromstring(last_report[0])
         else:
             logger.debug("Report from host %s is not in the db", self.host)
 
@@ -993,96 +993,21 @@ def print_without_pipe(msg):
     return msg.replace("|", "¦")
 
 
-# ISO 8601 date time string parsing
-
-# Copyright (c) 2007 - 2015 Michael Twomey
-
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-__all__ = ["parse_date", "ParseError", "UTC"]
-
-# Adapted from http://delete.me.uk/2005/03/iso8601.html
-ISO8601_REGEX = re.compile(
-    r"""
-    (?P<year>[0-9]{4})
-    (
-        (
-            (-(?P<monthdash>[0-9]{1,2}))
-            |
-            (?P<month>[0-9]{2})
-            (?!$)  # Don't allow YYYYMM
-        )
-        (
-            (
-                (-(?P<daydash>[0-9]{1,2}))
-                |
-                (?P<day>[0-9]{2})
-            )
-            (
-                (
-                    (?P<separator>[ T])
-                    (?P<hour>[0-9]{2})
-                    (:{0,1}(?P<minute>[0-9]{2})){0,1}
-                    (
-                        :{0,1}(?P<second>[0-9]{1,2})
-                        ([.,](?P<second_fraction>[0-9]+)){0,1}
-                    ){0,1}
-                    (?P<timezone>
-                        Z
-                        |
-                        (
-                            (?P<tz_sign>[-+])
-                            (?P<tz_hour>[0-9]{2})
-                            :{0,1}
-                            (?P<tz_minute>[0-9]{2}){0,1}
-                        )
-                    ){0,1}
-                ){0,1}
-            )
-        ){0,1}  # YYYY-MM
-    ){0,1}  # YYYY only
-    $
-    """,
-    re.VERBOSE,
-)
-
-
 class ParseError(Exception):
     """Raised when there is a problem parsing a date string"""
-
-
-# Yoinked from python docs
-ZERO = timedelta(0)
 
 
 class Utc(tzinfo):
     """UTC Timezone"""
 
     def utcoffset(self, dt):
-        return ZERO
+        return timedelta(0)
 
     def tzname(self, dt):
         return "UTC"
 
     def dst(self, dt):
-        return ZERO
+        return timedelta(0)
 
     def __repr__(self):
         return "<iso8601.Utc>"
@@ -1098,7 +1023,7 @@ class FixedOffset(tzinfo):
         self.__offset_hours = offset_hours  # Keep for later __getinitargs__
         # Keep for later __getinitargs__
         self.__offset_minutes = offset_minutes
-        self.__offset = timedelta(hours=offset_hours, minutes=offset_minutes)
+        self.offset = timedelta(hours=offset_hours, minutes=offset_minutes)
         self.__name = name
 
     def __eq__(self, other):
@@ -1114,14 +1039,15 @@ class FixedOffset(tzinfo):
     def __getinitargs__(self):
         return (self.__offset_hours, self.__offset_minutes, self.__name)
 
-    def utcoffset(self, dt):
-        return self.__offset
+    # this shit is not even used ...
+    # def utcoffset(self, dt):
+    #     return self.offset
 
-    def tzname(self, dt):
-        return self.__name
+    # def tzname(self, dt):
+    #     return self.__name
 
     def dst(self, dt):
-        return ZERO
+        return timedelta(0)
 
     def __repr__(self):
         return f"<FixedOffset {self.__name} {self.__offset}>"
@@ -1170,62 +1096,14 @@ def parse_timezone(matches, default_timezone=UTC):
     return FixedOffset(hours, minutes, description)
 
 
-def parse_date(datestring: str, default_timezone=UTC):
-    """Parses ISO 8601 dates into datetime objects
-
-    The timezone is parsed from the date string. However it is quite common to
-    have dates without a timezone (not strictly correct). In this case the
-    default timezone specified in default_timezone is used. This is UTC by
-    default.
-
-    Arguments
-        datestring: The date to parse as a string
-        default_timezone: A datetime tzinfo instance to use when no timezone
-                          is specified in the datestring. If this is set to
-                          None then a naive datetime object is returned.
-    Returns:
-        A datetime.datetime instance
-    Raises:
-        ParseError when there is a problem parsing the date or
-        constructing the datetime instance.
-
-    """
+def parse_date(datestring: str):
+    """will be removed."""
     if not isinstance(datestring, str):
         raise ParseError(f"Expecting a string {datestring}")
-
-    match = ISO8601_REGEX.match(datestring)
-    if not match:
-        raise ParseError(f"Unable to parse date string {datestring}")
-
-    groups = match.groupdict()
-
-    tz = parse_timezone(groups, default_timezone=default_timezone)
-
-    groups["second_fraction"] = int(
-        Decimal(f"0.{groups['second_fraction'] or 0}") * Decimal("1000000.0")
-    )
-
     try:
-        return datetime(
-            year=to_int(groups, "year"),
-            month=to_int(
-                groups,
-                "month",
-                default=to_int(groups, "monthdash", required=False, default=1),
-            ),
-            day=to_int(
-                groups,
-                "day",
-                default=to_int(groups, "daydash", required=False, default=1),
-            ),
-            hour=to_int(groups, "hour", default_to_zero=True),
-            minute=to_int(groups, "minute", default_to_zero=True),
-            second=to_int(groups, "second", default_to_zero=True),
-            microsecond=groups["second_fraction"],
-            tzinfo=tz,
-        )
-    except Exception as e:
-        raise ParseError(e) from None
+        return datetime.fromisoformat(datestring)
+    except ValueError:
+        raise ParseError(f"Couldn't parse {datestring} to ISO format")
 
 
 def _parse_args(args: Namespace) -> Namespace:
