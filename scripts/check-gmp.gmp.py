@@ -30,7 +30,6 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import datetime, timedelta, tzinfo
 from pathlib import Path
 from typing import Any, Tuple
-from xml.etree import ElementTree
 
 from gvm.protocols.gmp import Gmp
 from lxml import etree
@@ -604,17 +603,18 @@ def status(gmp: Gmp, report_manager: ReportManager, script_args: Namespace):
     * Overrides
     """
     params_used = (
-        f"task={script_args.task} autofp={script_args.autofp} "
+        f"task={script_args.task}"
         f"overrides={script_args.overrides} "
         f"apply_overrides={script_args.apply_overrides}"
     )
-    filter_string = f'permission=any owner=any rows=1 name="{script_args.task}"'
+    filter_string = f'permission=any owner=any name="{script_args.task}"'
     print("Getting task with filter_string='{filter_string}'")
 
     if script_args.task:
-        task: str = gmp.get_tasks(filter_string=filter_string)
+        task: etree.Element = gmp.get_tasks(filter_string=filter_string)
         if script_args.trend:
-            trend = task.xpath("task/trend/text()")
+            trend: str = task.find("task/trend").text
+            # trend = task.xpath("task/trend/text()")
 
             if not trend:
                 end_session(
@@ -670,7 +670,7 @@ def status(gmp: Gmp, report_manager: ReportManager, script_args: Namespace):
                     report_id=last_report_id,
                     filter_string=(
                         "sort-reverse=id result_hosts_only=1 min_cvss_base= "
-                        f"min_qod= levels=hmlgd autofp={script_args.autofp} "
+                        f"min_qod= levels=hmlgd "
                         "notes=0 "
                         f"apply_overrides={script_args.apply_overrides} "
                         f"overrides={script_args.overrides} first=1 rows=-1 "
@@ -694,7 +694,9 @@ def status(gmp: Gmp, report_manager: ReportManager, script_args: Namespace):
 
 
 def filter_report(
-    report_manager: ReportManager, report: ElementTree, script_args
+    report_manager: ReportManager,
+    report: etree.ElementTree,
+    script_args: Namespace,
 ):
     """Filter out the information in a report
 
@@ -1228,15 +1230,6 @@ def _parse_args(args: Namespace) -> Namespace:
         "--scanend",
         action="store_true",
         help="Include timestamp of scan end in output. Default: False",
-    )
-
-    parser.add_argument(
-        "--autofp",
-        type=int,
-        choices=[0, 1, 2],
-        default=0,
-        help="Trust vendor security updates for automatic false positive"
-        " filtering (0=No, 1=full match, 2=partial).",
     )
 
     parser.add_argument(

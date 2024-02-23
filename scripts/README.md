@@ -54,7 +54,6 @@ This script can test different methods of the gmp API.
 |`--showlog`           |  Include log messages in output.
 | `--show-ports`       |   Include port of given vulnerable nvt in output.
 | `--scanend`          |   Include timestamp of scan end in output.
-| `--autofp {0,1,2}`  |    Trust vendor security updates for automatic false positive filtering (`0=No`, `1=full match`, `2=partial`).
 | `-e`, `--empty-as-unknown` | Respond with `UNKNOWN` on empty results.
 | `-I MAX_RUNNING_INSTANCES`, `--max-running-instances MAX_RUNNING_INSTANCES` | Set the maximum simultaneous processes of check-gmp
 | `--hostname [HOSTNAME]`
