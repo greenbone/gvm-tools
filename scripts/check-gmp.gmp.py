@@ -706,31 +706,30 @@ def filter_report(
     report_id = report.xpath("@id")
     if report_id:
         report_id = report_id[0]
-    results = report.xpath("//results")
-    if not results:
+    # results = report.xpath("//results")
+    results_element = report.find("report/results")
+    if not results_element:
         end_session(
             report_manager,
             f"{GmpError.GMP_OK.value}: Failed to get results list",
             NagiosStatus.NAGIOS_UNKNOWN,
         )
 
-    results = results[0]
-    # Init variables
-    ## make this an class NVTs()?
-    any_found = False
-    high_count = 0
-    medium_count = 0
-    low_count = 0
-    log_count = 0
-    error_count = 0
+    # results = results[0]
+    # results = results.xpath("result")
+    results = results_element.findall("result")
 
-    nvts = {"high": [], "medium": [], "low": [], "log": []}
+    all_nvts = NVTs(
+        ports=script_args.show_ports,
+        log=script_args.show_log,
+        description=script_args.description,
+        dfn_certs=script_args.dfg,
+    )
 
-    all_results = results.xpath("result")
-
-    for result in all_results:
+    for result in results:
         if script_args.hostaddress:
-            host = result.xpath("host/text()")
+            host: etree.Element = result.find("host")
+            # host = result.xpath("host/text()")
             if not host:
                 end_session(
                     report_manager,
@@ -740,79 +739,63 @@ def filter_report(
 
             if script_args.hostaddress != host[0]:
                 continue
-            any_found = True
 
-        threat = result.xpath("threat/text()")
+        threat = result.find("thread").text()
         if not threat:
             end_session(
                 report_manager,
                 f"{GmpError.GMP_OK.value}: Failed to parse result threat.",
                 NagiosStatus.NAGIOS_UNKNOWN,
             )
-
-        threat = threat[0]
-        if threat in "High":
-            high_count += 1
-            if script_args.oid:
-                nvts["high"].append(
-                    retrieve_nvt_data(result.as_tuple).as_tuple()
-                )
-        elif threat in "Medium":
-            medium_count += 1
-            if script_args.oid:
-                nvts["medium"].append(retrieve_nvt_data(result).as_tuple())
-        elif threat in "Low":
-            low_count += 1
-            if script_args.oid:
-                nvts["low"].append(retrieve_nvt_data(result).as_tuple())
-        elif threat in "Log":
-            log_count += 1
-            if script_args.oid:
-                nvts["log"].append(retrieve_nvt_data(result).as_tuple())
-        else:
+        if threat not in [t.value for t in Threat]:
             end_session(
                 report_manager,
                 f"{GmpError.GMP_OK.value}: Unknown result threat: {threat}",
                 NagiosStatus.NAGIOS_UNKNOWN,
             )
 
-    errors = report.xpath("errors")
+        all_nvts.add(create_nvt(result=result))
+
+    errors = report.find("errors")
+    error_count = 0
 
     if errors:
         errors = errors[0]
         if script_args.hostaddress:
             for error in errors.xpath("error"):
-                host = error.xpath("host/text()")
+                host: etree.Element = result.find("host")
+                # host = error.xpath("host/text()")
                 if script_args.hostaddress == host[0]:
                     error_count += 1
         else:
-            error_count = errors.xpath("count/text()")[0]
+            error_count = int(errors.find("count").text)
 
     ret = 0
-    if high_count > 0:
+    if all_nvts.count(threat=Threat.HIGH) > 0:
         ret = NagiosStatus.NAGIOS_CRITICAL.value
-    elif medium_count > 0:
+    elif all_nvts.count(threat=Threat.MEDIUM) > 0:
         ret = NagiosStatus.NAGIOS_WARNING.value
 
+    # no vulnerabilities found (for the given host)
     if script_args.empty_as_unknown and (
-        not all_results or (not any_found and script_args.hostaddress)
+        not results or (not all_nvts.any and script_args.hostaddress)
     ):
         ret = NagiosStatus.NAGIOS_UNKNOWN.value
 
     print(
         f"GMP {NAGIOS_MSG[ret]}: "
-        f"{str((high_count + medium_count + low_count))} "
-        f"vulnerabilities found - High: {str(high_count)} "
-        f"Medium: {str(medium_count)} Low: {str(low_count)}"
+        f"{all_nvts.all()} "
+        f"vulnerabilities found - High: {all_nvts.count(threat=Threat.HIGH)} "
+        f"Medium: {all_nvts.count(threat=Threat.MEDIUM)} Low: {all_nvts.count(threat=Threat.LOW)}"
     )
 
-    if not all_results:
+    if not results:
         print("Report did not contain any vulnerabilities")
 
-    elif not any_found and script_args.hostaddress:
+    elif not all_nvts.any and script_args.hostaddress:
         print(
             "Report did not contain vulnerabilities "
-            f"for IP {script_args.hostaddress}"
+            f"for target Host {script_args.hostaddress}"
         )
 
     if int(error_count) > 0:
@@ -831,13 +814,7 @@ def filter_report(
         )
 
     if script_args.oid:
-        print_nvt_data(
-            nvts,
-            show_log=script_args.showlog,
-            show_ports=script_args.show_ports,
-            descr=script_args.descr,
-            dfn=script_args.dfn,
-        )
+        all_nvts.print()
 
     if script_args.scanend:
         end = report.xpath("//end/text()")
@@ -854,27 +831,98 @@ def filter_report(
 
     end_session(
         report_manager,
-        f"|High={str(high_count)} "
-        f"Medium={str(medium_count)} "
-        f"Low={str(low_count)}",
+        f"High: {all_nvts.count(threat=Threat.HIGH)} "
+        f"Medium: {all_nvts.count(threat=Threat.MEDIUM)} "
+        f"Low: {all_nvts.count(threat=Threat.LOW)}",
         ret,
     )
 
 
+class Threat(Enum):
+    CRITICAL = "critical"
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    LOG = "log"
+
+
 @dataclass
-class NVTData:
+class NVT:
     oid: str = ""
     name: str = ""
     description: str = ""
     port: str = ""
     dfn_list: list[str] = []
+    threat: Threat = None
 
     def as_tuple(self) -> Tuple[str, str, str, str, list[str]]:
         return (self.oid, self.name, self.desc, self.port, self.dfn_list)
 
+    def print(
+        self,
+        ports: bool = False,
+        description: bool = False,
+        dfn_certs: bool = False,
+    ) -> None:
+        """Print this NVT"""
+        print_without_pipe(f"NVT: {self.oid} ({self.threat}) {self.name}")
+        if ports:
+            print_without_pipe(f"PORT: {self.port}")
+        if description:
+            print_without_pipe(f"DESCR: {self.description}")
 
-def retrieve_nvt_data(result: etree.Element) -> NVTData:
-    """Retrieve the nvt data out of the result object
+        if dfn_certs and self.dfn_list:
+            dfn_list = ", ".join(self.dfn_list)
+            print_without_pipe(f"DFN-CERT: {dfn_list}")
+
+
+@dataclass
+class NVTs:
+    ports: bool = False
+    log: bool = False
+    description: bool = False
+    dfn_certs: bool = False
+    nvts: dict[str, list[NVT]] = {
+        "high": [],
+        "medium": [],
+        "low": [],
+        "log": [],
+    }
+    any: bool = False
+
+    def add(self, nvt: NVT) -> None:
+        """Add a NVT"""
+        for threat, nvts in self.nvts.items():
+            if threat == nvt.threat:
+                nvts.append(nvt)
+                self.any = True
+
+    def print(self) -> None:
+        """Print the NVTs"""
+        for threat, nvts in self.nvts.items():
+            if threat == "Log" and not self.log:
+                # Skip log level NVTs
+                continue
+            if nvts:
+                for nvt in nvts:
+                    nvt.print(
+                        ports=self.ports,
+                        description=self.description,
+                        dfn_certs=self.dfn_cert,
+                    )
+
+    def count(self, threat: Threat) -> int:
+        return len(self.nvts.get(threat.value))
+
+    def all(self) -> int:
+        count = 0
+        for _, nvts in self.nvts.items():
+            count += len(nvts)
+        return count
+
+
+def create_nvt(result: etree.Element) -> NVT:
+    """Create an NVT instance from a result XML Element
 
     This function parses the result xml to find the important nvt data.
 
@@ -882,69 +930,30 @@ def retrieve_nvt_data(result: etree.Element) -> NVTData:
         result: Result as lxml Element
 
     Returns:
-        NVTData object containing oid, name, description, port and dfn-refs
+        NVT object containing oid, name, description, port and dfn-refs
     """
-    nvt = result.find("nvd")
-    # oid = result.xpath("nvt/@oid")
-    oid = nvt.get("id")
-    # name = result.xpath("nvt/name/text()")
-    name = nvt.find("name").text
-    # desc = result.xpath("description/text()")
-    description = result.find("description").text
-    # port = result.xpath("port/text()")
-    port = result.find("port").text
+    nvt: etree.Element = result.find("nvt")
+    oid: str = nvt.get("id")
+    name: str = nvt.find("name").text
+    description: str = result.find("description").text
+    port: str = result.find("port").text
+    certs: etree.Element = nvt.findall("cert/cert_ref")
+    threat = result.find("threat").text
 
-    # certs = result.xpath("nvt/cert/cert_ref")
-    certs = nvt.findall("cert/cert_ref")
-
-    dfn_list = []
+    dfn_list: list[str] = []
     for ref in certs:
-        # ref_type = ref.xpath("@type")[0]
-        # ref_id = ref.xpath("@id")[0]
-
-        # if ref_type in "DFN-CERT":
-        #     dfn_list.append(ref_id)
 
         if ref.get("type") == "DFN-CERT":
             dfn_list.append(ref.get("id"))
 
-    return NVTData(
+    return NVT(
         oid=oid,
         name=name,
         description=description,
         port=port,
         dfn_list=dfn_list,
+        threat=threat,
     )
-
-
-def print_nvt_data(
-    nvts: dict,
-    show_log: bool = False,
-    show_ports: bool = False,
-    description: bool = False,
-    dfn: bool = False,
-) -> None:
-    """Print nvt data
-
-    Prints for each nvt found in the array the relevant data
-
-    Arguments:
-        nvts (obj): Object holding all nvts
-    """
-    for key, nvt_data in nvts.items():
-        if key == "log" and not show_log:
-            continue
-        for nvt in nvt_data:
-            print_without_pipe(f"NVT: {nvt[0]} ({key}) {nvt[1]}")
-            if show_ports:
-                print_without_pipe(f"PORT: {nvt[3]}")
-            if description:
-                print_without_pipe(f"DESCR: {nvt[2]}")
-
-            if dfn and nvt[4]:
-                dfn_list = ", ".join(nvt[4])
-                if dfn_list:
-                    print_without_pipe(f"DFN-CERT: {dfn_list}")
 
 
 def end_session(
@@ -969,7 +978,7 @@ def end_session(
     # Close the connection to database
     report_manager.close_db()
 
-    sys.exit(nagios_status)
+    sys.exit(nagios_status.value)
 
 
 def print_without_pipe(msg):
@@ -981,10 +990,7 @@ def print_without_pipe(msg):
     Arguments:
         msg (string): Message to print
     """
-    if "|" in msg:
-        msg = msg.replace("|", "¦")
-
-    print(msg)
+    return msg.replace("|", "¦")
 
 
 # ISO 8601 date time string parsing
@@ -1131,7 +1137,7 @@ def to_int(
 
     """
 
-    value = source_dict.get(key)
+    value = source_dict.get(key, "")
     if value in [None, ""]:
         value = default
     if (value in ["", None]) and default_to_zero:
@@ -1164,7 +1170,7 @@ def parse_timezone(matches, default_timezone=UTC):
     return FixedOffset(hours, minutes, description)
 
 
-def parse_date(datestring, default_timezone=UTC):
+def parse_date(datestring: str, default_timezone=UTC):
     """Parses ISO 8601 dates into datetime objects
 
     The timezone is parsed from the date string. However it is quite common to
