@@ -27,38 +27,27 @@ from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import Table
 
+def stop_tasks(gmp: Gmp) -> None:
+    tasks = gmp.get_tasks(
+            filter_string="rows=-1 status=Running or status=Requested or status=Queued"
+        )
+    try:
+        for task_id in tasks.xpath("task/@id"):
+            print(f"Stopping task {task_id} ... ")
+            gmp.stop_task(task_id).xpath(
+                "@status_text"
+            )[0]
+            print(status_text)
+    except:
+        pass
 
 def main(gmp: Gmp, args: Namespace) -> None:
-    # pylint: disable=unused-argument
-
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
-
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
-
-    rows = []
-    numberRows = 0
-
+    # pylint: disable=undefined-variable
     print(
-        "Listing tasks.\n"
+        "This script stops all tasks on the system.\n"
     )
 
-    for task in tasks_xml:
-        # Count number of reports
-        numberRows = numberRows + 1
-        # Cast/convert to text to show in list
-        rowNumber = str(numberRows)
-
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
-
-    print(Table(heading=heading, rows=rows))
-
-
+    stop_tasks(gmp)
+    
 if __name__ == "__gmp__":
     main(gmp, args)

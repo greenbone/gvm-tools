@@ -31,31 +31,30 @@ from gvmtools.helper import Table
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
+    response_xml = gmp.get_filters(filter_string="rows=-1")
+    filters_xml = response_xml.xpath("filter")
 
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
+    heading = ["#", "Name", "Id", "Modified", "Type", "Term"]
 
     rows = []
     numberRows = 0
 
     print(
-        "Listing tasks.\n"
+        "Listing filters.\n"
     )
 
-    for task in tasks_xml:
+    for filter in filters_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        name = "".join(filter.xpath("name/text()"))
+        modified = "".join(filter.xpath("modification_time/text()"))
+        term = "".join(filter.xpath("term/text()"))
+        type = "".join(filter.xpath("type/text()"))
+        filter_id = filter.get("id")
+        rows.append([rowNumber, name, filter_id, modified, type, term])
 
     print(Table(heading=heading, rows=rows))
 

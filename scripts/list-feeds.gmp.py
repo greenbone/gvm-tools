@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+#
 # Based on other Greenbone scripts 
 #
 # Martin Boller
@@ -27,35 +28,38 @@ from gvm.protocols.gmp import Gmp
 
 from gvmtools.helper import Table
 
+#from gvm.xml import pretty_print
 
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
-
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
-
+    response_xml = gmp.get_feeds()
+    feeds_xml = response_xml.xpath("feed")
+    heading = ["#", "Name", "Version", "Status"]
     rows = []
     numberRows = 0
+#    pretty_print(feeds_xml)
 
     print(
-        "Listing tasks.\n"
+        "Listing feeds and their status.\n"
     )
 
-    for task in tasks_xml:
+    for feed in feeds_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
+        name = "".join(feed.xpath("name/text()"))
+        version = "".join(feed.xpath("version/text()"))
+        type = "".join(feed.xpath("type/text()"))
+        status = "".join(feed.xpath("currently_syncing/timestamp/text()"))
+        if not status:
+            status = "Up-to-date..."
+        else:
+            status = "Update in progress..."
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+
+        rows.append([rowNumber, name, version, status])
 
     print(Table(heading=heading, rows=rows))
 
