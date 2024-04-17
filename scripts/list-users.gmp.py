@@ -31,31 +31,30 @@ from gvmtools.helper import Table
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
+    response_xml = gmp.get_users(filter_string="rows=-1")
+    users_xml = response_xml.xpath("user")
 
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
+    heading = ["#", "Name", "Id", "Role", "Groups"]
 
     rows = []
     numberRows = 0
 
     print(
-        "Listing tasks.\n"
+        "Listing users.\n"
     )
 
-    for task in tasks_xml:
+    for user in users_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        name = "".join(user.xpath("name/text()"))
+        user_id = user.get("id")
+        user_role = "".join(user.xpath("role/name/text()"))
+        user_groups = "".join(user.xpath("groups/group/name/text()"))
+
+        rows.append([rowNumber, name, user_id, user_role, user_groups])
 
     print(Table(heading=heading, rows=rows))
 

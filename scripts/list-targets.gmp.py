@@ -31,31 +31,33 @@ from gvmtools.helper import Table
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
+    response_xml = gmp.get_targets(filter_string="rows=-1")
+    targets_xml = response_xml.xpath("target")
 
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
+    heading = ["#", "Name", "Id", "Count", "SSH Credential", "SMB Cred", "ESXi Cred", "SNMP Cred", "Alive test"]
 
     rows = []
     numberRows = 0
 
     print(
-        "Listing tasks.\n"
+        "Listing targets.\n"
     )
 
-    for task in tasks_xml:
+    for target in targets_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        name = "".join(target.xpath("name/text()"))
+        maxhosts = "".join(target.xpath("max_hosts/text()"))
+        sshcred = "".join(target.xpath("ssh_credential/name/text()"))
+        smbcred = "".join(target.xpath("smb_credential/name/text()"))
+        esxicred = "".join(target.xpath("esxi_credential/name/text()"))
+        snmpcred = "".join(target.xpath("snmp_credential/name/text()"))
+        target_id = target.get("id")
+        alive_test = "".join(target.xpath("alive_tests/text()"))
+        rows.append([rowNumber, name, target_id, maxhosts, sshcred, smbcred, esxicred, snmpcred, alive_test])
 
     print(Table(heading=heading, rows=rows))
 

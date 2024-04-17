@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # 
 # Based on the Greenbone export-pdf-report script and modified to 
-# return more (all) details.
+# create csv and return more (all) details.
 # 
 #
 # Copyright (C) 2019-2021 Greenbone Networks GmbH
@@ -26,10 +26,10 @@
 # 
 
 import sys
-from argparse import Namespace
+
 from base64 import b64decode
 from pathlib import Path
-
+from argparse import Namespace
 from gvm.protocols.gmp import Gmp
 
 
@@ -37,36 +37,37 @@ def check_args(args):
     len_args = len(args.script) - 1
     if len_args < 1:
         message = """
-        This script requests the given report and exports it as a pdf 
-        file locally. It requires one parameters after the script name.
+        This script requests the given report and exports it as a csv 
+        file locally. It requires one parameter after the script name.
 
         1. <report_id>     -- ID of the report
         
-        Optional a file name to save the pdf in.
+        Optional a file name to save the csv in.
 
-        Example:
+        Examples:
             $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/export-pdf-report.gmp.py <report_id> <pdf_file>
+ssh --hostname <gsm> scripts/export-csv-report.gmp.py <report_id> <csv_file>
+            $ gvm-script --gmp-username admin --gmp-password '0f6fa69b-32bb-453a-9aa4-b8c9e56b3d00' socket export-csv-report.gmp.py b26229cd-94c8-44f8-9cb6-27486a3dedad ./test.csv
         """
         print(message)
         sys.exit()
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
-    # check if report id and PDF filename are provided to the script
+    # check if report id and CSV filename are provided to the script
     # argv[0] contains the script name
     check_args(args)
 
     report_id = args.argv[1]
     if len(args.argv) == 3:
-        pdf_filename = args.argv[2] + ".pdf"
+        csv_filename = args.argv[2] + ".csv"
     else:
-        pdf_filename = args.argv[1] + ".pdf"
+        csv_filename = args.argv[1] + ".csv"
 
-    pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
+    csv_report_format_id = "c1645568-627a-11e3-a660-406186ea4fc5"
 
     response = gmp.get_report(
-        report_id=report_id, report_format_id=pdf_report_format_id, ignore_pagination=True, details=True
+        report_id=report_id, report_format_id=csv_report_format_id, ignore_pagination=True, details=True
     )
 
     report_element = response.find("report")
@@ -75,26 +76,27 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     if not content:
         print(
-            "Requested report is empty. Either the report does not contain any "
-            "results or the necessary tools for creating the report are "
-            "not installed.",
+            'Requested report is empty. Either the report does not contain any '
+            ' results or the necessary tools for creating the report are '
+            'not installed.',
             file=sys.stderr,
         )
         sys.exit(1)
 
     # convert content to 8-bit ASCII bytes
-    binary_base64_encoded_pdf = content.encode("ascii")
+    binary_base64_encoded_csv = content.encode('ascii')
 
     # decode base64
-    binary_pdf = b64decode(binary_base64_encoded_pdf)
+    binary_csv = b64decode(binary_base64_encoded_csv)
 
     # write to file and support ~ in filename path
-    pdf_path = Path(pdf_filename).expanduser()
+    csv_path = Path(csv_filename).expanduser()
 
-    pdf_path.write_bytes(binary_pdf)
+    csv_path.write_bytes(binary_csv)
 
-    print("Done. PDF created: " + str(pdf_path))
+    print('Done. CSV created: ' + str(csv_path))
 
 
-if __name__ == "__gmp__":
+if __name__ == '__gmp__':
     main(gmp, args)
+
