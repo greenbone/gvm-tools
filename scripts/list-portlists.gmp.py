@@ -31,31 +31,31 @@ from gvmtools.helper import Table
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
+    response_xml = gmp.get_port_lists(filter_string="rows=-1")
+    portlists_xml = response_xml.xpath("port_list")
 
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
+    heading = ["#", "Name", "Id", "Ports All", "Ports TCP", "Ports UDP"]
 
     rows = []
     numberRows = 0
 
     print(
-        "Listing tasks.\n"
+        "Listing portlists.\n"
     )
 
-    for task in tasks_xml:
+    for portlist in portlists_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        name = "".join(portlist.xpath("name/text()"))
+        port_list_id = portlist.get("id")
+        port_all = "".join(portlist.xpath("port_count/all/text()"))
+        port_tcp = "".join(portlist.xpath("port_count/tcp/text()"))
+        port_udp = "".join(portlist.xpath("port_count/udp/text()"))
+
+        rows.append([rowNumber, name, port_list_id, port_all, port_tcp, port_udp])
 
     print(Table(heading=heading, rows=rows))
 
