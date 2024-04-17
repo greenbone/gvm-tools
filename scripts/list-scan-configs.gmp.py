@@ -31,31 +31,29 @@ from gvmtools.helper import Table
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
+    response_xml = gmp.get_scan_configs(filter_string="rows=-1")
+    scan_configs_xml = response_xml.xpath("config")
 
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
+    heading = ["#", "Name", "Id", "NVT Count"]
 
     rows = []
     numberRows = 0
 
     print(
-        "Listing tasks.\n"
+        "Listing scan configurations.\n"
     )
 
-    for task in tasks_xml:
+    for scan_config in scan_configs_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        name = "".join(scan_config.xpath("name/text()"))
+        scan_config_id = scan_config.get("id")
+        scan_config_nvt = "".join(scan_config.xpath("nvt_count/text()"))
+
+        rows.append([rowNumber, name, scan_config_id, scan_config_nvt])
 
     print(Table(heading=heading, rows=rows))
 

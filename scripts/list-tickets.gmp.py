@@ -31,31 +31,37 @@ from gvmtools.helper import Table
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    response_xml = gmp.get_tasks(details=True, filter_string="rows=-1")
-    tasks_xml = response_xml.xpath("task")
+    response_xml = gmp.get_tickets(filter_string="rows=-1")
+    tickets_xml = response_xml.xpath("ticket")
 
-    heading = ["#", "Name", "Id", "Target", "Scanner", "Scan Order", "Severity"]
+    heading = ["#", "Name", "Host", "Task", "Status", "Note"]
 
     rows = []
     numberRows = 0
 
     print(
-        "Listing tasks.\n"
+        "Listing tickets.\n"
     )
 
-    for task in tasks_xml:
+    for ticket in tickets_xml:
         # Count number of reports
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
 
-        name = "".join(task.xpath("name/text()"))
-        task_id = task.get("id")
-        targetname = "".join(task.xpath("target/name/text()"))
-        scanner = "".join(task.xpath("scanner/name/text()"))
-        severity = "".join(task.xpath("last_report/report/severity/text()"))
-        order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        name = "".join(ticket.xpath("name/text()"))
+        ticket_id = ticket.get("id")
+        ticket_status = "".join(ticket.xpath("status/text()"))
+        ticket_task = "".join(ticket.xpath("task/name/text()"))
+        ticket_host = "".join(ticket.xpath("host/text()"))
+        if ticket_status.upper() == "OPEN":
+            ticket_note = "".join(ticket.xpath("open_note/text()"))
+        elif ticket_status.upper() == "FIXED":
+            ticket_note = "".join(ticket.xpath("fixed_note/text()"))
+        elif ticket_status.upper() == "CLOSED":
+            ticket_note = "".join(ticket.xpath("closed_note/text()"))
+
+        rows.append([rowNumber, name, ticket_host, ticket_task, ticket_status, ticket_note])
 
     print(Table(heading=heading, rows=rows))
 
