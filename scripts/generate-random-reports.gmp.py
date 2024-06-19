@@ -5,14 +5,13 @@
 import json
 import textwrap
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from datetime import datetime, timedelta
 from pathlib import Path
 from random import choice, gauss, randrange, seed
-from datetime import datetime, timedelta
 
 from gvm.protocols.gmp import Gmp
-from lxml import etree as e
-
 from gvmtools.helper import generate_id, generate_random_ips, generate_uuid
+from lxml import etree as e
 
 __version__ = "0.3.1"
 

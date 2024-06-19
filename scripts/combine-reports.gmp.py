@@ -9,9 +9,8 @@ import time
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-from lxml import etree as e
-
 from gvmtools.helper import generate_uuid
+from lxml import etree as e
 
 
 def check_args(args: Namespace) -> None:

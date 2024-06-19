@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -15,14 +14,22 @@ def main(gmp: Gmp, args: Namespace) -> None:
     response_xml = gmp.get_targets(filter_string="rows=-1")
     targets_xml = response_xml.xpath("target")
 
-    heading = ["#", "Name", "Id", "Count", "SSH Credential", "SMB Cred", "ESXi Cred", "SNMP Cred", "Alive test"]
+    heading = [
+        "#",
+        "Name",
+        "Id",
+        "Count",
+        "SSH Credential",
+        "SMB Cred",
+        "ESXi Cred",
+        "SNMP Cred",
+        "Alive test",
+    ]
 
     rows = []
     numberRows = 0
 
-    print(
-        "Listing targets.\n"
-    )
+    print("Listing targets.\n")
 
     for target in targets_xml:
         # Count number of reports
@@ -38,7 +45,19 @@ def main(gmp: Gmp, args: Namespace) -> None:
         snmpcred = "".join(target.xpath("snmp_credential/name/text()"))
         target_id = target.get("id")
         alive_test = "".join(target.xpath("alive_tests/text()"))
-        rows.append([rowNumber, name, target_id, maxhosts, sshcred, smbcred, esxicred, snmpcred, alive_test])
+        rows.append(
+            [
+                rowNumber,
+                name,
+                target_id,
+                maxhosts,
+                sshcred,
+                smbcred,
+                esxicred,
+                snmpcred,
+                alive_test,
+            ]
+        )
 
     print(Table(heading=heading, rows=rows))
 

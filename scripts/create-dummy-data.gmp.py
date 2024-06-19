@@ -7,7 +7,6 @@ from argparse import Namespace
 from random import choice
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import generate_id
 
 

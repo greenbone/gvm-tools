@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -20,9 +19,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     rows = []
     numberRows = 0
 
-    print(
-        "Listing portlists.\n"
-    )
+    print("Listing portlists.\n")
 
     for portlist in portlists_xml:
         # Count number of reports
@@ -36,7 +33,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
         port_tcp = "".join(portlist.xpath("port_count/tcp/text()"))
         port_udp = "".join(portlist.xpath("port_count/udp/text()"))
 
-        rows.append([rowNumber, name, port_list_id, port_all, port_tcp, port_udp])
+        rows.append(
+            [rowNumber, name, port_list_id, port_all, port_tcp, port_udp]
+        )
 
     print(Table(heading=heading, rows=rows))
 

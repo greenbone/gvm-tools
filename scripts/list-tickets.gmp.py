@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -15,14 +14,12 @@ def main(gmp: Gmp, args: Namespace) -> None:
     response_xml = gmp.get_tickets(filter_string="rows=-1")
     tickets_xml = response_xml.xpath("ticket")
 
-    heading = ["#", "Name", "Host", "Task", "Status", "Note"]
+    heading = ["#", "ID", "Name", "Host", "Task", "Status", "Note"]
 
     rows = []
     numberRows = 0
 
-    print(
-        "Listing tickets.\n"
-    )
+    print("Listing tickets.\n")
 
     for ticket in tickets_xml:
         # Count number of reports
@@ -42,7 +39,17 @@ def main(gmp: Gmp, args: Namespace) -> None:
         elif ticket_status.upper() == "CLOSED":
             ticket_note = "".join(ticket.xpath("closed_note/text()"))
 
-        rows.append([rowNumber, name, ticket_host, ticket_task, ticket_status, ticket_note])
+        rows.append(
+            [
+                rowNumber,
+                ticket_id,
+                name,
+                ticket_host,
+                ticket_task,
+                ticket_status,
+                ticket_note,
+            ]
+        )
 
     print(Table(heading=heading, rows=rows))
 

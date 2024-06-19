@@ -16,12 +16,12 @@ def check_args(args):
         It needs one parameters after the script name.
 
         1. <host_ip>        IP Address of the host system
-        2. <port_list_id>   Port List UUID for scanning the host system. 
-                            Preconfigured UUID might be under 
-                            /var/lib/gvm/data-objects/gvmd/20.08/port_lists/. 
-                            ex. iana-tcp-udp is 
+        2. <port_list_id>   Port List UUID for scanning the host system.
+                            Preconfigured UUID might be under
+                            /var/lib/gvm/data-objects/gvmd/20.08/port_lists/.
+                            ex. iana-tcp-udp is
                             "4a4717fe-57d2-11e1-9a26-406186ea4fc5".
-        
+
                 Example:
             $ gvm-script --gmp-username name --gmp-password pass \
 ssh --hostname <gsm> scripts/scan-new-system.gmp.py <host_ip> <port_list_id>

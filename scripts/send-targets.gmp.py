@@ -6,9 +6,8 @@ import sys
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-from lxml.etree import Element
-
 from gvmtools.helper import create_xml_tree, yes_or_no
+from lxml.etree import Element
 
 
 def check_args(args: Namespace) -> None:

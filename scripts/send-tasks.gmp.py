@@ -6,13 +6,12 @@ import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import create_xml_tree, error_and_exit, yes_or_no
 
 HELP_TEXT = """
         This script pulls tasks data from an xml document and feeds it to \
             a desired GSM
-        Usage examples: 
+        Usage examples:
             $ gvm-script --gmp-username name --gmp-password pass ssh --hostname
             ... send-task.gmp.py +h
             ... send-task.gmp.py ++x xml_file

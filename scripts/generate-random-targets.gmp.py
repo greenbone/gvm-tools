@@ -7,7 +7,6 @@ from argparse import Namespace
 from random import choice, gauss
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import generate_random_ips
 
 
