@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -20,9 +19,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     rows = []
     numberRows = 0
 
-    print(
-        "Listing schedules.\n"
-    )
+    print("Listing schedules.\n")
 
     for schedule in schedules_xml:
         # Count number of reports
@@ -35,11 +32,10 @@ def main(gmp: Gmp, args: Namespace) -> None:
         icalendar = "".join(schedule.xpath("icalendar/text()"))
         timezone = "".join(schedule.xpath("timezone/text()"))
         rows.append([rowNumber, name, schedule_id, timezone, icalendar])
-        #print(icalendar)
+        # print(icalendar)
 
     print(Table(heading=heading, rows=rows))
 
 
 if __name__ == "__gmp__":
     main(gmp, args)
-

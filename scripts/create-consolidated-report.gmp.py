@@ -9,9 +9,8 @@ from uuid import UUID
 
 from gvm.errors import GvmError
 from gvm.protocols.gmp import Gmp
-from lxml import etree as e
-
 from gvmtools.helper import error_and_exit, generate_uuid
+from lxml import etree as e
 
 HELP_TEXT = (
     "This script creates a consolidated report and imports it to the GSM. "

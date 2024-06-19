@@ -15,11 +15,11 @@ def check_args(args):
     len_args = len(args.script) - 1
     if len_args < 1:
         message = """
-        This script requests the given report and exports it as a pdf 
+        This script requests the given report and exports it as a pdf
         file locally. It requires one parameters after the script name.
 
         1. <report_id>     -- ID of the report
-        
+
         Optional a file name to save the pdf in.
 
         Example:
@@ -44,7 +44,10 @@ def main(gmp: Gmp, args: Namespace) -> None:
     pdf_report_format_id = "c402cc3e-b531-11e1-9163-406186ea4fc5"
 
     response = gmp.get_report(
-        report_id=report_id, report_format_id=pdf_report_format_id, ignore_pagination=True, details=True
+        report_id=report_id,
+        report_format_id=pdf_report_format_id,
+        ignore_pagination=True,
+        details=True,
     )
 
     report_element = response.find("report")

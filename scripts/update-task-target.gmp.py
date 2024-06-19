@@ -7,7 +7,6 @@ from argparse import ArgumentParser, FileType, Namespace, RawTextHelpFormatter
 from typing import List
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (

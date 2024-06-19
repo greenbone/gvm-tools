@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -20,9 +19,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     rows = []
     numberRows = 0
 
-    print(
-        "Listing tasks.\n"
-    )
+    print("Listing tasks.\n")
 
     for task in tasks_xml:
         # Count number of reports
@@ -36,7 +33,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
         scanner = "".join(task.xpath("scanner/name/text()"))
         severity = "".join(task.xpath("last_report/report/severity/text()"))
         order = "".join(task.xpath("hosts_ordering/text()"))
-        rows.append([rowNumber, name, task_id, targetname, scanner, order, severity])
+        rows.append(
+            [rowNumber, name, task_id, targetname, scanner, order, severity]
+        )
 
     print(Table(heading=heading, rows=rows))
 

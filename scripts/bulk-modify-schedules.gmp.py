@@ -4,6 +4,7 @@
 
 import sys
 from argparse import Namespace
+
 from gvm.protocols.gmp import Gmp
 
 

@@ -8,17 +8,14 @@
 #
 # Run with gvm-script --gmp-username admin-user --gmp-password password socket create-credentials-from-csv.gmp.py credentials.csv
 
+import csv
 import sys
 import time
-import csv
-
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from pathlib import Path
-from typing import List
+
 from gvm.errors import GvmResponseError
-
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
@@ -75,28 +72,31 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     script_args, _ = parser.parse_known_args(args)
     return script_args
 
+
 def credential_id(
     gmp: Gmp,
     credName: str,
 ):
-    response_xml = gmp.get_credentials(filter_string="rows=-1, name=" + credName)
+    response_xml = gmp.get_credentials(
+        filter_string="rows=-1, name=" + credName
+    )
     credentials_xml = response_xml.xpath("credential")
     cred_id = ""
 
     for credential in credentials_xml:
-        name = "".join(credential.xpath("name/text()"))
         cred_id = credential.get("id")
     return cred_id
 
-def create_credentials(   
+
+def create_credentials(
     gmp: Gmp,
     cred_file: Path,
 ):
     try:
         numberCredentials = 0
         with open(cred_file, encoding="utf-8") as csvFile:
-            content = csv.reader(csvFile, delimiter=',')  #read the data
-            for row in content:   #loop through each row
+            content = csv.reader(csvFile, delimiter=",")  # read the data
+            for row in content:  # loop through each row
                 if len(row) == 0:
                     continue
                 cred_name = row[0]
@@ -113,11 +113,11 @@ def create_credentials(
                     try:
                         print("Creating credential: " + cred_name)
                         gmp.create_credential(
-                        name=cred_name,
-                        credential_type=gmp.types.CredentialType.USERNAME_PASSWORD,
-                        login=userName,
-                        password=userPW,
-                        comment=comment,
+                            name=cred_name,
+                            credential_type=gmp.types.CredentialType.USERNAME_PASSWORD,
+                            login=userName,
+                            password=userPW,
+                            comment=comment,
                         )
                         numberCredentials = numberCredentials + 1
                     except GvmResponseError as gvmerr:
@@ -127,7 +127,7 @@ def create_credentials(
                     with open(row[4]) as key_file:
                         key = key_file.read()
 
-                    try:                    
+                    try:
                         print("Creating credential: " + cred_name)
                         gmp.create_credential(
                             name=cred_name,
@@ -136,22 +136,22 @@ def create_credentials(
                             key_phrase=userPW,
                             private_key=key,
                             comment=comment,
-                            )
+                        )
                         numberCredentials = numberCredentials + 1
                     except GvmResponseError as gvmerr:
                         print(f"{gvmerr=}, name: {cred_name}")
                         pass
                 elif cred_type == "SNMP":
-                        # Unfinished, copy of UP for now
+                    # Unfinished, copy of UP for now
                     try:
                         print("Creating credential: " + cred_name)
                         gmp.create_credential(
-                        name=cred_name,
-                        credential_type=gmp.types.CredentialType.USERNAME_SSH_KEY,
-                        login=userName,
-                        key_phrase=userPW,
-                        private_key=key,
-                        comment=comment,
+                            name=cred_name,
+                            credential_type=gmp.types.CredentialType.USERNAME_SSH_KEY,
+                            login=userName,
+                            key_phrase=userPW,
+                            private_key=key,
+                            comment=comment,
                         )
                         numberCredentials = numberCredentials + 1
                     except GvmResponseError as gvmerr:
@@ -159,31 +159,32 @@ def create_credentials(
                         pass
 
                 elif cred_type == "ESX":
-                        # Unfinished, copy of UP for now
+                    # Unfinished, copy of UP for now
                     try:
                         print("Creating credential: " + cred_name)
                         gmp.create_credential(
-                        name=cred_name,
-                        credential_type=gmp.types.CredentialType.USERNAME_SSH_KEY,
-                        login=userName,
-                        key_phrase=userPW,
-                        private_key=key,
-                        comment=comment,
+                            name=cred_name,
+                            credential_type=gmp.types.CredentialType.USERNAME_SSH_KEY,
+                            login=userName,
+                            key_phrase=userPW,
+                            private_key=key,
+                            comment=comment,
                         )
                         numberCredentials = numberCredentials + 1
                     except GvmResponseError as gvmerr:
                         print(f"{gvmerr=}, name: {cred_name}")
                         pass
-        csvFile.close()   #close the csv file
+        csvFile.close()  # close the csv file
 
     except IOError as e:
         error_and_exit(f"Failed to read cred_file: {str(e)} (exit)")
 
     if len(row) == 0:
         error_and_exit("Credentials file is empty (exit)")
-    
+
     return numberCredentials
-    
+
+
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
     if args.script:
@@ -191,9 +192,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     parsed_args = parse_args(args=args)
 
-    print(
-        "Creating credentials.\n"
-    )
+    print("Creating credentials.\n")
 
     numberCredentials = create_credentials(
         gmp,

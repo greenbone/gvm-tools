@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -20,9 +19,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     rows = []
     numberRows = 0
 
-    print(
-        "Listing groups.\n"
-    )
+    print("Listing groups.\n")
 
     for group in groups_xml:
         # Count number of reports

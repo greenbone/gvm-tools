@@ -12,9 +12,10 @@ from argparse import ArgumentParser, Namespace
 from itertools import zip_longest
 from typing import Dict, List, Optional, Sequence, Tuple, TypeVar, overload
 
-import ssv_csv
 from gvm.errors import GvmResponseError
 from gvm.protocols.gmp import Gmp
+
+import ssv_csv
 
 # from gvm.xml import pretty_print
 

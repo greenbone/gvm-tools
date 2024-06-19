@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import List
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
@@ -26,7 +25,7 @@ def check_args(args):
 for each.
         One parameter after the script name is required.
 
-        1. <hostname>        -- IP of the GVM host 
+        1. <hostname>        -- IP of the GVM host
         2. <hosts_textfile>  -- text file containing hostnames
 
         Example:

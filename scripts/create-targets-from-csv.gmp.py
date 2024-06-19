@@ -5,13 +5,12 @@
 
 # Run with gvm-script --gmp-username admin-user --gmp-password password socket create-targets-from-csv.gmp.py hostname-server targets.csv
 
+import csv
 import sys
 import time
-import csv
-
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from pathlib import Path
-from typing import List
+
 from gvm.errors import GvmResponseError
 from gvm.protocols.gmp import Gmp
 from gvmtools.helper import error_and_exit
@@ -88,7 +87,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
         port_list_id="730ef368-57e2-11e1-a90f-406186ea4fc5"
     )  # All TCP and Nmap top 100 UDP
     # Default portlists see also script list-portlists.gmp.py
-    # | Name                          | ID                                  
+    # | Name                          | ID
     # - | ----------------------------- | ------------------------------------
     # 1 | All IANA assigned TCP         | 33d0cd82-57c6-11e1-8ed1-406186ea4fc5
     # 2 | All IANA assigned TCP and UDP | 4a4717fe-57d2-11e1-9a26-406186ea4fc5
@@ -97,18 +96,21 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     script_args, _ = parser.parse_known_args(args)
     return script_args
 
+
 def credential_id(
     gmp: Gmp,
     credName: str,
 ):
-    response_xml = gmp.get_credentials(filter_string="rows=-1, name=" + credName)
+    response_xml = gmp.get_credentials(
+        filter_string="rows=-1, name=" + credName
+    )
     credentials_xml = response_xml.xpath("credential")
     cred_id = ""
 
     for credential in credentials_xml:
-        name = "".join(credential.xpath("name/text()"))
         cred_id = credential.get("id")
     return cred_id
+
 
 def target_id(
     gmp: Gmp,
@@ -119,11 +121,11 @@ def target_id(
     target_id = ""
 
     for target in targets_xml:
-        name = "".join(target.xpath("name/text()"))
         target_id = target.get("id")
     return target_id
 
-def create_targets(   
+
+def create_targets(
     gmp: Gmp,
     target_csv_file: Path,
     port_list_id: str,
@@ -131,22 +133,18 @@ def create_targets(
     try:
         numberTargets = 0
         with open(target_csv_file, encoding="utf-8") as csvFile:
-            content = csv.reader(csvFile, delimiter=',')  #read the data
-            for row in content:   #loop through each row
+            content = csv.reader(csvFile, delimiter=",")  # read the data
+            for row in content:  # loop through each row
                 if len(row) == 0:
                     continue
                 name = row[0]
                 hosts = [row[1]]
                 smbCred = credential_id(gmp, row[2])
                 sshCred = credential_id(gmp, row[3])
-                snmpCred = credential_id(gmp, row[4])
-                esxCred = credential_id(gmp, row[5])
                 aliveTest = row[6]
                 if not aliveTest:
-                    aliveTest = "Scan Config Default" 
-                alive_test = gmp.types.AliveTest(
-                    (aliveTest)
-                )
+                    aliveTest = "Scan Config Default"
+                alive_test = gmp.types.AliveTest((aliveTest))
                 comment = f"Created: {time.strftime('%Y/%m/%d-%H:%M:%S')}"
                 try:
                     if target_id(gmp, name):
@@ -155,37 +153,40 @@ def create_targets(
 
                     print("Creating target: " + name)
                     gmp.create_target(
-                    name=name, comment=comment, hosts=hosts, port_list_id=port_list_id, smb_credential_id=smbCred, ssh_credential_id=sshCred, alive_test=alive_test
+                        name=name,
+                        comment=comment,
+                        hosts=hosts,
+                        port_list_id=port_list_id,
+                        smb_credential_id=smbCred,
+                        ssh_credential_id=sshCred,
+                        alive_test=alive_test,
                     )
                     numberTargets = numberTargets + 1
                 except GvmResponseError as gvmerr:
                     print(f"{gvmerr=}, name: {name}")
                     pass
-        csvFile.close()   #close the csv file
+        csvFile.close()  # close the csv file
     except IOError as e:
         error_and_exit(f"Failed to read target_csv_file: {str(e)} (exit)")
 
     if len(row) == 0:
         error_and_exit("Host file is empty (exit)")
-    
+
     return numberTargets
-    
+
+
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
     if args.script:
         args = args.script[1:]
 
     parsed_args = parse_args(args=args)
-    #port_list_id="4a4717fe-57d2-11e1-9a26-406186ea4fc5"
+    # port_list_id="4a4717fe-57d2-11e1-9a26-406186ea4fc5"
 
-    print(
-        "Creating targets.\n"
-    )
-    
+    print("Creating targets.\n")
+
     numberTargets = create_targets(
-        gmp,
-        parsed_args.targets_csv_file,
-        parsed_args.port_list_id
+        gmp, parsed_args.targets_csv_file, parsed_args.port_list_id
     )
 
     numberTargets = str(numberTargets)

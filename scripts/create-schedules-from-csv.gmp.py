@@ -5,17 +5,14 @@
 
 # Run with gvm-script --gmp-username admin-user --gmp-password password socket create-schedules-from-csv.gmp.py schedules.csv
 
+import csv
 import sys
 import time
-import csv
-
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from pathlib import Path
-from typing import List
+
 from gvm.errors import GvmResponseError
-
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
@@ -72,29 +69,31 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     script_args, _ = parser.parse_known_args(args)
     return script_args
 
+
 def schedule_id(
     gmp: Gmp,
     schedule_name: str,
 ):
-    response_xml = gmp.get_schedules(filter_string="rows=-1, name=" + schedule_name)
+    response_xml = gmp.get_schedules(
+        filter_string="rows=-1, name=" + schedule_name
+    )
     schedules_xml = response_xml.xpath("schedule")
     schedule_id = ""
 
     for schedule in schedules_xml:
-        name = "".join(schedule.xpath("name/text()"))
         schedule_id = schedule.get("id")
     return schedule_id
 
 
-def create_schedules(   
+def create_schedules(
     gmp: Gmp,
     sched_file: Path,
 ):
     try:
         numberschedules = 0
         with open(sched_file, encoding="utf-8") as csvFile:
-            content = csv.reader(csvFile, delimiter=',')  #read the data
-            for row in content:   #loop through each row
+            content = csv.reader(csvFile, delimiter=",")  # read the data
+            for row in content:  # loop through each row
                 if len(row) == 0:
                     continue
                 sched_name = row[0]
@@ -107,25 +106,26 @@ def create_schedules(
                         continue
                     print("Creating schedule: " + sched_name)
                     gmp.create_schedule(
-                            name=sched_name,
-                            timezone=sched_tz,
-                            icalendar=sched_ical,
-                            comment=comment
+                        name=sched_name,
+                        timezone=sched_tz,
+                        icalendar=sched_ical,
+                        comment=comment,
                     )
                     numberschedules = numberschedules + 1
                 except GvmResponseError as gvmerr:
                     print(f"{gvmerr=}, name: {sched_name}")
                     pass
-        csvFile.close()   #close the csv file
+        csvFile.close()  # close the csv file
 
     except IOError as e:
         error_and_exit(f"Failed to read sched_file: {str(e)} (exit)")
 
     if len(row) == 0:
         error_and_exit("schedules file is empty (exit)")
-    
+
     return numberschedules
-    
+
+
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
     if args.script:
@@ -133,9 +133,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     parsed_args = parse_args(args=args)
 
-    print(
-        "Creating schedules.\n"
-    )
+    print("Creating schedules.\n")
 
     numberschedules = create_schedules(
         gmp,

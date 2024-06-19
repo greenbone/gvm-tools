@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -20,9 +19,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     rows = []
     numberRows = 0
 
-    print(
-        "Listing scan configurations.\n"
-    )
+    print("Listing scan configurations.\n")
 
     for scan_config in scan_configs_xml:
         # Count number of reports

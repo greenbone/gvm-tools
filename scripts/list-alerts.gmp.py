@@ -5,7 +5,6 @@
 from argparse import Namespace
 
 from gvm.protocols.gmp import Gmp
-
 from gvmtools.helper import Table
 
 
@@ -15,14 +14,21 @@ def main(gmp: Gmp, args: Namespace) -> None:
     response_xml = gmp.get_alerts(filter_string="rows=-1")
     alerts_xml = response_xml.xpath("alert")
 
-    heading = ["#", "Name", "Id", "Event", "Event type", "Method", "Condition", "In use"]
+    heading = [
+        "#",
+        "Name",
+        "Id",
+        "Event",
+        "Event type",
+        "Method",
+        "Condition",
+        "In use",
+    ]
 
     rows = []
     numberRows = 0
 
-    print(
-        "Listing alerts.\n"
-    )
+    print("Listing alerts.\n")
 
     for alert in alerts_xml:
         # Count number of reports
@@ -42,7 +48,18 @@ def main(gmp: Gmp, args: Namespace) -> None:
         else:
             alert_inuse = "No"
 
-        rows.append([rowNumber, name, alert_id, alert_event, alert_event_type, alert_method, alert_condition, alert_inuse])
+        rows.append(
+            [
+                rowNumber,
+                name,
+                alert_id,
+                alert_event,
+                alert_event_type,
+                alert_method,
+                alert_condition,
+                alert_inuse,
+            ]
+        )
 
     print(Table(heading=heading, rows=rows))
 
