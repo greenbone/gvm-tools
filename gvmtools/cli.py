@@ -24,7 +24,7 @@ from gvm.errors import GvmError
 from gvm.protocols.gmp import Gmp
 from gvm.protocols.latest import Osp
 from gvm.transforms import CheckCommandTransform
-from gvm.xml import pretty_print, validate_xml_string
+from gvm.xml import parse_xml, pretty_print
 
 from gvmtools.helper import authenticate, do_not_run_as_root
 from gvmtools.parser import (
@@ -104,7 +104,7 @@ def main():
         xml = input()
 
     try:
-        validate_xml_string(xml)
+        parse_xml(xml)
     except GvmError as e:
         print(e, file=sys.stderr)
         sys.exit(1)
