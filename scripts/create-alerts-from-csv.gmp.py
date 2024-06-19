@@ -3,11 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 
-# Loosely based on Greenbone sample scripts
-# As provided by Greenbone in the gvm-tools repo
-#
 # Run with gvm-script --gmp-username admin-user --gmp-password password socket create-alerts-from-csv.gmp.py alerts.csv
-#
 #
 # Information on Variables to be used in alerts: https://docs.greenbone.net/GSM-Manual/gos-22.04/en/scanning.html#using-alerts
 # Example script: https://forum.greenbone.net/t/working-example-of-creating-an-alert-using-script/7511/2
