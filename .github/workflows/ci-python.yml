@@ -67,6 +67,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Calculate and upload coverage to codecov.io
         uses: greenbone/actions/coverage-python@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build-docs:
     name: Build the documentation
