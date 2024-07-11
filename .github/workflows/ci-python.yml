@@ -18,7 +18,7 @@ jobs:
           - "3.12"
     uses: greenbone/workflows/.github/workflows/lint-python.yml@main
     with:
-      linter: ruff
+      linter: ruff check
       lint-packages: gvmtools tests
       python-version: ${{ matrix.python-version }}
 
@@ -44,7 +44,7 @@ jobs:
         run: poetry run black --check scripts/*.gmp.py
       - name: Lint scripts
         run: |
-          poetry run ruff --config scripts/ruff.toml scripts/*.py
+          poetry run ruff check --config scripts/ruff.toml scripts/*.py
 
   test:
     name: Unit tests
