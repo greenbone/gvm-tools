@@ -43,9 +43,9 @@ def create_target(gmp, ipaddress, port_list_id):
 
 def create_task(gmp, ipaddress, target_id, scan_config_id, scanner_id, name="Scan Suspect Host"):
     if name == "Scan Suspect Host":
-	    name = f"Scan Suspect Host {ipaddress}"
+    	name = f"Scan Suspect Host {ipaddress}"
     else:
-	    name = f"{name}"      
+	name = f"{name}"    
     response = gmp.create_task(
         name=name,
         config_id=scan_config_id,
