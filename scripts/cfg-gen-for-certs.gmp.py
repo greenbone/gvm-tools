@@ -68,14 +68,17 @@ def create_scan_config(gmp, cert_bund_name):
 
         # Modify the config with the nvts oid
         for family, nvt_oid in nvt_dict.items():
-            gmp.modify_scan_config(
-                config_id=config_id, nvt_oids=nvt_oid, family=family
-            )
+            try:
+                gmp.modify_scan_config_set_nvt_selection(
+                    config_id=config_id, nvt_oids=nvt_oid, family=family
+                )
+            except GvmError as gvmerr:
+                print(f"{gvmerr=}")
 
         # This nvts must be present to work
         family = "Port scanners"
         nvts = ["1.3.6.1.4.1.25623.1.0.14259", "1.3.6.1.4.1.25623.1.0.100315"]
-        gmp.modify_scan_config(
+        gmp.modify_scan_config_set_nvt_selection(
             config_id=config_id, nvt_oids=nvts, family=family
         )
 
