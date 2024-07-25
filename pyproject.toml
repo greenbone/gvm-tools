@@ -76,6 +76,8 @@ pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.ruff']
 [tool.ruff]
 line-length = 80
 target-version = "py39"
+
+[tool.ruff.lint]
 extend-select = ["I", "PLE", "PLW"]
 
 [tool.coverage.run]
