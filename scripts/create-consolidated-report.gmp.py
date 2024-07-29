@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import date
 from typing import List, Tuple
@@ -239,7 +240,8 @@ def get_last_report_in_time_period(
         if reports_id:
             reports.append(reports_id[0])
         else:
-            print(f"Failed to get report for task {task_id}")
+            print(f"Failed to get report for task {task_id}", file=sys.stderr)
+            sys.exit(1)
     return reports
 
 
