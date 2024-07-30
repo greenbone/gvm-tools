@@ -1187,19 +1187,18 @@ six = ">=1.5"
 
 [[package]]
 name = "python-gvm"
-version = "24.6.0"
+version = "24.7.0"
 description = "Library to communicate with remote servers over GMP or OSP"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "python_gvm-24.6.0-py3-none-any.whl", hash = "sha256:bde91148b543e09036459bc3d32f1f3a194723cb78121247c6b3f48610006ee4"},
-    {file = "python_gvm-24.6.0.tar.gz", hash = "sha256:3d0abbc83927fe0913e6a73e1ec5dfd25955889d50a53408bf36bc41676e1bb6"},
+    {file = "python_gvm-24.7.0-py3-none-any.whl", hash = "sha256:627285cc39c4367f0a41b95a3b24b81c73ddbe24e4d8f61d165e65f5c462118b"},
+    {file = "python_gvm-24.7.0.tar.gz", hash = "sha256:e1651094ebb7fd5c306f318b12e16da75695a49fdaec3fd8b7c187701f2b5a0a"},
 ]
 
 [package.dependencies]
 lxml = ">=4.5.0"
 paramiko = ">=2.7.1"
-typing-extensions = ">=4.9.0"
 
 [[package]]
 name = "pytoolconfig"
