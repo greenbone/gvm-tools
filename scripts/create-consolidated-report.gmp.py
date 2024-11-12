@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import date
 from typing import List, Tuple
