@@ -239,9 +239,7 @@ def get_last_report_in_time_period(
         reports_id = reports_xml.xpath("report/@id")
         if reports_id:
             reports.append(reports_id[0])
-        else:
-            print(f"Failed to get report for task {task_id}", file=sys.stderr)
-            sys.exit(1)
+
     return reports
 
 
