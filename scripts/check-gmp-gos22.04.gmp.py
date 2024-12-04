@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Greenbone AG
+# SPDX-FileCopyrightText: 2017-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -19,12 +19,13 @@ from pathlib import Path
 from gvm.protocols.gmp import Gmp
 from lxml import etree
 
-__version__ = "21.7.0"
+__version__ = "21.7.1"
 
 logger = logging.getLogger(__name__)
 
 HELP_TEXT = f"""
-    Check-GMP Nagios Command Plugin {__version__} (C) 2017-2021 Greenbone AG
+    Check-GMP Nagios Command Plugin for GOS 22.04 and older
+    Version {__version__} (C) 2017-2024 Greenbone AG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
