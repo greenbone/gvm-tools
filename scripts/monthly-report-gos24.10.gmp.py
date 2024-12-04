@@ -45,7 +45,9 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
     sum_high = 0
     sum_medium = 0
     sum_low = 0
-    table_data = [["Hostname", "IP", "Bericht", "critical", "high", "medium", "low"]]
+    table_data = [
+        ["Hostname", "IP", "Bericht", "critical", "high", "medium", "low"]
+    ]
 
     for host in hosts_xml.xpath("asset"):
         ip = host.xpath("name/text()")[0]
@@ -72,7 +74,9 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         high = int(results.xpath('count(//result/threat[text()="High"])'))
         sum_high += high
 
-        critical = int(results.xpath('count(//result/threat[text()="Critical"])'))
+        critical = int(
+            results.xpath('count(//result/threat[text()="Critical"])')
+        )
         sum_critical += critical
 
         best_os_cpe_report_id = host.xpath(
