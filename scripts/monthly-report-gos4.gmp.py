@@ -19,7 +19,8 @@ def check_args(args: Namespace) -> None:
         It needs two parameters after the script name.
         First one is the month and second one is the year.
         Both parameters are plain numbers, so no text.
-        Explicitly made for GOS 4.X.
+
+        Explicitly made for GOS 4.X, compatible up to GOS 22.04.
 
         1. <month>  -- month of the monthly report
         2. <year>   -- year of the monthly report

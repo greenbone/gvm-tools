@@ -22,7 +22,9 @@ def check_args(args: Namespace) -> None:
         2. <year>   -- year of the monthly report
 
         The third is 'with-tables' parameter to activate a verbose output of
-        hosts. Explicitly made for GOS 3.1.
+        hosts.
+ 
+        Explicitly made for GOS 3.1.
 
         Example:
             $ gvm-script --gmp-username name --gmp-password pass \
