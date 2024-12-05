@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2021 Greenbone AG
+# SPDX-FileCopyrightText: 2017-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -20,7 +20,7 @@ def check_args(args: Namespace) -> None:
         First one is the month and second one is the year.
         Both parameters are plain numbers, so no text.
 
-        Explicitly made for GOS 4.X, compatible up to GOS 22.04.
+        Explicitly made for GOS 24.10.
 
         1. <month>  -- month of the monthly report
         2. <year>   -- year of the monthly report
@@ -41,10 +41,13 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
 
     hosts_xml = gmp.get_hosts(filter_string=host_filter)
 
+    sum_critical = 0
     sum_high = 0
     sum_medium = 0
     sum_low = 0
-    table_data = [["Hostname", "IP", "Bericht", "high", "medium", "low"]]
+    table_data = [
+        ["Hostname", "IP", "Bericht", "critical", "high", "medium", "low"]
+    ]
 
     for host in hosts_xml.xpath("asset"):
         ip = host.xpath("name/text()")[0]
@@ -71,12 +74,17 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         high = int(results.xpath('count(//result/threat[text()="High"])'))
         sum_high += high
 
+        critical = int(
+            results.xpath('count(//result/threat[text()="Critical"])')
+        )
+        sum_critical += critical
+
         best_os_cpe_report_id = host.xpath(
             'host/detail/name[text()="best_os_cpe"]/../source/@id'
         )[0]
 
         table_data.append(
-            [hostname, ip, best_os_cpe_report_id, high, medium, low]
+            [hostname, ip, best_os_cpe_report_id, critical, high, medium, low]
         )
 
     table = AsciiTable(table_data)
@@ -85,6 +93,7 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         f"Summary of results from {from_date.isoformat()} "
         f"to {to_date.isoformat()}"
     )
+    print(f"Critical: {int(sum_critical)}")
     print(f"High: {int(sum_high)}")
     print(f"Medium: {int(sum_medium)}")
     print(f"Low: {int(sum_low)}\n\n")
