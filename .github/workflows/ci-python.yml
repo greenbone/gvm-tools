@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: greenbone/actions/poetry@45b6e84c655954002872d0ac6c8d31b2f213c9a0 # v3.27.17
+        uses: greenbone/actions/poetry@d2ff19d14c6c7d2027b14500b65451bab3495d8d # v3.27.19
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install additional script dependencies
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Calculate and upload coverage to codecov.io
-        uses: greenbone/actions/coverage-python@45b6e84c655954002872d0ac6c8d31b2f213c9a0 # v3.27.17
+        uses: greenbone/actions/coverage-python@d2ff19d14c6c7d2027b14500b65451bab3495d8d # v3.27.19
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -76,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@45b6e84c655954002872d0ac6c8d31b2f213c9a0 # v3.27.17
+        uses: greenbone/actions/poetry@d2ff19d14c6c7d2027b14500b65451bab3495d8d # v3.27.19
       - name: Build docs
         run: |
           cd docs
