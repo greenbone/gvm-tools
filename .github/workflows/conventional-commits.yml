@@ -13,4 +13,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Report Conventional Commits
-        uses: greenbone/actions/conventional-commits@d2ff19d14c6c7d2027b14500b65451bab3495d8d # v3.27.19
+        uses: greenbone/actions/conventional-commits@6415a8253464404a72a867c2e9d6e8be8aaaf9c7 # v3.27.20
