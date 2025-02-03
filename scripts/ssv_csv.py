@@ -286,9 +286,9 @@ class SSVPrinter(CSVPrinter):
     """
 
     def __init__(self) -> None:
-        CSVPrinter.__init__(self, sep="\x1F", quot=None, eol="\n", qnl="\r")
+        CSVPrinter.__init__(self, sep="\x1f", quot=None, eol="\n", qnl="\r")
         # not permitted in SSV data
-        self._invf = re.compile("[\x00\x1F]")
+        self._invf = re.compile("[\x00\x1f]")
 
 
 class SSVWriter(CSVWriter):
@@ -297,10 +297,10 @@ class SSVWriter(CSVWriter):
     def __init__(self, file: TextIO) -> None:
         # pylint: disable=C0301
         CSVWriter.__init__(
-            self, file, sep="\x1F", quot=None, eol="\n", qnl="\r"
+            self, file, sep="\x1f", quot=None, eol="\n", qnl="\r"
         )
         # not permitted in SSV data
-        self._invf = re.compile("[\x00\x1F]")
+        self._invf = re.compile("[\x00\x1f]")
 
 
 if SSVPrinter.__doc__ is not None:
@@ -352,9 +352,9 @@ class SSVReader(object):
         if not line:
             return None
         if isinstance(line, str):
-            return self._read(line, "\n", "\r", "\x1F", "\r\n", "\x00")
+            return self._read(line, "\n", "\r", "\x1f", "\r\n", "\x00")
         if isinstance(line, bytes):
-            return self._read(line, b"\n", b"\r", b"\x1F", b"\r\n", b"\x00")
+            return self._read(line, b"\n", b"\r", b"\x1f", b"\r\n", b"\x00")
         raise TypeError()
 
 
