@@ -16,8 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Command Line Interface Parser
-"""
+"""Command Line Interface Parser"""
 
 import argparse
 import logging
