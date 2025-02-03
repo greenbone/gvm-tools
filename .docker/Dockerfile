@@ -1,4 +1,4 @@
-FROM debian:stable-slim as builder
+FROM debian:stable-slim AS builder
 
 COPY . /source
 
@@ -19,9 +19,9 @@ RUN rm -rf dist && /root/.local/bin/poetry build -f wheel
 
 FROM debian:stable-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV PIP_NO_CACHE_DIR off
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=off
 
 WORKDIR /gvm-tools
 
