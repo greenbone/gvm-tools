@@ -8,41 +8,37 @@
 # example: gvm-script --gmp-username admin --gmp-password top$ecret socket export-hosts-csv.gmp.py hosts.csv 2
 
 
-import sys
 import csv
-
-from gvm.protocols.gmp import Gmp
-from gvm.errors import GvmResponseError
-from gvmtools.helper import error_and_exit
-from datetime import datetime, timedelta, time, date
+import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
-from pathlib import Path
-from typing import List
+from datetime import date, datetime, time, timedelta
+
+from gvm.errors import GvmResponseError
+from gvm.protocols.gmp import Gmp
+from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
     "This script generates a csv file with hosts (assets) "
-    "in Greenbone Vulnerability Manager.\n"
-    "csv file will contain: "
-    "Hostname, IP Address, MAC Address, Operating System, last seen, and severity\n"
+    "from Greenbone Vulnerability Manager.\n\n"
+    "csv file will contain:\n"
+    "IP Address, Hostname, MAC Address, Operating System, last seen, and severity\n"
 )
 
 def check_args(args):
     len_args = len(args.script) - 1
-    if len_args < 1:
+    if len_args < 2:
         message = """
-        This script requests all hosts within the last day and exports it as a csv 
-        file locally. It requires one parameter after the script name.
-
-        1. filename     -- name of the csv file of the report
-        2. days         -- number of days from today to pull hosts from (optional: Default 1)
+        This script requests all hosts <days> prior to today and exports it as a csv file.
+        It requires two parameter after the script name:
+        1. filename -- name of the csv file of the report
+        2. days     -- number of days before and until today to pull hosts information from
+        
         Examples:
-            $ gvm-script --gmp-username name --gmp-password pass \
-ssh --hostname <gsm> scripts/export-hosts-csv.gmp.py <csv_file> 2
-            $ gvm-script --gmp-username admin --gmp-password '0f6fa69b-32bb-453a-9aa4-b8c9e56b3d00' socket export-hosts-csv.gmp.py hosts.csv 4
+            $ gvm-script --gmp-username username --gmp-password password socket export-hosts-csv.gmp.py <csv_file> <days>
+            $ gvm-script --gmp-username admin --gmp-password 0f6fa69b-32bb-453a-9aa4-b8c9e56b3d00 socket export-hosts-csv.gmp.py hosts.csv 4
         """
         print(message)
         sys.exit()
-
 
 def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     """Parsing args ..."""
@@ -82,46 +78,81 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename) -> None:
         f"and modified<{to_date.isoformat()}"
     )
 
-    try:
-        # Get the XML of hosts
-        hosts_xml = gmp.get_hosts(filter_string=host_filter)
-        host_info=[]
+    # Get the XML of hosts
+    hosts_xml = gmp.get_hosts(filter_string=host_filter)
+    host_info=[]
 
-        for host in hosts_xml.xpath("asset"):
-            # IP and modification time will be there
+    for host in hosts_xml.xpath("asset"):
+        try:
+            # ip will always be there            
             ip = host.xpath("name/text()")[0]
             host_seendates = host.xpath("modification_time/text()")
             host_lastseen = host_seendates[0]
+        
+            try:
+                # hostnames and other attributes may not be there  
+                hostnames = host.xpath('identifiers/identifier/name[text()="hostname"]/../value/text()')
+                if len(hostnames) == 0:
+                    hostname = ""
+                    pass
+                else:
+                    hostname = hostnames[0]
+            except GvmResponseError:
+                continue    
             
-            hostnames = host.xpath('identifiers/identifier/name[text()="hostname"]/../value/text()')
-            if len(hostnames) == 0:
+            try:
+                host_macs = host.xpath('identifiers/identifier/name[text()="MAC"]/../value/text()')
+                if len(host_macs) == 0:
+                    host_mac = ""
+                    pass
+                else:
+                    host_mac = host_macs[0]
+            except GvmResponseError:
                 continue
-            hostname = hostnames[0]
-            
-            host_macs = host.xpath('identifiers/identifier/name[text()="MAC"]/../value/text()')
-            if len(host_macs) == 0:
+          
+            try:
+                host_severity = host.xpath('host/severity/value/text()')
+                if len(host_severity) == 0:
+                    host_severity = 0
+                    pass
+                else:
+                    host_severity = host_severity[0]
+            except GvmResponseError:
                 continue
-            host_mac = host_macs[0]
-            
-            host_severity = host.xpath('host/severity/value/text()')[0]
-            if len(host_severity) == 0:
-                continue
-            
-            host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')[0]
-            if len(host_os) == 0:
-                continue
-            
-            host_info.append([hostname, ip, host_mac, host_os, host_lastseen, host_severity])
-    except GvmResponseError as gvmerr:
-        print(f"{gvmerr=}, name: {ip}")
-        pass
+          
+            try:
+                host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')
+                if len(host_os) == 0:
+                    host_os = ""
+                    pass
+                else:
+                    host_os = host_os[0]
+            except GvmResponseError:
+                continue            
+        
+        except GvmResponseError:
+            continue
+
+        host_info.append(
+            [
+                hostname, 
+                ip, 
+                host_mac, 
+                host_os, 
+                host_lastseen,
+                host_severity
+            ]
+        )
     # Write the list host_info to csv file
     writecsv(csvfilename, host_info)
-
-    #print('Done. CSV created: ' + str(csv_path))
+    print(
+        f"CSV file: {csvfilename}\n"
+        f"From:     {from_date}\n"
+        f"To:       {to_date}\n"
+    )
 
 def writecsv(csv_filename, hostinfo: dict):
-    field_names = ["hostname", "ip", "host_mac", "host_os", "host_lastseen", "host_severity"]
+    field_names = ["IP Address", "Hostname", "MAC Address", "Operating System", "Last Seen", "CVSS"]
     try:
         with open(csv_filename, 'w') as csvfile: 
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
@@ -140,10 +171,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
     parsed_args = parse_args(args=args)
 
     delta_days = parsed_args.delta_days
-    # simply getting yesterday from midnight to midnight today
+    # simply getting yesterday from midnight to now
     from_date = (datetime.combine(datetime.today(), time.min) - timedelta(days=delta_days))
-    night_time = datetime.strptime('235959','%H%M%S').time()
-    to_date = datetime.combine(datetime.now(), night_time) 
+    to_date = datetime.now() 
     # get the hosts
     list_hosts(
         gmp,

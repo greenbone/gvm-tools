@@ -4,37 +4,90 @@
 #
 # Loosely based on other greenbone scripts
 #
-# Run with: gvm-script --gmp-username admin-user --gmp-password password socket export-hosts-csv.gmp.py <csv file> days
-# example: gvm-script --gmp-username admin --gmp-password top$ecret socket export-hosts-csv.gmp.py hosts.csv 2
+# Run with: gvm-script --gmp-username admin-user --gmp-password password socket list-hosts.gmp.py <days>
+# example: gvm-script --gmp-username admin --gmp-password top$ecret socket list-hosts.gmp.py 2
 
 
 import sys
-
-from argparse import Namespace
-
-from gvm.protocols.gmp import Gmp
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from datetime import date, datetime, time, timedelta
 
 from gvm.errors import GvmResponseError
-
+from gvm.protocols.gmp import Gmp
 from gvmtools.helper import Table
 
-from datetime import datetime, timedelta, time, date
+HELP_TEXT = (
+    "This script generates a table of hosts (assets) "
+    "from Greenbone Vulnerability Manager.\n\n"
+    "table will contain:\n"
+    "Hostname, IP Address, MAC Address, Operating System, last seen, and severity\n"
+)
 
+def check_args(args):
+    len_args = len(args.script) - 1
+    if len_args < 1:
+        message = """
+        This script requests information about all hosts <days> days prior to today (included) and 
+        displays it as a table. It requires one parameter after the script name:
+        1. days -- number of days prior to today to pull hosts information from
+
+        Examples:
+            $ gvm-script --gmp-username username --gmp-password password socket list-hosts.gmp.py <days>
+            $ gvm-script --gmp-username admin --gmp-password 0f6fa69b-32bb-453a-9aa4-b8c9e56b3d00 socket list-hosts.gmp.py 4
+        """
+        print(message)
+        sys.exit()
+
+def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
+    """Parsing args ..."""
+
+    parser = ArgumentParser(
+        prefix_chars="+",
+        add_help=False,
+        formatter_class=RawTextHelpFormatter,
+    )
+
+    parser.add_argument(
+        "+h",
+        "++help",
+        action="help",
+        help="Show this help message and exit.",
+    )
+
+    parser.add_argument(
+        "delta_days",
+        type=int,
+        help=("Number of days in the past to pull hosts information")
+    )
+
+    script_args, _ = parser.parse_known_args(args)
+    return script_args
 
 def list_hosts(gmp: Gmp, from_date: date, to_date: date) -> None:
     host_filter = (
-        f"rows=-1 and modified>{from_date.isoformat()} "
+        f"rows=-1 "
+        f"and modified>{from_date.isoformat()} "
         f"and modified<{to_date.isoformat()}"
     )
 
     # Get the XML of hosts
     hosts_xml = gmp.get_hosts(filter_string=host_filter)
-    heading = ["#", "hostname", "IP-Address", "MAC", "OS", "Last Seen", "Severity"]
+    heading = [
+        "#",
+        "IP Address",
+        "Hostname",
+        "MAC Address",
+        "Operating System",
+        "Last Seen",
+        "CVSS",
+    ]
     rows=[]
     numberRows = 0
 
     print(
         "Listing hosts.\n"
+        f"From: {from_date}\n"
+        f"To:   {to_date}\n"
     )
 
     for host in hosts_xml.xpath("asset"):
@@ -44,48 +97,78 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date) -> None:
             host_seendates = host.xpath("modification_time/text()")
             host_lastseen = host_seendates[0]
         
-            # hostnames and other attributes may not be there  
-            hostnames = host.xpath('identifiers/identifier/name[text()="hostname"]/../value/text()')
-            if len(hostnames) == 0:
-                hostname = "No hostname"
+            try:
+                # hostnames and other attributes may not be there  
+                hostnames = host.xpath('identifiers/identifier/name[text()="hostname"]/../value/text()')
+                if len(hostnames) == 0:
+                    hostname = ""
+                    pass
+                else:
+                    hostname = hostnames[0]
+            except GvmResponseError:
+                continue    
+            
+            try:
+                host_macs = host.xpath('identifiers/identifier/name[text()="MAC"]/../value/text()')
+                if len(host_macs) == 0:
+                    host_mac = ""
+                    pass
+                else:
+                    host_mac = host_macs[0]
+            except GvmResponseError:
                 continue
-            else:
-                hostname = hostnames[0]
 
-            host_macs = host.xpath('identifiers/identifier/name[text()="MAC"]/../value/text()')
-            if len(host_macs) == 0:
-                host_mac = "NaN"
+            try:
+                host_severity = host.xpath('host/severity/value/text()')
+                if len(host_severity) == 0:
+                    host_severity = "0.0"
+                    pass
+                else:
+                    host_severity = host_severity[0]
+            except GvmResponseError:
                 continue
-            else:
-                host_mac = host_macs[0]
-
-            host_severity = host.xpath('host/severity/value/text()')[0]
-            if len(host_severity) == 0:
-                host_severity = "NaN"
-                continue
-
-            host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')[0]
-            if len(host_os) == 0:
-                host_os = "Unknown"
-                continue
-        except GvmResponseError as gvmerr:
+            
+            try:
+                host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')
+                if len(host_os) == 0:
+                    host_os = ""
+                    pass
+                else:
+                    host_os = host_os[0]
+            except GvmResponseError:
+                continue            
+        
+        except GvmResponseError:
             continue
 
         # Count number of hosts
         numberRows = numberRows + 1
         # Cast/convert to text to show in list
         rowNumber = str(numberRows)
-        rows.append([rowNumber, hostname, ip, host_mac, host_os, host_lastseen, host_severity])
-
+        rows.append(
+            [
+                rowNumber,
+                ip,
+                hostname,
+                host_mac,
+                host_os,
+                host_lastseen,
+                host_severity
+            ]
+        )
+        
     print(Table(heading=heading, rows=rows))
 
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
-
-    # simply getting yesterday from midnight to midnight today
-    from_date = (datetime.combine(datetime.today(), time.min) - timedelta(days=1))
-    night_time = datetime.strptime('235959','%H%M%S').time()
-    to_date = datetime.combine(datetime.now(), night_time) 
+    check_args(args)
+    if args.script:
+        args = args.script[1:]
+    parsed_args = parse_args(args=args)
+    delta_days = parsed_args.delta_days
+    # simply getting yesterday from midnight to today (now)
+    from_date = (datetime.combine(datetime.today(), time.min) - timedelta(days=delta_days))
+    to_date = datetime.now()
     #print(from_date, to_date)
 
     list_hosts(gmp, from_date, to_date)
