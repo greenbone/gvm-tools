@@ -8,17 +8,9 @@
 
 from argparse import Namespace
 
-from gvm.protocols.gmp import Gmp
-
-from gvmtools.helper import Table
-
-from gvm.xml import pretty_print
-
-from gvm.errors import GvmResponseError
-
-from gvmtools.helper import error_and_exit
-
 from gvm.errors import GvmServerError
+from gvm.protocols.gmp import Gmp
+from gvmtools.helper import Table
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -48,7 +40,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
             # pretty_print(status_xml)
             for scanner_status in status_xml:
                 scanner_version = "".join(scanner_status.xpath("text()"))
-        except GvmServerError as gvmerr:
+        except GvmServerError:
             scanner_version = "*No Response*"
             pass
 

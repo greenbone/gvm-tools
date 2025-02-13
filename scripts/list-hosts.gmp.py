@@ -12,7 +12,6 @@ import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import date, datetime, time, timedelta
 
-from gvm.errors import GvmResponseError
 from gvm.protocols.gmp import Gmp
 from gvmtools.helper import Table
 
@@ -24,7 +23,7 @@ HELP_TEXT = (
 )
 
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 1:
         message = """
@@ -90,62 +89,45 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date) -> None:
     print("Listing hosts.\n" f"From: {from_date}\n" f"To:   {to_date}\n")
 
     for host in hosts_xml.xpath("asset"):
-        try:
-            # ip will always be there
-            ip = host.xpath("name/text()")[0]
-            host_seendates = host.xpath("modification_time/text()")
-            host_lastseen = host_seendates[0]
+        # ip will always be there
+        ip = host.xpath("name/text()")[0]
+        host_seendates = host.xpath("modification_time/text()")
+        host_lastseen = host_seendates[0]
 
-            try:
-                # hostnames and other attributes may not be there
-                hostnames = host.xpath(
-                    'identifiers/identifier/name[text()="hostname"]/../value/text()'
-                )
-                if len(hostnames) == 0:
-                    hostname = ""
-                    pass
-                else:
-                    hostname = hostnames[0]
-            except GvmResponseError:
-                continue
+        # hostnames and other attributes may not be there
+        hostnames = host.xpath(
+            'identifiers/identifier/name[text()="hostname"]/../value/text()'
+        )
+        if len(hostnames) == 0:
+            hostname = ""
+            pass
+        else:
+            hostname = hostnames[0]
 
-            try:
-                host_macs = host.xpath(
-                    'identifiers/identifier/name[text()="MAC"]/../value/text()'
-                )
-                if len(host_macs) == 0:
-                    host_mac = ""
-                    pass
-                else:
-                    host_mac = host_macs[0]
-            except GvmResponseError:
-                continue
+        host_macs = host.xpath(
+            'identifiers/identifier/name[text()="MAC"]/../value/text()'
+        )
+        if len(host_macs) == 0:
+            host_mac = ""
+            pass
+        else:
+            host_mac = host_macs[0]
 
-            try:
-                host_severity = host.xpath("host/severity/value/text()")
-                if len(host_severity) == 0:
-                    host_severity = "0.0"
-                    pass
-                else:
-                    host_severity = host_severity[0]
-            except GvmResponseError:
-                continue
+        host_severity = host.xpath("host/severity/value/text()")
+        if len(host_severity) == 0:
+            host_severity = "0.0"
+            pass
+        else:
+            host_severity = host_severity[0]
 
-            try:
-                host_os = host.xpath(
-                    'host/detail/name[text()="best_os_txt"]/../value/text()'
-                )
-                if len(host_os) == 0:
-                    host_os = ""
-                    pass
-                else:
-                    host_os = host_os[0]
-            except GvmResponseError:
-                continue
-
-        except GvmResponseError:
-            continue
-
+        host_os = host.xpath(
+            'host/detail/name[text()="best_os_txt"]/../value/text()'
+        )
+        if len(host_os) == 0:
+            host_os = ""
+            pass
+        else:
+            host_os = host_os[0]
         # Count number of hosts
         numberRows = numberRows + 1
         # Cast/convert to text to show in list

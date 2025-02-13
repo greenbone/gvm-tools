@@ -13,7 +13,6 @@ import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import date, datetime, time, timedelta
 
-from gvm.errors import GvmResponseError
 from gvm.protocols.gmp import Gmp
 from gvmtools.helper import error_and_exit
 
@@ -88,61 +87,45 @@ def list_hosts(
     host_info = []
 
     for host in hosts_xml.xpath("asset"):
-        try:
-            # ip will always be there
-            ip = host.xpath("name/text()")[0]
-            host_seendates = host.xpath("modification_time/text()")
-            host_lastseen = host_seendates[0]
+        # ip will always be there
+        ip = host.xpath("name/text()")[0]
+        host_seendates = host.xpath("modification_time/text()")
+        host_lastseen = host_seendates[0]
 
-            try:
-                # hostnames and other attributes may not be there
-                hostnames = host.xpath(
-                    'identifiers/identifier/name[text()="hostname"]/../value/text()'
-                )
-                if len(hostnames) == 0:
-                    hostname = ""
-                    pass
-                else:
-                    hostname = hostnames[0]
-            except GvmResponseError:
-                continue
+        # hostnames and other attributes may not be there
+        hostnames = host.xpath(
+            'identifiers/identifier/name[text()="hostname"]/../value/text()'
+        )
+        if len(hostnames) == 0:
+            hostname = ""
+            pass
+        else:
+            hostname = hostnames[0]
 
-            try:
-                host_macs = host.xpath(
-                    'identifiers/identifier/name[text()="MAC"]/../value/text()'
-                )
-                if len(host_macs) == 0:
-                    host_mac = ""
-                    pass
-                else:
-                    host_mac = host_macs[0]
-            except GvmResponseError:
-                continue
+        host_macs = host.xpath(
+            'identifiers/identifier/name[text()="MAC"]/../value/text()'
+        )
+        if len(host_macs) == 0:
+            host_mac = ""
+            pass
+        else:
+            host_mac = host_macs[0]
 
-            try:
-                host_severity = host.xpath("host/severity/value/text()")
-                if len(host_severity) == 0:
-                    host_severity = 0
-                    pass
-                else:
-                    host_severity = host_severity[0]
-            except GvmResponseError:
-                continue
+        host_severity = host.xpath("host/severity/value/text()")
+        if len(host_severity) == 0:
+            host_severity = 0
+            pass
+        else:
+            host_severity = host_severity[0]
 
-            try:
-                host_os = host.xpath(
-                    'host/detail/name[text()="best_os_txt"]/../value/text()'
-                )
-                if len(host_os) == 0:
-                    host_os = ""
-                    pass
-                else:
-                    host_os = host_os[0]
-            except GvmResponseError:
-                continue
-
-        except GvmResponseError:
-            continue
+        host_os = host.xpath(
+            'host/detail/name[text()="best_os_txt"]/../value/text()'
+        )
+        if len(host_os) == 0:
+            host_os = ""
+            pass
+        else:
+            host_os = host_os[0]
 
         host_info.append(
             [hostname, ip, host_mac, host_os, host_lastseen, host_severity]
@@ -156,7 +139,7 @@ def list_hosts(
     )
 
 
-def writecsv(csv_filename, hostinfo: dict):
+def writecsv(csv_filename, hostinfo: list) -> None:
     field_names = [
         "IP Address",
         "Hostname",
