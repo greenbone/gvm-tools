@@ -24,6 +24,7 @@ HELP_TEXT = (
     "IP Address, Hostname, MAC Address, Operating System, last seen, and severity\n"
 )
 
+
 def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
@@ -39,6 +40,7 @@ def check_args(args: Namespace) -> None:
         """
         print(message)
         sys.exit()
+
 
 def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     """Parsing args ..."""
@@ -66,13 +68,16 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     parser.add_argument(
         "delta_days",
         type=int,
-        help=("Number of days in the past to pull hosts information")
+        help=("Number of days in the past to pull hosts information"),
     )
 
     script_args, _ = parser.parse_known_args(args)
     return script_args
 
-def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> None:
+
+def list_hosts(
+    gmp: Gmp, from_date: date, to_date: date, csvfilename: str
+) -> None:
     host_filter = (
         f"rows=-1 and modified>{from_date.isoformat()} "
         f"and modified<{to_date.isoformat()}"
@@ -80,28 +85,32 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> No
 
     # Get the XML of hosts
     hosts_xml = gmp.get_hosts(filter_string=host_filter)
-    host_info=[]
+    host_info = []
 
     for host in hosts_xml.xpath("asset"):
         try:
-            # ip will always be there            
+            # ip will always be there
             ip = host.xpath("name/text()")[0]
             host_seendates = host.xpath("modification_time/text()")
             host_lastseen = host_seendates[0]
-        
+
             try:
-                # hostnames and other attributes may not be there  
-                hostnames = host.xpath('identifiers/identifier/name[text()="hostname"]/../value/text()')
+                # hostnames and other attributes may not be there
+                hostnames = host.xpath(
+                    'identifiers/identifier/name[text()="hostname"]/../value/text()'
+                )
                 if len(hostnames) == 0:
                     hostname = ""
                     pass
                 else:
                     hostname = hostnames[0]
             except GvmResponseError:
-                continue    
-            
+                continue
+
             try:
-                host_macs = host.xpath('identifiers/identifier/name[text()="MAC"]/../value/text()')
+                host_macs = host.xpath(
+                    'identifiers/identifier/name[text()="MAC"]/../value/text()'
+                )
                 if len(host_macs) == 0:
                     host_mac = ""
                     pass
@@ -109,9 +118,9 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> No
                     host_mac = host_macs[0]
             except GvmResponseError:
                 continue
-          
+
             try:
-                host_severity = host.xpath('host/severity/value/text()')
+                host_severity = host.xpath("host/severity/value/text()")
                 if len(host_severity) == 0:
                     host_severity = 0
                     pass
@@ -119,29 +128,24 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> No
                     host_severity = host_severity[0]
             except GvmResponseError:
                 continue
-          
+
             try:
-                host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')
+                host_os = host.xpath(
+                    'host/detail/name[text()="best_os_txt"]/../value/text()'
+                )
                 if len(host_os) == 0:
                     host_os = ""
                     pass
                 else:
                     host_os = host_os[0]
             except GvmResponseError:
-                continue            
-        
+                continue
+
         except GvmResponseError:
             continue
 
         host_info.append(
-            [
-                hostname, 
-                ip, 
-                host_mac, 
-                host_os, 
-                host_lastseen,
-                host_severity
-            ]
+            [hostname, ip, host_mac, host_os, host_lastseen, host_severity]
         )
     # Write the list host_info to csv file
     writecsv(csvfilename, host_info)
@@ -151,16 +155,25 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> No
         f"To:       {to_date}\n"
     )
 
+
 def writecsv(csv_filename, hostinfo: dict):
-    field_names = ["IP Address", "Hostname", "MAC Address", "Operating System", "Last Seen", "CVSS"]
+    field_names = [
+        "IP Address",
+        "Hostname",
+        "MAC Address",
+        "Operating System",
+        "Last Seen",
+        "CVSS",
+    ]
     try:
-        with open(csv_filename, 'w') as csvfile: 
-            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+        with open(csv_filename, "w") as csvfile:
+            writer = csv.writer(csvfile, delimiter=",", quoting=csv.QUOTE_ALL)
             writer.writerow(field_names)
             writer.writerows(hostinfo)
             csvfile.close
     except IOError as e:
         error_and_exit(f"Failed to write csv file: {str(e)} (exit)")
+
 
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
@@ -172,15 +185,13 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     delta_days = parsed_args.delta_days
     # simply getting yesterday from midnight to now
-    from_date = (datetime.combine(datetime.today(), time.min) - timedelta(days=delta_days))
-    to_date = datetime.now() 
-    # get the hosts
-    list_hosts(
-        gmp,
-        from_date,
-        to_date,
-        parsed_args.csv_filename
+    from_date = datetime.combine(datetime.today(), time.min) - timedelta(
+        days=delta_days
     )
+    to_date = datetime.now()
+    # get the hosts
+    list_hosts(gmp, from_date, to_date, parsed_args.csv_filename)
+
 
 if __name__ == "__gmp__":
     main(gmp, args)

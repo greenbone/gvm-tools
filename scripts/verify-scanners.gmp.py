@@ -20,6 +20,7 @@ from gvmtools.helper import error_and_exit
 
 from gvm.errors import GvmServerError
 
+
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
@@ -28,9 +29,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
     rows = []
     numberRows = 0
 
-    print(
-        "Verifying scanners.\n"
-    )
+    print("Verifying scanners.\n")
     response_xml = gmp.get_scanners(filter_string="rows=-1")
     scanners_xml = response_xml.xpath("scanner")
 
@@ -46,12 +45,12 @@ def main(gmp: Gmp, args: Namespace) -> None:
             host = "local scanner"
         try:
             status_xml = gmp.verify_scanner(str(scanner_id))
-            #pretty_print(status_xml)
+            # pretty_print(status_xml)
             for scanner_status in status_xml:
                 scanner_version = "".join(scanner_status.xpath("text()"))
         except GvmServerError as gvmerr:
-            scanner_version= "*No Response*"
-            pass 
+            scanner_version = "*No Response*"
+            pass
 
         rows.append([rowNumber, name, scanner_id, host, scanner_version])
 
