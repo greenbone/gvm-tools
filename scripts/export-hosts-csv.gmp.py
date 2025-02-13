@@ -72,7 +72,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     script_args, _ = parser.parse_known_args(args)
     return script_args
 
-def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename) -> None:
+def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> None:
     host_filter = (
         f"rows=-1 and modified>{from_date.isoformat()} "
         f"and modified<{to_date.isoformat()}"
