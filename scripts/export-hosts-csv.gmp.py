@@ -24,7 +24,7 @@ HELP_TEXT = (
     "IP Address, Hostname, MAC Address, Operating System, last seen, and severity\n"
 )
 
-def check_args(args):
+def check_args(args: Namespace) -> None:
     len_args = len(args.script) - 1
     if len_args < 2:
         message = """
