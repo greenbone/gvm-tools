@@ -1,5 +1,5 @@
 # default reviewers
-*                 @greenbone/python-gvm-maintainers
+*                 @greenbone/gea
 
 # dev ops
-.github/          @greenbone/devops @greenbone/python-gvm-maintainers
+.github/          @greenbone/devops @greenbone/gea
