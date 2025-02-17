@@ -130,7 +130,7 @@ def list_tls_certificates(
     )
 
 
-def writecsv(csv_filename, hostinfo: list) -> None:
+def writecsv(csv_filename: str, hostinfo: list) -> None:
     field_names = [
         "Subject",
         "Issuer",
