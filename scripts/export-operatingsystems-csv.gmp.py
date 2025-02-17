@@ -116,7 +116,7 @@ def list_operating_systems(
     )
 
 
-def writecsv(csv_filename, hostinfo: list) -> None:
+def writecsv(csv_filename: str, hostinfo: list) -> None:
     field_names = [
         "IP Address",
         "Hostname",
