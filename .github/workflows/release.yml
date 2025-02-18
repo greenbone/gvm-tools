@@ -4,9 +4,24 @@ on:
   pull_request:
     types: [closed]
   workflow_dispatch:
+    inputs:
+      release-type:
+        type: choice
+        description: "Release type. One of patch, minor or major"
+        options:
+          - patch
+          - minor
+          - major
+      release-version:
+        description: "Set an explicit version, that will overwrite release-type. Fails if version is not compliant."
+        type: string
 
 jobs:
   build-and-release:
     name: Create a new release
-    uses: greenbone/workflows/.github/workflows/release-python.yml@main
+    uses: greenbone/workflows/.github/workflows/release-generic.yml@main
+    with:
+      versioning-scheme: semver
+      release-type: ${{ inputs.release-type }}
+      release-version: ${{ inputs.release-version }}
     secrets: inherit
