@@ -1,49 +1,31 @@
-name: Container Image Builds
+name: Build & Push Container Images
 
 on:
   push:
-    branches: [ main ]
-    tags: ["v*"]
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      ref-name:
+        type: string
+        description: "The ref to build a container image from. For example a tag v23.0.0."
+        required: true
 
 jobs:
-  images:
-    name: Build images
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Login to Dockerhub Container Registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Setup container meta information
-        id: meta
-        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5.6.1
-        with:
-          images: greenbone/gvm-tools
-          labels: |
-            org.opencontainers.image.vendor=Greenbone
-            org.opencontainers.image.documentation=https://greenbone.github.io/gvm-tools/
-            org.opencontainers.image.base.name=debian/stable-slim
-          flavor: latest=false # no latest container tag for git tags
-          tags: |
-            # create container tag for git tags
-            type=ref,event=tag
-            # set latest for main branch pushes
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # v3.4.0
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
-      - name: Build and push Container image
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
-        with:
-          context: .
-          push: true
-          file: .docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+  build:
+    name: Build and Push to Greenbone Registry
+    uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
+    with:
+      build-docker-file: .docker/Dockerfile
+      image-url: community/gvm-tools
+      image-labels: |
+        org.opencontainers.image.vendor=Greenbone
+        org.opencontainers.image.documentation=https://greenbone.github.io/gvm-tools/
+        org.opencontainers.image.base.name=debian/stable-slim
+      ref-name: ${{ inputs.ref-name }}
+    secrets: inherit
