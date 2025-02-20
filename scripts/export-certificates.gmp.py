@@ -7,38 +7,23 @@
 # Run with: gvm-script --gmp-username admin-user --gmp-password password socket export-hosts-csv.gmp.py <csv file> days
 # example: gvm-script --gmp-username admin --gmp-password top$ecret socket export-hosts-csv.gmp.py hosts.csv 2
 
-
 import csv
-import sys
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from datetime import date, datetime, time, timedelta
 
+# GVM Specific
 from gvm.protocols.gmp import Gmp
 from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
     "This script generates a csv file with certificates "
-    "from Greenbone Vulnerability Manager.\n\n"
+    "from Greenbone Vulnerability Manager.\n"
+    "Optional: Specify csv filename and days in the past to get data from as positional arguments\n"
+    "or live with the defaults\n"
     "csv file will contain:\n"
     "Subject, Issuer, Serial, SHA256 Fingerprint, MD5 Fingerprint, last_seen, Valid From, Valid To"
 )
 
-
-def check_args(args: Namespace) -> None:
-    len_args = len(args.script) - 1
-    if len_args < 2:
-        message = """
-        This script requests all hosts <days> prior to today and exports it as a csv file.
-        It requires two parameter after the script name:
-        1. filename -- name of the csv file of the report
-        2. days     -- number of days before and until today to pull hosts information from
-        
-        Examples:
-            $ gvm-script --gmp-username username --gmp-password password socket export-hosts-csv.gmp.py <csv_file> <days>
-            $ gvm-script --gmp-username admin --gmp-password 0f6fa69b-32bb-453a-9aa4-b8c9e56b3d00 socket export-hosts-csv.gmp.py certs.csv 4
-        """
-        print(message)
-        sys.exit()
 
 def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     """Parsing args ..."""
@@ -59,14 +44,22 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
 
     parser.add_argument(
         "csv_filename",
+        nargs="?",
+        default="gvm_certificates.csv",
         type=str,
-        help=("CSV File with certificate information"),
+        help=(
+            "Optional: CSV File with certificate information - Default: gvm_certificates.csv"
+        ),
     )
 
     parser.add_argument(
         "delta_days",
+        nargs="?",
+        default="1",
         type=int,
-        help=("Number of days in the past to pull hosts information"),
+        help=(
+            "Optional: Number of days in the past to pull information - Default: 1 day"
+        ),
     )
 
     script_args, _ = parser.parse_known_args(args)
@@ -137,7 +130,7 @@ def writecsv(csv_filename: str, hostinfo: list) -> None:
         "Serial",
         "SHA256 Fingerprint",
         "MD5 Fingerprint",
-        "la1st_seen",
+        "Last seen",
         "Valid From",
         "Valid To",
     ]
@@ -153,20 +146,18 @@ def writecsv(csv_filename: str, hostinfo: list) -> None:
 
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=undefined-variable
-    # argv[0] contains the csv file name
-    check_args(args)
-    if args.script:
-        args = args.script[1:]
+    args = args.script[1:]
     parsed_args = parse_args(args=args)
-
+    csv_filename = parsed_args.csv_filename
     delta_days = parsed_args.delta_days
+
     # simply getting yesterday from midnight to now
     from_date = datetime.combine(datetime.today(), time.min) - timedelta(
         days=delta_days
     )
     to_date = datetime.now()
-    # get the hosts
-    list_tls_certificates(gmp, from_date, to_date, parsed_args.csv_filename)
+    # get the certs
+    list_tls_certificates(gmp, from_date, to_date, csv_filename)
 
 
 if __name__ == "__gmp__":
