@@ -10,5 +10,5 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - name: 'SBOM upload'
-        uses: greenbone/actions/sbom-upload@e31766d258c8642dc090244b8334be5b2109833d # v3.27.23
+      - name: "SBOM upload"
+        uses: greenbone/actions/sbom-upload@v3
