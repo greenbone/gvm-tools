@@ -14,4 +14,4 @@ jobs:
       url: https://pypi.org/project/gvm-tools/
     steps:
       - name: Build and publish to PyPI
-        uses: greenbone/actions/pypi-upload@e31766d258c8642dc090244b8334be5b2109833d # v3.27.23
+        uses: greenbone/actions/pypi-upload@v3
