@@ -138,6 +138,25 @@ This script deletes overrides with a specific filter value.
 
 ---
 
+## `generate-random-reports.gmp.py`
+
+This script generates randomized report data.
+
+### Arguments
+
+* `-T <number of tasks>`:   number of tasks to be generated
+* `-r <number of reports>`: number of reports per task
+* `-R <number of results>`: number of results per report
+* `--hosts <number of hosts>`:   number of randomized hosts to select from
+* `'with-gauss'`: if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution
+* `--task-type {container,scan}`: Type of Task(s) to store the generated Reports. Can either be 'container' or 'scan', default: 'container'.
+
+### Example
+
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/gen-random-reports.gmp.py -T 5 -r 4 -R 3 --hosts 10 --with-gauss`
+
+---
+
 ## `gen-random-targets.gmp.py`
 
 This script generates random task data and feeds it to a desired GSM database.
@@ -222,24 +241,6 @@ This script requests the given report and saves it as a pdf file locally.
 ### Example
 
 `$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/pdf-report.gmp.py <report_id> <pdf_file>`
-
----
-
-## `random-report-gen.gmp.py`
-
-This script generates randomized report data.
-
-### Arguments
-
-* `<number of tasks>`:   number of tasks to be generated
-* `<number of reports>`: number of reports per task
-* `<number of results>`: number of results per report
-* `<number of hosts>`:   number of randomized hosts to select from
-* `'with-gauss'`: if you would like for the number of reports/task and results/report to be randomized along a Gaussian distribution
-
-### Example
-
-`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/random-report-gen.gmp.py 10 50 2500 256 with-gauss`
 
 ---
 
@@ -727,4 +728,4 @@ Stops scans (tasks) specified in csv file
 `$ gvm-script --gmp-username *admin-user* --gmp-password *password* socket stop-scans-from-csv.gmp.py *csv-file with task names*`
 
 - Stops the tasks specified in the file (example startscan.csv works for both scripts)
-- Returns the number of tasks stopped.
+- Returns the  stopped.
