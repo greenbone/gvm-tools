@@ -728,4 +728,4 @@ Stops scans (tasks) specified in csv file
 `$ gvm-script --gmp-username *admin-user* --gmp-password *password* socket stop-scans-from-csv.gmp.py *csv-file with task names*`
 
 - Stops the tasks specified in the file (example startscan.csv works for both scripts)
-- Returns the  stopped.
+- Returns the number of tasks stopped.
