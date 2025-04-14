@@ -303,7 +303,7 @@ def generate_host_elem(
             )
         )
 
-    dev = n_not_vuln / 10
+    dev = int(n_not_vuln / 10)
     if n_not_vuln:
         host_elem.extend(
             generate_additional_host_details(
