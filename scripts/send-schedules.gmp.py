@@ -1,27 +1,13 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2017-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2017-2021 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 from argparse import Namespace
-from lxml.etree import Element
-from gvm.protocols.gmp import Gmp
 
+from gvm.protocols.gmp import Gmp
 from gvmtools.helper import create_xml_tree
+from lxml.etree import Element
 
 
 def check_args(gmp: Gmp, args: Namespace) -> None:
@@ -48,16 +34,16 @@ def check_args(gmp: Gmp, args: Namespace) -> None:
 
 
 def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
-    for schedule in xml_tree.xpath('schedule'):
-        name = schedule.find('name').text
+    for schedule in xml_tree.xpath("schedule"):
+        name = schedule.find("name").text
 
-        comment = schedule.find('comment').text
+        comment = schedule.find("comment").text
         if comment is None:
-            comment = ''
+            comment = ""
 
-        ical = schedule.find('icalendar').text
+        ical = schedule.find("icalendar").text
 
-        timezone = schedule.find('timezone').text
+        timezone = schedule.find("timezone").text
 
         gmp.create_schedule(
             name=name, comment=comment, timezone=timezone, icalendar=ical
@@ -71,13 +57,13 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     xml_doc = args.script[1]
 
-    print('\nSending schedules...')
+    print("\nSending schedules...")
 
     xml_tree = create_xml_tree(xml_doc)
     parse_send_xml_tree(gmp, xml_tree)
 
-    print('\n  Schedule(s) created!\n')
+    print("\n  Schedule(s) created!\n")
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

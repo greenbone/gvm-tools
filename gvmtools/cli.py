@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -21,17 +21,17 @@ import sys
 import time
 
 from gvm.errors import GvmError
-from gvm.protocols.latest import Osp
 from gvm.protocols.gmp import Gmp
+from gvm.protocols.latest import Osp
 from gvm.transforms import CheckCommandTransform
-from gvm.xml import validate_xml_string, pretty_print
+from gvm.xml import parse_xml, pretty_print
 
 from gvmtools.helper import authenticate, do_not_run_as_root
 from gvmtools.parser import (
-    create_parser,
-    create_connection,
-    PROTOCOL_OSP,
     PROTOCOL_GMP,
+    PROTOCOL_OSP,
+    create_connection,
+    create_parser,
 )
 
 logger = logging.getLogger(__name__)
@@ -49,39 +49,39 @@ HELP_TEXT = """
       gvm-cli socket --gmp-username foo --gmp-password foo myfile.xml
 
     The protocol specifications for GMP and OSP are available at:
-      https://docs.greenbone.net/index.html#api_documentation"""
+      https://docs.greenbone.net/index.html#api_documentation"""  # noqa: E501
 
 
 def _load_infile(filename=None):
     if not filename:
         return None
 
-    with open(filename, encoding='utf-8') as f:
+    with open(filename, encoding="utf-8") as f:
         return f.read()
 
 
 def main():
     do_not_run_as_root()
 
-    parser = create_parser(description=HELP_TEXT, logfilename='gvm-cli.log')
+    parser = create_parser(description=HELP_TEXT, logfilename="gvm-cli.log")
 
     parser.add_protocol_argument()
 
-    parser.add_argument('-X', '--xml', help='XML request to send')
+    parser.add_argument("-X", "--xml", help="XML request to send")
     parser.add_argument(
-        '-r', '--raw', help='Return raw XML', action='store_true', default=False
+        "-r", "--raw", help="Return raw XML", action="store_true", default=False
     )
     parser.add_argument(
-        '--pretty',
-        help='Pretty format the returned xml',
-        action='store_true',
+        "--pretty",
+        help="Pretty format the returned xml",
+        action="store_true",
         default=False,
     )
     parser.add_argument(
-        '--duration', action='store_true', help='Measure command execution time'
+        "--duration", action="store_true", help="Measure command execution time"
     )
     parser.add_argument(
-        'infile', nargs='?', help='File to read XML commands from.'
+        "infile", nargs="?", help="File to read XML commands from."
     )
 
     args = parser.parse_args()
@@ -104,7 +104,7 @@ def main():
         xml = input()
 
     try:
-        validate_xml_string(xml)
+        parse_xml(xml)
     except GvmError as e:
         print(e, file=sys.stderr)
         sys.exit(1)
@@ -123,7 +123,6 @@ def main():
 
     try:
         with protocol_class(connection, transform=transform) as protocol:
-
             if args.protocol == PROTOCOL_GMP:
                 # Ask for password if none are given
                 authenticate(protocol, args.gmp_username, args.gmp_password)
@@ -135,7 +134,7 @@ def main():
 
             if args.duration:
                 duration = time.time() - starttime
-                print(f'Elapsed time: {duration} seconds')
+                print(f"Elapsed time: {duration} seconds")
             elif args.pretty:
                 pretty_print(result)
             else:
@@ -147,5 +146,5 @@ def main():
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

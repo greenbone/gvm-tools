@@ -1,0 +1,15 @@
+usage: gvm-test-cli ssh [-h] [--hostname HOSTNAME] [--port PORT]
+                        [--ssh-username SSH_USERNAME]
+                        [--ssh-password SSH_PASSWORD] [-A]
+
+options:
+  -h, --help            show this help message and exit
+  --hostname HOSTNAME   Hostname or IP address (default: 127.0.0.1)
+  --port PORT           SSH port (default: 22)
+  --ssh-username SSH_USERNAME
+                        SSH username (default: 'gmp')
+  --ssh-password SSH_PASSWORD
+                        SSH password (default: 'gmp')
+  -A, --auto-accept-host
+                        When executed in e.g. CI, auto accept SSH host
+                        addition

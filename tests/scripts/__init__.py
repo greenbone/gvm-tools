@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2020-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,19 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest.mock import patch, MagicMock, create_autospec
-from typing import Union
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from importlib.util import spec_from_file_location, module_from_spec
+from typing import Union
+from unittest.mock import MagicMock, create_autospec
 
-from lxml import etree
 from gvm.protocols.latest import Gmp
+from lxml import etree
 
 
 def load_script(path: Union[str, Path], script_name: str):
     """loading a script for a test case"""
     spec = spec_from_file_location(
-        script_name, f'{str(path)}/{script_name}.gmp.py'
+        script_name, f"{str(path)}/{script_name}.gmp.py"
     )
     script = module_from_spec(spec)
     spec.loader.exec_module(script)

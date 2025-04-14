@@ -769,65 +769,76 @@
             "name": "MAC",
             "value": "00:CC:29:DD:01:D6",
             "source_name": "1.3.6.1.4.1.25623.1.0.103585",
-            "source_description": "Nmap MAC Scan"
+            "source_description": "Nmap MAC Scan",
+            "source_type": "nvt"
         },
         {
             "name": "Services",
             "value": "6000,tcp,X11",
             "source_name": "1.3.6.1.4.1.25623.1.0.10407",
-            "source_description": "Service detection (1.3.6.1.4.1.25623.1.0.10407)"
+            "source_description": "Service detection (1.3.6.1.4.1.25623.1.0.10407)",
+            "source_type": "nvt"
         },
         {
             "name": "TLS/5432",
             "value": "SSLv3",
             "source_name": "1.3.6.1.4.1.25623.1.0.103823",
-            "source_description": "SSL/TLS: Version Detection Report"
+            "source_description": "SSL/TLS: Version Detection Report",
+            "source_type": "nvt"
         },
         {
             "name": "Services",
             "value": "2049,tcp,RPC/nfs",
             "source_name": "1.3.6.1.4.1.25623.1.0.11111",
-            "source_description": "Service detection (1.3.6.1.4.1.25623.1.0.11111)"
+            "source_description": "Service detection (1.3.6.1.4.1.25623.1.0.11111)",
+            "source_type": "nvt"
         },
         {
             "name": "tcp_ports",
             "value": "80,8787,5900,3632,8009,6667,445,21,2049,111,22,6000,512,23,513,1099,25,514,3306,2121,139,1524,53,5432",
             "source_name": "1.3.6.1.4.1.25623.1.0.900239",
-            "source_description": "Check Open TCP Ports"
+            "source_description": "Check Open TCP Ports",
+            "source_type": "nvt"
         },
         {
             "name": "SSLInfo",
             "value": "25::E7A7FA0D63E457C7C4A59B31230849C6A70BDA6F830C7AF1E32DEE436DE813CC",
             "source_name": "1.3.6.1.4.1.25623.1.0.103692",
-            "source_description": "SSL/TLS Certificate Information"
+            "source_description": "SSL/TLS Certificate Information",
+            "source_type": "nvt"
         },
         {
             "name": "Services",
             "value": "23,tcp,telnet,A telnet server seems to be running on this port",
             "source_name": "1.3.6.1.4.1.25623.1.0.100074",
-            "source_description": "Service detection (1.3.6.1.4.1.25623.1.0.100074)"
+            "source_description": "Service detection (1.3.6.1.4.1.25623.1.0.100074)",
+            "source_type": "nvt"
         },
         {
             "name": "Auth-SMB-Success",
             "value": "Protocol SMB, Port 445, User",
-            "source_name": "1.3.6.1.4.1.25623.1.0.10394"
+            "source_name": "1.3.6.1.4.1.25623.1.0.10394",
+            "source_type": "nvt"
         },
         {
             "name": "TLS/25",
             "value": "TLSv1.0",
             "source_name": "1.3.6.1.4.1.25623.1.0.103823",
-            "source_description": "SSL/TLS: Version Detection Report"
+            "source_description": "SSL/TLS: Version Detection Report",
+            "source_type": "nvt"
         },
         {
             "name": "ssh-key",
             "value": "22 ssh-rsa AAAABCNzaC1yc2EAAAABIwAAAQEA123nuFMBOZvO3WTEjP4TUdjgWkIVNdTq6kboEDjteOfc65TlI7sRvQBwqAhQjeeyyIk8T55gMDkOD0akSlSXvLDcmcdYfxeIF0ZSuT+nkRhij7XSSA/Oc5QSk3sJ/SInfb78e3anbRHpmkJcVgETJ5WhKObUNf1AKZW++4Xlc63M4KI5cjvMMIPEVOyR3AKmI78Fo3HJjYucg87JjLeC66I7+dlEYX6zT8i1XYwa/L1vZ3qSJISGVu8kRPikMv/cNSvki4j+qDYyZ2E5497W87+Ed46/8P42LNGoOV8OcX/ro6pAcbEPUdUEfkJrqi2YXbhvwIJ0gFMb6wfe5cnQew==",
             "source_name": "1.3.6.1.4.1.25623.1.0.100259",
-            "source_description": "SSH Key"
+            "source_description": "SSH Key",
+            "source_type": "nvt"
         }
     ],
     "not_vuln": {
         "name": "EXIT_CODE",
         "value": "EXIT_NOTVULN",
-        "source_name": "1.3.6.1.4.1.25623.1.0."
+        "source_name": "1.3.6.1.4.1.25623.1.0.",
+        "source_type": "nvt"
     }
 }

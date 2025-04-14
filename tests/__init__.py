@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2019-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os
+import sys
 
 
 class SuppressOutput:
@@ -28,7 +28,7 @@ class SuppressOutput:
         self.original_stderr = None
 
     def __enter__(self):
-        self.devnull = open(os.devnull, "w", encoding='utf-8')
+        self.devnull = open(os.devnull, "w", encoding="utf-8")
 
         # Suppress streams
         if self.suppress_stdout:

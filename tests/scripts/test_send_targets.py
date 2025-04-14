@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2020-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import patch
-from pathlib import Path
 from argparse import Namespace
-from lxml import etree
-from . import GmpMockFactory, load_script
+from pathlib import Path
+from unittest.mock import patch
 
+from lxml import etree
+
+from . import GmpMockFactory, load_script
 
 CWD = Path(__file__).absolute().parent
 
@@ -30,29 +31,29 @@ CWD = Path(__file__).absolute().parent
 class SendTargetTestCase(unittest.TestCase):
     def setUp(self):
         self.send_targets = load_script(
-            (CWD.parent.parent / 'scripts'), 'send-targets'
+            (CWD.parent.parent / "scripts"), "send-targets"
         )
 
-    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_sent_target(self, mock_gmp: GmpMockFactory):
-        target_xml_path = CWD / 'example_target.xml'
-        target_xml_str = target_xml_path.read_text(encoding='utf-8')
+        target_xml_path = CWD / "example_target.xml"
+        target_xml_str = target_xml_path.read_text(encoding="utf-8")
 
         mock_gmp.mock_response(
-            'get_credentials',
+            "get_credentials",
             '<get_credentials_response status="200" status_text="OK">'
             '<credential id="6da5b7de-92ad-4dd2-8610-d5711b9c5937">'
-            '</credential>'
+            "</credential>"
             '<credential id="7802648d-1a31-4f69-bb30-00766a1ae1e6">'
-            '</credential>'
+            "</credential>"
             '<credential id="70a63257-4923-4bf4-a9bb-dd8b710b2d80">'
-            '</credential>'
+            "</credential>"
             '<credential id="2bac0c76-795e-4742-b17a-808a0ec8e409">'
-            '</credential>'
-            '</get_credentials_response>',
+            "</credential>"
+            "</get_credentials_response>",
         )
         mock_gmp.mock_response(
-            'create_target',
+            "create_target",
             '<create_target_response status="201" status_text="OK,'
             'resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>',
         )
@@ -61,23 +62,23 @@ class SendTargetTestCase(unittest.TestCase):
 
         self.send_targets.parse_send_xml_tree(mock_gmp.gmp_protocol, target)
 
-    @patch('builtins.input', lambda *args: 'n')
-    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    @patch("builtins.input", lambda *args: "n")
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_sent_target_no_credential(self, mock_gmp: GmpMockFactory):
-        target_xml_path = CWD / 'example_target.xml'
-        target_xml_str = target_xml_path.read_text(encoding='utf-8')
+        target_xml_path = CWD / "example_target.xml"
+        target_xml_str = target_xml_path.read_text(encoding="utf-8")
 
         mock_gmp.mock_response(
-            'get_credentials',
+            "get_credentials",
             '<get_credentials_response status="200" status_text="OK">'
             '<credential id="70a63257-4923-4bf4-a9bb-dd8b710b2d80">'
-            '</credential>'
+            "</credential>"
             '<credential id="2bac0c76-795e-4742-b17a-808a0ec8e409">'
-            '</credential>'
-            '</get_credentials_response>',
+            "</credential>"
+            "</get_credentials_response>",
         )
         mock_gmp.mock_response(
-            'create_target',
+            "create_target",
             '<create_target_response status="201" status_text="OK, '
             'resource created" id="6c9f73f5-f14c-42bf-ab44-edb8d2493dbc"/>',
         )
@@ -88,11 +89,11 @@ class SendTargetTestCase(unittest.TestCase):
             self.send_targets.parse_send_xml_tree(mock_gmp.gmp_protocol, target)
 
     def test_args(self):
-        args = Namespace(script=['foo'])
+        args = Namespace(script=["foo"])
         with self.assertRaises(SystemExit):
             self.send_targets.check_args(args)
 
-        args2 = Namespace(script=['foo', 'bar', 'baz'])
+        args2 = Namespace(script=["foo", "bar", "baz"])
 
         with self.assertRaises(SystemExit):
             self.send_targets.check_args(args2)

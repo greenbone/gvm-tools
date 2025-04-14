@@ -4,24 +4,25 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "gvm-tools"
-version = "21.10.1.dev1"
-authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+version = "25.3.1.dev1"
+authors = ["Greenbone AG <info@greenbone.net>"]
 description = "Tools to control a GSM/GVM over GMP or OSP"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 homepage = "https://github.com/greenbone/gvm-tools/"
 repository = "https://github.com/greenbone/gvm-tools/"
-documentation = "https://gvm-tools.readthedocs.io/"
-classifiers=[
+documentation = "https://greenbone.github.io/gvm-tools/"
+classifiers = [
     # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
     'Development Status :: 5 - Production/Stable',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Environment :: Console',
     'Intended Audience :: Developers',
     'Intended Audience :: System Administrators',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Operating System :: OS Independent',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
@@ -37,30 +38,29 @@ gvm-cli = "gvmtools.cli:main"
 gvm-script = "gvmtools.script:main"
 
 [tool.poetry.dependencies]
-python = "^3.7.0"
-python-gvm = ">=21.5,<22.0"
+python = "^3.9.2"
+python-gvm = ">=23.4.2"
 
-[tool.poetry.dev-dependencies]
-autohooks = "^21.7.0"
-autohooks-plugin-pylint = "^21.6.0"
-sphinx = "^4.3.2"
-pylint = "^2.12.2"
-coverage = "^6.2"
-autohooks-plugin-black = {version = "^21.7.1", python = "^3.6"}
-black = {version = "21.7b0", python = "^3.6"}
-rope = "^0.22.0"
-pontos = "^21.11.0"
+[tool.poetry.group.dev.dependencies]
+autohooks = ">=22.8.0"
+autohooks-plugin-ruff = ">=23.6.1"
+autohooks-plugin-black = ">=22.8.1"
+pontos = ">=22.8.1"
+sphinx = ">=5.3.0"
+coverage = ">=7.2"
+rope = ">=1.9.0"
+furo = ">=2023.3.27"
+sphinx-autobuild = ">=2021.3.14"
+myst-parser = ">=2.0.0"
+git-cliff = "^2.8.0"
 
 [tool.black]
 line-length = 80
-target-version = ['py35', 'py36', 'py37', 'py38']
-skip-string-normalization = true
+target-version = ['py39', 'py310', 'py311', 'py312']
 exclude = '''
 /(
     \.git
-  | \.hg
   | \.venv
-  | \.circleci
   | \.github
   | \.vscode
   | _build
@@ -72,7 +72,106 @@ exclude = '''
 
 [tool.autohooks]
 mode = "poetry"
-pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint']
+pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.ruff']
+
+[tool.ruff]
+line-length = 80
+target-version = "py39"
+
+[tool.ruff.lint]
+extend-select = ["I", "PLE", "PLW"]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+source = ["gvmtools", "scripts"]
 
 [tool.pontos.version]
 version-module-file = "gvmtools/__version__.py"
+
+[tool.git-cliff.changelog]
+# template for the changelog header
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n
+"""
+# template for the changelog body
+# https://keats.github.io/tera/docs/#introduction
+body = """
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+
+{% if version -%}
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else -%}
+    ## [Unreleased]
+{% endif -%}
+
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | upper_first }}
+    {% for commit in commits %}
+        - {{ commit.message | split(pat="\n") | first | upper_first | trim }}\
+            {% if commit.remote.username %} by [@{{ commit.remote.username }}](https://github.com/{{ commit.remote.username }}){%- endif -%}
+            {% if commit.remote.pr_number %} in \
+            [#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }}) \
+            {% elif commit.id %} in \
+            [{{ commit.id | truncate(length=7, end="") }}]({{ self::remote_url() }}/commit/{{ commit.id }})\
+            {%- endif -%}
+    {% endfor %}
+{% endfor -%}
+"""
+# template for the changelog footer
+footer = """
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+
+{% for release in releases %}
+    {% if release.version -%}
+        {% if release.previous.version -%}
+            [{{ release.version | trim_start_matches(pat="v") }}]: \
+                {{ self::remote_url() }}/compare/{{ release.previous.version }}..{{ release.version }}
+        {% endif -%}
+    {% else -%}
+        [unreleased]: {{ self::remote_url() }}/compare/{{ release.previous.version }}..HEAD
+    {% endif -%}
+{%- endfor -%}
+"""
+# remove the leading and trailing whitespace from the templates
+trim = true
+
+[tool.git-cliff.git]
+# parse the commits based on https://www.conventionalcommits.org
+conventional_commits = true
+# filter out the commits that are not following the conventional commits format
+filter_unconventional = false
+# process each line of a commit as an individual commit
+split_commits = false
+# regex for preprocessing the commit messages
+commit_preprocessors = [
+    # remove issue numbers from commits
+    { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+]
+# regex for parsing and grouping commits
+commit_parsers = [
+    { message = "^[a|A]dd", group = "<!-- 1 -->:sparkles: Added" },
+    { message = "^[c|C]hange", group = "<!-- 2 -->:construction_worker: Changed" },
+    { message = "^[f|F]ix", group = "<!-- 3 -->:bug: Bug Fixes" },
+    { message = "^[r|R]emove", group = "<!-- 4 -->:fire: Removed" },
+    { message = "^[d|D]rop", group = "<!-- 4 -->:fire: Removed" },
+    { message = "^[d|D]oc", group = "<!-- 5 -->:books: Documentation" },
+    { message = "^[t|T]est", group = "<!-- 6 -->:white_check_mark: Testing" },
+    { message = "^[c|C]hore", group = "<!-- 7 -->:wrench: Miscellaneous" },
+    { message = "^[c|C]i", group = "<!-- 7 -->️:wrench: Miscellaneous" },
+    { message = "^[m|M]isc", group = "<!-- 7 -->:wrench: Miscellaneous" },
+    { message = "^[d|D]eps", group = "<!-- 8 -->:ship: Dependencies" },
+]
+# filter out the commits that are not matched by commit parsers
+filter_commits = true
+# sort the tags topologically
+topo_order = false
+# sort the commits inside sections by oldest/newest order
+sort_commits = "oldest"

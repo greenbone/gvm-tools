@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -19,7 +19,6 @@
 import os
 import sys
 import traceback
-
 from argparse import Namespace
 
 from gvm import get_version as get_gvm_version
@@ -28,12 +27,12 @@ from gvm.protocols.latest import Osp
 from gvm.transforms import EtreeCheckCommandTransform
 
 from gvmtools import get_version
-from gvmtools.helper import authenticate, run_script, do_not_run_as_root
+from gvmtools.helper import authenticate, do_not_run_as_root, run_script
 from gvmtools.parser import (
-    create_parser,
-    create_connection,
-    PROTOCOL_OSP,
     PROTOCOL_GMP,
+    PROTOCOL_OSP,
+    create_connection,
+    create_parser,
 )
 
 HELP_TEXT = """
@@ -51,17 +50,17 @@ __api_version__ = get_gvm_version()
 def main():
     do_not_run_as_root()
 
-    parser = create_parser(description=HELP_TEXT, logfilename='gvm-script.log')
+    parser = create_parser(description=HELP_TEXT, logfilename="gvm-script.log")
 
     parser.add_protocol_argument()
 
     parser.add_argument(
-        'scriptname',
+        "scriptname",
         metavar="SCRIPT",
-        help='Path to script to be executed (example: myscript.gmp.py)',
+        help="Path to script to be executed (example: myscript.gmp.py)",
     )
     parser.add_argument(
-        'scriptargs', nargs='*', metavar="ARG", help='Arguments for the script'
+        "scriptargs", nargs="*", metavar="ARG", help="Arguments for the script"
     )
     args, script_args = parser.parse_known_args()
 
@@ -70,8 +69,8 @@ def main():
     transform = EtreeCheckCommandTransform()
 
     global_vars = {
-        '__version__': __version__,
-        '__api_version__': __api_version__,
+        "__version__": __version__,
+        "__api_version__": __api_version__,
     }
 
     username = None
@@ -79,15 +78,15 @@ def main():
 
     if args.protocol == PROTOCOL_OSP:
         protocol_class = Osp
-        name = 'osp'
+        name = "osp"
     else:
         protocol_class = Gmp
-        name = 'gmp'
+        name = "gmp"
 
     try:
         with protocol_class(connection, transform=transform) as protocol:
             global_vars[name] = protocol
-            global_vars['__name__'] = f'__{name}__'
+            global_vars["__name__"] = f"__{name}__"
 
             if args.protocol == PROTOCOL_GMP:
                 if args.gmp_username:
@@ -109,7 +108,7 @@ def main():
                 script_args=script_args,
             )
 
-            global_vars['args'] = shell_args
+            global_vars["args"] = shell_args
 
             run_script(args.scriptname, global_vars)
 
@@ -120,5 +119,5 @@ def main():
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,43 +1,22 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2017-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2017-2021 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable=too-many-lines
-
-import time
-import textwrap
 import json
-
-from random import randrange, choice, gauss, seed
+import textwrap
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from datetime import datetime, timedelta
 from pathlib import Path
+from random import choice, gauss, randrange, seed
+
 from gvm.protocols.gmp import Gmp
+from gvmtools.helper import generate_id, generate_random_ips, generate_uuid
 from lxml import etree as e
 
-from gvmtools.helper import (
-    generate_uuid,
-    generate_id,
-    generate_random_ips,
-)
-
-__version__ = "0.1.0"
+__version__ = "0.3.1"
 
 HELP_TEXT = f"""
-    Random Report Generation Script {__version__} (C) 2017-2021 Greenbone Networks GmbH
+    Random Report Generation Script {__version__} (C) 2017-2023 Greenbone AG
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,35 +34,54 @@ HELP_TEXT = f"""
     This script generates randomized report data.
     """
 
+LOREM_IPSUM = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+deserunt mollit anim id est laborum."""
+
+local_date_time = datetime.now()
+
+
+def calculate_timestamp(delta: int = 0) -> str:
+    return (
+        (local_date_time + timedelta(seconds=delta))
+        .astimezone()
+        .replace(microsecond=0)
+        .isoformat()
+    )
+
 
 def generate_ports(n_ports):
-    protocol = ['/tcp', '/udp']
+    protocol = ["/tcp", "/udp"]
     return [str(randrange(0, 65536)) + choice(protocol) for i in range(n_ports)]
 
 
 def generate_report_elem(task, **kwargs):
-    rep_format_id = 'a994b278-1f62-11e1-96ac-406186ea4fc5'
+    rep_format_id = "a994b278-1f62-11e1-96ac-406186ea4fc5"
     rep_id = generate_uuid()
     outer_report_elem = e.Element(
-        'report',
+        "report",
         attrib={
-            'extension': 'xml',
-            'id': rep_id,
-            'format_id': rep_format_id,
-            'content_type': 'text/xml',
+            "extension": "xml",
+            "id": rep_id,
+            "format_id": rep_format_id,
+            "content_type": "text/xml",
         },
     )
-    owner_elem = e.SubElement(outer_report_elem, 'owner')
-    e.SubElement(owner_elem, 'name').text = 'testowner'
-    e.SubElement(outer_report_elem, 'name').text = 'testname'
-    e.SubElement(outer_report_elem, 'writeable').text = str(0)
-    e.SubElement(outer_report_elem, 'in_use').text = str(0)
-    task_elem = e.SubElement(outer_report_elem, 'task', attrib={'id': task[0]})
-    e.SubElement(task_elem, 'name').text = task[1]
+    owner_elem = e.SubElement(outer_report_elem, "owner")
+    e.SubElement(owner_elem, "name").text = "testowner"
+    e.SubElement(outer_report_elem, "name").text = "testname"
+    e.SubElement(outer_report_elem, "writeable").text = str(0)
+    e.SubElement(outer_report_elem, "in_use").text = str(0)
+    task_elem = e.SubElement(outer_report_elem, "task", attrib={"id": task[0]})
+    e.SubElement(task_elem, "name").text = task[1]
     repform_elem = e.SubElement(
-        outer_report_elem, 'report_format', attrib={'id': rep_format_id}
+        outer_report_elem, "report_format", attrib={"id": rep_format_id}
     )
-    e.SubElement(repform_elem, 'name').text = 'XML'
+    e.SubElement(repform_elem, "name").text = "XML"
 
     # Generating inner <report> tag
     outer_report_elem.append(generate_inner_report(rep_id, **kwargs))
@@ -91,10 +89,12 @@ def generate_report_elem(task, **kwargs):
     return outer_report_elem
 
 
-def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
-    report_elem = e.Element('report', attrib={'id': rep_id})
+def generate_inner_report(
+    rep_id, n_results, n_hosts, data, with_descriptions=False, **kwargs
+):
+    report_elem = e.Element("report", attrib={"id": rep_id})
     results_elem = e.SubElement(
-        report_elem, 'results', {'max': str(n_results), 'start': '1'}
+        report_elem, "results", {"max": str(n_results), "start": "1"}
     )
 
     # Create Hosts, Ports, Data
@@ -115,6 +115,7 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
             host_port,
             asset_dict[host_ip],
             host_names[host_ip],
+            with_descriptions=with_descriptions,
         )
         if float(severity) > max_sev:
             max_sev = float(severity)
@@ -147,61 +148,66 @@ def generate_inner_report(rep_id, n_results, n_hosts, data, **kwargs):
     return report_elem
 
 
-def generate_result_elem(vulns, host_ip, host_port, host_asset, host_name):
-    result_elem = e.Element('result', {'id': generate_uuid()})
+def generate_result_elem(
+    vulns, host_ip, host_port, host_asset, host_name, with_descriptions=False
+):
+    result_elem = e.Element("result", {"id": generate_uuid()})
 
-    e.SubElement(result_elem, 'name').text = "a_result" + generate_id()
-    own = e.SubElement(result_elem, 'owner')
-    e.SubElement(own, 'name').text = generate_id()
+    e.SubElement(result_elem, "name").text = "a_result" + generate_id()
+    own = e.SubElement(result_elem, "owner")
+    e.SubElement(own, "name").text = generate_id()
 
-    elem = e.Element('modification_time')
-    e.SubElement(result_elem, 'modification_time').text = (
-        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time()))[:-2]
-        + ':00'
-    )  # Hell of a Timeformat :D
-    e.SubElement(result_elem, 'comment').text = ''
-    e.SubElement(result_elem, 'creation_time').text = (
-        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 20))[
-            :-2
-        ]
-        + ':00'
-    )
+    elem = e.Element("modification_time")
+    e.SubElement(result_elem, "modification_time").text = calculate_timestamp(0)
+    e.SubElement(result_elem, "comment").text = ""
+    e.SubElement(result_elem, "creation_time").text = calculate_timestamp(-20)
 
-    host_elem = e.Element('host')
+    host_elem = e.Element("host")
     host_elem.text = host_ip
-    e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
-    e.SubElement(host_elem, 'hostname').text = host_name
+    e.SubElement(host_elem, "asset", {"asset_id": host_asset}).text = ""
+    e.SubElement(host_elem, "hostname").text = host_name
     result_elem.append(host_elem)
 
-    port_elem = e.Element('port')
+    port_elem = e.Element("port")
     port_elem.text = host_port
     result_elem.append(port_elem)
 
     nvt = vulns[randrange(len(vulns))]
-    e.SubElement(result_elem, 'severity').text = nvt['severity']
-    nvt_elem = e.Element('nvt', {'oid': nvt['oid']})
+    e.SubElement(result_elem, "severity").text = nvt["severity"]
+    nvt_elem = e.Element("nvt", {"oid": nvt["oid"]})
     result_elem.append(nvt_elem)
 
-    e.SubElement(result_elem, 'notes').text = 'TestNotes'
+    if with_descriptions:
+        nvt_oid = nvt["oid"]
+        description = (
+            f"Generated result for VT {nvt_oid} on {host_ip}"
+            + f" port {host_port}\n{LOREM_IPSUM}"
+        )
+        e.SubElement(result_elem, "description").text = description
+
+    e.SubElement(result_elem, "notes").text = "TestNotes"
 
     result_elem.append(elem)
 
-    return result_elem, nvt['oid'], nvt['severity']
+    return result_elem, nvt["oid"], nvt["severity"]
 
 
 def generate_host_detail_elem(
-    name, value, source_name=None, source_description=None
+    name, value, source_name=None, source_description=None, source_type=None
 ):
-    host_detail_elem = e.Element('detail')
-    e.SubElement(host_detail_elem, 'name').text = name
-    e.SubElement(host_detail_elem, 'value').text = value
+    host_detail_elem = e.Element("detail")
+    e.SubElement(host_detail_elem, "name").text = name
+    e.SubElement(host_detail_elem, "value").text = value
 
     if source_name:
-        source_elem = e.SubElement(host_detail_elem, 'source')
-        e.SubElement(source_elem, 'name').text = source_name
+        source_elem = e.SubElement(host_detail_elem, "source")
+        e.SubElement(source_elem, "name").text = source_name
 
         if source_description:
-            e.SubElement(source_elem, 'description').text = source_description
+            e.SubElement(source_elem, "description").text = source_description
+
+        if source_type:
+            e.SubElement(source_elem, "type").text = source_type
 
     return host_detail_elem
 
@@ -222,10 +228,11 @@ def generate_additional_host_details(
 
         host_detail_elems.append(
             generate_host_detail_elem(
-                details['name'],
-                details['value'],
-                source_name=details.get('source_name'),
-                source_description=details.get('source_description'),
+                details["name"],
+                details["value"],
+                source_name=details.get("source_name"),
+                source_description=details.get("source_description"),
+                source_type=details.get("source_type"),
             )
         )
 
@@ -235,56 +242,57 @@ def generate_additional_host_details(
 def generate_host_elem(
     host_ip, oid, host_asset, host_name, n_host_details, n_not_vuln, data
 ):
-    host_elem = e.Element('host')
-    e.SubElement(host_elem, 'ip').text = host_ip
-    e.SubElement(host_elem, 'asset', {'asset_id': host_asset}).text = ''
+    host_elem = e.Element("host")
+    e.SubElement(host_elem, "ip").text = host_ip
+    e.SubElement(host_elem, "asset", {"asset_id": host_asset}).text = ""
 
-    e.SubElement(host_elem, 'start').text = (
-        time.strftime(
-            "%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 1000)
-        )[:-2]
-        + ':00'
-    )
-    e.SubElement(host_elem, 'end').text = (
-        time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(time.time() - 30))[
-            :-2
-        ]
-        + ':00'
-    )
+    e.SubElement(host_elem, "start").text = calculate_timestamp(-1000)
+    e.SubElement(host_elem, "end").text = calculate_timestamp(-30)
 
     app = choice(list(data["apps"]))
     os = choice(list(data["oss"]))
 
     host_elem.append(
-        generate_host_detail_elem('App', data["apps"].get(app), source_name=oid)
-    )
-    host_elem.append(
         generate_host_detail_elem(
-            data["apps"].get(app), '/usr/bin/foo', source_name=oid
+            "App",
+            data["apps"].get(app),
+            source_name=oid,
+            source_type="nvt",
         )
     )
     host_elem.append(
         generate_host_detail_elem(
-            'hostname',
+            data["apps"].get(app),
+            "/usr/bin/foo",
+            source_name=oid,
+            source_type="nvt",
+        )
+    )
+    host_elem.append(
+        generate_host_detail_elem(
+            "hostname",
             host_name,
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
     host_elem.append(
         generate_host_detail_elem(
-            'best_os_txt',
-            list(os)[0],
+            "best_os_txt",
+            os,
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
     host_elem.append(
         generate_host_detail_elem(
-            'best_os_cpe',
+            "best_os_cpe",
             data["oss"].get(os),
             source_name=oid,
             source_description="Host Details",
+            source_type="nvt",
         )
     )
 
@@ -308,7 +316,7 @@ def generate_host_elem(
     return host_elem
 
 
-def generate_reports(task, n_reports, with_gauss, **kwargs):
+def generate_reports(task, n_reports, n_results, with_gauss, **kwargs):
     reports = []
 
     if with_gauss:
@@ -320,28 +328,64 @@ def generate_reports(task, n_reports, with_gauss, **kwargs):
         if with_gauss:
             n_results = abs(int(gauss(n_results, 2)))
 
-        report_elem = generate_report_elem(task, **kwargs)
+        report_elem = generate_report_elem(task, n_results=n_results, **kwargs)
         report_elem = e.tostring(report_elem)
         reports.append(report_elem)
 
     return reports
 
 
-def generate_data(gmp, n_tasks, **kwargs):
+def generate_target():
+    target_name = f"Random_Report_Generation_Target_{calculate_timestamp(0)}"
+    target_comment = (
+        f"Generated by Random Report Generation Script Version {__version__}."
+    )
+    target_hosts = ["198.18.0.0/24"]
+    target_port_list_id = "c7e03b6c-3bbe-11e1-a057-406186ea4fc5"
+
+    gmp.create_target(
+        name=target_name,
+        comment=target_comment,
+        hosts=target_hosts,
+        port_list_id=target_port_list_id,
+    )
+
+
+def generate_data(gmp, n_tasks, task_type, **kwargs):
+    if task_type == "scan":
+        scanner_id = "08b69003-5fc2-4037-a479-93b440211c73"
+        config_id = "085569ce-73ed-11df-83c3-002264764cea"
+        generate_target()
+        target_id = gmp.get_targets(
+            filter_string=f'"Random_Report_Generation_Target_{calculate_timestamp(0)}"'
+        ).xpath("//@id")[0]
+
     for i in range(n_tasks):
-        index = f'{{0:0>{len(str(n_tasks))}}}'
-        task_name = f'Task_for_GenReport:_{index.format(i + 1)}'
+        index = f"{{0:0>{len(str(n_tasks))}}}"
+        task_name = f"Random_Report_Generation_{task_type.capitalize()}_Task_{calculate_timestamp(0)}_{index.format(i + 1)}"
+        task_comment = f"Generated by Random Report Generation Script Version {__version__}."
 
-        gmp.create_container_task(task_name)
+        gmp.create_container_task(name=task_name, comment=task_comment)
 
-        task_id = gmp.get_tasks(filter_string=f'name={task_name}').xpath(
-            '//@id'
+        task_id = gmp.get_tasks(filter_string=f"name={task_name}").xpath(
+            "//@id"
         )[0]
+
+        if task_type == "scan":
+            gmp.modify_task(task_id=task_id, alterable=1)
 
         reports = generate_reports(task=(task_id, task_name), **kwargs)
 
         for report in reports[0:]:
             gmp.import_report(report, task_id=task_id, in_assets=True)
+
+        if task_type == "scan":
+            gmp.modify_task(
+                task_id=task_id,
+                target_id=target_id,
+                scanner_id=scanner_id,
+                config_id=config_id,
+            )
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
@@ -356,8 +400,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
         epilog=textwrap.dedent(
             """
         Example:
-            $ gvm-script --gmp-username name --gmp-password pass
-            ssh --hostname <gsm> scripts/gen-random-reports.gmp.py -T 5 -r 4 -R 3 --hosts 10
+            $ gvm-script --gmp-username name --gmp-password pass \
+              ssh --hostname <gsm> scripts/gen-random-reports.gmp.py \
+              -T 5 -r 4 -R 3 --hosts 10
         """
         ),
     )
@@ -422,6 +467,14 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     parser.add_argument(
+        "--with-descriptions",
+        dest="with_descriptions",
+        action="store_true",
+        help="Adds descriptions to results generated from other result fields"
+        " and some dummy text.",
+    )
+
+    parser.add_argument(
         "--with-gauss",
         dest="with_gauss",
         action="store_true",
@@ -433,6 +486,16 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "--seed", help="RNG Seed, in case the same data should be generated."
     )
 
+    parser.add_argument(
+        "--task-type",
+        dest="task_type",
+        type=str,
+        choices=["container", "scan"],
+        default="container",
+        help="Type of Task(s) to store the generated Reports. Can either "
+        "be 'container' or 'scan', default: 'container'.",
+    )
+
     script_args = parser.parse_args(args.script_args)
 
     if not script_args.seed:
@@ -440,10 +503,10 @@ def main(gmp: Gmp, args: Namespace) -> None:
     else:
         seed(script_args.seed)
 
-    with open(str(script_args.datafile), encoding='utf-8') as file:
+    with open(str(script_args.datafile), encoding="utf-8") as file:
         data = json.load(file)
 
-    print('\n  Generating randomized data(s)...\n')
+    print("\n  Generating randomized data...\n")
 
     generate_data(
         gmp,
@@ -455,10 +518,12 @@ def main(gmp: Gmp, args: Namespace) -> None:
         n_not_vuln=script_args.not_vuln,
         data=data,
         with_gauss=script_args.with_gauss,
+        with_descriptions=script_args.with_descriptions,
+        task_type=script_args.task_type,
     )
 
-    print('\n  Generation done.\n')
+    print("\n  Generation completed.\n")
 
 
-if __name__ == '__gmp__':
+if __name__ == "__gmp__":
     main(gmp, args)

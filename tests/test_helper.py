@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2020-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -15,27 +15,27 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import sys
-import uuid
-import unittest
 import ipaddress
-from unittest.mock import patch, MagicMock
+import sys
+import unittest
+import uuid
 from io import BytesIO
 from pathlib import Path
-from lxml import etree
+from unittest.mock import MagicMock, patch
 
 from gvm.errors import GvmError
+from lxml import etree
 
 from gvmtools.helper import (
     Table,
-    do_not_run_as_root,
     authenticate,
-    run_script,
+    create_xml_tree,
+    do_not_run_as_root,
+    error_and_exit,
     generate_id,
     generate_random_ips,
     generate_uuid,
-    create_xml_tree,
-    error_and_exit,
+    run_script,
     yes_or_no,
 )
 
@@ -44,13 +44,13 @@ CWD = Path(__file__).absolute().parent
 
 class TableTestCase(unittest.TestCase):
     def setUp(self):
-        self.heading = ['ID', 'Name', 'Severity']
+        self.heading = ["ID", "Name", "Severity"]
         self.rows = [
-            ['1', 'foobar', 'high'],
-            ['2', 'bla', 'low'],
-            ['3', 'blub', 'medium'],
+            ["1", "foobar", "high"],
+            ["2", "bla", "low"],
+            ["3", "blub", "medium"],
         ]
-        self.divider = ' - '
+        self.divider = " - "
 
         self.table = Table(
             heading=self.heading, rows=self.rows, divider=self.divider
@@ -61,7 +61,7 @@ class TableTestCase(unittest.TestCase):
 
         self.assertListEqual(table.heading, [])
         self.assertListEqual(table.rows, [])
-        self.assertEqual(table.divider, ' | ')
+        self.assertEqual(table.divider, " | ")
 
     def test_init_with_args(self):
         self.assertListEqual(self.table.heading, self.heading)
@@ -82,9 +82,9 @@ class TableTestCase(unittest.TestCase):
         self.assertEqual(column_sizes, expected_result)
 
     def test_create_column(self):
-        column = 'foobar'
+        column = "foobar"
         size = 20
-        expected = 'foobar              '
+        expected = "foobar              "
 
         result = self.table._create_column(  # pylint: disable=protected-access
             column, size
@@ -93,7 +93,7 @@ class TableTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_create_row(self):
-        columns = ['foo', 'bar', 'blub']
+        columns = ["foo", "bar", "blub"]
         expected = self.divider.join(columns)
 
         result = self.table._create_row(columns)  # pylint: disable=W0212
@@ -102,27 +102,27 @@ class TableTestCase(unittest.TestCase):
 
     def test_str(self):
         expected = (
-            'ID - Name   - Severity\n'
-            + '-- - ------ - --------\n'
-            + '1  - foobar - high    \n'
-            + '2  - bla    - low     \n'
-            + '3  - blub   - medium  '
+            "ID - Name   - Severity\n"
+            + "-- - ------ - --------\n"
+            + "1  - foobar - high    \n"
+            + "2  - bla    - low     \n"
+            + "3  - blub   - medium  "
         )
 
         self.assertEqual(str(self.table), expected)
 
 
 class DoNotRunAsRootTestCase(unittest.TestCase):
-    @patch('gvmtools.helper.os')
+    @patch("gvmtools.helper.os")
     def test_do_not_run_as_root_as_root(self, mock_os):
-        mock_os.geteuid = MagicMock(spec='geteuid')
+        mock_os.geteuid = MagicMock(spec="geteuid")
         mock_os.geteuid.return_value = 0
 
         self.assertRaises(RuntimeError, do_not_run_as_root)
 
-    @patch('gvmtools.helper.os')
+    @patch("gvmtools.helper.os")
     def test_do_not_run_as_root_as_non_root(self, mock_os):
-        mock_os.geteuid = MagicMock(spec='geteuid')
+        mock_os.geteuid = MagicMock(spec="geteuid")
         mock_os.geteuid.return_value = 123
 
         self.assertIsNone(do_not_run_as_root())
@@ -134,49 +134,49 @@ class AuthenticateTestCase(unittest.TestCase):
 
         self.assertIsNone(authenticate(mock_gmp))
 
-    @patch('gvmtools.helper.input', return_value='foo')
+    @patch("gvmtools.helper.input", return_value="foo")
     def test_authenticate_username_is_none(
         self, mock_input
     ):  # pylint: disable=unused-argument,line-too-long
         mock_gmp = self.create_gmp_mock(False)
 
-        return_value = authenticate(mock_gmp, password='bar')
+        return_value = authenticate(mock_gmp, password="bar")
 
         self.assertTrue(isinstance(return_value, tuple))
-        self.assertEqual(return_value[0], 'foo')
-        self.assertEqual(return_value[1], 'bar')
+        self.assertEqual(return_value[0], "foo")
+        self.assertEqual(return_value[1], "bar")
 
-    @patch('gvmtools.helper.getpass')
+    @patch("gvmtools.helper.getpass")
     def test_authenticate_password_is_none(self, mock_getpass):
         mock_gmp = self.create_gmp_mock(False)
-        mock_getpass.getpass = MagicMock(return_value='SuperSecret123!')
+        mock_getpass.getpass = MagicMock(return_value="SuperSecret123!")
 
-        return_value = authenticate(mock_gmp, username='user')
+        return_value = authenticate(mock_gmp, username="user")
 
         self.assertTrue(isinstance(return_value, tuple))
-        self.assertEqual(return_value[0], 'user')
-        self.assertEqual(return_value[1], 'SuperSecret123!')
+        self.assertEqual(return_value[0], "user")
+        self.assertEqual(return_value[1], "SuperSecret123!")
 
     def test_authenticate(self):
         mock_gmp = self.create_gmp_mock(False)
 
         return_value = authenticate(
-            mock_gmp, username='user', password='password'
+            mock_gmp, username="user", password="password"
         )
 
         self.assertTrue(isinstance(return_value, tuple))
-        self.assertEqual(return_value[0], 'user')
-        self.assertEqual(return_value[1], 'password')
+        self.assertEqual(return_value[0], "user")
+        self.assertEqual(return_value[1], "password")
 
     def test_authenticate_bad_credentials(self):
         mock_gmp = self.create_gmp_mock(False)
 
         def my_authenticate(username, password):
-            raise GvmError('foo')
+            raise GvmError("foo")
 
         mock_gmp.authenticate = my_authenticate
 
-        self.assertRaises(GvmError, authenticate, mock_gmp, 'user', 'password')
+        self.assertRaises(GvmError, authenticate, mock_gmp, "user", "password")
 
     def create_gmp_mock(self, authenticated_return_value):
         mock_gmp = MagicMock()
@@ -187,61 +187,61 @@ class AuthenticateTestCase(unittest.TestCase):
 
 
 class RunScriptTestCase(unittest.TestCase):
-    @patch('gvmtools.helper.open')
-    @patch('gvmtools.helper.exec')
+    @patch("gvmtools.helper.open")
+    @patch("gvmtools.helper.exec")
     def test_run_script(self, mock_exec, mock_open):
-        path = 'foo'
-        global_vars = ['OpenVAS', 'is', 'awesome']
-        mock_open().read.return_value = 'file content'
+        path = "foo"
+        global_vars = ["OpenVAS", "is", "awesome"]
+        mock_open().read.return_value = "file content"
 
         run_script(path, global_vars)
 
-        mock_open.assert_called_with(path, 'r', encoding='utf-8', newline='')
-        mock_exec.assert_called_with('file content', global_vars)
+        mock_open.assert_called_with(path, "r", encoding="utf-8", newline="")
+        mock_exec.assert_called_with("file content", global_vars)
 
-    @patch('gvmtools.helper.open')
-    @patch('gvmtools.helper.print')
+    @patch("gvmtools.helper.open")
+    @patch("gvmtools.helper.print")
     def test_run_script_file_not_found(self, mock_print, mock_open):
         def my_open(path, mode, newline, encoding):
             raise FileNotFoundError
 
         mock_open.side_effect = my_open
 
-        path = 'foo'
-        global_vars = ['OpenVAS', 'is', 'awesome']
+        path = "foo"
+        global_vars = ["OpenVAS", "is", "awesome"]
 
         with self.assertRaises(SystemExit):
             run_script(path, global_vars)
 
         mock_print.assert_called_with(
-            f'Script {path} does not exist', file=sys.stderr
+            f"Script {path} does not exist", file=sys.stderr
         )
 
 
 class ScriptUtilsTestCase(unittest.TestCase):
-    @patch('builtins.input', lambda *args: 'y')
+    @patch("builtins.input", lambda *args: "y")
     def test_yes(self):
-        yes = yes_or_no('foo?')
+        yes = yes_or_no("foo?")
         self.assertTrue(yes)
 
-    @patch('builtins.input', lambda *args: 'n')
+    @patch("builtins.input", lambda *args: "n")
     def test_no(self):
-        no = yes_or_no('bar?')
+        no = yes_or_no("bar?")
         self.assertFalse(no)
 
     def test_error_and_exit(self):
         with self.assertRaises(SystemExit):
-            error_and_exit('foo')
+            error_and_exit("foo")
 
     def test_create_xml_tree(self):
-        tree = create_xml_tree(BytesIO(b'<foo><baz/><bar>glurp</bar></foo>'))
+        tree = create_xml_tree(BytesIO(b"<foo><baz/><bar>glurp</bar></foo>"))
         self.assertIsInstance(
             tree, etree._Element  # pylint: disable=protected-access
         )
-        self.assertEqual(tree.tag, 'foo')
+        self.assertEqual(tree.tag, "foo")
 
     def test_create_xml_tree_invalid_file(self):
-        target_xml_path = CWD / 'invalid_file.xml'
+        target_xml_path = CWD / "invalid_file.xml"
 
         with self.assertRaises(SystemExit):
             with self.assertRaises(OSError):
@@ -250,7 +250,7 @@ class ScriptUtilsTestCase(unittest.TestCase):
     def test_create_xml_tree_invalid_xml(self):
         with self.assertRaises(SystemExit):
             with self.assertRaises(etree.Error):
-                create_xml_tree(BytesIO(b'<foo><baz/><bar>glurp<bar></foo>'))
+                create_xml_tree(BytesIO(b"<foo><baz/><bar>glurp<bar></foo>"))
 
     def test_generate_uuid(self):
         random_uuid = generate_uuid()
@@ -261,7 +261,7 @@ class ScriptUtilsTestCase(unittest.TestCase):
 
     def test_generate_id(self):
         random_id = generate_id(size=1, chars="a")
-        self.assertEqual(random_id, 'a')
+        self.assertEqual(random_id, "a")
 
         random_id = generate_id(size=10)
         self.assertEqual(len(random_id), 10)

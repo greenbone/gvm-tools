@@ -1,0 +1,9 @@
+usage: gvm-test-cli socket [-h] [--sockpath [SOCKETPATH] | --socketpath
+                           [SOCKETPATH]]
+
+options:
+  -h, --help            show this help message and exit
+  --sockpath [SOCKETPATH]
+                        Deprecated, use --socketpath instead
+  --socketpath [SOCKETPATH]
+                        Path to UNIX Domain socket (default: None)

@@ -2,103 +2,86 @@ name: Build and test Python package
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
 
 jobs:
   linting:
     name: Linting
-    runs-on: 'ubuntu-latest'
     strategy:
-        matrix:
-          python-version:
-            - 3.7
-            - 3.8
-            - 3.9
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
-      - name: Check with black, pylint and pontos.version
-        uses: greenbone/actions/lint-python@v1
-        with:
-          packages: gvmtools tests
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+    uses: greenbone/workflows/.github/workflows/lint-python.yml@main
+    with:
+      linter: ruff check
+      lint-packages: gvmtools tests
+      python-version: ${{ matrix.python-version }}
 
   lint-scripts:
     name: Lint all scripts
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     strategy:
-        matrix:
-          python-version:
-            - 3.7
-            - 3.8
-            - 3.9
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: greenbone/actions/poetry@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
       - name: Install additional script dependencies
         run: poetry run pip install -r scripts/requirements.txt
       - name: Check with black
         run: poetry run black --check scripts/*.gmp.py
-      - name: Run pylint
+      - name: Lint scripts
         run: |
-          poetry run pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*.py
+          poetry run ruff check --config scripts/ruff.toml scripts/*.py
 
   test:
-    name: Run all tests
-    runs-on: 'ubuntu-latest'
+    name: Unit tests
     strategy:
-        matrix:
-          python-version:
-            - 3.7
-            - 3.8
-            - 3.9
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
-      - name: Run unit tests
-        run: poetry run python -m unittest
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+    uses: greenbone/workflows/.github/workflows/test-python.yml@main
+    with:
+      python-version: ${{ matrix.python-version }}
 
   codecov:
     name: Upload coverage to codecov.io
     needs: test
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Calculate and upload coverage to codecov.io
-        uses: greenbone/actions/coverage-python@v1
+        uses: greenbone/actions/coverage-python@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build-docs:
     name: Build the documentation
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
+        uses: greenbone/actions/poetry@v3
       - name: Build docs
-        run: cd docs && poetry run make html
+        run: |
+          cd docs
+          poetry run make html
+
+  versioning:
+    name: Check versioning
+    uses: greenbone/workflows/.github/workflows/check-version.yml@main

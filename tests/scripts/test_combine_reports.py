@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2021-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -18,10 +18,12 @@
 
 
 import unittest
-from unittest.mock import patch
-from pathlib import Path
 from argparse import Namespace
+from pathlib import Path
+from unittest.mock import patch
+
 from lxml import etree
+
 from . import GmpMockFactory, load_script
 
 CWD = Path(__file__).absolute().parent
@@ -30,87 +32,87 @@ CWD = Path(__file__).absolute().parent
 class CombineReportsTestCase(unittest.TestCase):
     def setUp(self):
         self.combine_reports = load_script(
-            (CWD.parent.parent / 'scripts'), 'combine-reports'
+            (CWD.parent.parent / "scripts"), "combine-reports"
         )
 
-    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_combine_reports(self, mock_gmp: GmpMockFactory):
         # bah!
         mock_gmp.mock_responses(
-            'get_report',
+            "get_report",
             [
                 '<get_reports_response status="200" status_text="OK">'
                 '<report id="00000000-0000-0000-0000-000000000000">'
-                '<name>2020-11-13T14:47:28Z</name>'
-                '<creation_time>2020-11-13T14:47:28Z</creation_time>'
-                '<modification_time>2020-11-13T14:47:28Z</modification_time>'
+                "<name>2020-11-13T14:47:28Z</name>"
+                "<creation_time>2020-11-13T14:47:28Z</creation_time>"
+                "<modification_time>2020-11-13T14:47:28Z</modification_time>"
                 '<task id="00000000-0000-0000-0001-000000000000">'
-                '<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>'
-                '</task>'
+                "<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>"
+                "</task>"
                 '<report id="00000000-0000-0000-0000-000000000000">'
-                '<scan_run_status>Done</scan_run_status>'
-                '<timestamp>2020-11-13T14:47:48Z</timestamp>'
-                '<scan_start>2020-11-13T14:47:28Z</scan_start>'
+                "<scan_run_status>Done</scan_run_status>"
+                "<timestamp>2020-11-13T14:47:48Z</timestamp>"
+                "<scan_start>2020-11-13T14:47:28Z</scan_start>"
                 '<results start="1" max="100">'
                 '<result id="00000001-0000-0000-0000-000000000000">'
-                '</result>'
+                "</result>"
                 '<result id="00000001-0000-0000-0000-000000000001">'
-                '</result>'
-                '</results>'
-                '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report>'
-                '</report>'
-                '</get_reports_response>',
+                "</result>"
+                "</results>"
+                "<scan_end>2020-11-13T14:47:28Z</scan_end>"
+                "</report>"
+                "</report>"
+                "</get_reports_response>",
                 '<get_reports_response status="200" status_text="OK">'
                 '<report id="00000000-0000-0000-0000-000000000001">'
-                '<name>2020-11-13T14:47:28Z</name>'
-                '<creation_time>2020-11-13T14:47:28Z</creation_time>'
-                '<modification_time>2020-11-13T14:47:28Z</modification_time>'
+                "<name>2020-11-13T14:47:28Z</name>"
+                "<creation_time>2020-11-13T14:47:28Z</creation_time>"
+                "<modification_time>2020-11-13T14:47:28Z</modification_time>"
                 '<task id="00000000-0000-0000-0002-000000000000">'
-                '<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>'
-                '</task>'
+                "<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>"
+                "</task>"
                 '<report id="00000000-0000-0000-0000-000000000001">'
-                '<scan_run_status>Done</scan_run_status>'
-                '<timestamp>2020-11-13T14:47:48Z</timestamp>'
-                '<scan_start>2020-11-13T14:47:28Z</scan_start>'
+                "<scan_run_status>Done</scan_run_status>"
+                "<timestamp>2020-11-13T14:47:48Z</timestamp>"
+                "<scan_start>2020-11-13T14:47:28Z</scan_start>"
                 '<results start="1" max="100">'
                 '<result id="00000001-0000-0000-0000-000000000002">'
-                '</result>'
+                "</result>"
                 '<result id="00000001-0000-0000-0000-000000000003">'
-                '</result>'
-                '</results>'
-                '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report>'
-                '</report>'
-                '</get_reports_response>',
+                "</result>"
+                "</results>"
+                "<scan_end>2020-11-13T14:47:28Z</scan_end>"
+                "</report>"
+                "</report>"
+                "</get_reports_response>",
                 '<get_reports_response status="200" status_text="OK">'
                 '<report id="00000000-0000-0000-0000-000000000002">'
-                '<name>2020-11-13T14:47:28Z</name>'
-                '<creation_time>2020-11-13T14:47:28Z</creation_time>'
-                '<modification_time>2020-11-13T14:47:28Z</modification_time>'
+                "<name>2020-11-13T14:47:28Z</name>"
+                "<creation_time>2020-11-13T14:47:28Z</creation_time>"
+                "<modification_time>2020-11-13T14:47:28Z</modification_time>"
                 '<task id="00000000-0000-0000-0003-000000000000">'
-                '<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>'
-                '</task>'
+                "<name>Offline Scan from 2020-11-13T15:47:28+01:00 8</name>"
+                "</task>"
                 '<report id="00000000-0000-0000-0000-000000000002">'
-                '<scan_run_status>Done</scan_run_status>'
-                '<timestamp>2020-11-13T14:47:48Z</timestamp>'
-                '<scan_start>2020-11-13T14:47:28Z</scan_start>'
+                "<scan_run_status>Done</scan_run_status>"
+                "<timestamp>2020-11-13T14:47:48Z</timestamp>"
+                "<scan_start>2020-11-13T14:47:28Z</scan_start>"
                 '<results start="1" max="100">'
                 '<result id="00000001-0000-0000-0000-000000000004">'
-                '</result>'
-                '</results>'
-                '<scan_end>2020-11-13T14:47:28Z</scan_end>'
-                '</report>'
-                '</report>'
-                '</get_reports_response>',
+                "</result>"
+                "</results>"
+                "<scan_end>2020-11-13T14:47:28Z</scan_end>"
+                "</report>"
+                "</report>"
+                "</get_reports_response>",
             ],
         )
         args = Namespace(
             script=[
-                'foo',
-                '00000000-0000-0000-0000-000000000000',
-                '00000000-0000-0000-0000-000000000001',
-                '00000000-0000-0000-0000-000000000002',
+                "foo",
+                "00000000-0000-0000-0000-000000000000",
+                "00000000-0000-0000-0000-000000000001",
+                "00000000-0000-0000-0000-000000000002",
             ]
         )
 
@@ -119,26 +121,25 @@ class CombineReportsTestCase(unittest.TestCase):
         )
 
         results = (
-            combined_report.find('report').find('results').findall('result')
+            combined_report.find("report").find("results").findall("result")
         )
         i = 0
         for result in results:
             self.assertEqual(
-                result.get('id'), f'00000001-0000-0000-0000-00000000000{str(i)}'
+                result.get("id"), f"00000001-0000-0000-0000-00000000000{str(i)}"
             )
             i += 1
 
         self.assertEqual(i, 5)
 
-    @patch('gvm.protocols.latest.Gmp', new_callable=GmpMockFactory)
+    @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     def test_send_report(self, mock_gmp: GmpMockFactory):
-
         args = Namespace(
             script=[
-                'foo',
-                '00000000-0000-0000-0000-000000000000',
-                '00000000-0000-0000-0000-000000000001',
-                '00000000-0000-0000-0000-000000000002',
+                "foo",
+                "00000000-0000-0000-0000-000000000000",
+                "00000000-0000-0000-0000-000000000001",
+                "00000000-0000-0000-0000-000000000002",
             ]
         )
 
@@ -153,19 +154,19 @@ class CombineReportsTestCase(unittest.TestCase):
             '<result id="00000001-0000-0000-0000-000000000002"/>'
             '<result id="00000001-0000-0000-0000-000000000003"/>'
             '<result id="00000001-0000-0000-0000-000000000004"/>'
-            '</results></report></report>'
+            "</results></report></report>"
         )
 
-        report_id = '0e4d8fb2-47fa-494e-a242-d5327d3772f9'
+        report_id = "0e4d8fb2-47fa-494e-a242-d5327d3772f9"
 
         mock_gmp.mock_response(
-            'import_report',
+            "import_report",
             '<create_report_response status="201" status_text="OK, '
             f'resource created" id="{report_id}"/>',
         )
 
         mock_gmp.mock_response(
-            'create_container_task',
+            "create_container_task",
             '<create_task_response status="201" status_text="OK, '
             'resource created" id="6488ef71-e2d5-491f-95bd-ed9f915fa179"/>',
         )
