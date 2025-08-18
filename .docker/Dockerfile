@@ -33,8 +33,8 @@ RUN apt-get update && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN addgroup --gid 1001 --system gvm && \
-    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group gvm
+RUN groupadd --gid 1001 gvm && \
+    useradd --no-create-home --shell /bin/false --uid 1001 -g 1001 gvm
 
 COPY --from=builder /source/dist/* /gvm-tools/
 COPY .docker/entrypoint.sh /usr/local/bin/entrypoint
