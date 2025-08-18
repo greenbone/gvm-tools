@@ -30,7 +30,7 @@ def check_args(args):
 
 
 def bulk_modify_schedules(gmp, filter_term, new_timezone, new_icalendar):
-    get_response = gmp.get_schedules(filter=filter_term)
+    get_response = gmp.get_schedules(filter_string=filter_term)
     schedules = get_response.findall("schedule")
 
     for schedule in schedules:

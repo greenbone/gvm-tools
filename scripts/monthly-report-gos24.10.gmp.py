@@ -62,7 +62,7 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         hostname = hostnames[0]
 
         results = gmp.get_results(
-            details=False, filter=f"host={ip} and severity>0.0"
+            details=False, filter_string=f"host={ip} and severity>0.0"
         )
 
         low = int(results.xpath('count(//result/threat[text()="Low"])'))

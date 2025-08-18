@@ -27,7 +27,7 @@ def check_args(args):
 
 
 def delete_overrides(gmp, filter_value):
-    filters = gmp.get_overrides(filter=filter_value)
+    filters = gmp.get_overrides(filter_string=filter_value)
 
     if not filters.xpath("override"):
         print(f"No overrides with filter: {filter_value}")
