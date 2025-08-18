@@ -137,7 +137,7 @@ def get_alerts(gmp, sender_email, recipient_email, debug=False) -> List[str]:
     alert_name = recipient_email
 
     # create alert if necessary
-    alert_object = gmp.get_alerts(filter=f"name={alert_name}")
+    alert_object = gmp.get_alerts(filter_string=f"name={alert_name}")
     alert_id = None
     alert = alert_object.xpath("alert")
     if len(alert) == 0:
@@ -170,7 +170,7 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
-        alert_object = gmp.get_alerts(filter=f"name={recipient_email}")
+        alert_object = gmp.get_alerts(filter_string=f"name={recipient_email}")
         alert = alert_object.xpath("alert")
         alert_id = alert[0].get("id", "no id found")
     else:
@@ -182,7 +182,7 @@ should not have received it.
     alert_name2 = f"{recipient_email}-2"
 
     # create second alert if necessary
-    alert_object2 = gmp.get_alerts(filter=f"name={alert_name2}")
+    alert_object2 = gmp.get_alerts(filter_string=f"name={alert_name2}")
     alert_id2 = None
     alert2 = alert_object2.xpath("alert")
     if len(alert2) == 0:
@@ -214,7 +214,7 @@ should not have received it.
                 recipient_email: "to_address",
             },
         )
-        alert_object2 = gmp.get_alerts(filter=f"name={recipient_email}")
+        alert_object2 = gmp.get_alerts(filter_string=f"name={recipient_email}")
         alert2 = alert_object2.xpath("alert")
         alert_id2 = alert2[0].get("id", "no id found")
     else:
@@ -235,7 +235,7 @@ def create_and_start_task(
     gmp, config_id, target_id, scanner_id, alerts, debug=False
 ):
     # Create the task
-    tasks = gmp.get_tasks(filter="name~ScanDoneMultipleAlert")
+    tasks = gmp.get_tasks(filter_string="name~ScanDoneMultipleAlert")
     task_name = f"ScanDoneMultipleAlert{len(tasks.xpath('tasks/@id'))}"
     task_comment = "test comment"
     res = gmp.create_task(
