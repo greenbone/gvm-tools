@@ -36,7 +36,7 @@ def check_args(args: Namespace) -> None:
 def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
     host_filter = (
         f"rows=-1 and modified>{from_date.isoformat()} "
-        f"and modified<{to_date.isoformat()}"
+        f"and created<{to_date.isoformat()}"
     )
 
     hosts_xml = gmp.get_hosts(filter_string=host_filter)
@@ -62,21 +62,37 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
         hostname = hostnames[0]
 
         results = gmp.get_results(
-            details=False, filter_string=f"host={ip} and severity>0.0"
+            details=False,
+            filter_string=(
+                f"rows=-1 host={ip} and severity>0.0"
+                f" and modified>{from_date.isoformat()}"
+                f" and modified<{to_date.isoformat()}"
+            ),
         )
 
-        low = int(results.xpath('count(//result/threat[text()="Low"])'))
+        unique_vt_results = results.xpath(
+            "result["
+            "  not (./nvt/@oid = preceding-sibling::result/nvt/@oid)"
+            "]"
+        )
+        if len(unique_vt_results) == 0:
+            continue
+
+        low = medium = high = critical = 0
+        for result in unique_vt_results:
+            threat = result.findtext("threat")
+            if threat == "Critical":
+                critical += 1
+            elif threat == "High":
+                high += 1
+            elif threat == "Medium":
+                medium += 1
+            elif threat == "Low":
+                low += 1
+
         sum_low += low
-
-        medium = int(results.xpath('count(//result/threat[text()="Medium"])'))
         sum_medium += medium
-
-        high = int(results.xpath('count(//result/threat[text()="High"])'))
         sum_high += high
-
-        critical = int(
-            results.xpath('count(//result/threat[text()="Critical"])')
-        )
         sum_critical += critical
 
         best_os_cpe_report_id = host.xpath(
