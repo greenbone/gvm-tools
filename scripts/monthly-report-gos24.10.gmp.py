@@ -25,7 +25,6 @@ def print_reports(
     sum_medium = 0
     sum_low = 0
 
-    table_header = ["Hostname", "IP", "Critical", "High", "Medium", "Low"]
     if reports_choice == "last":
         table_header = [
             "Hostname",
@@ -46,6 +45,8 @@ def print_reports(
             "Medium",
             "Low",
         ]
+    else:
+        table_header = ["Hostname", "IP", "Critical", "High", "Medium", "Low"]
 
     table_data = [table_header]
 
