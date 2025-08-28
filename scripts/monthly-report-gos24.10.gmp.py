@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import sys
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from datetime import date, datetime, timedelta
 
@@ -109,21 +108,29 @@ def print_reports(
                 mod_date = datetime.fromisoformat(
                     identifier.findtext("modification_time")
                 ).date()
-                
+
                 if mod_date >= to_date or mod_date < from_date:
                     continue
-                
+
                 report_ids.append(identifier.find("source").get("id"))
-                if reports_choice == 'last':
+                if reports_choice == "last":
                     break
 
-            if reports_choice == 'last':
+            if reports_choice == "last":
                 table_data.append(
                     [hostname, ip, report_ids[0], critical, high, medium, low]
                 )
             else:
                 table_data.append(
-                    [hostname, ip, ',\n'.join(report_ids)+'\n', critical, high, medium, low]
+                    [
+                        hostname,
+                        ip,
+                        ",\n".join(report_ids) + "\n",
+                        critical,
+                        high,
+                        medium,
+                        low,
+                    ]
                 )
 
     table = AsciiTable(table_data)
