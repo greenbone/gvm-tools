@@ -4,11 +4,9 @@
 
 import sys
 from argparse import Namespace
-from base64 import b64decode
 from pathlib import Path
 
 from gvm.protocols.gmp import Gmp
-from gvm.xml import pretty_print
 from lxml import etree
 
 
