@@ -9,6 +9,7 @@ from pathlib import Path
 
 from gvm.protocols.gmp import Gmp
 from gvm.xml import pretty_print
+from lxml import etree
 
 
 def check_args(args):
@@ -51,9 +52,8 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     report_element = response.find("report")
-    pretty_print(report_element)
-    # get the full content of the report element
-    content = report_element.find("report_format").tail
+    # get the full content of the report element as bytestring
+    content = etree.tostring(report_element.find("report"))
 
     if not content:
         print(
@@ -64,16 +64,13 @@ def main(gmp: Gmp, args: Namespace) -> None:
         )
         sys.exit(1)
 
-    # convert content to 8-bit ASCII bytes
-    binary_base64_encoded_xml = content.encode("ascii")
-
-    # decode base64
-    binary_xml = b64decode(binary_base64_encoded_xml)
+    # decode content
+    dcontent = content.decode("utf-8")
 
     # write to file and support ~ in filename path
     xml_path = Path(xml_filename).expanduser()
 
-    xml_path.write_bytes(binary_xml)
+    xml_path.write_text(dcontent)
 
     print("Done. xml created: " + str(xml_path))
 
