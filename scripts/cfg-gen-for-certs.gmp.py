@@ -119,7 +119,7 @@ def create_scan_config(gmp, cert_bund_name):
                     print(f"Could not modify scan config, {gvmerr=}")
 
         if len(whole_families) > 0:
-            print(f"Adding whole families: {whole_families}")
+            print(f"Adding whole families to scan config: {whole_families}")
 
             gmp.modify_scan_config_set_family_selection(
                 config_id=config_id,
