@@ -110,7 +110,7 @@ def create_scan_config(gmp, cert_bund_name):
                     in gvmerr.message
                 ):
                     print(
-                        f'WARNING: Adding whole family "{family}" to scan config"'
+                        f'WARNING: Adding whole family "{family}" to scan config '
                         f"(Please add {family} to WHOLE_ONLY_FAMILIES array)"
                     )
                     whole_families.add(family)
