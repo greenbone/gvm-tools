@@ -82,8 +82,7 @@ def create_scan_config(gmp, cert_bund_name):
 
             # Collect list of whole-only families
             if family in WHOLE_ONLY_FAMILIES:
-                if family not in whole_families:
-                    whole_families.add(family)
+                whole_families.add(family)
             # Create key value map
             elif family in nvt_dict and oid not in nvt_dict[family]:
                 nvt_dict[family].append(oid)
