@@ -26,6 +26,34 @@ def check_args(args):
         sys.exit()
 
 
+WHOLE_ONLY_FAMILIES = [
+    "AIX Local Security Checks",
+    "AlmaLinux Local Security Checks",
+    "Amazon Linux Local Security Checks",
+    "Arch Linux Local Security Checks",
+    "CentOS Local Security Checks",
+    "Debian Local Security Checks",
+    "Fedora Local Security Checks",
+    "FreeBSD Local Security Checks",
+    "Gentoo Local Security Checks",
+    "HCE Local Security Checks",
+    "HP-UX Local Security Checks",
+    "Huawei EulerOS Local Security Checks",
+    "Mageia Linux Local Security Checks",
+    "Mandrake Local Security Checks",
+    "openEuler Local Security Checks",
+    "openSUSE Local Security Checks",
+    "Oracle Linux Local Security Checks",
+    "Red Hat Local Security Checks",
+    "Rocky Linux Local Security Checks",
+    "Slackware Local Security Checks",
+    "Solaris Local Security Checks",
+    "SuSE Local Security Checks",
+    "Ubuntu Local Security Checks",
+    "Windows Local Security Checks",
+]
+
+
 def create_scan_config(gmp, cert_bund_name):
     cert_bund_details = gmp.get_info(
         info_id=cert_bund_name, info_type=gmp.types.InfoType.CERT_BUND_ADV
@@ -36,6 +64,7 @@ def create_scan_config(gmp, cert_bund_name):
     )
 
     nvt_dict = dict()
+    whole_families = set()
     counter = 0
 
     for cve in list_cves:
@@ -51,8 +80,12 @@ def create_scan_config(gmp, cert_bund_name):
             nvt_data = gmp.get_scan_config_nvt(oid)
             family = nvt_data.xpath("nvt/family/text()")[0]
 
+            # Collect list of whole-only families
+            if family in WHOLE_ONLY_FAMILIES:
+                if family not in whole_families:
+                    whole_families.add(family)
             # Create key value map
-            if family in nvt_dict and oid not in nvt_dict[family]:
+            elif family in nvt_dict and oid not in nvt_dict[family]:
                 nvt_dict[family].append(oid)
             else:
                 nvt_dict[family] = [oid]
@@ -61,7 +94,6 @@ def create_scan_config(gmp, cert_bund_name):
     copy_id = "085569ce-73ed-11df-83c3-002264764cea"
     config_name = f"scanconfig_for_{cert_bund_name}"
     config_id = ""
-    whole_families = []
 
     try:
         res = gmp.create_scan_config(copy_id, config_name)
@@ -74,16 +106,24 @@ def create_scan_config(gmp, cert_bund_name):
                     config_id=config_id, nvt_oids=nvt_oid, family=family
                 )
             except GvmError as gvmerr:
-                if 'Attempt to modify NVT in whole-only family' in gvmerr.message:
-                    print(f'Adding whole family "{family}" to scan config')
-                    whole_families.append((family, True, True))
+                if (
+                    "Attempt to modify NVT in whole-only family"
+                    in gvmerr.message
+                ):
+                    print(
+                        f'WARNING: Adding whole family "{family}" to scan config"'
+                        f"(Please add {family} to WHOLE_ONLY_FAMILIES array)"
+                    )
+                    whole_families.add(family)
                 else:
                     print(f"Could not modify scan config, {gvmerr=}")
 
         if len(whole_families) > 0:
+            print(f"Adding whole families: {whole_families}")
+
             gmp.modify_scan_config_set_family_selection(
                 config_id=config_id,
-                families=whole_families,
+                families=[(f, True, True) for f in whole_families],
             )
 
         # This nvts must be present to work
@@ -92,6 +132,8 @@ def create_scan_config(gmp, cert_bund_name):
         gmp.modify_scan_config_set_nvt_selection(
             config_id=config_id, nvt_oids=nvts, family=family
         )
+
+        print("Finished")
 
     except GvmError as e:
         print("Config exist ", e)
