@@ -61,6 +61,7 @@ def create_scan_config(gmp, cert_bund_name):
     copy_id = "085569ce-73ed-11df-83c3-002264764cea"
     config_name = f"scanconfig_for_{cert_bund_name}"
     config_id = ""
+    whole_families = []
 
     try:
         res = gmp.create_scan_config(copy_id, config_name)
@@ -73,7 +74,17 @@ def create_scan_config(gmp, cert_bund_name):
                     config_id=config_id, nvt_oids=nvt_oid, family=family
                 )
             except GvmError as gvmerr:
-                print(f"{gvmerr=}")
+                if 'Attempt to modify NVT in whole-only family' in gvmerr.message:
+                    print(f'Adding whole family "{family}" to scan config')
+                    whole_families.append((family, True, True))
+                else:
+                    print(f"Could not modify scan config, {gvmerr=}")
+
+        if len(whole_families) > 0:
+            gmp.modify_scan_config_set_family_selection(
+                config_id=config_id,
+                families=whole_families,
+            )
 
         # This nvts must be present to work
         family = "Port scanners"
@@ -82,8 +93,8 @@ def create_scan_config(gmp, cert_bund_name):
             config_id=config_id, nvt_oids=nvts, family=family
         )
 
-    except GvmError:
-        print("Config exist")
+    except GvmError as e:
+        print("Config exist ", e)
 
 
 def main(gmp: Gmp, args: Namespace) -> None:
