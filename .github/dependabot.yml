@@ -21,7 +21,3 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "Deps"
-    groups:
-      github-actions:
-        patterns:
-          - "*"
