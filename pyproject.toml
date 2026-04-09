@@ -1,58 +1,63 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.2,<0.12.0"]
+build-backend = "uv_build"
 
-[tool.poetry]
+[project]
 name = "gvm-tools"
 version = "25.4.10.dev1"
-authors = ["Greenbone AG <info@greenbone.net>"]
 description = "Tools to control a GSM/GVM over GMP or OSP"
-license = "GPL-3.0-or-later"
+authors = [{ name = "Greenbone AG", email = "info@greenbone.net" }]
+requires-python = ">=3.9.2,<4"
 readme = "README.md"
-homepage = "https://github.com/greenbone/gvm-tools/"
-repository = "https://github.com/greenbone/gvm-tools/"
-documentation = "https://greenbone.github.io/gvm-tools/"
+license = "GPL-3.0-or-later"
 classifiers = [
-    # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
-    'Development Status :: 5 - Production/Stable',
-    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-    'Environment :: Console',
-    'Intended Audience :: Developers',
-    'Intended Audience :: System Administrators',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
-    'Programming Language :: Python :: 3.12',
-    'Operating System :: OS Independent',
-    'Topic :: Software Development :: Libraries :: Python Modules',
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [
-    { include = "gvmtools" },
-    { include = "tests", format = "sdist" },
-    { include = "scripts", format = "sdist" },
-]
+dependencies = ["python-gvm>=26.0.0"]
 
-[tool.poetry.scripts]
+[project.urls]
+Homepage = "https://github.com/greenbone/gvm-tools/"
+Repository = "https://github.com/greenbone/gvm-tools/"
+Documentation = "https://greenbone.github.io/gvm-tools/"
+
+[project.scripts]
 gvm-pyshell = "gvmtools.pyshell:main"
 gvm-cli = "gvmtools.cli:main"
 gvm-script = "gvmtools.script:main"
 
-[tool.poetry.dependencies]
-python = "^3.9.2"
-python-gvm = ">=26.0.0"
+[dependency-groups]
+dev = [
+    "autohooks>=22.8.0",
+    "autohooks-plugin-ruff>=23.6.1",
+    "autohooks-plugin-black>=22.8.1",
+    "pontos>=22.8.1",
+    "sphinx>=5.3.0",
+    "coverage>=7.2",
+    "rope>=1.9.0",
+    "furo>=2023.3.27",
+    "sphinx-autobuild>=2021.3.14",
+    "myst-parser>=2.0.0",
+    "git-cliff>=2.8.0,<3",
+]
 
-[tool.poetry.group.dev.dependencies]
-autohooks = ">=22.8.0"
-autohooks-plugin-ruff = ">=23.6.1"
-autohooks-plugin-black = ">=22.8.1"
-pontos = ">=22.8.1"
-sphinx = ">=5.3.0"
-coverage = ">=7.2"
-rope = ">=1.9.0"
-furo = ">=2023.3.27"
-sphinx-autobuild = ">=2021.3.14"
-myst-parser = ">=2.0.0"
-git-cliff = "^2.8.0"
+[tool.uv]
+default-groups = "all"
+
+[tool.uv.build-backend]
+module-name = ["gvmtools", "tests", "scripts"]
+module-root = ""
+namespace = true
+wheel-exclude = ["tests", "scripts"]
 
 [tool.black]
 line-length = 80
@@ -71,7 +76,7 @@ exclude = '''
 '''
 
 [tool.autohooks]
-mode = "poetry"
+mode = "uv"
 pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.ruff']
 
 [tool.ruff]
