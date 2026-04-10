@@ -20,7 +20,6 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Optional
 
 from gvm import get_version as get_gvm_version
 from gvm.connections import (
@@ -319,7 +318,7 @@ def create_connection(
     cafile=None,
     ssh_username=None,
     ssh_password=None,
-    auto_accept_host: Optional[bool] = None,
+    auto_accept_host: bool | None = None,
     **kwargs,  # pylint: disable=unused-argument
 ):
     if "socket" in connection_type:
