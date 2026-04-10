@@ -1,6 +1,6 @@
 [build-system]
-requires = ["uv_build>=0.11.2,<0.12.0"]
-build-backend = "uv_build"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "gvm-tools"
@@ -53,11 +53,11 @@ dev = [
 [tool.uv]
 default-groups = "all"
 
-[tool.uv.build-backend]
-module-name = ["gvmtools", "tests", "scripts"]
-module-root = ""
-namespace = true
-wheel-exclude = ["tests", "scripts"]
+[tool.hatch.build.targets.sdist]
+include = ["gvmtools", "tests", "scripts", "docs", "uv.lock"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["gvmtools"]
 
 [tool.autohooks]
 mode = "uv"
