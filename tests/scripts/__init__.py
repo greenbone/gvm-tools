@@ -17,14 +17,13 @@
 
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import Union
 from unittest.mock import MagicMock, create_autospec
 
 from gvm.protocols.latest import Gmp
 from lxml import etree
 
 
-def load_script(path: Union[str, Path], script_name: str):
+def load_script(path: str | Path, script_name: str):
     """loading a script for a test case"""
     spec = spec_from_file_location(
         script_name, f"{path!s}/{script_name}.gmp.py"
