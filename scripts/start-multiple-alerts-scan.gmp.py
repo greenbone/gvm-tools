@@ -126,9 +126,7 @@ def get_target(gmp, debug=False):
     hosts = ["localhost"]
 
     # integrate port list id into create_target
-    res = gmp.create_target(
-        name=target_name, hosts=hosts, port_list_id=portlist_id
-    )
+    res = gmp.create_target(name=target_name, hosts=hosts, port_list_id=portlist_id)
     return res.xpath("@id")[0]
 
 
@@ -231,9 +229,7 @@ def get_scanner(gmp):
     return scanner_ids[1]  # default scanner
 
 
-def create_and_start_task(
-    gmp, config_id, target_id, scanner_id, alerts, debug=False
-):
+def create_and_start_task(gmp, config_id, target_id, scanner_id, alerts, debug=False):
     # Create the task
     tasks = gmp.get_tasks(filter_string="name~ScanDoneMultipleAlert")
     task_name = f"ScanDoneMultipleAlert{len(tasks.xpath('tasks/@id'))}"

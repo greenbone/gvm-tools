@@ -74,9 +74,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     return script_args
 
 
-def list_hosts(
-    gmp: Gmp, from_date: date, to_date: date, csvfilename: str
-) -> None:
+def list_hosts(gmp: Gmp, from_date: date, to_date: date, csvfilename: str) -> None:
     host_filter = (
         f"rows=-1 and modified>{from_date.isoformat()} "
         f"and modified<{to_date.isoformat()}"
@@ -118,9 +116,7 @@ def list_hosts(
         else:
             host_severity = host_severity[0]
 
-        host_os = host.xpath(
-            'host/detail/name[text()="best_os_txt"]/../value/text()'
-        )
+        host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')
         if len(host_os) == 0:
             host_os = ""
             pass
@@ -132,11 +128,7 @@ def list_hosts(
         )
     # Write the list host_info to csv file
     writecsv(csvfilename, host_info)
-    print(
-        f"CSV file: {csvfilename}\n"
-        f"From:     {from_date}\n"
-        f"To:       {to_date}\n"
-    )
+    print(f"CSV file: {csvfilename}\nFrom:     {from_date}\nTo:       {to_date}\n")
 
 
 def writecsv(csv_filename, hostinfo: list) -> None:

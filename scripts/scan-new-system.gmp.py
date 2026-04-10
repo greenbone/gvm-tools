@@ -79,10 +79,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     report_id = start_task(gmp, task_id)
 
-    print(
-        f"Started scan of host {ipaddress}. "
-        f"Corresponding report ID is {report_id}"
-    )
+    print(f"Started scan of host {ipaddress}. Corresponding report ID is {report_id}")
 
 
 if __name__ == "__gmp__":

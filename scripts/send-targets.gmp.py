@@ -78,9 +78,7 @@ def parse_send_xml_tree(gmp: Gmp, xml_tree: Element) -> None:
                 port_key = f"{credential}_port"
                 keywords[port_key] = elem_path.find("port").text
 
-        alive_test = gmp.types.AliveTest.from_string(
-            target.find("alive_tests").text
-        )
+        alive_test = gmp.types.AliveTest.from_string(target.find("alive_tests").text)
 
         if alive_test is not None:
             keywords["alive_test"] = alive_test

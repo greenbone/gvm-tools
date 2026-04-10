@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -96,7 +95,7 @@ def main():
                         password=args.gmp_password,
                     )
 
-            argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+            argv = [os.path.abspath(args.scriptname), *args.scriptargs]  # noqa: PTH100
 
             shell_args = Namespace(
                 username=username,

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2020-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -28,7 +27,7 @@ from lxml import etree
 def load_script(path: Union[str, Path], script_name: str):
     """loading a script for a test case"""
     spec = spec_from_file_location(
-        script_name, f"{str(path)}/{script_name}.gmp.py"
+        script_name, f"{path!s}/{script_name}.gmp.py"
     )
     script = module_from_spec(spec)
     spec.loader.exec_module(script)

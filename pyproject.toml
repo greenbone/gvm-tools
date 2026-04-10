@@ -38,8 +38,7 @@ gvm-script = "gvmtools.script:main"
 [dependency-groups]
 dev = [
     "autohooks>=22.8.0",
-    "autohooks-plugin-ruff>=23.6.1",
-    "autohooks-plugin-black>=22.8.1",
+    "autohooks-plugin-ruff>=25.2.0",
     "pontos>=22.8.1",
     "sphinx>=5.3.0",
     "coverage>=7.2",
@@ -59,32 +58,19 @@ module-root = ""
 namespace = true
 wheel-exclude = ["tests", "scripts"]
 
-[tool.black]
-line-length = 80
-target-version = ['py39', 'py310', 'py311', 'py312']
-exclude = '''
-/(
-    \.git
-  | \.venv
-  | \.github
-  | \.vscode
-  | _build
-  | build
-  | dist
-  | docs
-)/
-'''
-
 [tool.autohooks]
 mode = "uv"
-pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.ruff']
+pre-commit = ['autohooks.plugins.ruff.check', 'autohooks.plugins.ruff.format']
 
 [tool.ruff]
 line-length = 80
 target-version = "py39"
 
+[tool.ruff.format]
+docstring-code-format = true
+
 [tool.ruff.lint]
-extend-select = ["I", "PLE", "PLW"]
+extend-select = ["I", "PLE", "PLW", "PTH", "C4", "A", "N", "RUF", "UP"]
 
 [tool.coverage.run]
 omit = ["tests/*"]
@@ -170,7 +156,7 @@ commit_parsers = [
     { message = "^[d|D]oc", group = "<!-- 5 -->:books: Documentation" },
     { message = "^[t|T]est", group = "<!-- 6 -->:white_check_mark: Testing" },
     { message = "^[c|C]hore", group = "<!-- 7 -->:wrench: Miscellaneous" },
-    { message = "^[c|C]i", group = "<!-- 7 -->️:wrench: Miscellaneous" },
+    { message = "^[c|C]i", group = "<!-- 7 -->:wrench: Miscellaneous" },
     { message = "^[m|M]isc", group = "<!-- 7 -->:wrench: Miscellaneous" },
     { message = "^[d|D]eps", group = "<!-- 8 -->:ship: Dependencies" },
 ]

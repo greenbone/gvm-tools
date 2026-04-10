@@ -69,24 +69,18 @@ def execute_send_delta_emails(sc: sched.scheduler, **kwargs: dict) -> None:
         print(f'Processing task "{task_name}" ({task_id})...')
 
         reports = gmp.get_reports(
-            filter_string=f"task_id={task_id} and status=Done "
-            "sort-reverse=date"
+            filter_string=f"task_id={task_id} and status=Done sort-reverse=date"
         ).xpath("report")
         print(f"  Found {str(len(reports))} report(s).")
         if len(reports) < 2:
             print("  Delta-reporting requires at least 2 finished reports.")
             continue
 
-        if reports[0].xpath(
-            'report/user_tags/tag/name[text()="delta_alert_sent"]'
-        ):
+        if reports[0].xpath('report/user_tags/tag/name[text()="delta_alert_sent"]'):
             print("  Delta report for latest finished report already sent")
             continue
 
-        print(
-            "  Latest finished report not send yet. Preparing delta "
-            "report..."
-        )
+        print("  Latest finished report not send yet. Preparing delta report...")
 
         delta_report = gmp.get_report(
             report_id=reports[0].xpath("@id")[0],
@@ -119,9 +113,7 @@ def execute_send_delta_emails(sc: sched.scheduler, **kwargs: dict) -> None:
                 smtp.starttls()
                 smtp.ehlo()
                 smtp.login(mta_user, mta_password)  # if required
-                smtp.sendmail(
-                    from_address, to_addresses, alert_email.as_string()
-                )
+                smtp.sendmail(from_address, to_addresses, alert_email.as_string())
                 smtp.close()
                 print("  Email has been sent!")
 

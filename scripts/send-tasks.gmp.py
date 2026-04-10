@@ -65,9 +65,7 @@ def interactive_options(gmp, task, keywords):
                     "\nPlease enter the number of your choice.",
                     len(object_list),
                 )
-                keywords[f"{option_key}_id"] = object_dict[
-                    object_list[answer - 1]
-                ]
+                keywords[f"{option_key}_id"] = object_dict[object_list[answer - 1]]
             else:
                 print("\nTerminating...")
                 sys.exit()
@@ -93,9 +91,7 @@ def parse_send_xml_tree(gmp, xml_tree):
         interactive_options(gmp, task, keywords)
 
         if task.find("schedule_periods") is not None:
-            keywords["schedule_periods"] = int(
-                task.find("schedule_periods").text
-            )
+            keywords["schedule_periods"] = int(task.find("schedule_periods").text)
 
         if task.find("observers").text:
             keywords["observers"] = task.find("observers").text

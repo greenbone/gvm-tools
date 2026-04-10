@@ -33,9 +33,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         port_tcp = "".join(portlist.xpath("port_count/tcp/text()"))
         port_udp = "".join(portlist.xpath("port_count/udp/text()"))
 
-        rows.append(
-            [rowNumber, name, port_list_id, port_all, port_tcp, port_udp]
-        )
+        rows.append([rowNumber, name, port_list_id, port_all, port_tcp, port_udp])
 
     print(Table(heading=heading, rows=rows))
 

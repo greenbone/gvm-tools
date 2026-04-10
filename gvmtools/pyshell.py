@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -64,7 +63,7 @@ HELP_TEXT = """
       https://docs.greenbone.net/index.html#api_documentation"""
 
 
-class Help(object):
+class Help:
     """Help class to overwrite the help function from python itself."""
 
     def __call__(self):
@@ -145,7 +144,7 @@ def main():
         with_script = args.scriptname and len(args.scriptname) > 0
 
         if with_script:
-            argv = [os.path.abspath(args.scriptname), *args.scriptargs]
+            argv = [os.path.abspath(args.scriptname), *args.scriptargs]  # noqa: PTH100
             shell_args.argv = argv
             # for backwards compatibility we add script here
             shell_args.script = argv

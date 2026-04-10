@@ -74,9 +74,7 @@ def schedule_id(
     gmp: Gmp,
     schedule_name: str,
 ):
-    response_xml = gmp.get_schedules(
-        filter_string="rows=-1, name=" + schedule_name
-    )
+    response_xml = gmp.get_schedules(filter_string="rows=-1, name=" + schedule_name)
     schedules_xml = response_xml.xpath("schedule")
     schedule_id = ""
 

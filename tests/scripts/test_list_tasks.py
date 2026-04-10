@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2020-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -68,7 +67,7 @@ class ListTasksTestCase(unittest.TestCase):
 
     @patch("gvm.protocols.latest.Gmp", new_callable=GmpMockFactory)
     @patch("builtins.print")
-    def test_duration_in_UTC(self, mock_print, mock_gmp: GmpMockFactory):
+    def test_duration_in_utc(self, mock_print, mock_gmp: GmpMockFactory):
         args = Namespace(script=["foo"])
 
         mock_gmp.mock_response(

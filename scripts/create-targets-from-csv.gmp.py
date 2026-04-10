@@ -78,8 +78,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
         dest="port_range",
         type=str,
         help=(
-            "Port range to create port list from, e.g. "
-            "T:1-1234 for ports 1-1234/TCP"
+            "Port range to create port list from, e.g. T:1-1234 for ports 1-1234/TCP"
         ),
     )
 
@@ -101,9 +100,7 @@ def credential_id(
     gmp: Gmp,
     credName: str,
 ):
-    response_xml = gmp.get_credentials(
-        filter_string="rows=-1, name=" + credName
-    )
+    response_xml = gmp.get_credentials(filter_string="rows=-1, name=" + credName)
     credentials_xml = response_xml.xpath("credential")
     cred_id = ""
 

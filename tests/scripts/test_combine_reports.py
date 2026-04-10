@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -126,7 +125,7 @@ class CombineReportsTestCase(unittest.TestCase):
         i = 0
         for result in results:
             self.assertEqual(
-                result.get("id"), f"00000001-0000-0000-0000-00000000000{str(i)}"
+                result.get("id"), f"00000001-0000-0000-0000-00000000000{i!s}"
             )
             i += 1
 

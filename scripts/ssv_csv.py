@@ -296,9 +296,7 @@ class SSVWriter(CSVWriter):
 
     def __init__(self, file: TextIO) -> None:
         # pylint: disable=C0301
-        CSVWriter.__init__(
-            self, file, sep="\x1f", quot=None, eol="\n", qnl="\r"
-        )
+        CSVWriter.__init__(self, file, sep="\x1f", quot=None, eol="\n", qnl="\r")
         # not permitted in SSV data
         self._invf = re.compile("[\x00\x1f]")
 

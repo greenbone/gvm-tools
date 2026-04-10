@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2019-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -73,7 +72,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertEqual(config.get("tls", "cafile"), "foo.ca")
 
         self.assertDictEqual(
-            config.defaults(), dict(timeout="1000", foo="bar", username="ipsum")
+            config.defaults(),
+            {"timeout": "1000", "foo": "bar", "username": "ipsum"},
         )
 
     def test_load_auth(self):

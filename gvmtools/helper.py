@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -53,7 +52,7 @@ class Table:
         return column_sizes
 
     def _create_column(self, column, size):
-        return f'{column}{" " * (size - len(column))}'
+        return f"{column}{' ' * (size - len(column))}"
 
     def _create_row(self, columns):
         return self.divider.join(columns)
@@ -116,7 +115,7 @@ def error_and_exit(msg: str) -> None:
 
 def generate_random_ips(count: int):
     """Generate count random IPv4s"""
-    exclude_127 = [i for i in range(1, 256)]
+    exclude_127 = list(range(1, 256))
     exclude_127.remove(127)
     return [
         f"{choice(exclude_127)}.{randrange(0, 256)}."
@@ -146,10 +145,10 @@ def create_xml_tree(xml_doc):
     try:
         xml_tree = etree.parse(xml_doc)
         xml_tree = xml_tree.getroot()
-    except IOError as err:
-        error_and_exit(f"Failed to read xml_file: {str(err)} (exit)")
+    except OSError as err:
+        error_and_exit(f"Failed to read xml_file: {err!s} (exit)")
     except etree.Error as err:
-        error_and_exit(f"Failed to parse xml_file: {str(err)} (exit)")
+        error_and_exit(f"Failed to parse xml_file: {err!s} (exit)")
 
     if len(xml_tree) == 0:
         error_and_exit("XML file is empty (exit)")
@@ -208,7 +207,7 @@ def run_script(path, global_vars) -> None:
         vars (dict): Variables passed as globals to the script
     """
     try:
-        file = open(path, "r", encoding="utf-8", newline="").read()
+        file = open(path, encoding="utf-8", newline="").read()  # noqa: PTH123
     except FileNotFoundError:
         print(f"Script {path} does not exist", file=sys.stderr)
         sys.exit(2)

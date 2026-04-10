@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2019-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -28,7 +27,7 @@ class SuppressOutput:
         self.original_stderr = None
 
     def __enter__(self):
-        self.devnull = open(os.devnull, "w", encoding="utf-8")
+        self.devnull = open(os.devnull, "w", encoding="utf-8")  # noqa: PTH123
 
         # Suppress streams
         if self.suppress_stdout:
