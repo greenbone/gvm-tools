@@ -68,9 +68,9 @@ There are several clients to communicate via GMP/OSP.
 
 All clients have the ability to build a connection in various ways:
 
-* Unix Socket
-* TLS Connection
-* SSH Connection
+- Unix Socket
+- TLS Connection
+- SSH Connection
 
 ### gvm-cli
 
@@ -178,27 +178,24 @@ Your contributions are highly appreciated. Please
 For bigger changes, please discuss it first in the
 [issues](https://github.com/greenbone/gvm-tools/issues).
 
-For development you should use [poetry](https://python-poetry.org/)
-to keep you python packages separated in different environments. First install
-poetry via pip
+For development you should use [uv] to keep you python packages separated in
+different environments. First install uv via pip
 
-    python3 -m pip install --user poetry
-
-Afterwards run
-
-    poetry install
-
-in the checkout directory of `gvm-tools` (the directory containing the
-`pyproject.toml` file) to install all dependencies including the packages only
-required for development.
+```sh
+python3 -m pip install --user uv
+```
 
 Afterwards active the git hooks for auto-formatting and linting via
 [autohooks](https://github.com/greenbone/autohooks).
 
-    poetry run autohooks activate --force
+```sh
+uv run autohooks activate --force
+```
 
 ## License
 
-Copyright (C) 2017-2024 [Greenbone AG](https://www.greenbone.net/)
+Copyright (C) 2017-2026 [Greenbone AG](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v3.0 or later](LICENSE).
+
+[uv]: https://docs.astral.sh/uv/
