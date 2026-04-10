@@ -90,9 +90,7 @@ def credential_id(
     gmp: Gmp,
     credential_name: str,
 ):
-    response_xml = gmp.get_credentials(
-        filter_string="rows=-1, name=" + credential_name
-    )
+    response_xml = gmp.get_credentials(filter_string="rows=-1, name=" + credential_name)
     credentials_xml = response_xml.xpath("credential")
     credential_id = ""
 

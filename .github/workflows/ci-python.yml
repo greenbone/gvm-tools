@@ -25,7 +25,8 @@ jobs:
           package-manager: uv
           packages: gvmtools tests
           python-version: ${{ matrix.python-version }}
-          linter: ruff check
+          linter: ruff check --diff
+          formatter: ruff format --check --diff
 
   lint-scripts:
     name: Lint all scripts
@@ -47,8 +48,8 @@ jobs:
         run: uv sync
       - name: Install additional script dependencies
         run: uv pip install -r scripts/requirements.txt
-      - name: Check with black
-        run: uv run black --check scripts/*.gmp.py
+      - name: Check formatting of scripts
+        run: uv run ruff format --check --diff scripts/*.gmp.py
       - name: Lint scripts
         run: |
           uv run ruff check --config scripts/ruff.toml scripts/*.py

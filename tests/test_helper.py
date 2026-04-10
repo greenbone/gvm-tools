@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2020-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -135,9 +134,7 @@ class AuthenticateTestCase(unittest.TestCase):
         self.assertIsNone(authenticate(mock_gmp))
 
     @patch("gvmtools.helper.input", return_value="foo")
-    def test_authenticate_username_is_none(
-        self, mock_input
-    ):  # pylint: disable=unused-argument,line-too-long
+    def test_authenticate_username_is_none(self, mock_input):  # pylint: disable=unused-argument,line-too-long
         mock_gmp = self.create_gmp_mock(False)
 
         return_value = authenticate(mock_gmp, password="bar")
@@ -196,13 +193,13 @@ class RunScriptTestCase(unittest.TestCase):
 
         run_script(path, global_vars)
 
-        mock_open.assert_called_with(path, "r", encoding="utf-8", newline="")
+        mock_open.assert_called_with(path, encoding="utf-8", newline="")
         mock_exec.assert_called_with("file content", global_vars)
 
     @patch("gvmtools.helper.open")
     @patch("gvmtools.helper.print")
     def test_run_script_file_not_found(self, mock_print, mock_open):
-        def my_open(path, mode, newline, encoding):
+        def my_open(path, newline, encoding):
             raise FileNotFoundError
 
         mock_open.side_effect = my_open
@@ -236,7 +233,8 @@ class ScriptUtilsTestCase(unittest.TestCase):
     def test_create_xml_tree(self):
         tree = create_xml_tree(BytesIO(b"<foo><baz/><bar>glurp</bar></foo>"))
         self.assertIsInstance(
-            tree, etree._Element  # pylint: disable=protected-access
+            tree,
+            etree._Element,  # pylint: disable=protected-access
         )
         self.assertEqual(tree.tag, "foo")
 

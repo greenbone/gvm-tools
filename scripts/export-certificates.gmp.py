@@ -80,7 +80,6 @@ def list_tls_certificates(
     # pretty_print(tls_cert_xml)
 
     for tls_cert in tls_cert_xml.xpath("tls_certificate"):
-
         cert_seen = tls_cert.xpath("last_seen/text()")[0]
 
         cert_from = tls_cert.xpath("activation_time/text()")[0]
@@ -112,11 +111,7 @@ def list_tls_certificates(
 
     # Write the list host_info to csv file
     writecsv(csvfilename, cert_info)
-    print(
-        f"CSV file: {csvfilename}\n"
-        f"From:     {from_date}\n"
-        f"To:       {to_date}\n"
-    )
+    print(f"CSV file: {csvfilename}\nFrom:     {from_date}\nTo:       {to_date}\n")
 
 
 def writecsv(csv_filename: str, hostinfo: list) -> None:

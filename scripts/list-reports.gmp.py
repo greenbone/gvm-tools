@@ -126,9 +126,7 @@ def list_reports(
         report_task = "".join(report.xpath("task/name/text()"))
         mod_time = "".join(report.xpath("modification_time/text()"))
         report_status = "".join(report.xpath("report/scan_run_status/text()"))
-        report_progress = (
-            "".join(report.xpath("report/task/progress/text()")) + "%"
-        )
+        report_progress = "".join(report.xpath("report/task/progress/text()")) + "%"
         rows.append(
             [
                 rowNumber,

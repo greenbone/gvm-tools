@@ -72,9 +72,7 @@ def config_id(
     gmp: Gmp,
     config_name: str,
 ):
-    response_xml = gmp.get_scan_configs(
-        filter_string="rows=-1, name= " + config_name
-    )
+    response_xml = gmp.get_scan_configs(filter_string="rows=-1, name= " + config_name)
     scan_configs_xml = response_xml.xpath("config")
     config_id = ""
 
@@ -100,9 +98,7 @@ def credential_id(
     gmp: Gmp,
     credName: str,
 ):
-    response_xml = gmp.get_credentials(
-        filter_string="rows=-1, name=" + credName
-    )
+    response_xml = gmp.get_credentials(filter_string="rows=-1, name=" + credName)
     credentials_xml = response_xml.xpath("credential")
     cred_id = ""
 
@@ -154,9 +150,7 @@ def scanner_id(
     gmp: Gmp,
     scanner_name: str,
 ):
-    response_xml = gmp.get_scanners(
-        filter_string="rows=-1, name=" + scanner_name
-    )
+    response_xml = gmp.get_scanners(filter_string="rows=-1, name=" + scanner_name)
     scanners_xml = response_xml.xpath("scanner")
     scanner_id = ""
 
@@ -169,9 +163,7 @@ def schedule_id(
     gmp: Gmp,
     schedule_name: str,
 ):
-    response_xml = gmp.get_schedules(
-        filter_string="rows=-1, name=" + schedule_name
-    )
+    response_xml = gmp.get_schedules(filter_string="rows=-1, name=" + schedule_name)
     schedules_xml = response_xml.xpath("schedule")
     schedule_id = ""
 

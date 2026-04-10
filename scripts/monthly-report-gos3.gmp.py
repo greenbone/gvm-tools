@@ -38,33 +38,23 @@ def get_reports_xml(gmp: Gmp, from_date: date, to_date: date) -> Element:
     """Getting the Reports in the defined time period"""
 
     report_filter = (
-        f"rows=-1 created>{from_date.isoformat()} and "
-        f"created<{to_date.isoformat()}"
+        f"rows=-1 created>{from_date.isoformat()} and created<{to_date.isoformat()}"
     )
 
     return gmp.get_reports(filter_string=report_filter)
 
 
-def print_result_sums(
-    reports_xml: Element, from_date: date, to_date: date
-) -> None:
+def print_result_sums(reports_xml: Element, from_date: date, to_date: date) -> None:
     report_count = len(reports_xml.xpath("report"))
     print(f"Found {report_count} reports")
 
-    sum_high = reports_xml.xpath(
-        "sum(report/report/result_count/hole/full/text())"
-    )
+    sum_high = reports_xml.xpath("sum(report/report/result_count/hole/full/text())")
     sum_medium = reports_xml.xpath(
         "sum(report/report/result_count/warning/full/text())"
     )
-    sum_low = reports_xml.xpath(
-        "sum(report/report/result_count/info/full/text())"
-    )
+    sum_low = reports_xml.xpath("sum(report/report/result_count/info/full/text())")
 
-    print(
-        f"Summary of results from {from_date.isoformat()} "
-        f"to {to_date.isoformat()}"
-    )
+    print(f"Summary of results from {from_date.isoformat()} to {to_date.isoformat()}")
     print(f"High: {int(sum_high)}")
     print(f"Medium: {int(sum_medium)}")
     print(f"Low: {int(sum_low)}")
@@ -84,9 +74,7 @@ def print_result_tables(gmp: Gmp, reports_xml: Element) -> None:
         table_data = [["Hostname", "IP", "Bericht", "high", "medium", "low"]]
 
         for host in res.xpath("report/report/host"):
-            hostname = host.xpath(
-                'detail/name[text()="hostname"]/../value/text()'
-            )
+            hostname = host.xpath('detail/name[text()="hostname"]/../value/text()')
             if len(hostname) > 0:
                 hostname = str(hostname[0])
             else:

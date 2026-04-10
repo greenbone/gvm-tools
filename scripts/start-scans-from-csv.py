@@ -97,9 +97,9 @@ def start_tasks(
                         print(
                             f"Starting task name: {row[0]} with uuid: {task_start} ..."
                         )
-                        status_text = gmp.start_task(task_start).xpath(
-                            "@status_text"
-                        )[0]
+                        status_text = gmp.start_task(task_start).xpath("@status_text")[
+                            0
+                        ]
                         print(status_text)
                     else:
                         print(

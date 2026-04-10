@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -127,7 +126,7 @@ class CliParser:
         args, unkown_args = self.parse_known_args(args)
         if unkown_args:
             self._parser.error(
-                f'unrecognized arguments {" ".join(unkown_args)}'
+                f"unrecognized arguments {' '.join(unkown_args)}"
             )
         return args
 

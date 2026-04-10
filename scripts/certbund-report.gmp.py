@@ -80,9 +80,7 @@ def _assign(
     """Signature of _assign for Dict[str, str] targets"""
 
 
-def _assign(
-    tgt, tgtfield: str, src: Dict[str, Optional[str]], srcfield: str
-) -> None:
+def _assign(tgt, tgtfield: str, src: Dict[str, Optional[str]], srcfield: str) -> None:
     """Assign src[srcfield] to tgt[tgtfield] if extant and truthy"""
     if srcfield in src:
         srcval = src[srcfield]
@@ -136,9 +134,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         add_help=False,
     )
     ogroup = parser.add_argument_group("Options")
-    ogroup.add_argument(
-        "-H", action="help", help="show this help message and exit"
-    )
+    ogroup.add_argument("-H", action="help", help="show this help message and exit")
     ogroup.add_argument(
         "-o",
         "--output",

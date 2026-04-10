@@ -39,8 +39,7 @@ def get_scan_config(gmp, nvt_oid):
 
     while True:
         chosen_config = input(
-            "\nChoose your config or create new one"
-            f"[0-{len(config_ids) - 1} | n]: "
+            f"\nChoose your config or create new one[0-{len(config_ids) - 1} | n]: "
         )
 
         if chosen_config == "n":
@@ -98,8 +97,7 @@ def get_target(gmp, hosts):
     while True:
         if target_ids:
             chosen_target = input(
-                "\nChoose your target or create new"
-                f" one[0-{len(target_ids) - 1} | n]: "
+                f"\nChoose your target or create new one[0-{len(target_ids) - 1} | n]: "
             )
         else:
             chosen_target = "n"

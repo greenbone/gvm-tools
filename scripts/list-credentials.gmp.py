@@ -48,9 +48,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         else:
             cred_insecureuse = "No"
 
-        rows.append(
-            [rowNumber, credential_id, name, cred_type, cred_insecureuse]
-        )
+        rows.append([rowNumber, credential_id, name, cred_type, cred_insecureuse])
 
     print(Table(heading=heading, rows=rows))
 

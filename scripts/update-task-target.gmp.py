@@ -92,8 +92,7 @@ def copy_send_target(gmp, host_list, old_target_id):
     keywords = {"hosts": host_list}
 
     keywords["comment"] = (
-        "This target was automatically "
-        f'modified: {time.strftime("%Y/%m/%d-%H:%M:%S")}'
+        f"This target was automatically modified: {time.strftime('%Y/%m/%d-%H:%M:%S')}"
     )
 
     old_target = gmp.get_target(target_id=old_target_id)[0]
@@ -115,7 +114,7 @@ def copy_send_target(gmp, host_list, old_target_id):
 
     print("\n  New target created!\n")
     print(f"Target_id:   {new_target_id}")
-    print(f'Target_name: {keywords["name"]}\n')
+    print(f"Target_name: {keywords['name']}\n")
 
     return new_target_id
 

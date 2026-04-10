@@ -53,15 +53,13 @@ def parse_period(period: List[str]) -> Tuple[date, date]:
         s_year, s_month, s_day = map(int, period[0].split("/"))
     except ValueError as exc:
         error_and_exit(
-            f"Start date [{period[0]}] is not a "
-            f"correct date format:\n{exc.args[0]}."
+            f"Start date [{period[0]}] is not a correct date format:\n{exc.args[0]}."
         )
     try:
         e_year, e_month, e_day = map(int, period[1].split("/"))
     except ValueError as exc:
         error_and_exit(
-            f"End date [{period[1]}] is not "
-            f"a correct date format:\n{exc.args[0]}."
+            f"End date [{period[1]}] is not a correct date format:\n{exc.args[0]}."
         )
 
     try:
@@ -141,8 +139,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
         help=(
             "Filter the tasks by given tag(s).\n"
             "If you pass more than on tag, they will be concatenated with "
-            or "\n"
-            "You can pass tag names, tag ids or tag name=value to this argument"
+            or "\nYou can pass tag names, tag ids or tag name=value to this argument"
         ),
     )
 
@@ -167,9 +164,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
     return script_args
 
 
-def generate_task_filter(
-    period_start: date, period_end: date, tags: List[str]
-) -> str:
+def generate_task_filter(period_start: date, period_end: date, tags: List[str]) -> str:
     """Generate the tasks filter
 
     period_start: the start date
@@ -184,8 +179,7 @@ def generate_task_filter(
     # created is for the timestamp of when the task has been created
     # Note: the "first" argument for tasks is currently not working
     period_filter = (
-        f"last>{period_start.isoformat()} "
-        f"and created<{period_end.isoformat()}"
+        f"last>{period_start.isoformat()} and created<{period_end.isoformat()}"
     )
     filter_parts = []
     if tags:
@@ -402,24 +396,14 @@ def main(gmp: Gmp, args: Namespace) -> None:
     filter_term = ""
     if parsed_args.filter_term:
         filter_term = " ".join(parsed_args.filter_term)
-        print(
-            "Filtering the results by the "
-            f"following filter term [{filter_term}]"
-        )
+        print(f"Filtering the results by the following filter term [{filter_term}]")
     elif parsed_args.filter_id:
         try:
-            filter_xml = gmp.get_filter(filter_id=parsed_args.filter_id).find(
-                "filter"
-            )
+            filter_xml = gmp.get_filter(filter_id=parsed_args.filter_id).find("filter")
             filter_term = filter_xml.find("term").text
-            print(
-                "Filtering the results by the following filter term "
-                f"[{filter_term}]"
-            )
+            print(f"Filtering the results by the following filter term [{filter_term}]")
         except GvmError:
-            print(
-                "Filter with the ID [{parsed_args.filter_id}] is not existing."
-            )
+            print("Filter with the ID [{parsed_args.filter_id}] is not existing.")
     else:
         print("No results filter given.")
 

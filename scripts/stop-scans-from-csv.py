@@ -97,9 +97,7 @@ def stop_tasks(
                         print(
                             f"Stopping task name: {row[0]} with uuid: {task_stop} ..."
                         )
-                        status_text = gmp.stop_task(task_stop).xpath(
-                            "@status_text"
-                        )[0]
+                        status_text = gmp.stop_task(task_stop).xpath("@status_text")[0]
                         print(status_text)
                     else:
                         print(

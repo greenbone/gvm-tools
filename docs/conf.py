@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
 #
@@ -14,17 +13,17 @@
 #
 # pylint: disable=invalid-name,redefined-builtin,wrong-import-position
 
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 
 import gvmtools
 
 # -- Project information -----------------------------------------------------
 
 project = "gvm-tools"
-copyright = "2018-2024, Greenbone AG"
+copyright = "2018-2024, Greenbone AG"  # noqa: A001
 author = "Greenbone AG"
 
 version = gvmtools.get_version()

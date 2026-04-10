@@ -93,9 +93,9 @@ def list_operating_systems(
         # title will always be there
         os_title = operating_system.xpath("name/text()")[0]
 
-        os_latest_severity = operating_system.xpath(
-            "os/latest_severity/value/text()"
-        )[0]
+        os_latest_severity = operating_system.xpath("os/latest_severity/value/text()")[
+            0
+        ]
 
         os_host_count = operating_system.xpath("os/installs/text()")[0]
 
@@ -109,11 +109,7 @@ def list_operating_systems(
 
     # Write the list host_info to csv file
     writecsv(csvfilename, os_info)
-    print(
-        f"CSV file: {csvfilename}\n"
-        f"From:     {from_date}\n"
-        f"To:       {to_date}\n"
-    )
+    print(f"CSV file: {csvfilename}\nFrom:     {from_date}\nTo:       {to_date}\n")
 
 
 def writecsv(csv_filename: str, hostinfo: list) -> None:

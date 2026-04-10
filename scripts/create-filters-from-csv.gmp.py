@@ -98,9 +98,7 @@ def create_filters(
                 filterName = row[1]
                 filterDescription = row[2]
                 filterTerm = row[3]
-                filterNameFull = (
-                    filterName + ":" + filterDescription + ":" + filterType
-                )
+                filterNameFull = filterName + ":" + filterDescription + ":" + filterType
                 comment = f"Created: {time.strftime('%Y/%m/%d-%H:%M:%S')}"
                 if filterType == "FAIL!":
                     print(filterType.upper())
@@ -151,14 +149,10 @@ def create_filters(
                 elif filterType.upper() == "VULNERABILITY":
                     resource_type = gmp.types.FilterType.VULNERABILITY
                 else:
-                    print(
-                        "FilterType: " + filterType.upper() + " Not supported"
-                    )
+                    print("FilterType: " + filterType.upper() + " Not supported")
                 try:
                     if filter_id(gmp, filterNameFull):
-                        print(
-                            f"Filter: {filterNameFull} exist, not creating..."
-                        )
+                        print(f"Filter: {filterNameFull} exist, not creating...")
                         continue
 
                     print("Creating filter: " + filterNameFull)

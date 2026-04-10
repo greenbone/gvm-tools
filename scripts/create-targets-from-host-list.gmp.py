@@ -12,8 +12,7 @@ from gvm.protocols.gmp import Gmp
 from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
-    "This script pulls hostnames from a text "
-    "file and creates a target for each."
+    "This script pulls hostnames from a text file and creates a target for each."
 )
 
 
@@ -80,8 +79,7 @@ def parse_args(args: Namespace) -> Namespace:  # pylint: disable=unused-argument
         dest="port_range",
         type=str,
         help=(
-            "Port range to create port list from, e.g. "
-            "T:1-1234 for ports 1-1234/TCP"
+            "Port range to create port list from, e.g. T:1-1234 for ports 1-1234/TCP"
         ),
     )
 

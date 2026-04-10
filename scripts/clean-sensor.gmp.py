@@ -18,9 +18,9 @@ def clean_sensor(gmp: Gmp) -> None:
     try:
         for task_id in tasks.xpath("task/@id"):
             print(f"Removing task {task_id} ... ")
-            status_text = gmp.delete_task(task_id, ultimate=True).xpath(
-                "@status_text"
-            )[0]
+            status_text = gmp.delete_task(task_id, ultimate=True).xpath("@status_text")[
+                0
+            ]
             print(status_text)
     except GvmResponseError as gvmerr:
         print(f"{gvmerr=}")
@@ -38,29 +38,25 @@ def clean_sensor(gmp: Gmp) -> None:
         print(f"{gvmerr=}")
         pass
 
-    configs = gmp.get_scan_configs(
-        filter_string="rows=-1 not _owner=&quot;&quot;"
-    )
+    configs = gmp.get_scan_configs(filter_string="rows=-1 not _owner=&quot;&quot;")
     try:
         for config_id in configs.xpath("config/@id"):
             print(f"Removing config {config_id} ... ")
-            status_text = gmp.delete_scan_config(
-                config_id, ultimate=True
-            ).xpath("@status_text")[0]
+            status_text = gmp.delete_scan_config(config_id, ultimate=True).xpath(
+                "@status_text"
+            )[0]
             print(status_text)
     except GvmResponseError as gvmerr:
         print(f"{gvmerr=}")
         pass
 
-    port_lists = gmp.get_port_lists(
-        filter_string="rows=-1 not _owner=&quot;&quot;"
-    )
+    port_lists = gmp.get_port_lists(filter_string="rows=-1 not _owner=&quot;&quot;")
     try:
         for port_list_id in port_lists.xpath("port_list/@id"):
             print(f"Removing port_list {port_list_id} ... ")
-            status_text = gmp.delete_port_list(
-                port_list_id, ultimate=True
-            ).xpath("@status_text")[0]
+            status_text = gmp.delete_port_list(port_list_id, ultimate=True).xpath(
+                "@status_text"
+            )[0]
             print(status_text)
     except GvmResponseError as gvmerr:
         print(f"{gvmerr=}")
@@ -78,9 +74,7 @@ def clean_sensor(gmp: Gmp) -> None:
         print(f"{gvmerr=}")
         pass
 
-    schedules = gmp.get_schedules(
-        filter_string="rows=-1 not _owner=&quot;&quot;"
-    )
+    schedules = gmp.get_schedules(filter_string="rows=-1 not _owner=&quot;&quot;")
     try:
         for schedule_id in schedules.xpath("schedule/@id"):
             print(f"Removing schedule {schedule_id} ... ")
@@ -96,9 +90,7 @@ def clean_sensor(gmp: Gmp) -> None:
     try:
         for tag_id in tags.xpath("tag/@id"):
             print(f"Removing tag {tag_id} ... ")
-            status_text = gmp.delete_tag(tag_id, ultimate=True).xpath(
-                "@status_text"
-            )[0]
+            status_text = gmp.delete_tag(tag_id, ultimate=True).xpath("@status_text")[0]
             print(status_text)
     except GvmResponseError as gvmerr:
         print(f"{gvmerr=}")
@@ -116,9 +108,7 @@ def clean_sensor(gmp: Gmp) -> None:
         print(f"{gvmerr=}")
         pass
 
-    credentials = gmp.get_credentials(
-        filter_string="rows=-1 not _owner=&quot;&quot;"
-    )
+    credentials = gmp.get_credentials(filter_string="rows=-1 not _owner=&quot;&quot;")
     try:
         for config_id in credentials.xpath("credential/@id"):
             print(f"Removing credential {config_id} ... ")
@@ -142,9 +132,7 @@ def clean_sensor(gmp: Gmp) -> None:
 def main(gmp: Gmp, args: Namespace) -> None:
     # pylint: disable=unused-argument
 
-    print(
-        "This script removes all resources from a sensor, except active tasks.\n"
-    )
+    print("This script removes all resources from a sensor, except active tasks.\n")
 
     clean_sensor(gmp)
 

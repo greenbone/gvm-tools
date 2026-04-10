@@ -43,13 +43,9 @@ def list_tasks(gmp: Gmp, args: Namespace) -> None:
         severity = "".join(task.xpath("last_report/report/severity/text()"))
         order = "".join(task.xpath("hosts_ordering/text()"))
         average_duration = "".join(task.xpath("average_duration/text()"))
-        average_duration_int = (
-            0 if not average_duration else int(average_duration)
-        )
+        average_duration_int = 0 if not average_duration else int(average_duration)
         average_duration_hours = f"{average_duration_int / 3600:.2f}"
-        scan_start_iso = "".join(
-            task.xpath("last_report/report/scan_start/text()")
-        )
+        scan_start_iso = "".join(task.xpath("last_report/report/scan_start/text()"))
         scan_end_iso = "".join(task.xpath("last_report/report/scan_end/text()"))
         if not scan_start_iso or not scan_end_iso:
             duration_hours = ""
@@ -57,9 +53,7 @@ def list_tasks(gmp: Gmp, args: Namespace) -> None:
             scan_start_time = datetime.fromisoformat(
                 scan_start_iso.replace("Z", "+00:00")
             )
-            scan_end_time = datetime.fromisoformat(
-                scan_end_iso.replace("Z", "+00:00")
-            )
+            scan_end_time = datetime.fromisoformat(scan_end_iso.replace("Z", "+00:00"))
             duration = scan_end_time - scan_start_time
             duration_hours = f"{duration.total_seconds() / 3600:.2f}"
         rows.append(

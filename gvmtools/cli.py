@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2018-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -49,14 +48,14 @@ HELP_TEXT = """
       gvm-cli socket --gmp-username foo --gmp-password foo myfile.xml
 
     The protocol specifications for GMP and OSP are available at:
-      https://docs.greenbone.net/index.html#api_documentation"""  # noqa: E501
+      https://docs.greenbone.net/index.html#api_documentation"""
 
 
 def _load_infile(filename=None):
     if not filename:
         return None
 
-    with open(filename, encoding="utf-8") as f:
+    with open(filename, encoding="utf-8") as f:  # noqa: PTH123
         return f.read()
 
 
@@ -95,7 +94,7 @@ def main():
     else:
         try:
             xml = _load_infile(args.infile)
-        except IOError as e:
+        except OSError as e:
             print(e, file=sys.stderr)
             sys.exit(1)
 

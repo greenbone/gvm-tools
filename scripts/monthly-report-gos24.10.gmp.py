@@ -71,9 +71,7 @@ def print_reports(
         )
 
         unique_vt_results = results.xpath(
-            "result["
-            "  not (./nvt/@oid = preceding-sibling::result/nvt/@oid)"
-            "]"
+            "result[  not (./nvt/@oid = preceding-sibling::result/nvt/@oid)]"
         )
         if len(unique_vt_results) == 0:
             continue
@@ -135,10 +133,7 @@ def print_reports(
 
     table = AsciiTable(table_data)
     print(f"{table.table}\n")
-    print(
-        f"Summary of results from {from_date.isoformat()} "
-        f"to {to_date.isoformat()}"
-    )
+    print(f"Summary of results from {from_date.isoformat()} to {to_date.isoformat()}")
     print(f"Critical: {int(sum_critical)}")
     print(f"High: {int(sum_high)}")
     print(f"Medium: {int(sum_medium)}")

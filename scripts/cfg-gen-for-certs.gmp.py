@@ -105,10 +105,7 @@ def create_scan_config(gmp, cert_bund_name):
                     config_id=config_id, nvt_oids=nvt_oid, family=family
                 )
             except GvmError as gvmerr:
-                if (
-                    "Attempt to modify NVT in whole-only family"
-                    in gvmerr.message
-                ):
+                if "Attempt to modify NVT in whole-only family" in gvmerr.message:
                     print(
                         f'Adding whole family "{family}" to scan config, '
                         f"which is not present in WHOLE_ONLY_FAMILIES"

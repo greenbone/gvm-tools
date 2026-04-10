@@ -58,9 +58,7 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
 
         hostname = hostnames[0]
 
-        results = gmp.get_results(
-            details=False, filter=f"host={ip} and severity>0.0"
-        )
+        results = gmp.get_results(details=False, filter=f"host={ip} and severity>0.0")
 
         low = int(results.xpath('count(//result/threat[text()="Low"])'))
         sum_low += low
@@ -75,16 +73,11 @@ def print_reports(gmp: Gmp, from_date: date, to_date: date) -> None:
             'host/detail/name[text()="best_os_cpe"]/../source/@id'
         )[0]
 
-        table_data.append(
-            [hostname, ip, best_os_cpe_report_id, high, medium, low]
-        )
+        table_data.append([hostname, ip, best_os_cpe_report_id, high, medium, low])
 
     table = AsciiTable(table_data)
     print(f"{table.table}\n")
-    print(
-        f"Summary of results from {from_date.isoformat()} "
-        f"to {to_date.isoformat()}"
-    )
+    print(f"Summary of results from {from_date.isoformat()} to {to_date.isoformat()}")
     print(f"High: {int(sum_high)}")
     print(f"Medium: {int(sum_medium)}")
     print(f"Low: {int(sum_low)}\n\n")

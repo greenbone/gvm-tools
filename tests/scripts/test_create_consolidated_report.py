@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021-2024 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -202,7 +201,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         ports = combined_report.find("report").find("ports").findall("port")
         i = 0
         for port in ports:
-            self.assertEqual(port.text, f"{str(i)}")
+            self.assertEqual(port.text, f"{i!s}")
             i += 1
 
         self.assertEqual(i, 4)
@@ -213,7 +212,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         i = 0
         for result in results:
             self.assertEqual(
-                result.get("id"), f"00000001-0000-0000-0000-00000000000{str(i)}"
+                result.get("id"), f"00000001-0000-0000-0000-00000000000{i!s}"
             )
             i += 1
 
@@ -223,7 +222,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
 
         i = 0
         for host in hosts:
-            self.assertEqual(host.find("ip").text, f"127.0.0.{str(i)}")
+            self.assertEqual(host.find("ip").text, f"127.0.0.{i!s}")
             i += 1
 
         self.assertEqual(i, 2)
@@ -311,7 +310,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         ports = combined_report.find("report").find("ports").findall("port")
         i = 0
         for port in ports:
-            self.assertEqual(port.text, f"{str(i)}")
+            self.assertEqual(port.text, f"{i!s}")
             i += 1
 
         self.assertEqual(i, 4)
@@ -322,7 +321,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
         i = 0
         for result in results:
             self.assertEqual(
-                result.get("id"), f"00000001-0000-0000-0000-00000000000{str(i)}"
+                result.get("id"), f"00000001-0000-0000-0000-00000000000{i!s}"
             )
             i += 1
 
@@ -332,7 +331,7 @@ class CreateConsolidatedReportsTestCase(unittest.TestCase):
 
         i = 0
         for host in hosts:
-            self.assertEqual(host.find("ip").text, f"127.0.0.{str(i)}")
+            self.assertEqual(host.find("ip").text, f"127.0.0.{i!s}")
             i += 1
 
         self.assertEqual(i, 2)

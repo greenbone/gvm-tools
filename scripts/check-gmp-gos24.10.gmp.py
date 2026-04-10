@@ -185,9 +185,7 @@ class InstanceManager:
             old = parse_date(db_entry[0])
             new = parse_date(last_scan_end)
 
-            logger.debug(
-                "Old time (from db): %s\nNew time (from rp): %s", old, new
-            )
+            logger.debug("Old time (from db): %s\nNew time (from rp): %s", old, new)
 
             if new <= old and params_used == db_entry[1]:
                 return False
@@ -205,9 +203,7 @@ class InstanceManager:
         Returns:
             An lxml ElementTree
         """
-        self.cursor.execute(
-            "SELECT report FROM Report WHERE host=?", (self.host,)
-        )
+        self.cursor.execute("SELECT report FROM Report WHERE host=?", (self.host,))
         db_entry = self.cursor.fetchone()
 
         if db_entry:
@@ -269,8 +265,7 @@ class InstanceManager:
         """
         logger.debug("Delete entries older than: %s days", days)
         self.cursor.execute(
-            "DELETE FROM Report WHERE scan_end <= "
-            f'date("now", "-{days} day")'
+            f'DELETE FROM Report WHERE scan_end <= date("now", "-{days} day")'
         )
         self.cursor.execute("VACUUM")
 
@@ -316,18 +311,12 @@ class InstanceManager:
             "check_instances: %i %i", number_instances, number_pending_instances
         )
 
-        if (
-            number_instances < MAX_RUNNING_INSTANCES
-            and number_pending_instances == 0
-        ):
+        if number_instances < MAX_RUNNING_INSTANCES and number_pending_instances == 0:
             # Add entry for running process and go on
             logger.debug("Fall 1")
             self.add_instance(pending=False)
 
-        elif (
-            number_instances < MAX_RUNNING_INSTANCES
-            and number_pending_instances > 0
-        ):
+        elif number_instances < MAX_RUNNING_INSTANCES and number_pending_instances > 0:
             # Change pending entries and wake them up until enough instances
             # are running
             logger.debug("Fall 2")
@@ -360,8 +349,7 @@ class InstanceManager:
             # self.stop_process(self.pid)
 
         elif (
-            number_instances >= MAX_RUNNING_INSTANCES
-            and number_pending_instances == 0
+            number_instances >= MAX_RUNNING_INSTANCES and number_pending_instances == 0
         ):
             # There are running enough instances and no pending instances
             # Add new entry with pending status true and stop this instance
@@ -369,10 +357,7 @@ class InstanceManager:
             self.add_instance(pending=True)
             self.stop_process(self.pid)
 
-        elif (
-            number_instances >= MAX_RUNNING_INSTANCES
-            and number_pending_instances > 0
-        ):
+        elif number_instances >= MAX_RUNNING_INSTANCES and number_pending_instances > 0:
             # There are running enough instances and there are min one
             # pending instance
             # Add new entry with pending true and stop this instance
@@ -417,8 +402,7 @@ class InstanceManager:
             <number>
         """
         self.cursor.execute(
-            "SELECT * FROM Instance WHERE pending=1 ORDER BY "
-            "created_at LIMIT ? ",
+            "SELECT * FROM Instance WHERE pending=1 ORDER BY created_at LIMIT ? ",
             (number,),
         )
         return self.cursor.fetchall()
@@ -486,10 +470,7 @@ class InstanceManager:
         # How many pending entries are waiting?
         number_pending_instances = self.has_entries(pending=True)
 
-        if (
-            number_instances < MAX_RUNNING_INSTANCES
-            and number_pending_instances > 0
-        ):
+        if number_instances < MAX_RUNNING_INSTANCES and number_pending_instances > 0:
             pending_entries = self.get_oldest_pending_entries(
                 MAX_RUNNING_INSTANCES - number_instances
             )
@@ -586,24 +567,18 @@ def status(gmp, im, script_args):
 
     if script_args.task:
         task = gmp.get_tasks(
-            filter_string=(
-                "permission=any owner=any rows=1 " f'name="{script_args.task}"'
-            )
+            filter_string=(f'permission=any owner=any rows=1 name="{script_args.task}"')
         )
         if script_args.trend:
             trend = task.xpath("task/trend/text()")
 
             if not trend:
-                end_session(
-                    im, "GMP UNKNOWN: Trend is not available.", NAGIOS_UNKNOWN
-                )
+                end_session(im, "GMP UNKNOWN: Trend is not available.", NAGIOS_UNKNOWN)
 
             trend = trend[0]
 
             if trend in ["up", "more"]:
-                end_session(
-                    im, f"GMP CRITICAL: Trend is {trend}.", NAGIOS_CRITICAL
-                )
+                end_session(im, f"GMP CRITICAL: Trend is {trend}.", NAGIOS_CRITICAL)
             elif trend in ["down", "same", "less"]:
                 end_session(im, f"GMP OK: Trend is {trend}.", NAGIOS_OK)
             else:
@@ -616,14 +591,10 @@ def status(gmp, im, script_args):
             last_report_id = task.xpath("task/last_report/report/@id")
 
             if not last_report_id:
-                end_session(
-                    im, "GMP UNKNOWN: Report is not available", NAGIOS_UNKNOWN
-                )
+                end_session(im, "GMP UNKNOWN: Report is not available", NAGIOS_UNKNOWN)
 
             last_report_id = last_report_id[0]
-            last_scan_end = task.xpath(
-                "task/last_report/report/scan_end/text()"
-            )
+            last_scan_end = task.xpath("task/last_report/report/scan_end/text()")
 
             if last_scan_end:
                 last_scan_end = last_scan_end[0]
@@ -651,9 +622,7 @@ def status(gmp, im, script_args):
             else:
                 full_report = im.load_local_report()
 
-            filter_report(
-                im, full_report.xpath("report/report")[0], script_args
-            )
+            filter_report(im, full_report.xpath("report/report")[0], script_args)
 
 
 def filter_report(im, report, script_args):
@@ -669,9 +638,7 @@ def filter_report(im, report, script_args):
         report_id = report_id[0]
     results = report.xpath("//results")
     if not results:
-        end_session(
-            im, "GMP UNKNOWN: Failed to get results list", NAGIOS_UNKNOWN
-        )
+        end_session(im, "GMP UNKNOWN: Failed to get results list", NAGIOS_UNKNOWN)
 
     results = results[0]
     # Init variables
@@ -773,8 +740,7 @@ def filter_report(im, report, script_args):
 
     elif not any_found and script_args.hostaddress:
         print(
-            "Report did not contain vulnerabilities "
-            f"for IP {script_args.hostaddress}"
+            f"Report did not contain vulnerabilities for IP {script_args.hostaddress}"
         )
 
     if int(error_count) > 0:
@@ -788,8 +754,7 @@ def filter_report(im, report, script_args):
 
     if script_args.report_link:
         print(
-            f"https://{script_args.hostname}/omp"
-            f"?cmd=get_report&report_id={report_id}"
+            f"https://{script_args.hostname}/omp?cmd=get_report&report_id={report_id}"
         )
 
     if script_args.oid:
@@ -869,9 +834,7 @@ def retrieve_nvt_data(result):
     return (oid, name, desc, port, dfn_list)
 
 
-def print_nvt_data(
-    nvts, show_log=False, show_ports=False, descr=False, dfn=False
-):
+def print_nvt_data(nvts, show_log=False, show_ports=False, descr=False, dfn=False):
     """Print nvt data
 
     Prints for each nvt found in the array the relevant data
@@ -1044,9 +1007,7 @@ class FixedOffset(tzinfo):
     def __eq__(self, other):
         if isinstance(other, FixedOffset):
             # pylint: disable=protected-access
-            return (other.__offset == self.__offset) and (
-                other.__name == self.__name
-            )
+            return (other.__offset == self.__offset) and (other.__name == self.__name)
         if isinstance(other, tzinfo):
             return other == self
         return False
@@ -1067,9 +1028,7 @@ class FixedOffset(tzinfo):
         return f"<FixedOffset {self.__name} {self.__offset}>"
 
 
-def to_int(
-    source_dict, key, default_to_zero=False, default=None, required=True
-):
+def to_int(source_dict, key, default_to_zero=False, default=None, required=True):
     """Pull a value from the dict and convert to int
 
     :param default_to_zero: If the value is None or empty, treat it as zero
@@ -1186,9 +1145,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         or: gvm-script connection_type --help""",
     )
 
-    parser.add_argument(
-        "-H", action="help", help="Show this help message and exit."
-    )
+    parser.add_argument("-H", action="help", help="Show this help message and exit.")
 
     parser.add_argument(
         "-V",
@@ -1209,13 +1166,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "--clean", action="store_true", help="Activate to clean the database."
     )
 
-    parser.add_argument(
-        "-u", "--gmp-username", help="GMP username.", required=False
-    )
+    parser.add_argument("-u", "--gmp-username", help="GMP username.", required=False)
 
-    parser.add_argument(
-        "-w", "--gmp-password", help="GMP password.", required=False
-    )
+    parser.add_argument("-w", "--gmp-password", help="GMP password.", required=False)
 
     parser.add_argument(
         "-F",
@@ -1233,9 +1186,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         "--apply-overrides", action="store_true", help="Apply overrides."
     )
 
-    parser.add_argument(
-        "--overrides", action="store_true", help="Include overrides."
-    )
+    parser.add_argument("--overrides", action="store_true", help="Include overrides.")
 
     parser.add_argument(
         "-d",
@@ -1312,26 +1263,20 @@ def main(gmp: Gmp, args: Namespace) -> None:
     parser.add_argument("--hostname", nargs="?", required=False)
 
     group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument(
-        "--ping", action="store_true", help="Ping the gsm appliance."
-    )
+    group.add_argument("--ping", action="store_true", help="Ping the gsm appliance.")
 
-    group.add_argument(
-        "--status", action="store_true", help="Report status of task."
-    )
+    group.add_argument("--status", action="store_true", help="Report status of task.")
 
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument(
         "--days",
         type=int,
-        help="Delete database entries that are older than" " given days.",
+        help="Delete database entries that are older than given days.",
     )
     group.add_argument("--ip", help="Delete database entry for given ip.")
 
     group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument(
-        "--trend", action="store_true", help="Report status by trend."
-    )
+    group.add_argument("--trend", action="store_true", help="Report status by trend.")
     group.add_argument(
         "--last-report",
         action="store_true",
@@ -1340,9 +1285,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
 
     script_args = parser.parse_args(args.script_args)
 
-    aux_parser = ArgumentParser(
-        prefix_chars="-", formatter_class=RawTextHelpFormatter
-    )
+    aux_parser = ArgumentParser(prefix_chars="-", formatter_class=RawTextHelpFormatter)
     aux_parser.add_argument("--hostname", nargs="?", required=False)
     gvm_tool_args, _ = aux_parser.parse_known_args(sys.argv)
     if "hostname" in gvm_tool_args:

@@ -86,7 +86,7 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date) -> None:
     rows = []
     numberRows = 0
 
-    print("Listing hosts.\n" f"From: {from_date}\n" f"To:   {to_date}\n")
+    print(f"Listing hosts.\nFrom: {from_date}\nTo:   {to_date}\n")
 
     for host in hosts_xml.xpath("asset"):
         # ip will always be there
@@ -120,9 +120,7 @@ def list_hosts(gmp: Gmp, from_date: date, to_date: date) -> None:
         else:
             host_severity = host_severity[0]
 
-        host_os = host.xpath(
-            'host/detail/name[text()="best_os_txt"]/../value/text()'
-        )
+        host_os = host.xpath('host/detail/name[text()="best_os_txt"]/../value/text()')
         if len(host_os) == 0:
             host_os = ""
             pass
