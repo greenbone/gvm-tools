@@ -601,7 +601,7 @@ wheels = [
 
 [[package]]
 name = "gvm-tools"
-version = "25.4.10.dev1"
+version = "26.0.1.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "python-gvm" },
