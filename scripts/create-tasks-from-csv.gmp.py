@@ -105,7 +105,7 @@ def config_id(
     gmp: Gmp,
     config_name: str,
 ):
-    response_xml = gmp.get_scan_configs(filter_string="rows=-1, name= " + config_name)
+    response_xml = gmp.get_scan_configs(filter_string=f'rows=-1, name="{config_name}"')
     scan_configs_xml = response_xml.xpath("config")
     config_id = ""
 
@@ -118,7 +118,7 @@ def alert_id(
     gmp: Gmp,
     alert_name: str,
 ):
-    response_xml = gmp.get_alerts(filter_string="rows=-1, name=" + alert_name)
+    response_xml = gmp.get_alerts(filter_string=f'rows=-1, name="{alert_name}"')
     alerts_xml = response_xml.xpath("alert")
     alert_id = ""
 
@@ -131,7 +131,7 @@ def target_id(
     gmp: Gmp,
     target_name: str,
 ):
-    response_xml = gmp.get_targets(filter_string="rows=-1, name=" + target_name)
+    response_xml = gmp.get_targets(filter_string=f'rows=-1, name="{target_name}"')
     targets_xml = response_xml.xpath("target")
     target_id = ""
 
@@ -144,7 +144,7 @@ def scanner_id(
     gmp: Gmp,
     scanner_name: str,
 ):
-    response_xml = gmp.get_scanners(filter_string="rows=-1, name=" + scanner_name)
+    response_xml = gmp.get_scanners(filter_string=f'rows=-1, name="{scanner_name}"')
     scanners_xml = response_xml.xpath("scanner")
     scanner_id = ""
 
@@ -157,7 +157,7 @@ def schedule_id(
     gmp: Gmp,
     schedule_name: str,
 ):
-    response_xml = gmp.get_schedules(filter_string="rows=-1, name=" + schedule_name)
+    response_xml = gmp.get_schedules(filter_string=f'rows=-1, name="{schedule_name}"')
     schedules_xml = response_xml.xpath("schedule")
     schedule_id = ""
 
@@ -170,7 +170,7 @@ def task_id(
     gmp: Gmp,
     taskName: str,
 ):
-    response_xml = gmp.get_tasks(filter_string="rows=-1, name=" + taskName)
+    response_xml = gmp.get_tasks(filter_string=f'rows=-1, name="{taskName}"')
     tasks_xml = response_xml.xpath("task")
     task_id = ""
 
@@ -273,8 +273,7 @@ def main(gmp: Gmp, args: Namespace) -> None:
         gmp, parsed_args.tasks_csv_file, parsed_args.port_list_id
     )
 
-    numberTasks = str(numberTasks)
-    print("    [" + numberTasks + "] task(s) created!\n")
+    print(f"    [{numberTasks}] task(s) created!\n")
 
 
 if __name__ == "__gmp__":
