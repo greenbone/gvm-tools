@@ -1052,7 +1052,7 @@ wheels = [
 
 [[package]]
 name = "pontos"
-version = "26.2.0"
+version = "26.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorful" },
@@ -1065,9 +1065,9 @@ dependencies = [
     { name = "shtab" },
     { name = "tomlkit" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/90/fd15a633c1039b59fa8d414494e7d4fefed16c6240ab9167c7c4d850a372/pontos-26.2.0.tar.gz", hash = "sha256:54ed2d1532879647d6f51b94d988c4295da419f7531910b5511a100f7ed81c8b", size = 348755, upload-time = "2026-02-20T07:00:38.648Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/be/b6/4c839e4f37bdc5d97b7a619ae471209aea8a5ed13976f2da7e9869eacd91/pontos-26.4.1.tar.gz", hash = "sha256:6f873ee4d209709f2765a509befd7e4f177d383382fa64e507dab6ef39693442", size = 351341, upload-time = "2026-04-21T14:31:39.392Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/11/673b7d246457f3e6fbfc722ef183dfd13921991b677437e5511360238bb0/pontos-26.2.0-py3-none-any.whl", hash = "sha256:37d5dc30ea65cef9b5aa12e00997165ae906be8eef2b6c017c9eb41431bb1d71", size = 250348, upload-time = "2026-02-20T07:00:37.157Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/ff/ade3eee6307dd5763be5bea690b4e9fb69a35b35a77f1f7355d3c9f60b4f/pontos-26.4.1-py3-none-any.whl", hash = "sha256:fa80bf6c30add509ffc47e2b739da326c4f76925d051143fc5d5b6c1aebecfe6", size = 251298, upload-time = "2026-04-21T14:31:37.61Z" },
 ]
 
 [[package]]
