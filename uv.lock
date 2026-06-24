@@ -618,7 +618,7 @@ wheels = [
 
 [[package]]
 name = "gvm-tools"
-version = "26.0.6.dev1"
+version = "26.0.7.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "python-gvm" },
@@ -1140,16 +1140,16 @@ wheels = [
 
 [[package]]
 name = "python-gvm"
-version = "27.2.0"
+version = "27.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx", extra = ["http2"] },
     { name = "lxml" },
     { name = "paramiko" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f6/77/919f2afd11e32d99ff9e39b715f96964f79733e8b8ab3fa2a129ad1b45d7/python_gvm-27.2.0.tar.gz", hash = "sha256:759cd29d9ea7abf5477bdd886ebfee8fba5ac3a4eff4932402c6c92848ca60ac", size = 421908, upload-time = "2026-05-18T08:32:45.791Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/68/6b28203fd91a98aa743855f9477436b0deadd220234101db6830471849d8/python_gvm-27.4.0.tar.gz", hash = "sha256:a5924e814997e1c739037100b58c866ab8bf8636e612f0c8d934ed9bd390bfc8", size = 429346, upload-time = "2026-06-18T11:16:45.837Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/9e/3b3b165820358baf0b46c95528402d7655dff44e4cdf27df0fc15c6610b7/python_gvm-27.2.0-py3-none-any.whl", hash = "sha256:a93551f7aac632ef5b7e18655432a6111b01904f0437f08e203675ddf2407813", size = 182112, upload-time = "2026-05-18T08:32:44.689Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/66/a218b781c4bf8d38375459edad98276daed64f7d2c85abf60c38e624754d/python_gvm-27.4.0-py3-none-any.whl", hash = "sha256:e60c61e8b6819def93c3bd273a13eac17aafb824d83b09213aa37a4a9a170292", size = 187339, upload-time = "2026-06-18T11:16:47.268Z" },
 ]
 
 [[package]]
