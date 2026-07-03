@@ -152,7 +152,7 @@ def create_filters(
                     print("FilterType: " + filterType.upper() + " Not supported")
                 try:
                     if filter_id(gmp, filterNameFull):
-                        print(f"Filter: {filterNameFull} exist, not creating...")
+                        print(f"Filter: {filterNameFull} exists, not creating...")
                         continue
 
                     print("Creating filter: " + filterNameFull)
