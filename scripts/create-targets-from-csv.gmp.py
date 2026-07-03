@@ -145,7 +145,7 @@ def create_targets(
                 comment = f"Created: {time.strftime('%Y/%m/%d-%H:%M:%S')}"
                 try:
                     if target_id(gmp, name):
-                        print(f"Target: {name} exist, not creating...")
+                        print(f"Target: {name} exists, not creating...")
                         continue
 
                     print("Creating target: " + name)

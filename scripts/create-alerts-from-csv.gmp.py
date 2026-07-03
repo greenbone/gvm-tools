@@ -20,7 +20,7 @@ from gvmtools.helper import error_and_exit
 
 HELP_TEXT = (
     "This script pulls alert information "
-    "from a csv file and creates a alert for each row. \n"
+    "from a csv file and creates an alert for each row. \n"
     "use the same alert names when creating tasks! \n\n"
     "Use example alerts.csv as a template \n\n"
     "It should be rather self explanatory."
