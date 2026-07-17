@@ -1,4 +1,4 @@
-![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_new-logo_horizontal_rgb_small.png)
+![Greenbone Logo](hhttps://www.greenbone.net/wp-content/uploads/greenbone-logo-2025.png)
 
 # Greenbone Vulnerability Management Tools <!-- omit in toc -->
 [![GitHub releases](https://img.shields.io/github/release-pre/greenbone/gvm-tools.svg)](https://github.com/greenbone/gvm-tools/releases)
