@@ -26,6 +26,8 @@ from gvm.errors import GvmError
 from gvm.xml import pretty_print
 from lxml import etree
 
+from gvmtools.secrets import register_secret
+
 __all__ = ["authenticate", "pretty_print", "run_script"]
 
 
@@ -190,6 +192,9 @@ def authenticate(gmp, username=None, password=None):
 
     if not password:
         password = getpass.getpass(f"Enter password for {username}: ")
+
+    # Keep the password out of the log output, no matter where it came from
+    register_secret(password)
 
     try:
         gmp.authenticate(username, password)

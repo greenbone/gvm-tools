@@ -18,6 +18,7 @@ install
 connectiontypes
 tools
 config
+credentials
 scripting
 glossary
 ```
