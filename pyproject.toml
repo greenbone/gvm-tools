@@ -24,7 +24,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["python-gvm>=26.0.0"]
+dependencies = ["python-gvm>=27.0.0"]
 
 [project.urls]
 Homepage = "https://github.com/greenbone/gvm-tools/"
