@@ -585,7 +585,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -651,7 +651,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "python-gvm", specifier = ">=26.0.0" }]
+requires-dist = [{ name = "python-gvm", specifier = ">=27.0.0" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1043,7 +1043,7 @@ wheels = [
 
 [[package]]
 name = "paramiko"
-version = "4.0.0"
+version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bcrypt" },
@@ -1051,9 +1051,9 @@ dependencies = [
     { name = "invoke" },
     { name = "pynacl" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/e7/81fdcbc7f190cdb058cffc9431587eb289833bdd633e2002455ca9bb13d4/paramiko-4.0.0.tar.gz", hash = "sha256:6a25f07b380cc9c9a88d2b920ad37167ac4667f8d9886ccebd8f90f654b5d69f", size = 1630743, upload-time = "2025-08-04T01:02:03.711Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/93/dcc25d52f49022ae6175d15e6bd751f1acc99b98bc61fc55e5155a7be2e7/paramiko-5.0.0.tar.gz", hash = "sha256:36763b5b95c2a0dcfdf1abc48e48156ee425b21efe2f0e787c2dd5a95c0e5e79", size = 1548586, upload-time = "2026-05-09T18:28:52.256Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a9/90/a744336f5af32c433bd09af7854599682a383b37cfd78f7de263de6ad6cb/paramiko-4.0.0-py3-none-any.whl", hash = "sha256:0e20e00ac666503bf0b4eda3b6d833465a2b7aff2e2b3d79a8bba5ef144ee3b9", size = 223932, upload-time = "2025-08-04T01:02:02.029Z" },
+    { url = "https://files.pythonhosted.org/packages/82/5b/eadf6d45de38d30ab603f49393b6cd2cbe7e233af8cf90197e32782b68a9/paramiko-5.0.0-py3-none-any.whl", hash = "sha256:b7044611c30140d9a75261653210e2002977b71a0497ff3ba0d98d7edbf62f7c", size = 208919, upload-time = "2026-05-09T18:28:50.295Z" },
 ]
 
 [[package]]
@@ -1152,16 +1152,16 @@ wheels = [
 
 [[package]]
 name = "python-gvm"
-version = "27.6.0"
+version = "27.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx", extra = ["http2"] },
     { name = "lxml" },
     { name = "paramiko" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/75/4b/3ad7118dfdfa308809c7d77549b368059379fa22bec548e84554eb618bfb/python_gvm-27.6.0.tar.gz", hash = "sha256:150d188bb2d8c2fa82689d657265b30378677083a3972c2fb5fcb2220f142fc3", size = 431852, upload-time = "2026-08-03T06:33:57.212Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/99/0d5bf051c8b8802eb5388bf40f5dd35a2546d282adf686eb619000291286/python_gvm-27.7.0.tar.gz", hash = "sha256:624ae8c6377c23bd5ba6f70f45c82327f2f7fdae8603aaa3a696447835843394", size = 433239, upload-time = "2026-08-18T14:02:11.449Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/b2/74b086761581bde747989ce23e9caa94acbb04de80e7e38a6aaedc9e4113/python_gvm-27.6.0-py3-none-any.whl", hash = "sha256:0b71fce9bdf7bed923391a9e65655cfbb1c38a6330fe74a22f4d2a7f8cf1aeec", size = 189543, upload-time = "2026-08-03T06:33:55.946Z" },
+    { url = "https://files.pythonhosted.org/packages/00/55/f7b36be4f69e00affd91ad241806a4cd55ca08d8f6280d630fbe314d45c5/python_gvm-27.7.0-py3-none-any.whl", hash = "sha256:722f5252fdc0c5bac82b010968d878e49379e5fefbc3e0a60989007e38dcf449", size = 190460, upload-time = "2026-08-18T14:02:10.026Z" },
 ]
 
 [[package]]
