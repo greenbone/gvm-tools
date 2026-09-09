@@ -1067,7 +1067,7 @@ wheels = [
 
 [[package]]
 name = "pontos"
-version = "26.8.4"
+version = "26.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorful" },
@@ -1081,9 +1081,9 @@ dependencies = [
     { name = "tomlkit" },
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/13/55708982f665a4ae70433e7aca03549a57105627935cd05b58dee09e07a3/pontos-26.8.4.tar.gz", hash = "sha256:c26e26c27a6bf4251f58f4495ea076b6f24d683d3929c8615cbfdc585fcba115", size = 475668, upload-time = "2026-08-27T06:52:58.021Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/39/5b6c28f67b0245cc84e0d7c732020cdff4e8b98d61549c48cda4981cbba9/pontos-26.9.0.tar.gz", hash = "sha256:2d8e076fad6a009aaae90cdda5dddc3e26c8a6581211db485a6d55247c504bd0", size = 475043, upload-time = "2026-09-01T10:23:58.512Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/8c/8d56cecf14f3c2f05343ea6b62f7324576e506b8f71381d4428185b427eb/pontos-26.8.4-py3-none-any.whl", hash = "sha256:70ba8eabbbcf2e1632533b6c89c0bcc8acdb55439404a6b11c4b4a576281e488", size = 253071, upload-time = "2026-08-27T06:52:56.12Z" },
+    { url = "https://files.pythonhosted.org/packages/31/56/a996aa623031e629bf195aa1cb28cdf21cdd97a58018963abd5e704bf66e/pontos-26.9.0-py3-none-any.whl", hash = "sha256:8886af05f49923c058b5435be7572e3ed5983d320e0231119b0aa6d4fd6f05d3", size = 253008, upload-time = "2026-09-01T10:23:57.204Z" },
 ]
 
 [[package]]
