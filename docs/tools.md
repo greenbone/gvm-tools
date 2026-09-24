@@ -34,7 +34,9 @@ via shell.
 usage: gvm-cli [-h] [-c [CONFIG]]
               [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
               [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-              [--gmp-password GMP_PASSWORD] [-V]
+              [--gmp-password GMP_PASSWORD]
+              [--gmp-password-file GMP_PASSWORD_FILE]
+              [--gmp-password-prompt] [-V]
               CONNECTION_TYPE ...
 
 optional arguments:
@@ -47,9 +49,16 @@ optional arguments:
   --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
                         indefinitely (default: 60)
   --gmp-username GMP_USERNAME
-                        Username for GMP service (default: '')
+                        Username for GMP service
   --gmp-password GMP_PASSWORD
-                        Password for GMP service (default: '')
+                        Password for GMP service. Exposes the password in the
+                        process list, prefer --gmp-password-file or
+                        GVMTOOLS_GMP_PASSWORD
+  --gmp-password-file GMP_PASSWORD_FILE
+                        File to read the GMP password from, or - to read it
+                        from stdin
+  --gmp-password-prompt
+                        Ask for the GMP password on the terminal
   -V, --version         Show version information and exit
 
 connections:
@@ -95,7 +104,9 @@ script.
 usage: gvm-script [-h] [-c [CONFIG]]
                   [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
                   [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-                  [--gmp-password GMP_PASSWORD] [-V] [--protocol {GMP,OSP}]
+                  [--gmp-password GMP_PASSWORD]
+                  [--gmp-password-file GMP_PASSWORD_FILE]
+                  [--gmp-password-prompt] [-V] [--protocol {GMP,OSP}]
                   CONNECTION_TYPE ...
 
 optional arguments:
@@ -108,9 +119,16 @@ optional arguments:
   --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
                         indefinitely (default: 60)
   --gmp-username GMP_USERNAME
-                        Username for GMP service (default: '')
+                        Username for GMP service
   --gmp-password GMP_PASSWORD
-                        Password for GMP service (default: '')
+                        Password for GMP service. Exposes the password in the
+                        process list, prefer --gmp-password-file or
+                        GVMTOOLS_GMP_PASSWORD
+  --gmp-password-file GMP_PASSWORD_FILE
+                        File to read the GMP password from, or - to read it
+                        from stdin
+  --gmp-password-prompt
+                        Ask for the GMP password on the terminal
   -V, --version         Show version information and exit
   --protocol {GMP,OSP}  Service protocol to use (default: GMP)
 
@@ -142,7 +160,9 @@ The interactive shell can be exited with:
 usage: gvm-pyshell [-h] [-c [CONFIG]]
                   [--log [{DEBUG,INFO,WARNING,ERROR,CRITICAL}]]
                   [--timeout TIMEOUT] [--gmp-username GMP_USERNAME]
-                  [--gmp-password GMP_PASSWORD] [-V] [--protocol {GMP,OSP}]
+                  [--gmp-password GMP_PASSWORD]
+                  [--gmp-password-file GMP_PASSWORD_FILE]
+                  [--gmp-password-prompt] [-V] [--protocol {GMP,OSP}]
                   CONNECTION_TYPE ...
 
 optional arguments:
@@ -155,9 +175,16 @@ optional arguments:
   --timeout TIMEOUT     Response timeout in seconds, or -1 to wait
                         indefinitely (default: 60)
   --gmp-username GMP_USERNAME
-                        Username for GMP service (default: '')
+                        Username for GMP service
   --gmp-password GMP_PASSWORD
-                        Password for GMP service (default: '')
+                        Password for GMP service. Exposes the password in the
+                        process list, prefer --gmp-password-file or
+                        GVMTOOLS_GMP_PASSWORD
+  --gmp-password-file GMP_PASSWORD_FILE
+                        File to read the GMP password from, or - to read it
+                        from stdin
+  --gmp-password-prompt
+                        Ask for the GMP password on the terminal
   -V, --version         Show version information and exit
   --protocol {GMP,OSP}  Service protocol to use (default: GMP)
 
