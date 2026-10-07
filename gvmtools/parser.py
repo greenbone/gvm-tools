@@ -19,6 +19,8 @@
 
 import argparse
 import logging
+import os
+import sys
 from pathlib import Path
 
 from gvm import get_version as get_gvm_version
@@ -31,6 +33,12 @@ from gvm.connections import (
 
 from gvmtools import get_version
 from gvmtools.config import Config
+from gvmtools.secrets import (
+    hide_command_line,
+    install_log_redaction,
+    redacted_arguments,
+    resolve_password,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +46,9 @@ __version__ = get_version()
 __api_version__ = get_gvm_version()
 
 DEFAULT_CONFIG_PATH = "~/.config/gvm-tools.conf"
+
+GMP_PASSWORD_ENV = "GVMTOOLS_GMP_PASSWORD"
+SSH_PASSWORD_ENV = "GVMTOOLS_SSH_PASSWORD"
 
 PROTOCOL_OSP = "OSP"
 PROTOCOL_GMP = "GMP"
@@ -86,13 +97,27 @@ class CliParser:
             help="Response timeout in seconds, or -1 to wait "
             "indefinitely (default: %(default)s)",
         )
+        # The defaults of the credential options are deliberately not shown
+        # in their help text. They may come from the configuration file and
+        # would then be printed by --help.
         parser.add_argument(
             "--gmp-username",
-            help="Username for GMP service (default: %(default)r)",
+            help="Username for GMP service",
         )
         parser.add_argument(
             "--gmp-password",
-            help="Password for GMP service (default: %(default)r)",
+            help="Password for GMP service. Exposes the password in the "
+            f"process list, prefer --gmp-password-file or {GMP_PASSWORD_ENV}",
+        )
+        parser.add_argument(
+            "--gmp-password-file",
+            help="File to read the GMP password from, or - to read it from "
+            "stdin",
+        )
+        parser.add_argument(
+            "--gmp-password-prompt",
+            action="store_true",
+            help="Ask for the GMP password on the terminal",
         )
         parser.add_argument(
             "-V",
@@ -132,6 +157,10 @@ class CliParser:
     def parse_known_args(self, args=None):
         args_before, _ = self._bootstrap_parser.parse_known_args(args)
 
+        # Must be in place before the first log record is created, otherwise
+        # a credential could reach a handler unredacted.
+        install_log_redaction()
+
         if args_before.loglevel is not None:
             level = logging.getLevelName(args_before.loglevel)
             logging.basicConfig(filename=self._logfilename, level=level)
@@ -144,9 +173,48 @@ class CliParser:
         if args.timeout == -1:
             args.timeout = None
 
-        logging.debug("Parsed arguments %r", args)
+        self._protect_credentials(args)
+
+        logging.debug("Parsed arguments %s", redacted_arguments(args))
 
         return args, unknown_args
+
+    def _protect_credentials(self, args):
+        """Read the passwords and take the credentials off the command line
+
+        A credential that was passed as an argument is visible to every other
+        process, on Linux via ``ps`` and on Windows in the task manager. Both
+        the user name and the password are overwritten in place here, which
+        closes the gap for everything that reads the command line after this
+        point.
+        """
+        # The transport comes first, so that the order of the prompts matches
+        # the order in which the credentials are used.
+        if hasattr(args, "ssh_password"):
+            args.ssh_password = resolve_password(
+                value=args.ssh_password,
+                password_file=args.ssh_password_file,
+                prompt=args.ssh_password_prompt,
+                prompt_text="Enter SSH password for "
+                f"{args.ssh_username or 'SSH connection'}: ",
+            )
+
+        args.gmp_password = resolve_password(
+            value=args.gmp_password,
+            password_file=args.gmp_password_file,
+            prompt=args.gmp_password_prompt,
+            prompt_text="Enter password for "
+            f"{args.gmp_username or 'GMP service'}: ",
+        )
+
+        if not hide_command_line():
+            print(
+                "Warning: the credentials could not be removed from the "
+                "command line of this process and stay visible to other "
+                "users. Use --gmp-password-file or --ssh-password-file "
+                "instead.",
+                file=sys.stderr,
+            )
 
     def add_argument(self, *args, **kwargs):
         self._parser_socket.add_argument(*args, **kwargs)
@@ -203,11 +271,21 @@ class CliParser:
             help="SSH port (default: %(default)s)",
             type=int,
         )
+        parser_ssh.add_argument("--ssh-username", help="SSH username")
         parser_ssh.add_argument(
-            "--ssh-username", help="SSH username (default: %(default)r)"
+            "--ssh-password",
+            help="SSH password. Exposes the password in the process list, "
+            f"prefer --ssh-password-file or {SSH_PASSWORD_ENV}",
         )
         parser_ssh.add_argument(
-            "--ssh-password", help="SSH password (default: %(default)r)"
+            "--ssh-password-file",
+            help="File to read the SSH password from, or - to read it from "
+            "stdin",
+        )
+        parser_ssh.add_argument(
+            "--ssh-password-prompt",
+            action="store_true",
+            help="Ask for the SSH password on the terminal",
         )
         parser_ssh.add_argument(
             "-A",
@@ -279,16 +357,20 @@ class CliParser:
     def _set_defaults(self, configfilename=None):
         self._config = self._load_config(configfilename)
 
+        # An environment variable is not readable by other users the way the
+        # command line is, so it takes precedence over the config file.
         self._parser.set_defaults(
             gmp_username=self._config.get("gmp", "username"),
-            gmp_password=self._config.get("gmp", "password"),
+            gmp_password=os.environ.get(GMP_PASSWORD_ENV)
+            or self._config.get("gmp", "password"),
             **self._config.defaults(),
         )
 
         self._parser_ssh.set_defaults(
             port=int(self._config.get("ssh", "port")),
             ssh_username=self._config.get("ssh", "username"),
-            ssh_password=self._config.get("ssh", "password"),
+            ssh_password=os.environ.get(SSH_PASSWORD_ENV)
+            or self._config.get("ssh", "password"),
             hostname=self._config.get("ssh", "hostname"),
         )
         self._parser_tls.set_defaults(

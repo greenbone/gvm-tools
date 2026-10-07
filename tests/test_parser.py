@@ -229,6 +229,12 @@ class RootArgumentsParserTest(ParserTestCase):
         # pylint: disable=protected-access
         args_mock = unittest.mock.MagicMock()
         args_mock.timeout = -1
+        # A MagicMock attribute is truthy, which would look like the user
+        # asked for a password prompt.
+        args_mock.gmp_password_prompt = False
+        args_mock.ssh_password_prompt = False
+        args_mock.gmp_password_file = None
+        args_mock.ssh_password_file = None
         self.parser._parser.parse_known_args = unittest.mock.MagicMock(
             return_value=(args_mock, unittest.mock.MagicMock())
         )

@@ -54,6 +54,13 @@ username=gmpuser
 password=gmppassword
 ```
 
+```{note}
+The password is stored in clear text, so restrict the config file with
+{command}`chmod 600`. The {code}`GVMTOOLS_GMP_PASSWORD` environment variable
+takes precedence over this setting, see
+{ref}`Passing Credentials Safely <credentials>`.
+```
+
 (socket-config-section)=
 
 ```{rubric} Socket Section
@@ -106,6 +113,11 @@ password.
 username=sshuser
 password=sshpassword
 port=2222
+```
+
+```{note}
+The {code}`GVMTOOLS_SSH_PASSWORD` environment variable takes precedence over
+this setting, see {ref}`Passing Credentials Safely <credentials>`.
 ```
 
 ```{rubric} Comments
