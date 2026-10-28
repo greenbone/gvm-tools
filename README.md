@@ -97,6 +97,13 @@ Read a file with GMP commands and return the result:
 gvm-cli --gmp-username foo --gmp-password bar socket myfile.xml
 ```
 
+A user name and a password given as arguments are visible to other users of
+the machine while the process is running. Use `--gmp-password-file`,
+`--gmp-password-prompt` or the `GVMTOOLS_GMP_PASSWORD` environment variable
+instead, and the same for `--ssh-password`. See
+[Passing Credentials Safely](https://greenbone.github.io/gvm-tools/credentials.html)
+for details.
+
 Note that `gvm-cli` will by default print an error message and exit with a
 non-zero exit code when a command is rejected by the server. If this kind of
 error handling is not desired, the unparsed XML response can be requested using
