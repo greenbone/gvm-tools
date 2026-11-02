@@ -10,7 +10,7 @@ Essentially, the tools aid accessing the communication protocols
 and {term}`Open Scanner Protocol (OSP) <OSP>`.
 
 ```{note}
-{program}`gvm-tools` requires at least Python 3.9.
+{program}`gvm-tools` requires at least Python 3.11.
 ```
 
 ```{toctree}
