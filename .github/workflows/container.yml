@@ -21,8 +21,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-pr:
+    if: ${{ github.repository == 'greenbone/gvm-tools' && github.event_name == 'pull_request' }}
+    name: Build container image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build image
+        run: docker build --file .docker/Dockerfile .
+
   build:
-    if: ${{ github.repository == 'greenbone/gvm-tools' }}
+    if: ${{ github.repository == 'greenbone/gvm-tools' && github.event_name != 'pull_request' }}
     name: Build and Push Container Images
     uses: greenbone/workflows/.github/workflows/container-build-push-gea.yml@main
     with:
