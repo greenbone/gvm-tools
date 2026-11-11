@@ -71,6 +71,28 @@ This script can test different methods of the gmp API.
 
 ---
 
+## `check-gmp-gos24.10.gmp.py`: medium vulnerability thresholds
+
+For GOS 24.10 and newer, the monitoring status can be configured without editing
+the script:
+
+* `--medium-warn COUNT`: return `WARNING` when the number of medium vulnerabilities
+  is greater than `COUNT`. Defaults to `0` (warn on any medium vulnerability).
+* `--medium-crit COUNT`: return `CRITICAL` when the number of medium vulnerabilities
+  is greater than `COUNT`. Defaults to `0`, which disables this additional
+  critical threshold.
+
+Both counts must be non-negative integers. High or critical vulnerabilities
+always produce `CRITICAL`, regardless of these options. All vulnerabilities remain
+in the output and performance data; these options only affect the monitoring
+status. With `--hostaddress`, only findings for that host count toward thresholds.
+
+For example, append `--medium-warn 10 --medium-crit 20` to the script arguments to
+allow up to 10 medium vulnerabilities, warn on 11 through 20, and report critical
+on more than 20. Omitting both options preserves the existing status behavior.
+
+---
+
 ## `clean-sensor.gmp.py`
 
 This script removes all resources from a sensor, except active tasks.

@@ -719,7 +719,9 @@ def filter_report(im, report, script_args):
     ret = 0
     if critical_count + high_count > 0:
         ret = NAGIOS_CRITICAL
-    elif medium_count > 0:
+    elif script_args.medium_crit > 0 and medium_count > script_args.medium_crit:
+        ret = NAGIOS_CRITICAL
+    elif medium_count > script_args.medium_warn:
         ret = NAGIOS_WARNING
 
     if script_args.empty_as_unknown and (
@@ -1189,6 +1191,23 @@ def main(gmp: Gmp, args: Namespace) -> None:
     parser.add_argument("--overrides", action="store_true", help="Include overrides.")
 
     parser.add_argument(
+        "--medium-warn",
+        type=int,
+        default=0,
+        metavar="COUNT",
+        help="Warn when the medium vulnerability count exceeds COUNT (default: 0).",
+    )
+
+    parser.add_argument(
+        "--medium-crit",
+        type=int,
+        default=0,
+        metavar="COUNT",
+        help="Report CRITICAL when the medium vulnerability count exceeds COUNT. "
+        "0 disables this threshold (default: 0).",
+    )
+
+    parser.add_argument(
         "-d",
         "--details",
         action="store_true",
@@ -1284,6 +1303,9 @@ def main(gmp: Gmp, args: Namespace) -> None:
     )
 
     script_args = parser.parse_args(args.script_args)
+
+    if script_args.medium_warn < 0 or script_args.medium_crit < 0:
+        parser.error("--medium-warn and --medium-crit must be non-negative")
 
     aux_parser = ArgumentParser(prefix_chars="-", formatter_class=RawTextHelpFormatter)
     aux_parser.add_argument("--hostname", nargs="?", required=False)
