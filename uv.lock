@@ -1432,14 +1432,14 @@ wheels = [
 
 [[package]]
 name = "rope"
-version = "1.15.0"
+version = "1.15.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pytoolconfig", extra = ["global"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/6e/1dcdea174f5e704bd94a2dfba3445d53c8bc416360c9e3d805807584c9a7/rope-1.15.0.tar.gz", hash = "sha256:a9e82c9f5ca5a1054387c22fdf6c9de9e948af556138bda57d4da81d3378793a", size = 303258, upload-time = "2026-09-26T14:29:53.538Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/95/c5f4da93b11e12c28ca88e98b94447c7db9a1905cf7dd31520915b45ea79/rope-1.15.2.tar.gz", hash = "sha256:7ce304aa86350d9454533b6817d0c7c01301b0a4fad356d8372b5d77df35756f", size = 303988, upload-time = "2026-11-05T14:42:28.766Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/c8/143c8eda4f075a6c3ff343c19c8d3c98d7fc07fc54ec4953ef9c39674fd3/rope-1.15.0-py3-none-any.whl", hash = "sha256:1445f5c6eb3c2c6eda9f9532ed02513a09c1694bfee4a9291f7a86a990ac44a1", size = 209396, upload-time = "2026-09-26T14:29:50.358Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/fd/76ea7d933bd576020e2cbfb14700dfc6b070f285959f027221abef6d6ac9/rope-1.15.2-py3-none-any.whl", hash = "sha256:77396ccec561815e8eeca6d2223a93e0d1d7488dcfa3e094cd301d7327cd756e", size = 209161, upload-time = "2026-11-05T14:42:26.929Z" },
 ]
 
 [[package]]
