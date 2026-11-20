@@ -50,8 +50,6 @@ class CliParser:
     ):
         bootstrap_parser = argparse.ArgumentParser(
             prog=prog,
-            description=description,
-            formatter_class=argparse.RawTextHelpFormatter,
             # don't parse help initially. the args from parser wouldn't be shown
             add_help=False,
         )
@@ -76,7 +74,18 @@ class CliParser:
             help="Activate logging (default level: %(default)s)",
         )
 
-        parser = argparse.ArgumentParser(prog=prog, parents=[bootstrap_parser])
+        epilog = """
+Options listed above must be passed before CONNECTION_TYPE.
+Options listed in help output for a particular CONNECTION_TYPE must be
+passed after the CONNECTION_TYPE.""".strip()
+
+        parser = argparse.ArgumentParser(
+            prog=prog,
+            parents=[bootstrap_parser],
+            description=description,
+            epilog=epilog,
+            formatter_class=argparse.RawTextHelpFormatter,
+        )
 
         parser.add_argument(
             "--timeout",
@@ -190,8 +199,18 @@ class CliParser:
         return config
 
     def _add_subparsers(self):
+        conntype_description = (
+            "Send command passed to --xml or read from *infile*."
+        )
+        conntype_epilog_fmt = (
+            "Arguments listed above must be passed after {conntype}."
+        )
+
         parser_ssh = self._subparsers.add_parser(
-            "ssh", help="Use SSH to connect to service"
+            "ssh",
+            description=conntype_description,
+            epilog=conntype_epilog_fmt.format(conntype="ssh"),
+            help="Use SSH to connect to service",
         )
 
         parser_ssh.add_argument(
@@ -217,7 +236,10 @@ class CliParser:
         )
 
         parser_tls = self._subparsers.add_parser(
-            "tls", help="Use TLS secured connection to connect to service"
+            "tls",
+            description=conntype_description,
+            epilog=conntype_epilog_fmt.format(conntype="tls"),
+            help="Use TLS secured connection to connect to service",
         )
         parser_tls.add_argument(
             "--hostname", help="Hostname or IP address (default: %(default)s)"
@@ -255,7 +277,10 @@ class CliParser:
         )
 
         parser_socket = self._subparsers.add_parser(
-            "socket", help="Use UNIX Domain socket to connect to service"
+            "socket",
+            description=conntype_description,
+            epilog=conntype_epilog_fmt.format(conntype="socket"),
+            help="Use UNIX Domain socket to connect to service",
         )
 
         socketpath_group = parser_socket.add_mutually_exclusive_group()

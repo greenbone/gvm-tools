@@ -36,7 +36,8 @@ from gvmtools.parser import (
 logger = logging.getLogger(__name__)
 
 HELP_TEXT = """
-    Command line tool to access services via GMP (Greenbone Management Protocol) and OSP (Open Scanner Protocol)
+    Command line tool to access services via GMP (Greenbone Management
+    Protocol) and OSP (Open Scanner Protocol)
 
     Examples:
       gvm-cli socket --help
