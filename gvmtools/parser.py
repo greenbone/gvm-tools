@@ -50,8 +50,6 @@ class CliParser:
     ):
         bootstrap_parser = argparse.ArgumentParser(
             prog=prog,
-            description=description,
-            formatter_class=argparse.RawTextHelpFormatter,
             # don't parse help initially. the args from parser wouldn't be shown
             add_help=False,
         )
@@ -76,7 +74,12 @@ class CliParser:
             help="Activate logging (default level: %(default)s)",
         )
 
-        parser = argparse.ArgumentParser(prog=prog, parents=[bootstrap_parser])
+        parser = argparse.ArgumentParser(
+            prog=prog,
+            parents=[bootstrap_parser],
+            description=description,
+            formatter_class=argparse.RawTextHelpFormatter,
+        )
 
         parser.add_argument(
             "--timeout",
