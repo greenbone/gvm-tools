@@ -199,12 +199,16 @@ passed after the CONNECTION_TYPE.""".strip()
         return config
 
     def _add_subparsers(self):
+        conntype_description = (
+            "Send command passed to --xml or read from *infile*."
+        )
         conntype_epilog_fmt = (
             "Arguments listed above must be passed after {conntype}."
         )
 
         parser_ssh = self._subparsers.add_parser(
             "ssh",
+            description=conntype_description,
             epilog=conntype_epilog_fmt.format(conntype="ssh"),
             help="Use SSH to connect to service",
         )
@@ -233,6 +237,7 @@ passed after the CONNECTION_TYPE.""".strip()
 
         parser_tls = self._subparsers.add_parser(
             "tls",
+            description=conntype_description,
             epilog=conntype_epilog_fmt.format(conntype="tls"),
             help="Use TLS secured connection to connect to service",
         )
@@ -273,6 +278,7 @@ passed after the CONNECTION_TYPE.""".strip()
 
         parser_socket = self._subparsers.add_parser(
             "socket",
+            description=conntype_description,
             epilog=conntype_epilog_fmt.format(conntype="socket"),
             help="Use UNIX Domain socket to connect to service",
         )
