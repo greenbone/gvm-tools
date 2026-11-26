@@ -729,3 +729,17 @@ Stops scans (tasks) specified in csv file
 
 - Stops the tasks specified in the file (example startscan.csv works for both scripts)
 - Returns the number of tasks stopped.
+
+## `sync-permissions-by-tags.gmp.py`
+
+This script synchronizes group permissions from `project:*` tags, so analysts only get access to the tasks, scanners and reports of the clients they are assigned to!
+
+### Arguments
+
+* `--dry-run`: Show what would be changed, without writing anything
+* `--cleanup`: Also revoke permissions whose tag was removed
+* `--all`: Only list all resources with their tags, without synchronizing
+
+### Example
+
+`$ gvm-script --gmp-username name --gmp-password pass ssh --hostname <gsm> scripts/sync-permissions-by-tags.gmp.py --dry-run`
