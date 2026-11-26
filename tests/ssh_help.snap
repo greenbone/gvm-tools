@@ -1,15 +1,24 @@
 usage: gvm-test-cli ssh [-h] [--hostname HOSTNAME] [--port PORT]
                         [--ssh-username SSH_USERNAME]
-                        [--ssh-password SSH_PASSWORD] [-A]
+                        [--ssh-password SSH_PASSWORD]
+                        [--ssh-password-file SSH_PASSWORD_FILE]
+                        [--ssh-password-prompt] [-A]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --hostname HOSTNAME   Hostname or IP address (default: 127.0.0.1)
   --port PORT           SSH port (default: 22)
   --ssh-username SSH_USERNAME
-                        SSH username (default: 'gmp')
+                        SSH username
   --ssh-password SSH_PASSWORD
-                        SSH password (default: 'gmp')
+                        SSH password. Exposes the password in the process
+                        list, prefer --ssh-password-file or
+                        GVMTOOLS_SSH_PASSWORD
+  --ssh-password-file SSH_PASSWORD_FILE
+                        File to read the SSH password from, or - to read it
+                        from stdin
+  --ssh-password-prompt
+                        Ask for the SSH password on the terminal
   -A, --auto-accept-host
                         When executed in e.g. CI, auto accept SSH host
                         addition
